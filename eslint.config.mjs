@@ -41,7 +41,7 @@ export default tseslint.config(
                         match: false,
                     },
                 },
-                // No underscore prefix (see Confluence for motivated exceptions)
+                // No underscore prefix
                 {
                     selector: 'memberLike',
                     format: ['camelCase', 'PascalCase'],
@@ -51,6 +51,13 @@ export default tseslint.config(
                 {
                     selector: 'memberLike',
                     modifiers: ['static', 'readonly'],
+                    format: ['UPPER_CASE'],
+                    leadingUnderscore: 'forbid',
+                },
+                // static (class property) should be upper case
+                {
+                    selector: 'classProperty',
+                    modifiers: ['static'],
                     format: ['UPPER_CASE'],
                     leadingUnderscore: 'forbid',
                 },
