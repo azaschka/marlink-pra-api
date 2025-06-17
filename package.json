@@ -17,16 +17,26 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json"
+        "test:e2e": "jest --config ./test/jest-e2e.json",
+        "db:start:local": "sh scripts/start-local-docker-db.sh pra-local-db-container mariadb pra rootpasswordpra 3306"
     },
     "dependencies": {
+        "@nestjs/axios": "^4.0.0",
         "@nestjs/common": "^11.0.1",
+        "@nestjs/config": "^4.0.2",
         "@nestjs/core": "^11.0.1",
+        "@nestjs/cqrs": "^11.0.3",
         "@nestjs/platform-express": "^11.0.1",
+        "@nestjs/schedule": "^6.0.0",
+        "@nestjs/terminus": "^11.0.0",
+        "@nestjs/typeorm": "^11.0.0",
+        "axios": "^1.8.4",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.1",
+        "mysql2": "^3.14.1",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1",
+        "typeorm": "^0.3.22",
         "uuid": "^11.1.0"
     },
     "devDependencies": {
@@ -34,6 +44,7 @@
         "@eslint/js": "^9.18.0",
         "@nestjs/cli": "^11.0.0",
         "@nestjs/schematics": "^11.0.0",
+        "@nestjs/swagger": "^11.1.2",
         "@nestjs/testing": "^11.0.1",
         "@swc/cli": "^0.6.0",
         "@swc/core": "^1.10.7",
@@ -70,6 +81,17 @@
         },
         "collectCoverageFrom": [
             "**/*.(t|j)s"
+        ],
+        "coveragePathIgnorePatterns": [
+            "\\/src\\/main\\.ts",
+            "index\\.ts",
+            "\\.module\\.ts",
+            "\\.command\\.ts",
+            "\\.query\\.ts",
+            "\\.handler\\.ts",
+            "\\.dto-input\\.ts",
+            "\\.dto-output\\.ts",
+            "\\.entity\\.ts"
         ],
         "coverageDirectory": "../coverage",
         "testEnvironment": "node"
