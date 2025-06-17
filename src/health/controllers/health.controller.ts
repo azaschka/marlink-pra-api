@@ -36,11 +36,11 @@ export class HealthController {
                 }),
             async () =>
                 this.memoryHealthIndicator.checkHeap(
-                    'memory_heap',
+                    'memoryHeap',
                     this.appConfigService.health.memoryHeapUsageThresholdInMB * 1024 * 1024, // Convert MB to bytes
                 ),
             async () =>
-                this.httpHealthIndicator.pingCheck('pra-sync-api', this.appConfigService.health.pingCheckPraSyncApiUrl),
+                this.httpHealthIndicator.pingCheck('praSyncApi', this.appConfigService.health.pingCheckPraSyncApiUrl),
         ]);
     }
 }
