@@ -32,6 +32,14 @@ export class AppConfigService {
         };
     }
 
+    public get auth() {
+        return {
+            apiKey: this.configService.get<string>('API_KEY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            jwtSecret: this.configService.get<string>('JWT_SECRET') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            jwtExpiry: this.configService.get<string>('JWT_EXPIRY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+        };
+    }
+
     public get praSyncApi() {
         return {
             baseUrl:
