@@ -7,6 +7,7 @@ import { AppConfigService } from './app-config/services/app-config.service';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { LogModule } from './log/log.module';
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { HealthModule } from './health/health.module';
         HttpModule,
         AuthModule,
         HealthModule,
+        LogModule,
     ],
     controllers: [AppController],
 })
