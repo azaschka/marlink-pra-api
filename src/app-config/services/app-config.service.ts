@@ -7,6 +7,9 @@ export class AppConfigService {
     private static readonly DEFAULT_UNDEFINED_STRING = 'unknown';
     private static readonly DEFAULT_UNDEFINED_NUMBER = 0;
     private static readonly DEFAULT_PORT_NUMBER = 3000;
+    private static readonly DEFAULT_HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT = 80;
+    private static readonly DEFAULT_HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 256;
+    private static readonly DEFAULT_HEALTH_PING_CHECK_PRA_SYNC_API_URL = 'http://pra-sync-api:9001/health';
 
     constructor(private readonly configService: ConfigService) {}
 
@@ -22,19 +25,19 @@ export class AppConfigService {
         return {
             diskStorageUsageThresholdInPercent:
                 this.configService.get<number>('HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT') ??
-                AppConfigService.DEFAULT_UNDEFINED_NUMBER,
+                AppConfigService.DEFAULT_HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT,
             memoryHeapUsageThresholdInMB:
                 this.configService.get<number>('HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB') ??
-                AppConfigService.DEFAULT_UNDEFINED_NUMBER,
+                AppConfigService.DEFAULT_HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB,
             pingCheckPraSyncApiUrl:
                 this.configService.get<string>('HEALTH_PING_CHECK_PRA_SYNC_API_URL') ??
-                AppConfigService.DEFAULT_UNDEFINED_STRING,
+                AppConfigService.DEFAULT_HEALTH_PING_CHECK_PRA_SYNC_API_URL,
         };
     }
 
     public get auth() {
         return {
-            apiKey: this.configService.get<string>('API_KEY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            apiKey: this.configService.get<string>('PRA_API_KEY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             jwtSecret: this.configService.get<string>('JWT_SECRET') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             jwtExpiry: this.configService.get<string>('JWT_EXPIRY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
         };
