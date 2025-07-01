@@ -21,6 +21,7 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateCustomerCommand, DeactivateCustomerCommand, ModifyCustomerCommand } from '../commands';
@@ -29,6 +30,7 @@ import { CustomerCreatedDtoOutput, CustomerModifiedDtoOutput, CustomerRetrievedD
 import { Customer } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 
+@ApiTransactionIdHeader()
 @ApiTags('Customers')
 @Controller('customers')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -41,11 +43,12 @@ export class CustomerController {
     @Get()
     @ApiOkResponse({ type: CustomerRetrievedDtoOutput, isArray: true })
     public async retrieveCustomers(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveCustomersDtoInput,
     ): Promise<CustomerRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
             new RetrieveCustomersQuery(
-                UuidUtility.generate(),
+                transactionId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.key,
@@ -67,9 +70,12 @@ export class CustomerController {
     @ApiUnprocessableEntityResponse({
         description: 'Failed in downstream process. Most likely in creating admin group policy.',
     })
-    public async createCustomer(@Body() dtoInput: CreateCustomerDtoInput): Promise<CustomerCreatedDtoOutput> {
+    public async createCustomer(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Body() dtoInput: CreateCustomerDtoInput,
+    ): Promise<CustomerCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateCustomerCommand, Customer>(
-            new CreateCustomerCommand(UuidUtility.generate(), dtoInput.key, dtoInput.name, dtoInput.billingType),
+            new CreateCustomerCommand(transactionId, dtoInput.key, dtoInput.name, dtoInput.billingType),
         );
 
         return result;
@@ -83,11 +89,12 @@ export class CustomerController {
     })
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async modifyCustomer(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyCustomerDtoInput,
     ): Promise<CustomerModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyCustomerCommand, Customer>(
-            new ModifyCustomerCommand(UuidUtility.generate(), id, dtoInput.billingType),
+            new ModifyCustomerCommand(transactionId, id, dtoInput.billingType),
         );
 
         return result;
@@ -98,9 +105,12 @@ export class CustomerController {
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({ description: 'Indicates the customer was successfully deactivated.' })
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
-    public async deactivateCustomer(@Param('id') id: number): Promise<void> {
+    public async deactivateCustomer(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+    ): Promise<void> {
         await this.commandBus.execute<DeactivateCustomerCommand, void>(
-            new DeactivateCustomerCommand(UuidUtility.generate(), id),
+            new DeactivateCustomerCommand(transactionId, id),
         );
     }
 }

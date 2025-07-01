@@ -34,7 +34,7 @@ describe('ObjectUtility', () => {
         });
     });
 
-    describe('stripProperty', () => {
+    describe('stripProperties', () => {
         interface TestClass {
             a: number;
             b?: number;
@@ -49,33 +49,38 @@ describe('ObjectUtility', () => {
         it.each([
             {
                 input: <TestClass>{ a: 1, b: 2, c: 'test-1', d: 'test-2' },
-                stripProperty: 'b' as keyof TestClass,
+                stripProperties: ['b' as keyof TestClass],
                 expectedOutput: <TestClass>{ a: 1, c: 'test-1', d: 'test-2' },
             },
             {
                 input: <TestClass>{ a: 1, b: 2, c: 'test-1', d: 'test-2' },
-                stripProperty: 'c' as keyof TestClass,
+                stripProperties: ['c' as keyof TestClass],
                 expectedOutput: <TestClass>{ a: 1, b: 2, d: 'test-2' },
             },
             {
                 input: <TestClass>{ a: 1, c: 'test-1' },
-                stripProperty: 'b' as keyof TestClass,
+                stripProperties: ['b' as keyof TestClass],
                 expectedOutput: <TestClass>{ a: 1, c: 'test-1' }, // No change since b is not present
             },
             {
                 input: <TestClass>{ a: 1, b: 2, c: 'test-1', d: 'test-2', e: { f: 'test-3', g: 4 } },
-                stripProperty: 'e' as keyof TestClass,
+                stripProperties: ['e' as keyof TestClass],
                 expectedOutput: <TestClass>{ a: 1, b: 2, c: 'test-1', d: 'test-2' },
             },
             {
                 input: <TestClass>{ a: 1, b: 2, c: 'test-1', d: 'test-2', e: { f: 'test-3', g: 4 } },
-                stripProperty: 'g' as keyof TestClass,
+                stripProperties: ['g' as keyof TestClass],
                 expectedOutput: <TestClass>{ a: 1, b: 2, c: 'test-1', d: 'test-2', e: { f: 'test-3', g: 4 } }, // No change since g is not a direct property of the input object
             },
+            {
+                input: <TestClass>{ a: 1, b: 2, c: 'test-1', d: 'test-2', e: { f: 'test-3', g: 4 } },
+                stripProperties: ['b' as keyof TestClass, 'e' as keyof TestClass],
+                expectedOutput: <TestClass>{ a: 1, c: 'test-1', d: 'test-2' },
+            },
         ])(
-            'should return $expected when stripping property $stripProperty from $input',
-            ({ input, stripProperty, expectedOutput }) => {
-                const result = ObjectUtility.stripProperty(input, stripProperty);
+            'should return $expected when stripping property $stripProperties from $input',
+            ({ input, stripProperties, expectedOutput }) => {
+                const result = ObjectUtility.stripProperties(input, ...stripProperties);
                 expect(result).toEqual(expectedOutput);
             },
         );

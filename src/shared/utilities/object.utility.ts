@@ -3,10 +3,12 @@ export abstract class ObjectUtility {
         return source.some((item) => target.includes(item));
     }
 
-    public static stripProperty<T extends object, K extends keyof T>(source: T, property: K): Omit<T, K> {
-        // Create a shallow copy with the target property removed
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [property]: _, ...rest } = source as Record<string, unknown>;
+    public static stripProperties<T extends object, K extends keyof T>(source: T, ...properties: K[]): Omit<T, K> {
+        // Create a shallow copy with the target properties removed
+        const rest = { ...source } as Record<string, unknown>;
+        for (const property of properties) {
+            delete rest[property as string];
+        }
 
         // Create a new object with the same prototype
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument

@@ -25,7 +25,7 @@ describe('CustomerController', () => {
             const expectedResult = [] as Customer[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveCustomers({
+            const result = await controller.retrieveCustomers(undefined, {
                 pageSize: 10,
                 pageNumber: 1,
                 key: 'customer-key-1',
@@ -44,7 +44,7 @@ describe('CustomerController', () => {
             const expectedResult = {} as Customer;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createCustomer({
+            const result = await controller.createCustomer(undefined, {
                 key: 'customer-key-1',
                 name: 'customer-name-1',
                 billingType: BillingType.Asset,
@@ -62,7 +62,7 @@ describe('CustomerController', () => {
             const expectedResult = {} as Customer;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyCustomer(1, {
+            const result = await controller.modifyCustomer(undefined, 1, {
                 billingType: BillingType.Asset,
             });
 
@@ -77,7 +77,7 @@ describe('CustomerController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deactivateCustomer(1);
+            await controller.deactivateCustomer(undefined, 1);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeactivateCustomerCommand('uuid-123', 1));
         });
