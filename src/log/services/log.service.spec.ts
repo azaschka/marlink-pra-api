@@ -1,16 +1,16 @@
-import { BaseCommand } from '../../../core/commands';
-import { BaseEvent } from '../../../core/events';
-import { BaseQuery } from '../../../core/queries';
-import { SortOrderType } from '../../../shared/enums';
-import { DateUtility } from '../../../shared/utilities';
-import { LogActionType } from '../../enums';
-import { LogEntity } from '../entities';
-import { LogFilterService } from './log-filter.service';
-import { LogRepositoryService } from './log-repository.service';
+import { BaseCommand } from '../../core/commands';
+import { BaseEvent } from '../../core/events';
+import { BaseQuery } from '../../core/queries';
+import { SortOrderType } from '../../shared/enums';
+import { DateUtility } from '../../shared/utilities';
+import { LogActionType } from '../enums';
+import { LogEntity } from '../repositories/entities';
+import { LogRepositoryService } from '../repositories/services/log-repository.service';
+import { LogFilterService } from '../services/log-filter.service';
 import { LogService } from './log.service';
 
 const mockServiceName = 'test-service';
-jest.mock('../../../../package.json', () => ({
+jest.mock('../../../package.json', () => ({
     name: 'test-service',
 }));
 
@@ -35,6 +35,7 @@ describe('LogService', () => {
             data: {
                 someData: 'test',
             },
+            initiatedBy: 'user-1',
         } as BaseCommand;
 
         await logService.logCommand(command);
@@ -45,7 +46,7 @@ describe('LogService', () => {
                 actionType: LogActionType.Command,
                 actionName: 'TestCommand',
                 transactionId: 'transaction-1',
-                triggeredBy: undefined,
+                initiatedBy: 'user-1',
                 creationDate: new Date('2025-01-01T00:00:00Z'),
                 payload: JSON.stringify(command),
             }),
@@ -70,7 +71,7 @@ describe('LogService', () => {
                 actionType: LogActionType.Query,
                 actionName: 'TestQuery',
                 transactionId: 'transaction-2',
-                triggeredBy: undefined,
+                initiatedBy: undefined,
                 creationDate: new Date('2025-01-01T00:00:00Z'),
                 payload: JSON.stringify({
                     queryType: 'TestQuery',
@@ -102,7 +103,7 @@ describe('LogService', () => {
                 actionType: LogActionType.Event,
                 actionName: 'TestEvent',
                 transactionId: 'transaction-3',
-                triggeredBy: undefined,
+                initiatedBy: undefined,
                 creationDate: new Date('2024-01-01T00:00:00Z'),
                 payload: JSON.stringify({
                     someData: 'test',

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BaseCommand } from '../../../core/commands';
+import { BaseCommand } from '../../core/commands';
 
 @Injectable()
 export class LogFilterService {

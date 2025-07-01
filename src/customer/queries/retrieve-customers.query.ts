@@ -1,0 +1,11 @@
+export class RetrieveCustomersQuery {
+    public readonly queryType = 'retrieve-customers';
+
+    constructor(
+        public readonly transactionId: string,
+        public readonly pageSize: number,
+        public readonly pageNumber: number,
+        public readonly key?: string,
+        public readonly name?: string,
+    ) {}
+}

@@ -3,7 +3,7 @@ import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { RetrieveLogsDtoInput } from '../dtos/inputs';
 import { LogRetrievedDtoOutput } from '../dtos/outputs';
-import { LogService } from '../repositories/services/log.service';
+import { LogService } from '../services/log.service';
 
 @ApiTags('Logs')
 @Controller('logs')

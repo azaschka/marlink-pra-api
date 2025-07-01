@@ -63,9 +63,9 @@ describe('AppConfigService', () => {
             {
                 input: {},
                 expected: {
-                    diskStorageUsageThresholdInPercent: 0,
-                    memoryHeapUsageThresholdInMB: 0,
-                    pingCheckPraSyncApiUrl: 'unknown',
+                    diskStorageUsageThresholdInPercent: 80,
+                    memoryHeapUsageThresholdInMB: 256,
+                    pingCheckPraSyncApiUrl: 'http://pra-sync-api:9001/health',
                 },
             },
         ])('should return as expected', ({ input, expected }) => {
@@ -103,6 +103,10 @@ describe('AppConfigService', () => {
                     },
                     jumpClient: {
                         path: 'api-path-jump-client-1',
+                        copy: 'api-path-jump-client-copy-1',
+                        installer: {
+                            path: 'api-path-jump-client-installer-1',
+                        },
                     },
                     groupPolicy: {
                         path: 'api-path-group-policy-1',
@@ -158,6 +162,10 @@ describe('AppConfigService', () => {
                     },
                     jumpClient: {
                         path: 'api-path-jump-client-1',
+                        copy: 'api-path-jump-client-copy-1',
+                        installer: {
+                            path: 'api-path-jump-client-installer-1',
+                        },
                     },
                     groupPolicy: {
                         path: 'api-path-group-policy-1',
@@ -216,6 +224,10 @@ describe('AppConfigService', () => {
                     },
                     jumpClient: {
                         path: 'unknown',
+                        copy: 'unknown',
+                        installer: {
+                            path: 'unknown',
+                        },
                     },
                     groupPolicy: {
                         path: 'unknown',
@@ -273,6 +285,10 @@ describe('AppConfigService', () => {
                         return input.user?.groupPolicies.path;
                     case 'PRA_SYNC_API_JUMP_CLIENT_PATH':
                         return input.jumpClient?.path;
+                    case 'PRA_SYNC_API_COPY_JUMP_CLIENT':
+                        return input.jumpClient?.copy;
+                    case 'PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PATH':
+                        return input.jumpClient?.installer?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_PATH':
                         return input.groupPolicy?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_JUMPOINT_PATH':
@@ -322,6 +338,10 @@ describe('AppConfigService', () => {
                 },
                 jumpClient: {
                     path: expected.jumpClient?.path,
+                    copy: expected.jumpClient?.copy,
+                    installer: {
+                        path: expected.jumpClient?.installer?.path,
+                    },
                 },
                 groupPolicy: {
                     path: expected.groupPolicy?.path,
@@ -444,6 +464,46 @@ describe('AppConfigService', () => {
                 synchronize: expected.synchronize,
                 logging: expected.logging,
                 autoLoadEntities: expected.autoLoadEntities,
+            });
+        });
+    });
+
+    describe('customer', () => {
+        it.each([
+            {
+                input: {
+                    groupPolicy: {
+                        adminPrefix: 'ADMINISTRATOR',
+                    },
+                },
+                expected: {
+                    groupPolicy: {
+                        adminPrefix: 'ADMINISTRATOR',
+                    },
+                },
+            },
+            {
+                input: {},
+                expected: {
+                    groupPolicy: {
+                        adminPrefix: 'unknown',
+                    },
+                },
+            },
+        ])('should return the customer configuration as expected', ({ input, expected }) => {
+            configService.get = jest.fn().mockImplementation((key: string) => {
+                switch (key) {
+                    case 'CUSTOMER_GROUP_POLICY_ADMIN_PREFIX':
+                        return input.groupPolicy?.adminPrefix;
+                    default:
+                        return undefined;
+                }
+            });
+
+            expect(service.customer).toEqual({
+                groupPolicy: {
+                    adminPrefix: expected.groupPolicy.adminPrefix,
+                },
             });
         });
     });

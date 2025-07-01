@@ -41,9 +41,9 @@ export class LogRetrievedDtoOutput implements Log {
     @ApiProperty({
         required: false,
         type: String,
-        description: 'The user who triggered the action.',
+        description: 'The user or system that initiated the action.',
     })
-    public triggeredBy?: string;
+    public initiatedBy?: string;
 
     @ApiProperty({
         required: true,

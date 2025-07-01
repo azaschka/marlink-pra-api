@@ -1,7 +1,7 @@
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { SortOrderType } from '../../shared/enums';
 import { Log } from '../models';
-import { LogService } from '../repositories/services/log.service';
+import { LogService } from '../services/log.service';
 import { LogController } from './log.controller';
 
 describe('LogController', () => {

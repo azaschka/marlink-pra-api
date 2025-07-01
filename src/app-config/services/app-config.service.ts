@@ -61,6 +61,14 @@ export class AppConfigService {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_JUMP_CLIENT_PATH') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
+                copy:
+                    this.configService.get<string>('PRA_SYNC_API_COPY_JUMP_CLIENT') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                installer: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PATH') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
             },
             groupPolicy: {
                 path:
@@ -154,6 +162,16 @@ export class AppConfigService {
             synchronize: this.env !== 'production',
             logging: this.env !== 'production',
             autoLoadEntities: true,
+        };
+    }
+
+    public get customer() {
+        return {
+            groupPolicy: {
+                adminPrefix:
+                    this.configService.get<string>('CUSTOMER_GROUP_POLICY_ADMIN_PREFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+            },
         };
     }
 }

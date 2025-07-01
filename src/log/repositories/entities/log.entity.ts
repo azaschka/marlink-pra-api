@@ -19,8 +19,8 @@ export class LogEntity implements Log {
     @Column({ name: 'transaction_id', type: 'varchar' })
     public transactionId!: string;
 
-    @Column({ name: 'triggered_by', type: 'varchar', nullable: true })
-    public triggeredBy?: string;
+    @Column({ name: 'initiated_by', type: 'varchar', nullable: true })
+    public initiatedBy?: string;
 
     @Column({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
@@ -33,7 +33,7 @@ export class LogEntity implements Log {
         actionType: LogActionType,
         actionName: string,
         transactionId: string,
-        triggeredBy: string | undefined,
+        initiatedBy: string | undefined,
         creationDate: Date,
         payload: string,
     ): LogEntity {
@@ -42,7 +42,7 @@ export class LogEntity implements Log {
         entity.actionType = actionType;
         entity.actionName = actionName;
         entity.transactionId = transactionId;
-        entity.triggeredBy = triggeredBy;
+        entity.initiatedBy = initiatedBy;
         entity.creationDate = creationDate;
         entity.payload = payload;
 

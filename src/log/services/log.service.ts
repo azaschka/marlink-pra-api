@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ICommand, IEvent, IQuery } from '@nestjs/cqrs';
-import { name as serviceName } from '../../../../package.json';
-import { BaseCommand } from '../../../core/commands';
-import { BaseEvent } from '../../../core/events';
-import { BaseQuery } from '../../../core/queries';
-import { SortOrderType } from '../../../shared/enums';
-import { DateUtility } from '../../../shared/utilities';
-import { LogActionType } from '../../enums';
-import { Log } from '../../models';
-import { LogEntity } from '../entities';
+import { name as serviceName } from '../../../package.json';
+import { BaseCommand } from '../../core/commands';
+import { BaseEvent } from '../../core/events';
+import { BaseQuery } from '../../core/queries';
+import { SortOrderType } from '../../shared/enums';
+import { DateUtility } from '../../shared/utilities';
+import { LogActionType } from '../enums';
+import { Log } from '../models';
+import { LogEntity } from '../repositories/entities';
+import { LogRepositoryService } from '../repositories/services/log-repository.service';
 import { LogFilterService } from './log-filter.service';
-import { LogRepositoryService } from './log-repository.service';
 
 @Injectable()
 export class LogService {
@@ -28,7 +28,7 @@ export class LogService {
                 LogActionType.Command,
                 commandData.commandType,
                 commandData.transactionId,
-                undefined,
+                commandData.initiatedBy,
                 DateUtility.getCurrentUtcDate(),
                 JSON.stringify(commandData),
             ),
@@ -44,7 +44,7 @@ export class LogService {
                 LogActionType.Query,
                 queryData.queryType,
                 queryData.transactionId,
-                undefined,
+                queryData.initiatedBy,
                 DateUtility.getCurrentUtcDate(),
                 JSON.stringify(queryData),
             ),

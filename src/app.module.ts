@@ -6,6 +6,7 @@ import { AppConfigModule } from './app-config/app-config.module';
 import { AppConfigService } from './app-config/services/app-config.service';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
+import { CustomerModule } from './customer/customer.module';
 import { HealthModule } from './health/health.module';
 import { LogModule } from './log/log.module';
 
@@ -20,6 +21,7 @@ import { LogModule } from './log/log.module';
         HttpModule,
         AuthModule,
         HealthModule,
+        CustomerModule,
         LogModule,
     ],
     controllers: [AppController],

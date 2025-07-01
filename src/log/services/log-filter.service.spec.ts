@@ -1,5 +1,5 @@
-import { BaseCommand } from '../../../core/commands';
-import { ObjectUtility } from '../../../shared/utilities';
+import { BaseCommand } from '../../core/commands';
+import { ObjectUtility } from '../../shared/utilities';
 import { LogFilterService } from './log-filter.service';
 
 describe('LogFilterService', () => {

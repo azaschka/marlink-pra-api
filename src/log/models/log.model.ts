@@ -6,7 +6,7 @@ export interface Log {
     actionType: LogActionType;
     actionName: string;
     transactionId: string;
-    triggeredBy?: string;
+    initiatedBy?: string;
     creationDate: Date;
     payload: string;
 }
