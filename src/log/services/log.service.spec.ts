@@ -6,7 +6,7 @@ import { DateUtility } from '../../shared/utilities';
 import { LogActionType } from '../enums';
 import { LogEntity } from '../repositories/entities';
 import { LogRepositoryService } from '../repositories/services/log-repository.service';
-import { LogFilterService } from '../services/log-filter.service';
+import { LogFilterService } from './log-filter.service';
 import { LogService } from './log.service';
 
 const mockServiceName = 'test-service';
