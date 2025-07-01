@@ -10,6 +10,7 @@ import { CustomerModule } from './customer/customer.module';
 import { GroupPolicyModule } from './group-policy/group-policy.module';
 import { HealthModule } from './health/health.module';
 import { LogModule } from './log/log.module';
+import { SiteModule } from './site/site.module';
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { LogModule } from './log/log.module';
         AuthModule,
         HealthModule,
         CustomerModule,
+        SiteModule,
         GroupPolicyModule,
         LogModule,
     ],
