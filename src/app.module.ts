@@ -11,6 +11,7 @@ import { GroupPolicyModule } from './group-policy/group-policy.module';
 import { HealthModule } from './health/health.module';
 import { LogModule } from './log/log.module';
 import { SiteModule } from './site/site.module';
+import { UserModule } from './user/user.module';
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { SiteModule } from './site/site.module';
         HttpModule,
         AuthModule,
         HealthModule,
+        UserModule,
         CustomerModule,
         SiteModule,
         GroupPolicyModule,
