@@ -16,6 +16,7 @@ import { GroupPolicyModule } from './group-policy/group-policy.module';
 import { HealthModule } from './health/health.module';
 import { JumpClientModule } from './jump-client/jump-client.module';
 import { JumpGroupModule } from './jump-group/jump-group.module';
+import { JumpItemModule } from './jump-item/jump-item.module';
 import { JumpPolicyModule } from './jump-policy/jump-policy.module';
 import { JumpointModule } from './jumpoint/jumpoint.module';
 import { LogModule } from './log/log.module';
@@ -52,7 +53,7 @@ import { UserModule } from './user/user.module';
         JumpointModule,
         JumpGroupModule,
         JumpPolicyModule,
-        // JumpItemModule,
+        JumpItemModule,
         LogModule,
     ],
     controllers: [AppController],
