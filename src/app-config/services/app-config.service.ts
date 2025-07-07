@@ -47,13 +47,18 @@ export class AppConfigService {
         return {
             baseUrl:
                 this.configService.get<string>('PRA_SYNC_API_BASE_URL') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            beyondtrustInstance: {
+                path:
+                    this.configService.get<string>('PRA_SYNC_API_BEYONDTRUST_INSTANCE_PATH') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+            },
             user: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_USER_PATH') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
-                groupPolicies: {
+                groupPolicy: {
                     path:
-                        this.configService.get<string>('PRA_SYNC_API_USER_GROUP_POLICIES_PATH') ??
+                        this.configService.get<string>('PRA_SYNC_API_USER_GROUP_POLICY_PATH') ??
                         AppConfigService.DEFAULT_UNDEFINED_STRING,
                 },
             },
@@ -77,6 +82,21 @@ export class AppConfigService {
                 jumpoint: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_JUMPOINT_PATH') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
+                jumpGroup: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_JUMP_GROUP_PATH') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
+                member: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_MEMBER_PATH') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
+                team: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_TEAM_PATH') ??
                         AppConfigService.DEFAULT_UNDEFINED_STRING,
                 },
             },

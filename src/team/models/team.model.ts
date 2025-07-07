@@ -1,0 +1,7 @@
+export interface Team {
+    id: number;
+    name: string;
+    codeName?: string;
+    comments?: string | null;
+    lastSyncDate: Date;
+}

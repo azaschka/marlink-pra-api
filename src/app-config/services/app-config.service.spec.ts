@@ -95,10 +95,13 @@ describe('AppConfigService', () => {
             {
                 input: {
                     baseUrl: 'api-base-url-1',
+                    beyondtrustInstance: {
+                        path: 'api-path-beyondtrust-instance-1',
+                    },
                     user: {
                         path: 'api-path-user-1',
-                        groupPolicies: {
-                            path: 'api-path-user-group-policies-1',
+                        groupPolicy: {
+                            path: 'api-path-user-group-policy-1',
                         },
                     },
                     jumpClient: {
@@ -112,6 +115,15 @@ describe('AppConfigService', () => {
                         path: 'api-path-group-policy-1',
                         jumpoint: {
                             path: 'api-path-group-policy-jumpoint-1',
+                        },
+                        jumpGroup: {
+                            path: 'api-path-group-policy-jump-group-1',
+                        },
+                        member: {
+                            path: 'api-path-group-policy-member-1',
+                        },
+                        team: {
+                            path: 'api-path-group-policy-team-1',
                         },
                     },
                     team: {
@@ -154,10 +166,13 @@ describe('AppConfigService', () => {
                 },
                 expected: {
                     baseUrl: 'api-base-url-1',
+                    beyondtrustInstance: {
+                        path: 'api-path-beyondtrust-instance-1',
+                    },
                     user: {
                         path: 'api-path-user-1',
-                        groupPolicies: {
-                            path: 'api-path-user-group-policies-1',
+                        groupPolicy: {
+                            path: 'api-path-user-group-policy-1',
                         },
                     },
                     jumpClient: {
@@ -171,6 +186,15 @@ describe('AppConfigService', () => {
                         path: 'api-path-group-policy-1',
                         jumpoint: {
                             path: 'api-path-group-policy-jumpoint-1',
+                        },
+                        jumpGroup: {
+                            path: 'api-path-group-policy-jump-group-1',
+                        },
+                        member: {
+                            path: 'api-path-group-policy-member-1',
+                        },
+                        team: {
+                            path: 'api-path-group-policy-team-1',
                         },
                     },
                     team: {
@@ -216,9 +240,12 @@ describe('AppConfigService', () => {
                 input: {},
                 expected: {
                     baseUrl: 'unknown',
+                    beyondtrustInstance: {
+                        path: 'unknown',
+                    },
                     user: {
                         path: 'unknown',
-                        groupPolicies: {
+                        groupPolicy: {
                             path: 'unknown',
                         },
                     },
@@ -232,6 +259,15 @@ describe('AppConfigService', () => {
                     groupPolicy: {
                         path: 'unknown',
                         jumpoint: {
+                            path: 'unknown',
+                        },
+                        jumpGroup: {
+                            path: 'unknown',
+                        },
+                        member: {
+                            path: 'unknown',
+                        },
+                        team: {
                             path: 'unknown',
                         },
                     },
@@ -279,10 +315,12 @@ describe('AppConfigService', () => {
                 switch (key) {
                     case 'PRA_SYNC_API_BASE_URL':
                         return input.baseUrl;
+                    case 'PRA_SYNC_API_BEYONDTRUST_INSTANCE_PATH':
+                        return input.beyondtrustInstance?.path;
                     case 'PRA_SYNC_API_USER_PATH':
                         return input.user?.path;
-                    case 'PRA_SYNC_API_USER_GROUP_POLICIES_PATH':
-                        return input.user?.groupPolicies.path;
+                    case 'PRA_SYNC_API_USER_GROUP_POLICY_PATH':
+                        return input.user?.groupPolicy?.path;
                     case 'PRA_SYNC_API_JUMP_CLIENT_PATH':
                         return input.jumpClient?.path;
                     case 'PRA_SYNC_API_COPY_JUMP_CLIENT':
@@ -291,6 +329,12 @@ describe('AppConfigService', () => {
                         return input.jumpClient?.installer?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_PATH':
                         return input.groupPolicy?.path;
+                    case 'PRA_SYNC_API_GROUP_POLICY_JUMP_GROUP_PATH':
+                        return input.groupPolicy?.jumpGroup?.path;
+                    case 'PRA_SYNC_API_GROUP_POLICY_MEMBER_PATH':
+                        return input.groupPolicy?.member?.path;
+                    case 'PRA_SYNC_API_GROUP_POLICY_TEAM_PATH':
+                        return input.groupPolicy?.team?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_JUMPOINT_PATH':
                         return input.groupPolicy?.jumpoint.path;
                     case 'PRA_SYNC_API_TEAM_PATH':
@@ -330,10 +374,13 @@ describe('AppConfigService', () => {
 
             expect(service.praSyncApi).toEqual({
                 baseUrl: expected.baseUrl,
+                beyondtrustInstance: {
+                    path: expected.beyondtrustInstance?.path,
+                },
                 user: {
                     path: expected.user?.path,
-                    groupPolicies: {
-                        path: expected.user?.groupPolicies.path,
+                    groupPolicy: {
+                        path: expected.user?.groupPolicy?.path,
                     },
                 },
                 jumpClient: {
@@ -347,6 +394,15 @@ describe('AppConfigService', () => {
                     path: expected.groupPolicy?.path,
                     jumpoint: {
                         path: expected.groupPolicy?.jumpoint.path,
+                    },
+                    jumpGroup: {
+                        path: expected.groupPolicy?.jumpGroup?.path,
+                    },
+                    member: {
+                        path: expected.groupPolicy?.member?.path,
+                    },
+                    team: {
+                        path: expected.groupPolicy?.team?.path,
                     },
                 },
                 team: {
