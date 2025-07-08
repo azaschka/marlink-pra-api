@@ -15,11 +15,11 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { TransactionIdHeader } from '../../core/decorators';
 import { UuidUtility } from '../../shared/utilities';
-import { CreatePraUserCommand, DeletePraUserCommand, UpdatePraUserCommand } from '../commands';
-import { RetrievePraUsersQuery } from '../queries';
-import { CreatePraUserDtoInput, RetrievePraUsersDtoInput, UpdatePraUserDtoInput } from '../dtos/inputs';
+import { CreatePraUserCommand, DeletePraUserCommand, ModifyPraUserCommand } from '../commands';
+import { CreatePraUserDtoInput, ModifyPraUserDtoInput, RetrievePraUsersDtoInput } from '../dtos/inputs';
 import { ApiKeyAuthGuard, JwtAuthGuard } from '../guards';
 import { PraUser } from '../models';
+import { RetrievePraUsersQuery } from '../queries';
 
 @Controller('pra-users')
 @UseGuards(ApiKeyAuthGuard, JwtAuthGuard)
@@ -69,13 +69,13 @@ export class PraUserController {
     }
 
     @Patch(':id')
-    public async updatePraUser(
+    public async modifyPraUser(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
-        @Body() dtoInput: UpdatePraUserDtoInput,
+        @Body() dtoInput: ModifyPraUserDtoInput,
     ): Promise<PraUser> {
-        const result = await this.commandBus.execute<UpdatePraUserCommand, PraUser>(
-            new UpdatePraUserCommand(
+        const result = await this.commandBus.execute<ModifyPraUserCommand, PraUser>(
+            new ModifyPraUserCommand(
                 transactionId,
                 id,
                 dtoInput.username,

@@ -1,14 +1,14 @@
 import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
-import { PraUserUpdatedEvent } from '../../events';
+import { PraUserModifiedEvent } from '../../events';
 import { PraUser } from '../../models';
 import { PraUserEntity } from '../../repositories/entities';
 import { PraUserRepositoryService } from '../../repositories/services/pra-user-repository.service';
-import { UpdatePraUserCommand } from '../update-pra-user.command';
+import { ModifyPraUserCommand } from '../modify-pra-user.command';
 
-@CommandHandler(UpdatePraUserCommand)
-export class UpdatePraUserCommandHandler implements ICommandHandler<UpdatePraUserCommand> {
+@CommandHandler(ModifyPraUserCommand)
+export class ModifyPraUserCommandHandler implements ICommandHandler<ModifyPraUserCommand> {
     private static readonly SALT_ROUNDS = 10;
 
     constructor(
@@ -16,16 +16,16 @@ export class UpdatePraUserCommandHandler implements ICommandHandler<UpdatePraUse
         private readonly praUserRepositoryService: PraUserRepositoryService,
     ) {}
 
-    public async execute(command: UpdatePraUserCommand): Promise<PraUser> {
+    public async execute(command: ModifyPraUserCommand): Promise<PraUser> {
         const praUserEntity = await this.praUserRepositoryService.findOneById(command.id);
         if (!praUserEntity) {
             throw new NotFoundException();
         }
 
         const hashedPassword: string | undefined = command.password
-            ? await bcrypt.hash(command.password, UpdatePraUserCommandHandler.SALT_ROUNDS)
+            ? await bcrypt.hash(command.password, ModifyPraUserCommandHandler.SALT_ROUNDS)
             : undefined;
-        const updatedPraUserEntity = PraUserEntity.create(
+        const modifydPraUserEntity = PraUserEntity.create(
             command.id,
             command.username ?? praUserEntity.username,
             hashedPassword ?? praUserEntity.password,
@@ -34,14 +34,14 @@ export class UpdatePraUserCommandHandler implements ICommandHandler<UpdatePraUse
             command.displayName ?? praUserEntity.displayName,
         );
 
-        await this.praUserRepositoryService.createOrUpdateById(updatedPraUserEntity);
+        await this.praUserRepositoryService.createOrUpdateById(modifydPraUserEntity);
 
         this.eventBus.publish(
-            new PraUserUpdatedEvent(command.transactionId, {
-                praUser: updatedPraUserEntity,
+            new PraUserModifiedEvent(command.transactionId, {
+                praUser: modifydPraUserEntity,
             }),
         );
 
-        return updatedPraUserEntity;
+        return modifydPraUserEntity;
     }
 }

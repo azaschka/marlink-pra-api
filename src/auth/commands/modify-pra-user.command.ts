@@ -1,5 +1,5 @@
-export class UpdatePraUserCommand {
-    public readonly commandType = 'update-pra-user';
+export class ModifyPraUserCommand {
+    public readonly commandType = 'modify-pra-user';
 
     constructor(
         public readonly transactionId: string,
