@@ -3,4 +3,5 @@ export interface GroupPolicyJumpGroup {
     jumpGroupId: number;
     jumpItemRoleId?: number;
     jumpPolicyId?: number;
+    lastSyncDate: Date;
 }

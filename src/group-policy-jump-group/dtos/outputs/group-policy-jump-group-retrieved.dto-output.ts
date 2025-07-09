@@ -33,4 +33,12 @@ export class GroupPolicyJumpGroupRetrievedDtoOutput implements GroupPolicyJumpGr
         description: 'The jump group associated with the group policy.',
     })
     public jumpGroup!: JumpGroupRetrievedDtoOutput;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the group policy jump group was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

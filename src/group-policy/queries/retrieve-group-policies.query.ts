@@ -6,5 +6,6 @@ export class RetrieveGroupPoliciesQuery {
         public readonly pageSize: number,
         public readonly pageNumber: number,
         public readonly name?: string,
+        public readonly namePattern?: string,
     ) {}
 }

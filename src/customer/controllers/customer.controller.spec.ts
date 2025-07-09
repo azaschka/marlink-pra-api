@@ -1,8 +1,13 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
-import { CreateCustomerCommand, DeactivateCustomerCommand, ModifyCustomerCommand } from '../commands';
+import {
+    CalculateCustomerLicenseUsageCommand,
+    CreateCustomerCommand,
+    DeactivateCustomerCommand,
+    ModifyCustomerCommand,
+} from '../commands';
 import { BillingType } from '../enums';
-import { Customer } from '../models';
+import { Customer, CustomerLicenseUsage } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 import { CustomerController } from './customer.controller';
 
@@ -80,6 +85,18 @@ describe('CustomerController', () => {
             await controller.deactivateCustomer(undefined, 1);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeactivateCustomerCommand('uuid-123', 1));
+        });
+    });
+
+    describe('calculateCustomerLicenseUsage', () => {
+        it('should execute the command bus with the correct parameters', async () => {
+            const expectedResult = {} as CustomerLicenseUsage;
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.calculateCustomerLicenseUsage(undefined, 1);
+
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new CalculateCustomerLicenseUsageCommand('uuid-123', 1));
+            expect(result).toBe(expectedResult);
         });
     });
 });

@@ -52,7 +52,13 @@ export class GroupPolicyController {
         @Query() dtoInput: RetrieveGroupPoliciesDtoInput,
     ): Promise<GroupPolicyRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
-            new RetrieveGroupPoliciesQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, dtoInput.name),
+            new RetrieveGroupPoliciesQuery(
+                transactionId,
+                dtoInput.pageSize,
+                dtoInput.pageNumber,
+                dtoInput.name,
+                dtoInput.namePattern,
+            ),
         );
 
         return result;

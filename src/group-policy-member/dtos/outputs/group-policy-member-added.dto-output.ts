@@ -45,4 +45,12 @@ export class GroupPolicyMemberAddedDtoOutput implements GroupPolicyMember {
             'The name of the SAML or SCIM group. This attribute is only available for SAML or SCIM groups, as determined by the securityProviderId.',
     })
     public groupName?: string;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the group policy member was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

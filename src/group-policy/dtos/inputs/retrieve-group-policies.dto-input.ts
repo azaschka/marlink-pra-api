@@ -33,4 +33,13 @@ export class RetrieveGroupPoliciesDtoInput {
     @IsString()
     @IsOptional()
     public name?: string;
+
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'Filters results to include only policies that match the given name pattern.',
+    })
+    @IsString()
+    @IsOptional()
+    public namePattern?: string;
 }

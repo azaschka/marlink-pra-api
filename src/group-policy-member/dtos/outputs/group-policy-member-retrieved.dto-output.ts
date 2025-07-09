@@ -49,6 +49,14 @@ export class GroupPolicyMemberRetrievedDtoOutput implements GroupPolicyMember {
 
     @ApiProperty({
         required: true,
+        type: Date,
+        description:
+            'The date which the group policy member was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
+
+    @ApiProperty({
+        required: true,
         type: UserRetrievedDtoOutput,
         description: 'The user associated with the group policy member.',
     })

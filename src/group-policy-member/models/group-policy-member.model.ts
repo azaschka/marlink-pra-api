@@ -5,4 +5,5 @@ export interface GroupPolicyMember {
     securityProviderId: number;
     distinguishedName?: string;
     groupName?: string;
+    lastSyncDate: Date;
 }

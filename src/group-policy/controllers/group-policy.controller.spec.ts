@@ -29,10 +29,11 @@ describe('GroupPolicyController', () => {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'group-policy-1',
+                namePattern: 'group-policy',
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveGroupPoliciesQuery('uuid-111', 10, 1, 'group-policy-1'),
+                new RetrieveGroupPoliciesQuery('uuid-111', 10, 1, 'group-policy-1', 'group-policy'),
             );
             expect(result).toBe(expectedResult);
         });

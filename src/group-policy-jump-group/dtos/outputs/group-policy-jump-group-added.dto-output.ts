@@ -25,4 +25,12 @@ export class GroupPolicyJumpGroupAddedDtoOutput implements GroupPolicyJumpGroup 
         description: `The unique identifier assigned to a Jump Policy or 0 meaning "Set on Jump Items".`,
     })
     public jumpPolicyId?: number;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the group policy jump group was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }
