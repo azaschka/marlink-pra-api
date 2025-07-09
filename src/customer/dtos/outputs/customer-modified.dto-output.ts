@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BillingType } from '../../enums';
+import { BillingType, BusinessUnit } from '../../enums';
 import { Customer } from '../../models';
 
 export class CustomerModifiedDtoOutput implements Customer {
@@ -26,6 +26,13 @@ export class CustomerModifiedDtoOutput implements Customer {
 
     @ApiProperty({
         required: true,
+        enum: BusinessUnit,
+        description: 'Business unit of the customer.',
+    })
+    public businessUnit!: BusinessUnit;
+
+    @ApiProperty({
+        required: true,
         type: Boolean,
         description: 'Indicates whether the customer is deactivated.',
     })
@@ -37,13 +44,6 @@ export class CustomerModifiedDtoOutput implements Customer {
         description: 'Billing type of the customer.',
     })
     public billingType!: BillingType;
-
-    @ApiProperty({
-        required: true,
-        type: Number,
-        description: 'The ID of the admin group policy associated with this customer.',
-    })
-    public adminGroupPolicyId!: number;
 
     @ApiProperty({
         required: true,

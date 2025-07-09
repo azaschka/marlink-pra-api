@@ -85,7 +85,13 @@ export class CustomerController {
         @Body() dtoInput: CreateCustomerDtoInput,
     ): Promise<CustomerCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateCustomerCommand, Customer>(
-            new CreateCustomerCommand(transactionId, dtoInput.key, dtoInput.name, dtoInput.billingType),
+            new CreateCustomerCommand(
+                transactionId,
+                dtoInput.key,
+                dtoInput.name,
+                dtoInput.businessUnit,
+                dtoInput.billingType,
+            ),
         );
 
         return result;

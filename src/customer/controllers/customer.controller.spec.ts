@@ -6,7 +6,7 @@ import {
     DeactivateCustomerCommand,
     ModifyCustomerCommand,
 } from '../commands';
-import { BillingType } from '../enums';
+import { BillingType, BusinessUnit } from '../enums';
 import { Customer, CustomerLicenseUsage } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 import { CustomerController } from './customer.controller';
@@ -52,11 +52,18 @@ describe('CustomerController', () => {
             const result = await controller.createCustomer(undefined, {
                 key: 'customer-key-1',
                 name: 'customer-name-1',
+                businessUnit: BusinessUnit.EG,
                 billingType: BillingType.Asset,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateCustomerCommand('uuid-123', 'customer-key-1', 'customer-name-1', BillingType.Asset),
+                new CreateCustomerCommand(
+                    'uuid-123',
+                    'customer-key-1',
+                    'customer-name-1',
+                    BusinessUnit.EG,
+                    BillingType.Asset,
+                ),
             );
             expect(result).toBe(expectedResult);
         });

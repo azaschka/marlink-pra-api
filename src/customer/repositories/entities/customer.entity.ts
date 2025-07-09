@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { BillingType } from '../../enums';
+import { BillingType, BusinessUnit } from '../../enums';
 import { Customer } from '../../models';
 
 @Entity({ name: 'pra_customers' })
@@ -13,14 +13,14 @@ export class CustomerEntity implements Customer {
     @Column({ name: 'name', type: 'varchar', unique: true })
     public name!: string;
 
+    @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit })
+    public businessUnit!: BusinessUnit;
+
     @Column({ name: 'is_deactivated', type: 'boolean' })
     public isDeactivated!: boolean;
 
     @Column({ name: 'billing_type', type: 'enum', enum: BillingType })
     public billingType!: BillingType;
-
-    @Column({ name: 'admin_group_policy_id', type: 'int' })
-    public adminGroupPolicyId!: number;
 
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
@@ -32,17 +32,17 @@ export class CustomerEntity implements Customer {
         id: number,
         key: string,
         name: string,
+        businessUnit: BusinessUnit,
         isDeactivated: boolean,
         billingType: BillingType,
-        adminGroupPolicyId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
         entity.id = id;
         entity.key = key;
         entity.name = name;
+        entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
         entity.billingType = billingType;
-        entity.adminGroupPolicyId = adminGroupPolicyId;
 
         return entity;
     }
@@ -50,16 +50,16 @@ export class CustomerEntity implements Customer {
     public static createWithoutId(
         key: string,
         name: string,
+        businessUnit: BusinessUnit,
         isDeactivated: boolean,
         billingType: BillingType,
-        adminGroupPolicyId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
         entity.key = key;
         entity.name = name;
+        entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
         entity.billingType = billingType;
-        entity.adminGroupPolicyId = adminGroupPolicyId;
 
         return entity;
     }

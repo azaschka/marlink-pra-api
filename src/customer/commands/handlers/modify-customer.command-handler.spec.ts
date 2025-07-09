@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
-import { BillingType } from '../../enums';
+import { BillingType, BusinessUnit } from '../../enums';
 import { CustomerModifiedEvent } from '../../events';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
@@ -60,9 +60,9 @@ describe('ModifyCustomerCommandHandler', () => {
                     id: 123,
                     key: 'customer-key-1',
                     name: 'customer-name-1',
+                    businessUnit: BusinessUnit.EG,
                     billingType: BillingType.User,
                     isDeactivated: false,
-                    adminGroupPolicyId: 456,
                     creationDate: new Date('2025-01-01'),
                     lastModificationDate: new Date('2025-01-01'),
                 } as CustomerEntity);
@@ -85,9 +85,9 @@ describe('ModifyCustomerCommandHandler', () => {
                 123,
                 'customer-key-1',
                 'customer-name-1',
+                BusinessUnit.EG,
                 false,
                 BillingType.Asset,
-                456,
             );
             expect(customerRepositoryServiceCreateOrUpdateByIdMethod).toHaveBeenCalledWith(customerEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(

@@ -21,12 +21,12 @@ export class ModifyCustomerCommandHandler implements ICommandHandler<ModifyCusto
         }
 
         const modifiedCustomerEntity = CustomerEntity.create(
-            command.id,
+            customerEntity.id,
             customerEntity.key,
             customerEntity.name,
+            customerEntity.businessUnit,
             customerEntity.isDeactivated,
             command.billingType ?? customerEntity.billingType,
-            customerEntity.adminGroupPolicyId,
         );
 
         await this.customerRepositoryService.createOrUpdateById(modifiedCustomerEntity);

@@ -1,4 +1,4 @@
-import { BillingType } from '../enums';
+import { BillingType, BusinessUnit } from '../enums';
 
 export class CreateCustomerCommand {
     public readonly commandType = 'create-customer';
@@ -7,6 +7,7 @@ export class CreateCustomerCommand {
         public readonly transactionId: string,
         public readonly key: string,
         public readonly name: string,
+        public readonly businessUnit: BusinessUnit,
         public readonly billingType: BillingType,
     ) {}
 }

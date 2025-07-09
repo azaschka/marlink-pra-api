@@ -3,7 +3,7 @@ import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { GroupPolicy } from '../../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
-import { BillingType } from '../../enums';
+import { BillingType, BusinessUnit } from '../../enums';
 import { CustomerCreatedEvent } from '../../events';
 import { RetrieveCustomersQuery } from '../../queries';
 import { CustomerEntity } from '../../repositories/entities';
@@ -45,7 +45,13 @@ describe('CreateCustomerCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BillingType.User),
+                    new CreateCustomerCommand(
+                        'transaction-1',
+                        'customer-key-1',
+                        'customer-name-1',
+                        BusinessUnit.EG,
+                        BillingType.User,
+                    ),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(1);
@@ -65,7 +71,13 @@ describe('CreateCustomerCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BillingType.User),
+                    new CreateCustomerCommand(
+                        'transaction-1',
+                        'customer-key-1',
+                        'customer-name-1',
+                        BusinessUnit.EG,
+                        BillingType.User,
+                    ),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(2);
@@ -99,16 +111,22 @@ describe('CreateCustomerCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BillingType.User),
+                new CreateCustomerCommand(
+                    'transaction-1',
+                    'customer-key-1',
+                    'customer-name-1',
+                    BusinessUnit.EG,
+                    BillingType.User,
+                ),
             );
 
             // Assert
             expect(customerEntityCreateWithoutIdMethod).toHaveBeenCalledWith(
                 'customer-key-1',
                 'customer-name-1',
+                BusinessUnit.EG,
                 false,
                 BillingType.User,
-                456,
             );
             expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
                 3,
@@ -143,16 +161,22 @@ describe('CreateCustomerCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BillingType.User),
+                new CreateCustomerCommand(
+                    'transaction-1',
+                    'customer-key-1',
+                    'customer-name-1',
+                    BusinessUnit.EG,
+                    BillingType.User,
+                ),
             );
 
             // Assert
             expect(customerEntityCreateWithoutIdMethod).toHaveBeenCalledWith(
                 'customer-key-1',
                 'customer-name-1',
+                BusinessUnit.EG,
                 false,
                 BillingType.User,
-                456,
             );
             expect(commandBusExecuteMethod).toHaveBeenCalled();
             expect(customerRepositoryServiceCreateMethod).toHaveBeenCalledWith(customerEntityToBeCreated);

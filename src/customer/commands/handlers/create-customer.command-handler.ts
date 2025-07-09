@@ -24,14 +24,14 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
 
     public async execute(command: CreateCustomerCommand): Promise<Customer> {
         await this.validateCustomerKeyAndName(command.transactionId, command.key, command.name);
+        await this.createAdminGroupPolicyIfNotExist(command.transactionId, command.name);
 
-        const adminGroupPolicy = await this.retrieveOrCreateAdminGroupPolicy(command.transactionId, command.name);
         const customerEntity = CustomerEntity.createWithoutId(
             command.key,
             command.name,
+            command.businessUnit,
             false, // by default new customers are active
             command.billingType,
-            adminGroupPolicy.id,
         );
         const createdCustomer = await this.customerRepositoryService.create(customerEntity);
 
@@ -62,7 +62,7 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
         }
     }
 
-    private async retrieveOrCreateAdminGroupPolicy(transactionId: string, customerName: string): Promise<GroupPolicy> {
+    private async createAdminGroupPolicyIfNotExist(transactionId: string, customerName: string): Promise<void> {
         const adminGroupPolicyName = CustomerUtility.generateAdminGroupPolicyName(
             this.appConfigService.customer.groupPolicy.adminPrefix,
             customerName,
@@ -72,14 +72,12 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
             new RetrieveGroupPoliciesQuery(transactionId, 1, 1, adminGroupPolicyName),
         );
 
-        if (adminGroupPolicies.length > 0 && adminGroupPolicies[0]) {
-            return adminGroupPolicies[0];
+        if (adminGroupPolicies.length > 0) {
+            return;
         }
 
-        const adminGroupPolicy = await this.commandBus.execute<CreateGroupPolicyCommand, GroupPolicy>(
+        await this.commandBus.execute<CreateGroupPolicyCommand, GroupPolicy>(
             new CreateGroupPolicyCommand(transactionId, adminGroupPolicyName),
         );
-
-        return adminGroupPolicy;
     }
 }
