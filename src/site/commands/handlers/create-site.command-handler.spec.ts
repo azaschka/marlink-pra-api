@@ -31,14 +31,12 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand(
-                        'transaction-1',
-                        'site-key-1',
-                        'site-name-1',
-                        'customer-key-1',
-                        'approver-username-1',
-                        'approver-email-1',
-                    ),
+                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [
+                        {
+                            username: 'approver-username-1',
+                            email: 'approver-email-1',
+                        },
+                    ]),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(1);
@@ -59,14 +57,12 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand(
-                        'transaction-1',
-                        'site-key-1',
-                        'site-name-1',
-                        'customer-key-1',
-                        'approver-username-1',
-                        'approver-email-1',
-                    ),
+                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [
+                        {
+                            username: 'approver-username-1',
+                            email: 'approver-email-1',
+                        },
+                    ]),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(2);
@@ -76,7 +72,7 @@ describe('CreateSiteCommandHandler', () => {
             );
             expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
                 2,
-                new RetrieveSitesQuery('transaction-1', 1, 1, undefined, 'site-name-1'),
+                new RetrieveSitesQuery('transaction-1', 1, 1, undefined, undefined, undefined, '%site-name-1%'),
             );
         });
 
@@ -92,14 +88,12 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand(
-                        'transaction-1',
-                        'site-key-1',
-                        'site-name-1',
-                        'customer-key-1',
-                        'approver-username-1',
-                        'approver-email-1',
-                    ),
+                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [
+                        {
+                            username: 'approver-username-1',
+                            email: 'approver-email-1',
+                        },
+                    ]),
                 ),
             ).rejects.toThrow(NotFoundException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(3);
@@ -109,7 +103,7 @@ describe('CreateSiteCommandHandler', () => {
             );
             expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
                 2,
-                new RetrieveSitesQuery('transaction-1', 1, 1, undefined, 'site-name-1'),
+                new RetrieveSitesQuery('transaction-1', 1, 1, undefined, undefined, undefined, '%site-name-1%'),
             );
             expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
                 3,
@@ -131,24 +125,21 @@ describe('CreateSiteCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new CreateSiteCommand(
-                    'transaction-1',
-                    'key-1',
-                    'name-1',
-                    'customer-key-1',
-                    'approver-username-1',
-                    'approver-email-1',
-                ),
+                new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [
+                    {
+                        username: 'approver-username-1',
+                        email: 'approver-email-1',
+                    },
+                ]),
             );
 
             // Assert
-            expect(siteEntityCreateWithoutIdMethod).toHaveBeenCalledWith(
-                'key-1',
-                'name-1',
-                'customer-key-1',
-                'approver-username-1',
-                'approver-email-1',
-            );
+            expect(siteEntityCreateWithoutIdMethod).toHaveBeenCalledWith('key-1', 'name-1', 'customer-key-1', [
+                {
+                    username: 'approver-username-1',
+                    email: 'approver-email-1',
+                },
+            ]);
             expect(siteRepositoryServiceCreateMethod).toHaveBeenCalledWith(siteEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
                 expect.objectContaining(<SiteCreatedEvent>{

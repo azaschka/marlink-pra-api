@@ -1,15 +1,12 @@
 import { ConflictException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { CreateGroupPolicyCommand } from '../../../group-policy/commands';
-import { GroupPolicy } from '../../../group-policy/models';
-import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
 import { CustomerCreatedEvent } from '../../events';
 import { Customer } from '../../models';
 import { RetrieveCustomersQuery } from '../../queries';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
-import { CustomerUtility } from '../../utilities';
+import { AdminGroupPolicyWorkflow } from '../../workflows';
 import { CreateCustomerCommand } from '../create-customer.command';
 
 @CommandHandler(CreateCustomerCommand)
@@ -24,7 +21,7 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
 
     public async execute(command: CreateCustomerCommand): Promise<Customer> {
         await this.validateCustomerKeyAndName(command.transactionId, command.key, command.name);
-        await this.createAdminGroupPolicyIfNotExist(command.transactionId, command.name);
+        await this.runWorkflow(command.transactionId, command.name);
 
         const customerEntity = CustomerEntity.createWithoutId(
             command.key,
@@ -53,31 +50,24 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
             throw new ConflictException(`Customer with key "${key}" already exists.`);
         }
 
-        const customersWithSameName = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
-            new RetrieveCustomersQuery(transactionId, 1, 1, undefined, name),
+        const customersWithMatchingName = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
+            new RetrieveCustomersQuery(transactionId, 1, 1, undefined, undefined, `%${name}%`),
         );
 
-        if (customersWithSameName.length > 0) {
-            throw new ConflictException(`Customer with name "${name}" already exists.`);
+        if (customersWithMatchingName.length > 0) {
+            throw new ConflictException(`Customer matching the name "${name}" already exists.`);
         }
     }
 
-    private async createAdminGroupPolicyIfNotExist(transactionId: string, customerName: string): Promise<void> {
-        const adminGroupPolicyName = CustomerUtility.generateAdminGroupPolicyName(
-            this.appConfigService.customer.groupPolicy.adminPrefix,
+    private async runWorkflow(transactionId: string, customerName: string): Promise<void> {
+        const adminGroupPolicyWorkflow = new AdminGroupPolicyWorkflow(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            transactionId,
             customerName,
         );
 
-        const adminGroupPolicies = await this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
-            new RetrieveGroupPoliciesQuery(transactionId, 1, 1, adminGroupPolicyName),
-        );
-
-        if (adminGroupPolicies.length > 0) {
-            return;
-        }
-
-        await this.commandBus.execute<CreateGroupPolicyCommand, GroupPolicy>(
-            new CreateGroupPolicyCommand(transactionId, adminGroupPolicyName),
-        );
+        await adminGroupPolicyWorkflow.getOrCreate();
     }
 }

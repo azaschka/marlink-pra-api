@@ -2,13 +2,12 @@ import { ConflictException } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { GroupPolicy } from '../../../group-policy/models';
-import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
 import { BillingType, BusinessUnit } from '../../enums';
 import { CustomerCreatedEvent } from '../../events';
 import { RetrieveCustomersQuery } from '../../queries';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
-import { CustomerUtility } from '../../utilities';
+import { AdminGroupPolicyWorkflow } from '../../workflows';
 import { CreateCustomerCommand } from '../create-customer.command';
 import { CreateCustomerCommandHandler } from './create-customer.command-handler';
 
@@ -21,7 +20,6 @@ describe('CreateCustomerCommandHandler', () => {
     let handler: CreateCustomerCommandHandler;
 
     beforeEach(() => {
-        mockCustomerUtility();
         appConfigService = mockAppConfigService();
         commandBus = mockCommandBus();
         queryBus = mockQueryBus();
@@ -87,19 +85,17 @@ describe('CreateCustomerCommandHandler', () => {
             );
             expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
                 2,
-                new RetrieveCustomersQuery('transaction-1', 1, 1, undefined, 'customer-name-1'),
+                new RetrieveCustomersQuery('transaction-1', 1, 1, undefined, undefined, '%customer-name-1%'),
             );
         });
 
-        it('should call the repository service with correct parameters, publish an event and return the result (admin group policy exist)', async () => {
+        it('should call the repository service with correct parameters, publish an event and return the result', async () => {
             // Arrange
-            const commandBusExecuteMethod = jest.spyOn(commandBus, 'execute');
-            const queryBusExecuteMethod = jest
-                .spyOn(queryBus, 'execute')
-                .mockResolvedValueOnce([]) // First call for key validation
-                .mockResolvedValueOnce([]) // Second call for name validation
-                .mockResolvedValueOnce([{ id: 456 }] as GroupPolicy[]); // Third call for admin group policy retrieval
+            queryBus.execute = jest.fn().mockResolvedValue([]); // Mocking query bus to return empty array for key and name validation
             const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
+            const adminGroupPolicyWorkflowGetOrCreate = jest
+                .spyOn(AdminGroupPolicyWorkflow.prototype, 'getOrCreate')
+                .mockResolvedValue({ id: 456 } as GroupPolicy);
             const customerEntityToBeCreated = { id: 123 } as CustomerEntity;
             const customerEntityCreateWithoutIdMethod = jest
                 .spyOn(CustomerEntity, 'createWithoutId')
@@ -128,57 +124,7 @@ describe('CreateCustomerCommandHandler', () => {
                 false,
                 BillingType.User,
             );
-            expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
-                3,
-                new RetrieveGroupPoliciesQuery('transaction-1', 1, 1, 'admin-customer-name-1'),
-            );
-            expect(commandBusExecuteMethod).not.toHaveBeenCalled();
-            expect(customerRepositoryServiceCreateMethod).toHaveBeenCalledWith(customerEntityToBeCreated);
-            expect(eventBusPublishMethod).toHaveBeenCalledWith(
-                expect.objectContaining(<CustomerCreatedEvent>{
-                    transactionId: 'transaction-1',
-                    eventType: CustomerCreatedEvent.EVENT_TYPE,
-                    payload: {
-                        customer: expectedResult,
-                    },
-                }),
-            );
-            expect(result).toBe(expectedResult);
-        });
-
-        it('should call the repository service with correct parameters, publish an event and return the result (admin group policy not exist)', async () => {
-            // Arrange
-            const commandBusExecuteMethod = jest.spyOn(commandBus, 'execute');
-            const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
-            const customerEntityToBeCreated = { id: 123 } as CustomerEntity;
-            const customerEntityCreateWithoutIdMethod = jest
-                .spyOn(CustomerEntity, 'createWithoutId')
-                .mockReturnValue(customerEntityToBeCreated);
-            const expectedResult = { id: 321 } as CustomerEntity;
-            const customerRepositoryServiceCreateMethod = jest
-                .spyOn(customerRepositoryService, 'create')
-                .mockResolvedValue(expectedResult);
-
-            // Act
-            const result = await handler.execute(
-                new CreateCustomerCommand(
-                    'transaction-1',
-                    'customer-key-1',
-                    'customer-name-1',
-                    BusinessUnit.EG,
-                    BillingType.User,
-                ),
-            );
-
-            // Assert
-            expect(customerEntityCreateWithoutIdMethod).toHaveBeenCalledWith(
-                'customer-key-1',
-                'customer-name-1',
-                BusinessUnit.EG,
-                false,
-                BillingType.User,
-            );
-            expect(commandBusExecuteMethod).toHaveBeenCalled();
+            expect(adminGroupPolicyWorkflowGetOrCreate).toHaveBeenCalledTimes(1);
             expect(customerRepositoryServiceCreateMethod).toHaveBeenCalledWith(customerEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
                 expect.objectContaining(<CustomerCreatedEvent>{
@@ -209,15 +155,6 @@ describe('CreateCustomerCommandHandler', () => {
         });
     });
 });
-
-function mockCustomerUtility() {
-    jest.spyOn(CustomerUtility, 'generateAdminGroupPolicyName').mockImplementation(
-        (adminGroupPolicyPrefix: string, customerName: string): string => {
-            return `${adminGroupPolicyPrefix}${customerName}`;
-        },
-    );
-    return CustomerUtility;
-}
 
 function mockAppConfigService() {
     return {

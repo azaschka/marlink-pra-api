@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { SiteApproverDtoInput } from './site-approver.dto-input';
 
 export class CreateSiteDtoInput {
     @ApiProperty({
@@ -27,19 +29,11 @@ export class CreateSiteDtoInput {
 
     @ApiProperty({
         required: true,
-        type: String,
-        description: 'The username of the user who will approve requests for this site.',
+        type: [SiteApproverDtoInput],
     })
-    @IsNotEmpty()
-    @IsString()
-    public approverUsername!: string;
-
-    @ApiProperty({
-        required: true,
-        type: String,
-        description: 'The email address of the user who will approve requests for this site.',
-    })
-    @IsNotEmpty()
-    @IsString()
-    public approverEmail!: string;
+    @IsArray()
+    @ArrayNotEmpty()
+    @ValidateNested({ each: true })
+    @Type(() => SiteApproverDtoInput)
+    public approvers!: SiteApproverDtoInput[];
 }

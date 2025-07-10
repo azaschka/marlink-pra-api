@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Site } from '../../models';
+import { Site, SiteApprover } from '../../models';
+import { SiteApproverDtoOutput } from './site-approver.dto-output';
 
 export class SiteCreatedDtoOutput implements Site {
     @ApiProperty({
@@ -28,17 +29,9 @@ export class SiteCreatedDtoOutput implements Site {
 
     @ApiProperty({
         required: true,
-        type: String,
-        description: 'The username of the user who will approve requests for this site.',
+        type: [SiteApproverDtoOutput],
     })
-    public approverUsername!: string;
-
-    @ApiProperty({
-        required: true,
-        type: String,
-        description: 'The email address of the user who will approve requests for this site.',
-    })
-    public approverEmail!: string;
+    public approvers!: SiteApprover[];
 
     @ApiProperty({
         required: true,

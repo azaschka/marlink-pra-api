@@ -25,8 +25,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             command.key,
             command.name,
             command.customerKey,
-            command.approverUsername,
-            command.approverEmail,
+            command.approvers,
         );
         const createdSite = await this.siteRepositoryService.create(siteEntity);
 
@@ -48,12 +47,12 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             throw new ConflictException(`Site with key "${key}" already exists.`);
         }
 
-        const sitesWithSameName = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
-            new RetrieveSitesQuery(transactionId, 1, 1, undefined, name),
+        const sitesWithMatchingName = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
+            new RetrieveSitesQuery(transactionId, 1, 1, undefined, undefined, undefined, `%${name}%`),
         );
 
-        if (sitesWithSameName.length > 0) {
-            throw new ConflictException(`Site with name "${name}" already exists.`);
+        if (sitesWithMatchingName.length > 0) {
+            throw new ConflictException(`Site with matching the name "${name}" already exists.`);
         }
     }
 

@@ -1,22 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ArrayNotEmpty, IsArray, ValidateNested } from 'class-validator';
+import { SiteApproverDtoInput } from './site-approver.dto-input';
 
 export class ModifySiteDtoInput {
     @ApiProperty({
-        required: false,
-        type: String,
-        description: 'The username of the user who will approve requests for this site.',
+        required: true,
+        type: [SiteApproverDtoInput],
     })
-    @IsOptional()
-    @IsString()
-    public approverUsername?: string;
-
-    @ApiProperty({
-        required: false,
-        type: String,
-        description: 'The email address of the user who will approve requests for this site.',
-    })
-    @IsOptional()
-    @IsString()
-    public approverEmail?: string;
+    @IsArray()
+    @ArrayNotEmpty()
+    @ValidateNested({ each: true })
+    @Type(() => SiteApproverDtoInput)
+    public approvers!: SiteApproverDtoInput[];
 }

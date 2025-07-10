@@ -25,8 +25,7 @@ export class ModifySiteCommandHandler implements ICommandHandler<ModifySiteComma
             siteEntity.key,
             siteEntity.name,
             siteEntity.customerKey,
-            command.approverUsername ?? siteEntity.approverUsername,
-            command.approverEmail ?? siteEntity.approverEmail,
+            command.approvers ?? siteEntity.approvers,
         );
 
         await this.siteRepositoryService.createOrUpdateById(modifiedSiteEntity);

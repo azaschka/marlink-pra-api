@@ -7,5 +7,6 @@ export class RetrieveCustomersQuery {
         public readonly pageNumber: number,
         public readonly key?: string,
         public readonly name?: string,
+        public readonly namePattern?: string,
     ) {}
 }

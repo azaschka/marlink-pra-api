@@ -1,4 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { FindOptionsWhere, Like } from 'typeorm';
 import { Site } from '../../models';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { RetrieveSitesQuery } from '../retrieve-sites.query';
@@ -8,7 +9,7 @@ export class RetrieveSitesQueryHandler implements IQueryHandler<RetrieveSitesQue
     constructor(private readonly siteRepositoryService: SiteRepositoryService) {}
 
     public async execute(query: RetrieveSitesQuery): Promise<Site[]> {
-        const siteFindByQuery = <Site>{};
+        const siteFindByQuery = <FindOptionsWhere<Site>>{};
 
         if (query.key) {
             siteFindByQuery.key = query.key;
@@ -20,6 +21,10 @@ export class RetrieveSitesQueryHandler implements IQueryHandler<RetrieveSitesQue
 
         if (query.customerKey) {
             siteFindByQuery.customerKey = query.customerKey;
+        }
+
+        if (query.namePattern) {
+            siteFindByQuery.name = Like(query.namePattern);
         }
 
         const sites = await this.siteRepositoryService.findBy(siteFindByQuery, query.pageNumber, query.pageSize);

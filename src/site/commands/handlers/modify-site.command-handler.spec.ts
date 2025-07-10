@@ -23,9 +23,16 @@ describe('ModifySiteCommandHandler', () => {
             const siteRepositoryServiceFindOneByIdMethod = jest.spyOn(siteRepositoryService, 'findOneById');
 
             // Act & Assert
-            await expect(handler.execute(new ModifySiteCommand('transaction-1', 123, 'site-1'))).rejects.toThrow(
-                NotFoundException,
-            );
+            await expect(
+                handler.execute(
+                    new ModifySiteCommand('transaction-1', 123, [
+                        {
+                            username: 'approver-username-1',
+                            email: 'approver-email-1',
+                        },
+                    ]),
+                ),
+            ).rejects.toThrow(NotFoundException);
             expect(siteRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
         });
 
@@ -44,8 +51,12 @@ describe('ModifySiteCommandHandler', () => {
                 handler.execute(<ModifySiteCommand>{
                     transactionId: 'transaction-1',
                     id: 123,
-                    approverUsername: 'approver-username-1',
-                    approverEmail: 'approver-email-1',
+                    approvers: [
+                        {
+                            username: 'approver-username-1',
+                            email: 'approver-email-1',
+                        },
+                    ],
                 }),
             ).rejects.toThrow(expectedError);
             expect(siteRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
@@ -61,8 +72,12 @@ describe('ModifySiteCommandHandler', () => {
                     key: 'site-1',
                     name: 'site-name-1',
                     customerKey: 'customer-key-1',
-                    approverUsername: 'approver-username-1',
-                    approverEmail: 'approver-email-1',
+                    approvers: [
+                        {
+                            username: 'approver-username-1',
+                            email: 'approver-email-1',
+                        },
+                    ],
                 } as SiteEntity);
             const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
             const siteEntityToBeCreated = { id: 123 } as SiteEntity;
@@ -74,19 +89,22 @@ describe('ModifySiteCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new ModifySiteCommand('transaction-1', 123, 'approver-username-2', 'approver-email-2'),
+                new ModifySiteCommand('transaction-1', 123, [
+                    {
+                        username: 'approver-username-2',
+                        email: 'approver-email-2',
+                    },
+                ]),
             );
 
             // Assert
             expect(siteRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
-            expect(siteEntityCreateMethod).toHaveBeenCalledWith(
-                123,
-                'site-1',
-                'site-name-1',
-                'customer-key-1',
-                'approver-username-2',
-                'approver-email-2',
-            );
+            expect(siteEntityCreateMethod).toHaveBeenCalledWith(123, 'site-1', 'site-name-1', 'customer-key-1', [
+                {
+                    username: 'approver-username-2',
+                    email: 'approver-email-2',
+                },
+            ]);
             expect(siteRepositoryServiceCreateOrUpdateByIdMethod).toHaveBeenCalledWith(siteEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
                 expect.objectContaining(<SiteModifiedEvent>{

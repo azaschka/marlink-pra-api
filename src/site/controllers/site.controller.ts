@@ -79,14 +79,7 @@ export class SiteController {
         @Body() dtoInput: CreateSiteDtoInput,
     ): Promise<SiteCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateSiteCommand, Site>(
-            new CreateSiteCommand(
-                transactionId,
-                dtoInput.key,
-                dtoInput.name,
-                dtoInput.customerKey,
-                dtoInput.approverUsername,
-                dtoInput.approverEmail,
-            ),
+            new CreateSiteCommand(transactionId, dtoInput.key, dtoInput.name, dtoInput.customerKey, dtoInput.approvers),
         );
 
         return result;
@@ -105,7 +98,7 @@ export class SiteController {
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifySiteDtoInput,
     ): Promise<SiteModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifySiteCommand, Site>(
-            new ModifySiteCommand(transactionId, id, dtoInput.approverUsername, dtoInput.approverEmail),
+            new ModifySiteCommand(transactionId, id, dtoInput.approvers),
         );
 
         return result;

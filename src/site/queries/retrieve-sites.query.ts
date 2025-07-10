@@ -8,5 +8,6 @@ export class RetrieveSitesQuery {
         public readonly key?: string,
         public readonly name?: string,
         public readonly customerKey?: string,
+        public readonly namePattern?: string,
     ) {}
 }

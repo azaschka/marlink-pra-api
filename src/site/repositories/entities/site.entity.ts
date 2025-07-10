@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Site } from '../../models';
+import { Site, SiteApprover } from '../../models';
 
-@Entity({ name: 'sites' })
+@Entity({ name: 'pra_sites' })
 export class SiteEntity implements Site {
     @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
     public id!: number;
@@ -15,11 +15,8 @@ export class SiteEntity implements Site {
     @Column({ name: 'customer_key', type: 'varchar' })
     public customerKey!: string;
 
-    @Column({ name: 'approver_username', type: 'varchar' })
-    public approverUsername!: string;
-
-    @Column({ name: 'approver_email', type: 'varchar' })
-    public approverEmail!: string;
+    @Column({ name: 'approvers', type: 'json' })
+    public approvers!: SiteApprover[];
 
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
@@ -32,16 +29,14 @@ export class SiteEntity implements Site {
         key: string,
         name: string,
         customerKey: string,
-        approverUsername: string,
-        approverEmail: string,
+        approvers: SiteApprover[],
     ): SiteEntity {
         const entity = new SiteEntity();
         entity.id = id;
         entity.key = key;
         entity.name = name;
         entity.customerKey = customerKey;
-        entity.approverUsername = approverUsername;
-        entity.approverEmail = approverEmail;
+        entity.approvers = approvers;
 
         return entity;
     }
@@ -50,15 +45,13 @@ export class SiteEntity implements Site {
         key: string,
         name: string,
         customerKey: string,
-        approverUsername: string,
-        approverEmail: string,
+        approvers: SiteApprover[],
     ): SiteEntity {
         const entity = new SiteEntity();
         entity.key = key;
         entity.name = name;
         entity.customerKey = customerKey;
-        entity.approverUsername = approverUsername;
-        entity.approverEmail = approverEmail;
+        entity.approvers = approvers;
 
         return entity;
     }
