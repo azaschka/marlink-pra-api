@@ -14,12 +14,14 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
+    ApiConflictResponse,
     ApiCreatedResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiParam,
     ApiTags,
+    ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
@@ -54,7 +56,6 @@ export class SiteController {
                 dtoInput.key,
                 dtoInput.name,
                 dtoInput.customerKey,
-                dtoInput.customerName,
             ),
         );
 
@@ -66,6 +67,13 @@ export class SiteController {
         type: SiteCreatedDtoOutput,
         description: 'Indicates the site was created successfully and contains the new site.',
     })
+    @ApiConflictResponse({
+        description: 'The specified site already exists.',
+    })
+    @ApiNotFoundResponse({ description: 'The customer key is not found.' })
+    @ApiUnprocessableEntityResponse({
+        description: 'Failed in downstream process.',
+    })
     public async createSite(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Body() dtoInput: CreateSiteDtoInput,
@@ -76,7 +84,6 @@ export class SiteController {
                 dtoInput.key,
                 dtoInput.name,
                 dtoInput.customerKey,
-                dtoInput.customerName,
                 dtoInput.approverUsername,
                 dtoInput.approverEmail,
             ),
@@ -98,14 +105,7 @@ export class SiteController {
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifySiteDtoInput,
     ): Promise<SiteModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifySiteCommand, Site>(
-            new ModifySiteCommand(
-                transactionId,
-                id,
-                dtoInput.customerKey,
-                dtoInput.customerName,
-                dtoInput.approverUsername,
-                dtoInput.approverEmail,
-            ),
+            new ModifySiteCommand(transactionId, id, dtoInput.approverUsername, dtoInput.approverEmail),
         );
 
         return result;

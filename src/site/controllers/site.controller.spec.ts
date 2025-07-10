@@ -30,11 +30,10 @@ describe('SiteController', () => {
                 key: 'key-1',
                 name: 'name-1',
                 customerKey: 'customer-key-1',
-                customerName: 'customer-name-1',
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveSitesQuery('uuid-123', 10, 1, 'key-1', 'name-1', 'customer-key-1', 'customer-name-1'),
+                new RetrieveSitesQuery('uuid-123', 10, 1, 'key-1', 'name-1', 'customer-key-1'),
             );
             expect(result).toBe(expectedResult);
         });
@@ -49,7 +48,6 @@ describe('SiteController', () => {
                 key: 'key-1',
                 name: 'name-1',
                 customerKey: 'customer-key-1',
-                customerName: 'customer-name-1',
                 approverUsername: 'approver-username-1',
                 approverEmail: 'approver-email-1',
             });
@@ -60,7 +58,6 @@ describe('SiteController', () => {
                     'key-1',
                     'name-1',
                     'customer-key-1',
-                    'customer-name-1',
                     'approver-username-1',
                     'approver-email-1',
                 ),
@@ -75,21 +72,12 @@ describe('SiteController', () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
             const result = await controller.modifySite('uuid-123', 1, {
-                customerKey: 'customer-key-1',
-                customerName: 'customer-name-1',
                 approverUsername: 'approver-username-1',
                 approverEmail: 'approver-email-1',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ModifySiteCommand(
-                    'uuid-123',
-                    1,
-                    'customer-key-1',
-                    'customer-name-1',
-                    'approver-username-1',
-                    'approver-email-1',
-                ),
+                new ModifySiteCommand('uuid-123', 1, 'approver-username-1', 'approver-email-1'),
             );
             expect(result).toBe(expectedResult);
         });

@@ -44,8 +44,6 @@ describe('ModifySiteCommandHandler', () => {
                 handler.execute(<ModifySiteCommand>{
                     transactionId: 'transaction-1',
                     id: 123,
-                    customerKey: 'customer-key-1',
-                    customerName: 'customer-name-1',
                     approverUsername: 'approver-username-1',
                     approverEmail: 'approver-email-1',
                 }),
@@ -63,7 +61,6 @@ describe('ModifySiteCommandHandler', () => {
                     key: 'site-1',
                     name: 'site-name-1',
                     customerKey: 'customer-key-1',
-                    customerName: 'customer-name-1',
                     approverUsername: 'approver-username-1',
                     approverEmail: 'approver-email-1',
                 } as SiteEntity);
@@ -77,14 +74,7 @@ describe('ModifySiteCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new ModifySiteCommand(
-                    'transaction-1',
-                    123,
-                    'customer-key-2',
-                    'customer-name-2',
-                    'approver-username-2',
-                    'approver-email-2',
-                ),
+                new ModifySiteCommand('transaction-1', 123, 'approver-username-2', 'approver-email-2'),
             );
 
             // Assert
@@ -93,8 +83,7 @@ describe('ModifySiteCommandHandler', () => {
                 123,
                 'site-1',
                 'site-name-1',
-                'customer-key-2',
-                'customer-name-2',
+                'customer-key-1',
                 'approver-username-2',
                 'approver-email-2',
             );

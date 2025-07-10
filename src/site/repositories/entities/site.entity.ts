@@ -15,9 +15,6 @@ export class SiteEntity implements Site {
     @Column({ name: 'customer_key', type: 'varchar' })
     public customerKey!: string;
 
-    @Column({ name: 'customer_name', type: 'varchar' })
-    public customerName!: string;
-
     @Column({ name: 'approver_username', type: 'varchar' })
     public approverUsername!: string;
 
@@ -35,7 +32,6 @@ export class SiteEntity implements Site {
         key: string,
         name: string,
         customerKey: string,
-        customerName: string,
         approverUsername: string,
         approverEmail: string,
     ): SiteEntity {
@@ -44,7 +40,6 @@ export class SiteEntity implements Site {
         entity.key = key;
         entity.name = name;
         entity.customerKey = customerKey;
-        entity.customerName = customerName;
         entity.approverUsername = approverUsername;
         entity.approverEmail = approverEmail;
 
@@ -55,7 +50,6 @@ export class SiteEntity implements Site {
         key: string,
         name: string,
         customerKey: string,
-        customerName: string,
         approverUsername: string,
         approverEmail: string,
     ): SiteEntity {
@@ -63,7 +57,6 @@ export class SiteEntity implements Site {
         entity.key = key;
         entity.name = name;
         entity.customerKey = customerKey;
-        entity.customerName = customerName;
         entity.approverUsername = approverUsername;
         entity.approverEmail = approverEmail;
 

@@ -51,13 +51,4 @@ export class RetrieveSitesDtoInput {
     @IsOptional()
     @IsString()
     public customerKey?: string;
-
-    @ApiProperty({
-        required: false,
-        type: String,
-        description: 'The name of the customer to which this site belongs.',
-    })
-    @IsOptional()
-    @IsString()
-    public customerName?: string;
 }

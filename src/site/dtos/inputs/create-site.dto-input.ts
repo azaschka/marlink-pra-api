@@ -28,15 +28,6 @@ export class CreateSiteDtoInput {
     @ApiProperty({
         required: true,
         type: String,
-        description: 'The name of the customer to which this site belongs.',
-    })
-    @IsNotEmpty()
-    @IsString()
-    public customerName!: string;
-
-    @ApiProperty({
-        required: true,
-        type: String,
         description: 'The username of the user who will approve requests for this site.',
     })
     @IsNotEmpty()

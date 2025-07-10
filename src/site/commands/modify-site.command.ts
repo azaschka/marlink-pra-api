@@ -4,8 +4,6 @@ export class ModifySiteCommand {
     constructor(
         public readonly transactionId: string,
         public readonly id: number,
-        public readonly customerKey?: string,
-        public readonly customerName?: string,
         public readonly approverUsername?: string,
         public readonly approverEmail?: string,
     ) {}

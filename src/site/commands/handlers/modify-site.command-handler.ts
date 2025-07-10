@@ -21,11 +21,10 @@ export class ModifySiteCommandHandler implements ICommandHandler<ModifySiteComma
         }
 
         const modifiedSiteEntity = SiteEntity.create(
-            command.id,
+            siteEntity.id,
             siteEntity.key,
             siteEntity.name,
-            command.customerKey ?? siteEntity.customerKey,
-            command.customerName ?? siteEntity.customerName,
+            siteEntity.customerKey,
             command.approverUsername ?? siteEntity.approverUsername,
             command.approverEmail ?? siteEntity.approverEmail,
         );

@@ -22,10 +22,6 @@ export class RetrieveSitesQueryHandler implements IQueryHandler<RetrieveSitesQue
             siteFindByQuery.customerKey = query.customerKey;
         }
 
-        if (query.customerName) {
-            siteFindByQuery.customerName = query.customerName;
-        }
-
         const sites = await this.siteRepositoryService.findBy(siteFindByQuery, query.pageNumber, query.pageSize);
 
         return sites;

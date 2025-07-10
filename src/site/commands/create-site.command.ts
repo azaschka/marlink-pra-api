@@ -6,7 +6,6 @@ export class CreateSiteCommand {
         public readonly key: string,
         public readonly name: string,
         public readonly customerKey: string,
-        public readonly customerName: string,
         public readonly approverUsername: string,
         public readonly approverEmail: string,
     ) {}

@@ -32,7 +32,7 @@ describe('RetrieveSitesQueryHandler', () => {
                 .mockResolvedValue(expectedSites);
 
             const result = await handler.execute(
-                new RetrieveSitesQuery('transaction-2', 10, 1, 'key-1', 'site-1', 'customer-key-1', 'customer-name-1'),
+                new RetrieveSitesQuery('transaction-2', 10, 1, 'key-1', 'site-1', 'customer-key-1'),
             );
 
             expect(result).toBe(expectedSites);
@@ -41,7 +41,6 @@ describe('RetrieveSitesQueryHandler', () => {
                     key: 'key-1',
                     name: 'site-1',
                     customerKey: 'customer-key-1',
-                    customerName: 'customer-name-1',
                 },
                 1,
                 10,

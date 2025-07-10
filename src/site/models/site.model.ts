@@ -3,7 +3,6 @@ export interface Site {
     key: string;
     name: string;
     customerKey: string;
-    customerName: string;
     approverUsername: string;
     approverEmail: string;
     creationDate: Date;
