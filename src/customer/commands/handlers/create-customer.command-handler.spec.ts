@@ -20,8 +20,8 @@ describe('CreateCustomerCommandHandler', () => {
     let handler: CreateCustomerCommandHandler;
 
     beforeEach(() => {
-        appConfigService = mockAppConfigService();
-        commandBus = mockCommandBus();
+        appConfigService = {} as AppConfigService;
+        commandBus = {} as CommandBus;
         queryBus = mockQueryBus();
         eventBus = mockEventBus();
         customerRepositoryService = mockCustomerRepositoryService();
@@ -155,22 +155,6 @@ describe('CreateCustomerCommandHandler', () => {
         });
     });
 });
-
-function mockAppConfigService() {
-    return {
-        customer: {
-            groupPolicy: {
-                adminPrefix: 'admin-',
-            },
-        },
-    } as AppConfigService;
-}
-
-function mockCommandBus() {
-    const commandBus = {} as CommandBus;
-    commandBus.execute = jest.fn().mockResolvedValue({ id: 456 } as GroupPolicy);
-    return commandBus;
-}
 
 function mockQueryBus() {
     const queryBus = {} as QueryBus;

@@ -1,25 +1,32 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { EventBus, QueryBus } from '@nestjs/cqrs';
+import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
+import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteCreatedEvent } from '../../events';
 import { RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
+import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
 import { CreateSiteCommandHandler } from './create-site.command-handler';
 
 describe('CreateSiteCommandHandler', () => {
+    let appConfigService: AppConfigService;
+    let commandBus: CommandBus;
     let queryBus: QueryBus;
     let eventBus: EventBus;
     let siteRepositoryService: SiteRepositoryService;
     let handler: CreateSiteCommandHandler;
 
     beforeEach(() => {
+        mockSiteWorkflow();
+        appConfigService = {} as AppConfigService;
+        commandBus = {} as CommandBus;
         queryBus = mockQueryBus();
         eventBus = mockEventBus();
         siteRepositoryService = mockSiteRepositoryService();
-        handler = new CreateSiteCommandHandler(queryBus, eventBus, siteRepositoryService);
+        handler = new CreateSiteCommandHandler(appConfigService, commandBus, queryBus, eventBus, siteRepositoryService);
     });
 
     describe('execute', () => {
@@ -161,15 +168,23 @@ describe('CreateSiteCommandHandler', () => {
 
             // Act & Assert
             await expect(
-                handler.execute(<CreateSiteCommand>{
-                    transactionId: 'transaction-1',
-                    name: 'site-1',
-                }),
+                handler.execute(
+                    new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [
+                        {
+                            username: 'approver-username-1',
+                            email: 'approver-email-1',
+                        },
+                    ]),
+                ),
             ).rejects.toThrow();
             expect(siteRepositoryServiceCreateMethod).toHaveBeenCalled();
         });
     });
 });
+
+function mockSiteWorkflow() {
+    jest.spyOn(SiteWorkflow.prototype, 'run').mockReturnValue(Promise.resolve());
+}
 
 function mockQueryBus() {
     const queryBus = {} as QueryBus;

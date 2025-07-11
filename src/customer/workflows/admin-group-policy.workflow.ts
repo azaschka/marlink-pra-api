@@ -6,7 +6,7 @@ import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
 import { BaseWorkflow } from '../../shared/workflows';
 
 export class AdminGroupPolicyWorkflow implements BaseWorkflow<GroupPolicy> {
-    public get adminGroupPolicyName(): string {
+    private get groupPolicyName(): string {
         return `${this.appConfigService.customer.groupPolicy.adminPrefix}${this.customerName.toUpperCase()}`;
     }
 
@@ -19,16 +19,16 @@ export class AdminGroupPolicyWorkflow implements BaseWorkflow<GroupPolicy> {
     ) {}
 
     public async getOrCreate(): Promise<GroupPolicy> {
-        const adminGroupPolicies = await this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
-            new RetrieveGroupPoliciesQuery(this.transactionId, 1, 1, this.adminGroupPolicyName),
+        const groupPolicies = await this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
+            new RetrieveGroupPoliciesQuery(this.transactionId, 1, 1, this.groupPolicyName),
         );
 
-        if (adminGroupPolicies.length > 0 && adminGroupPolicies[0]) {
-            return adminGroupPolicies[0];
+        if (groupPolicies.length > 0 && groupPolicies[0]) {
+            return groupPolicies[0];
         }
 
         return await this.commandBus.execute<CreateGroupPolicyCommand, GroupPolicy>(
-            new CreateGroupPolicyCommand(this.transactionId, this.adminGroupPolicyName),
+            new CreateGroupPolicyCommand(this.transactionId, this.groupPolicyName),
         );
     }
 }

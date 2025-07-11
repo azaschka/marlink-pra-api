@@ -1,17 +1,21 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { CommandBus, CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteCreatedEvent } from '../../events';
-import { Site } from '../../models';
+import { Site, SiteApprover } from '../../models';
 import { RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
+import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
 
 @CommandHandler(CreateSiteCommand)
 export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteCommand> {
     constructor(
+        private readonly appConfigService: AppConfigService,
+        private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
         private readonly siteRepositoryService: SiteRepositoryService,
@@ -19,7 +23,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
 
     public async execute(command: CreateSiteCommand): Promise<Site> {
         await this.validateSiteKeyAndName(command.transactionId, command.key, command.name);
-        await this.validateCustomerExist(command.transactionId, command.customerKey);
+        const customer = await this.validateCustomerExist(command.transactionId, command.customerKey);
+
+        await this.runWorkflow(command.transactionId, command.name, command.key, command.approvers, customer.name);
 
         const siteEntity = SiteEntity.createWithoutId(
             command.key,
@@ -56,13 +62,36 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         }
     }
 
-    private async validateCustomerExist(transactionId: string, customerKey: string): Promise<void> {
+    private async validateCustomerExist(transactionId: string, customerKey: string): Promise<Customer> {
         const customers = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
             new RetrieveCustomersQuery(transactionId, 1, 1, customerKey),
         );
 
-        if (customers.length === 0) {
+        if (customers.length === 0 || !customers[0]) {
             throw new NotFoundException(`Customer with key "${customerKey}" does not exist.`);
         }
+
+        return customers[0];
+    }
+
+    private async runWorkflow(
+        transactionId: string,
+        siteName: string,
+        siteKey: string,
+        siteApprovers: SiteApprover[],
+        customerName: string,
+    ): Promise<void> {
+        const siteWorkflow = new SiteWorkflow(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            transactionId,
+            siteName,
+            siteKey,
+            siteApprovers,
+            customerName,
+        );
+
+        await siteWorkflow.run();
     }
 }

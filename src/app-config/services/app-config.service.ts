@@ -185,6 +185,31 @@ export class AppConfigService {
         };
     }
 
+    public get site() {
+        return {
+            groupPolicy: {
+                managerPrefix:
+                    this.configService.get<string>('SITE_GROUP_POLICY_MANAGER_PREFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                operatorPrefix:
+                    this.configService.get<string>('SITE_GROUP_POLICY_OPERATOR_PREFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                siteManager: {
+                    access:
+                        this.configService.get<string>('SITE_GROUP_POLICY_SITE_MANAGER_ACCESS') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
+            },
+            user: {
+                siteManager: {
+                    publicDisplayName:
+                        this.configService.get<string>('SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
+            },
+        };
+    }
+
     public get customer() {
         return {
             groupPolicy: {
