@@ -20,6 +20,13 @@ function configureOpenApi(app: INestApplication<unknown>) {
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.use(json({ limit: '1mb' }));
+    app.enableCors({
+        origin: true,
+        methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+        allowedHeaders: 'Content-Type, X-Api-Key, Authorization',
+        credentials: false, // true, falls Cookies oder Authorization-Header benötigt
+        maxAge: 600,
+    });
 
     configureOpenApi(app);
 

@@ -9,7 +9,7 @@ import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class ApiKeyStrategy extends PassportStrategy(HeaderAPIKeyStrategy, 'api-key') {
-    private static readonly API_KEY_HEADER_KEY = 'api-subscription-key';
+    private static readonly API_KEY_HEADER_KEY = 'x-api-key';
 
     constructor(private readonly authService: AuthService) {
         super({ header: ApiKeyStrategy.API_KEY_HEADER_KEY, prefix: '' }, false);

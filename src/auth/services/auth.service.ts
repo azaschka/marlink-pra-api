@@ -44,7 +44,7 @@ export class AuthService {
     private returnOdinUser(): JWTUser {
         return {
             username: 'odin',
-            role: 'Administrator',
+            role: 'Super Admin',
             displayName: 'Odin Admin',
         };
     }
