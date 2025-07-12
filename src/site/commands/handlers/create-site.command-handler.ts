@@ -1,6 +1,7 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
+import { BusinessUnit } from '../../../customer/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteCreatedEvent } from '../../events';
@@ -25,7 +26,14 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         await this.validateSiteKeyAndName(command.transactionId, command.key, command.name);
         const customer = await this.validateCustomerExist(command.transactionId, command.customerKey);
 
-        await this.runWorkflow(command.transactionId, command.name, command.key, command.approvers, customer.name);
+        await this.runWorkflow(
+            command.transactionId,
+            command.name,
+            command.key,
+            command.approvers,
+            customer.name,
+            customer.businessUnit,
+        );
 
         const siteEntity = SiteEntity.createWithoutId(
             command.key,
@@ -80,6 +88,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         siteKey: string,
         siteApprovers: SiteApprover[],
         customerName: string,
+        customerBusinessUnit: BusinessUnit,
     ): Promise<void> {
         const siteWorkflow = new SiteWorkflow(
             this.appConfigService,
@@ -90,6 +99,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             siteKey,
             siteApprovers,
             customerName,
+            customerBusinessUnit,
         );
 
         await siteWorkflow.run();

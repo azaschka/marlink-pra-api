@@ -194,6 +194,17 @@ export class AppConfigService {
                 operatorPrefix:
                     this.configService.get<string>('SITE_GROUP_POLICY_OPERATOR_PREFIX') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
+                adminPrefix:
+                    this.configService.get<string>('SITE_GROUP_POLICY_ADMIN_PREFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                marlink: {
+                    superuser:
+                        this.configService.get<string>('SITE_GROUP_POLICY_MARLINK_SUPERUSER') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    operator:
+                        this.configService.get<string>('SITE_GROUP_POLICY_MARLINK_OPERATOR') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
                 siteManager: {
                     access:
                         this.configService.get<string>('SITE_GROUP_POLICY_SITE_MANAGER_ACCESS') ??
@@ -223,6 +234,10 @@ export class AppConfigService {
                 notificationDisplayNamePrefix:
                     this.configService.get<string>('SITE_JUMP_POLICY_NOTIFICATION_DISPLAY_NAME_PREFIX') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
+            },
+            jumpoint: {
+                prefix:
+                    this.configService.get<string>('SITE_JUMPOINT_PREFIX') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             },
         };
     }
