@@ -20,7 +20,7 @@ import { SiteManagerUserWorkflow } from './site-manager-user.workflow';
 import { TeamWorkflow } from './team.workflow';
 
 export class SiteWorkflow {
-    private static readonly TOTAL_JUMPOINTS = 2;
+    private static readonly TOTAL_JUMPOINTS = 1;
     private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow;
     private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow;
     private readonly siteManagerAccessGroupPolicyWorkflow: SiteManagerAccessGroupPolicyWorkflow;
