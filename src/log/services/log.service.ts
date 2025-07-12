@@ -82,4 +82,8 @@ export class LogService {
             sortOrderType,
         );
     }
+
+    public async countLogs(creationDateFrom?: Date, creationDateTo?: Date): Promise<number> {
+        return this.logRepositoryService.countByDateBetween(creationDateFrom, creationDateTo);
+    }
 }
