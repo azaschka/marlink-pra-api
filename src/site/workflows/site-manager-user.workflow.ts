@@ -8,7 +8,7 @@ import { SiteApprover } from '../models';
 
 export class SiteManagerUserWorkflow implements BaseWorkflow<User> {
     private get userPublicDisplayName(): string {
-        return `${this.appConfigService.site.user.siteManager.publicDisplayName}${this.siteName.toUpperCase()}}`;
+        return `${this.appConfigService.site.user.siteManager.publicDisplayNamePrefix}${this.siteName.toUpperCase()}}`;
     }
 
     constructor(

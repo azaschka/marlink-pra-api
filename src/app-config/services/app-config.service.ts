@@ -202,10 +202,27 @@ export class AppConfigService {
             },
             user: {
                 siteManager: {
-                    publicDisplayName:
-                        this.configService.get<string>('SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME') ??
+                    publicDisplayNamePrefix:
+                        this.configService.get<string>('SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME_PREFIX') ??
                         AppConfigService.DEFAULT_UNDEFINED_STRING,
                 },
+            },
+            jumpPolicy: {
+                prefix:
+                    this.configService.get<string>('SITE_JUMP_POLICY_PREFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                authSuffix:
+                    this.configService.get<string>('SITE_JUMP_POLICY_AUTH_SUFFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                noAuthSuffix:
+                    this.configService.get<string>('SITE_JUMP_POLICY_NO_AUTH_SUFFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                notifySuffix:
+                    this.configService.get<string>('SITE_JUMP_POLICY_NOTIFY_SUFFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                notificationDisplayNamePrefix:
+                    this.configService.get<string>('SITE_JUMP_POLICY_NOTIFICATION_DISPLAY_NAME_PREFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
             },
         };
     }
