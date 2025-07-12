@@ -302,6 +302,24 @@ describe('BaseRepositoryService', () => {
             expect(dataSourceQueryRunnerReleaseMethod).toHaveBeenCalledTimes(1);
         });
     });
+
+    describe('countBy', () => {
+        it('should connect, count entities and return the value', async () => {
+            const {
+                dataSourceQueryRunnerConnectMethod,
+                dataSourceQueryRunnerManagerCountMethod,
+                dataSourceQueryRunnerReleaseMethod,
+            } = spyDataSource(dataSource);
+            dataSourceQueryRunnerManagerCountMethod.mockResolvedValue(5);
+
+            const result = await service.countBy({ id: 1 });
+
+            expect(dataSourceQueryRunnerConnectMethod).toHaveBeenCalledTimes(1);
+            expect(dataSourceQueryRunnerManagerCountMethod).toHaveBeenCalledWith(MockEntity, { where: { id: 1 } });
+            expect(dataSourceQueryRunnerReleaseMethod).toHaveBeenCalledTimes(1);
+            expect(result).toBe(5);
+        });
+    });
 });
 
 function mockDataSource(): DataSource {
@@ -316,12 +334,12 @@ function mockDataSource(): DataSource {
             findOne: jest.fn(),
             find: jest.fn(),
             delete: jest.fn(),
+            count: jest.fn(),
         },
         commitTransaction: jest.fn(),
         rollbackTransaction: jest.fn(),
         release: jest.fn(),
     });
-
     return dataSource;
 }
 
@@ -345,6 +363,9 @@ function spyDataSource(dataSource: DataSource) {
     const dataSourceQueryRunnerManagerDeleteMethod = jest
         .spyOn(dataSource.createQueryRunner().manager, 'delete')
         .mockResolvedValue({} as DeleteResult);
+    const dataSourceQueryRunnerManagerCountMethod = jest
+        .spyOn(dataSource.createQueryRunner().manager, 'count')
+        .mockResolvedValue(0);
     const dataSourceQueryRunnerManagerSaveMethod = jest.spyOn(dataSource.createQueryRunner().manager, 'save');
     const dataSourceQueryRunnerCommitTransactionMethod = jest.spyOn(
         dataSource.createQueryRunner(),
@@ -364,6 +385,7 @@ function spyDataSource(dataSource: DataSource) {
         dataSourceQueryRunnerManagerFindOneMethod,
         dataSourceQueryRunnerManagerFindMethod,
         dataSourceQueryRunnerManagerDeleteMethod,
+        dataSourceQueryRunnerManagerCountMethod,
         dataSourceQueryRunnerManagerSaveMethod,
         dataSourceQueryRunnerCommitTransactionMethod,
         dataSourceQueryRunnerRollbackTransactionMethod,

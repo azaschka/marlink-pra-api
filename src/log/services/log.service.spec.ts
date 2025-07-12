@@ -140,6 +140,7 @@ function mockLogRepositoryService() {
     const logRepositoryService = {} as LogRepositoryService;
     logRepositoryService.create = jest.fn();
     logRepositoryService.findByDateBetween = jest.fn();
+    logRepositoryService.countByDateBetween = jest.fn();
 
     return logRepositoryService;
 }

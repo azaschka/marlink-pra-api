@@ -9,80 +9,73 @@ describe('LogRepositoryService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-
         dataSource = {} as DataSource;
         service = new LogRepositoryService(dataSource);
     });
 
     describe('findByDateBetween', () => {
         it('should call findBy with the correct parameters (between)', async () => {
-            const creationDateFrom = new Date('2023-01-01');
-            const creationDateTo = new Date('2023-01-31');
+            const from = new Date('2023-01-01');
+            const to = new Date('2023-01-31');
+            const page = 1,
+                size = 10;
 
-            const pageNumber = 1;
-            const pageSize = 10;
-            const baseRepositoryFindByMethod = jest
-                .spyOn(BaseRepositoryService.prototype, 'findBy')
-                .mockReturnValue(Promise.resolve([]));
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'findBy').mockResolvedValue([]);
 
-            await service.findByDateBetween(
-                pageNumber,
-                pageSize,
-                creationDateFrom,
-                creationDateTo,
-                SortOrderType.Descending,
-            );
+            await service.findByDateBetween(page, size, from, to, SortOrderType.Descending);
 
-            expect(baseRepositoryFindByMethod).toHaveBeenCalledWith(
-                {
-                    creationDate: Between(creationDateFrom, creationDateTo),
-                },
-                pageNumber,
-                pageSize,
-                {
-                    creationDate: SortOrderType.Descending,
-                },
-            );
+            expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) }, page, size, {
+                creationDate: SortOrderType.Descending,
+            });
         });
 
         it('should call findBy with the correct parameters (more than)', async () => {
-            const creationDateFrom = new Date('2023-01-01');
-            const pageNumber = 1;
-            const pageSize = 10;
-            const baseRepositoryFindByMethod = jest
-                .spyOn(BaseRepositoryService.prototype, 'findBy')
-                .mockReturnValue(Promise.resolve([]));
+            const from = new Date('2023-01-01');
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'findBy').mockResolvedValue([]);
 
-            await service.findByDateBetween(pageNumber, pageSize, creationDateFrom, undefined);
+            await service.findByDateBetween(1, 10, from, undefined);
 
-            expect(baseRepositoryFindByMethod).toHaveBeenCalledWith(
-                {
-                    creationDate: MoreThan(creationDateFrom),
-                },
-                pageNumber,
-                pageSize,
-                undefined,
-            );
+            expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) }, 1, 10, undefined);
         });
 
         it('should call findBy with the correct parameters (less than)', async () => {
-            const creationDateTo = new Date('2023-01-31');
-            const pageNumber = 1;
-            const pageSize = 10;
-            const baseRepositoryFindByMethod = jest
-                .spyOn(BaseRepositoryService.prototype, 'findBy')
-                .mockReturnValue(Promise.resolve([]));
+            const to = new Date('2023-01-31');
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'findBy').mockResolvedValue([]);
 
-            await service.findByDateBetween(pageNumber, pageSize, undefined, creationDateTo);
+            await service.findByDateBetween(1, 10, undefined, to);
 
-            expect(baseRepositoryFindByMethod).toHaveBeenCalledWith(
-                {
-                    creationDate: LessThan(creationDateTo),
-                },
-                pageNumber,
-                pageSize,
-                undefined,
-            );
+            expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) }, 1, 10, undefined);
+        });
+    });
+
+    describe('countByDateBetween', () => {
+        it('should call countBy with the correct parameters (between)', async () => {
+            const from = new Date('2023-02-01');
+            const to = new Date('2023-02-28');
+
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'countBy').mockResolvedValue(42);
+
+            await service.countByDateBetween(from, to);
+
+            expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) });
+        });
+
+        it('should call countBy with the correct parameters (more than)', async () => {
+            const from = new Date('2023-03-01');
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'countBy').mockResolvedValue(7);
+
+            await service.countByDateBetween(from, undefined);
+
+            expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) });
+        });
+
+        it('should call countBy with the correct parameters (less than)', async () => {
+            const to = new Date('2023-03-31');
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'countBy').mockResolvedValue(11);
+
+            await service.countByDateBetween(undefined, to);
+
+            expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) });
         });
     });
 });
