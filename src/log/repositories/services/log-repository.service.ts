@@ -38,4 +38,18 @@ export class LogRepositoryService extends BaseRepositoryService<LogEntity> {
                 : undefined,
         );
     }
+
+    public async countByDateBetween(creationDateFrom?: Date, creationDateTo?: Date): Promise<number> {
+        const where: FindOptionsWhere<LogEntity> = {};
+
+        if (creationDateFrom && creationDateTo) {
+            where.creationDate = Between(creationDateFrom, creationDateTo);
+        } else if (creationDateFrom) {
+            where.creationDate = MoreThan(creationDateFrom);
+        } else if (creationDateTo) {
+            where.creationDate = LessThan(creationDateTo);
+        }
+
+        return super.countBy(where);
+    }
 }
