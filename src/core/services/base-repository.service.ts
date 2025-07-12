@@ -95,6 +95,16 @@ export class BaseRepositoryService<T> {
         }
     }
 
+    public async countBy<K extends Extract<keyof T, string>>(where: Pick<T, K> | FindOptionsWhere<T>): Promise<number> {
+        const queryRunner = await this.createQueryRunnerAndConnect();
+
+        try {
+            return await queryRunner.manager.count(this.entity, { where });
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
     private async createQueryRunnerAndConnect() {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
