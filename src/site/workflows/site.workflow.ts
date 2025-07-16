@@ -10,13 +10,16 @@ import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { SiteApprover } from '../models';
 import { AdminGroupPolicyWorkflow } from './admin-group-policy.workflow';
+import { AuthJumpPolicyWorkflow } from './auth-jump-policy.workflow';
 import { JumpointsWorkflow } from './jumpoints.workflow';
 import { ManagerGroupPolicyWorkflow } from './manager-group-policy.workflow';
 import { MarlinkOperatorGroupPolicyWorkflow } from './marlink-operator-group-policy.workflow';
 import { MarlinkSuperuserGroupPolicyWorkflow } from './marlink-superuser-group-policy.workflow';
+import { NoAuthJumpPolicyWorkflow } from './no-auth-jump-policy.workflow';
+import { NotifyJumpPolicyWorkflow } from './notify-jump-policy.workflow';
 import { OperatorGroupPolicyWorkflow } from './operator-group-policy.workflow';
 import { SiteManagerAccessGroupPolicyWorkflow } from './site-manager-access-group-policy.workflow';
-import { SiteManagerUserWorkflow } from './site-manager-user.workflow';
+import { SiteManagerUsersWorkflow } from './site-manager-users.workflow';
 import { TeamWorkflow } from './team.workflow';
 
 export class SiteWorkflow {
@@ -24,8 +27,11 @@ export class SiteWorkflow {
     private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow;
     private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow;
     private readonly siteManagerAccessGroupPolicyWorkflow: SiteManagerAccessGroupPolicyWorkflow;
-    private readonly siteManagerUserWorkflows: SiteManagerUserWorkflow[];
+    private readonly siteManagerUsersWorkflow: SiteManagerUsersWorkflow;
     private readonly teamWorkflow: TeamWorkflow;
+    private readonly authJumpPolicyWorkflow: AuthJumpPolicyWorkflow;
+    private readonly noAuthJumpPolicyWorkflow: NoAuthJumpPolicyWorkflow;
+    private readonly notifyJumpPolicyWorkflow: NotifyJumpPolicyWorkflow;
     private readonly jumpointsWorkflow: JumpointsWorkflow;
     private readonly adminGroupPolicyWorkflow: AdminGroupPolicyWorkflow;
     private readonly marlinkOperatorGroupPolicyWorkflow: MarlinkOperatorGroupPolicyWorkflow;
@@ -69,16 +75,13 @@ export class SiteWorkflow {
             this.transactionId,
         );
 
-        this.siteManagerUserWorkflows = this.siteApprovers.map(
-            (approver) =>
-                new SiteManagerUserWorkflow(
-                    this.appConfigService,
-                    this.queryBus,
-                    this.commandBus,
-                    this.transactionId,
-                    this.siteName,
-                    approver,
-                ),
+        this.siteManagerUsersWorkflow = new SiteManagerUsersWorkflow(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.siteName,
+            this.siteApprovers,
         );
 
         this.teamWorkflow = new TeamWorkflow(
@@ -87,6 +90,38 @@ export class SiteWorkflow {
             this.transactionId,
             this.siteName,
             this.siteKey,
+            this.customerName,
+        );
+
+        this.authJumpPolicyWorkflow = new AuthJumpPolicyWorkflow(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.siteName,
+            this.siteKey,
+            this.siteApprovers,
+            this.customerName,
+        );
+
+        this.noAuthJumpPolicyWorkflow = new NoAuthJumpPolicyWorkflow(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.siteName,
+            this.siteKey,
+            this.customerName,
+        );
+
+        this.notifyJumpPolicyWorkflow = new NotifyJumpPolicyWorkflow(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.siteName,
+            this.siteKey,
+            this.siteApprovers,
             this.customerName,
         );
 
@@ -129,14 +164,15 @@ export class SiteWorkflow {
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
         const siteManagerAccessGroupPolicy = await this.siteManagerAccessGroupPolicyWorkflow.getOrCreate();
-        const siteManagerUsers = await Promise.all(
-            this.siteManagerUserWorkflows.map((workflow) => workflow.getOrCreate()),
-        );
+        const siteManagerUsers = await this.siteManagerUsersWorkflow.getOrCreate();
         const team = await this.teamWorkflow.getOrCreate();
         const jumpoints = await this.jumpointsWorkflow.getOrCreate();
         const adminGroupPolicy = await this.adminGroupPolicyWorkflow.getOrCreate();
         const marlinkOperatorGroupPolicy = await this.marlinkOperatorGroupPolicyWorkflow.getOrCreate();
         const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
+        await this.authJumpPolicyWorkflow.getOrCreate();
+        await this.noAuthJumpPolicyWorkflow.getOrCreate();
+        await this.notifyJumpPolicyWorkflow.getOrCreate();
 
         // add site manager to manager group policy and site manager access group policy
         {

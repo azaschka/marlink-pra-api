@@ -1,6 +1,6 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
-import { CreateJumpPolicyCommand } from '../../jump-policy/commands';
+import { CreateJumpPolicyCommand, DeleteJumpPolicyCommand } from '../../jump-policy/commands';
 import { JumpPolicy } from '../../jump-policy/models';
 import { RetrieveJumpPoliciesQuery } from '../../jump-policy/queries';
 import { BaseWorkflow } from '../../shared/workflows';
@@ -8,7 +8,7 @@ import { SiteApprover } from '../models';
 
 export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     private get jumpPolicyDisplayName(): string {
-        return `${this.appConfigService.site.jumpPolicy.prefix}${this.siteName.toUpperCase()}${this.appConfigService.site.jumpPolicy.authSuffix}`;
+        return `${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}${this.appConfigService.site.jumpPolicy.authSuffix}`;
     }
 
     private get jumpPolicyCodeName(): string {
@@ -16,7 +16,11 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     }
 
     private get jumpPolicyNotificationDisplayName(): string {
-        return `${this.appConfigService.site.jumpPolicy.notificationDisplayNamePrefix}${this.siteName.toUpperCase()}`;
+        return `${this.appConfigService.site.jumpPolicy.notificationDisplayNamePrefix}${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}}`;
+    }
+
+    private get jumpPolicyApprovalDisplayName(): string {
+        return `${this.appConfigService.site.jumpPolicy.approvalDisplayNamePrefix}${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}}`;
     }
 
     constructor(
@@ -25,16 +29,16 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         private readonly commandBus: CommandBus,
         private readonly transactionId: string,
         private readonly siteName: string,
+        private readonly siteKey: string,
         private readonly siteApprovers: SiteApprover[],
+        private readonly customerName: string,
     ) {}
 
     public async getOrCreate(): Promise<JumpPolicy> {
-        const jumpPolicies = await this.queryBus.execute<RetrieveJumpPoliciesQuery, JumpPolicy[]>(
-            new RetrieveJumpPoliciesQuery(this.transactionId, 1, 1, this.jumpPolicyCodeName),
-        );
+        const jumpPolicy = await this.get();
 
-        if (jumpPolicies.length > 0 && jumpPolicies[0]) {
-            return jumpPolicies[0];
+        if (jumpPolicy) {
+            return jumpPolicy;
         }
 
         return await this.commandBus.execute<CreateJumpPolicyCommand, JumpPolicy>(
@@ -61,11 +65,31 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                 this.siteApprovers.map((approver) => approver.email), // approvalEmailAddresses
                 undefined, // approvalUserIds
                 undefined, // approvalTeamIds
-                undefined, // approvalDisplayName
+                this.jumpPolicyApprovalDisplayName, // approvalDisplayName
                 undefined, // approvalEmailLanguage
                 undefined, // approvalApproverScopeType
                 undefined, // isRecordingsDisabled
             ),
         );
+    }
+
+    public async delete(): Promise<void> {
+        const jumpPolicy = await this.get();
+
+        if (!jumpPolicy) {
+            return;
+        }
+
+        await this.commandBus.execute<DeleteJumpPolicyCommand, void>(
+            new DeleteJumpPolicyCommand(this.transactionId, jumpPolicy.id),
+        );
+    }
+
+    private async get(): Promise<JumpPolicy | null> {
+        const jumpPolicies = await this.queryBus.execute<RetrieveJumpPoliciesQuery, JumpPolicy[]>(
+            new RetrieveJumpPoliciesQuery(this.transactionId, 1, 1, this.jumpPolicyCodeName),
+        );
+
+        return jumpPolicies[0] ?? null;
     }
 }

@@ -219,9 +219,6 @@ export class AppConfigService {
                 },
             },
             jumpPolicy: {
-                prefix:
-                    this.configService.get<string>('SITE_JUMP_POLICY_PREFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
                 authSuffix:
                     this.configService.get<string>('SITE_JUMP_POLICY_AUTH_SUFFIX') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
@@ -233,6 +230,9 @@ export class AppConfigService {
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
                 notificationDisplayNamePrefix:
                     this.configService.get<string>('SITE_JUMP_POLICY_NOTIFICATION_DISPLAY_NAME_PREFIX') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                approvalDisplayNamePrefix:
+                    this.configService.get<string>('SITE_JUMP_POLICY_APPROVAL_DISPLAY_NAME_PREFIX') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
             },
             jumpoint: {

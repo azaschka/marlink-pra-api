@@ -1,6 +1,6 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { BaseWorkflow } from '../../shared/workflows';
-import { CreateTeamCommand } from '../../team/commands';
+import { CreateTeamCommand, DeleteTeamCommand } from '../../team/commands';
 import { Team } from '../../team/models';
 import { RetrieveTeamsQuery } from '../../team/queries';
 
@@ -19,16 +19,32 @@ export class TeamWorkflow implements BaseWorkflow<Team> {
     ) {}
 
     public async getOrCreate(): Promise<Team> {
-        const teams = await this.queryBus.execute<RetrieveTeamsQuery, Team[]>(
-            new RetrieveTeamsQuery(this.transactionId, 1, 1, this.teamName),
-        );
+        const team = await this.get();
 
-        if (teams.length > 0 && teams[0]) {
-            return teams[0];
+        if (team) {
+            return team;
         }
 
         return await this.commandBus.execute<CreateTeamCommand, Team>(
             new CreateTeamCommand(this.transactionId, this.teamName),
         );
+    }
+
+    public async delete(): Promise<void> {
+        const team = await this.get();
+
+        if (!team) {
+            return;
+        }
+
+        await this.commandBus.execute<DeleteTeamCommand, void>(new DeleteTeamCommand(this.transactionId, team.id));
+    }
+
+    private async get(): Promise<Team | null> {
+        const teams = await this.queryBus.execute<RetrieveTeamsQuery, Team[]>(
+            new RetrieveTeamsQuery(this.transactionId, 1, 1, this.teamName),
+        );
+
+        return teams[0] ?? null;
     }
 }
