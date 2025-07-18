@@ -26,11 +26,11 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     }
 
     private get jumpPolicyNotificationDisplayName(): string {
-        return `${this.appConfigService.site.jumpPolicy.notificationDisplayNamePrefix}${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}`;
+        return `${this.appConfigService.site.jumpPolicy.notificationDisplayNamePrefix} ${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}`;
     }
 
     private get jumpPolicyApprovalDisplayName(): string {
-        return `${this.appConfigService.site.jumpPolicy.approvalDisplayNamePrefix}${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}`;
+        return `${this.appConfigService.site.jumpPolicy.approvalDisplayNamePrefix} ${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}`;
     }
 
     constructor(

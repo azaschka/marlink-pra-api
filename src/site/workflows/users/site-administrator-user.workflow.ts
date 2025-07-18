@@ -8,7 +8,7 @@ import { PartialSiteAdministrator } from '../../models';
 
 export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
     private get userPublicDisplayName(): string {
-        return `${this.appConfigService.site.user.siteAdministrator.publicDisplayNamePrefix}${this.customerName.toUpperCase()}`;
+        return `${this.appConfigService.site.user.siteAdministrator.publicDisplayNamePrefix} ${this.customerName.toUpperCase()}`;
     }
 
     constructor(
