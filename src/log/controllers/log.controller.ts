@@ -1,8 +1,9 @@
-import { Controller, Get, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, HttpStatus, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { RetrieveLogsDtoInput } from '../dtos/inputs';
+import { DateUtility } from '../../shared/utilities';
+import { DeleteLogsDtoInput, RetrieveLogsDtoInput } from '../dtos/inputs';
 import { LogRetrievedDtoOutput } from '../dtos/outputs';
 import { LogService } from '../services/log.service';
 
@@ -47,5 +48,12 @@ export class LogController {
         res.set('X-Total-Count', total.toString());
 
         return logs;
+    }
+
+    @Delete()
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the site manager was successfully removed.' })
+    public async clearLogs(@Query() dto: DeleteLogsDtoInput): Promise<void> {
+        await this.logService.clearLogs(dto.creationDateFrom, dto.creationDateTo ?? DateUtility.getCurrentUtcDate());
     }
 }

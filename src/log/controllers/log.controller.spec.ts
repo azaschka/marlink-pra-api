@@ -6,6 +6,8 @@ import { Log } from '../models';
 import { LogService } from '../services/log.service';
 import { LogController } from './log.controller';
 
+const DEFAULT_DATE_TIME = new Date('2025-12-01T00:00:00Z');
+
 describe('LogController', () => {
     let controller: LogController;
     let commandBus: CommandBus;
@@ -14,6 +16,7 @@ describe('LogController', () => {
     let logService: LogService;
 
     beforeEach(() => {
+        jest.useFakeTimers().setSystemTime(DEFAULT_DATE_TIME);
         commandBus = mockCommandBus();
         queryBus = mockQueryBus();
         eventBus = mockEventBus();
@@ -22,7 +25,7 @@ describe('LogController', () => {
     });
 
     describe('retrieveLogs', () => {
-        it('should execute the query bus with the correct parameters and return the result', async () => {
+        it('should call the log service retrieve and count logs and return the result', async () => {
             const expectedTotal = 123;
             const expectedResult = [] as Log[];
             const mockRes = mockResponse();
@@ -58,6 +61,35 @@ describe('LogController', () => {
             expect(result).toBe(expectedResult);
         });
     });
+
+    describe('clearLogs', () => {
+        it.each([
+            {
+                input: {
+                    creationDateFrom: new Date('2025-01-01T00:00:00Z'),
+                    creationDateTo: new Date('2025-01-31T23:59:59Z'),
+                },
+                expectedFrom: new Date('2025-01-01T00:00:00Z'),
+                expectedTo: new Date('2025-01-31T23:59:59Z'),
+            },
+            {
+                input: {
+                    creationDateFrom: new Date('2025-01-01T00:00:00Z'),
+                },
+                expectedFrom: new Date('2025-01-01T00:00:00Z'),
+                expectedTo: DEFAULT_DATE_TIME,
+            },
+        ])(
+            'should call log service clear logs with the correct parameters',
+            async ({ input, expectedFrom, expectedTo }) => {
+                const logServiceClearLogsMethod = jest.spyOn(logService, 'clearLogs').mockResolvedValue();
+
+                await controller.clearLogs(input);
+
+                expect(logServiceClearLogsMethod).toHaveBeenCalledWith(expectedFrom, expectedTo);
+            },
+        );
+    });
 });
 
 function mockCommandBus() {
@@ -88,6 +120,7 @@ function mockLogService() {
     const logService = {} as LogService;
     logService.retrieveLogs = jest.fn();
     logService.countLogs = jest.fn();
+    logService.clearLogs = jest.fn();
 
     return logService;
 }
