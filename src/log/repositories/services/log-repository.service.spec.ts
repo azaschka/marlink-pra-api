@@ -78,4 +78,35 @@ describe('LogRepositoryService', () => {
             expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) });
         });
     });
+
+    describe('deleteByDateBetween', () => {
+        it('should call deleteBy with the correct parameters (between)', async () => {
+            const from = new Date('2023-04-01');
+            const to = new Date('2023-04-30');
+
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'deleteBy').mockResolvedValue();
+
+            await service.deleteByDateBetween(from, to);
+
+            expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) });
+        });
+
+        it('should call deleteBy with the correct parameters (more than)', async () => {
+            const from = new Date('2023-05-01');
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'deleteBy').mockResolvedValue();
+
+            await service.deleteByDateBetween(from, undefined);
+
+            expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) });
+        });
+
+        it('should call deleteBy with the correct parameters (less than)', async () => {
+            const to = new Date('2023-05-31');
+            const spy = jest.spyOn(BaseRepositoryService.prototype, 'deleteBy').mockResolvedValue();
+
+            await service.deleteByDateBetween(undefined, to);
+
+            expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) });
+        });
+    });
 });

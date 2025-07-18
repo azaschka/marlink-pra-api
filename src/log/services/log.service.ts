@@ -86,4 +86,8 @@ export class LogService {
     public async countLogs(creationDateFrom?: Date, creationDateTo?: Date): Promise<number> {
         return this.logRepositoryService.countByDateBetween(creationDateFrom, creationDateTo);
     }
+
+    public async clearLogs(creationDateFrom?: Date, creationDateTo?: Date): Promise<void> {
+        await this.logRepositoryService.deleteByDateBetween(creationDateFrom, creationDateTo);
+    }
 }
