@@ -20,4 +20,20 @@ export abstract class ObjectUtility {
         // Return the properly typed object
         return result as Omit<T, K>;
     }
+
+    public static filterUnique<T>(array: T[]): T[] {
+        const seen = new Set<string>();
+
+        return array.filter((item) => {
+            const key = JSON.stringify(item);
+
+            if (seen.has(key)) {
+                return false;
+            }
+
+            seen.add(key);
+
+            return true;
+        });
+    }
 }

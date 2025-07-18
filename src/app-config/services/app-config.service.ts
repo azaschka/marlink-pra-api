@@ -194,8 +194,8 @@ export class AppConfigService {
                 operatorPrefix:
                     this.configService.get<string>('SITE_GROUP_POLICY_OPERATOR_PREFIX') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
-                adminPrefix:
-                    this.configService.get<string>('SITE_GROUP_POLICY_ADMIN_PREFIX') ??
+                administratorPrefix:
+                    this.configService.get<string>('SITE_GROUP_POLICY_ADMINISTRATOR_PREFIX') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
                 marlink: {
                     superuser:
@@ -205,16 +205,31 @@ export class AppConfigService {
                         this.configService.get<string>('SITE_GROUP_POLICY_MARLINK_OPERATOR') ??
                         AppConfigService.DEFAULT_UNDEFINED_STRING,
                 },
-                siteManager: {
-                    access:
-                        this.configService.get<string>('SITE_GROUP_POLICY_SITE_MANAGER_ACCESS') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
-                },
+                managerAccess:
+                    this.configService.get<string>('SITE_GROUP_POLICY_MANAGER_ACCESS') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                administratorAccess:
+                    this.configService.get<string>('SITE_GROUP_POLICY_ADMINISTRATOR_ACCESS') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                adminOperatorAccess:
+                    this.configService.get<string>('SITE_GROUP_POLICY_ADMIN_OPERATOR_ACCESS') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                limitedAccess:
+                    this.configService.get<string>('SITE_GROUP_POLICY_LIMITED_ACCESS') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                fullAccess:
+                    this.configService.get<string>('SITE_GROUP_POLICY_FULL_ACCESS') ??
+                    AppConfigService.DEFAULT_UNDEFINED_STRING,
             },
             user: {
                 siteManager: {
                     publicDisplayNamePrefix:
                         this.configService.get<string>('SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME_PREFIX') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
+                siteAdministrator: {
+                    publicDisplayNamePrefix:
+                        this.configService.get<string>('SITE_USER_SITE_ADMINISTRATOR_PUBLIC_DISPLAY_NAME_PREFIX') ??
                         AppConfigService.DEFAULT_UNDEFINED_STRING,
                 },
             },
@@ -245,8 +260,8 @@ export class AppConfigService {
     public get customer() {
         return {
             groupPolicy: {
-                adminPrefix:
-                    this.configService.get<string>('CUSTOMER_GROUP_POLICY_ADMIN_PREFIX') ??
+                administratorPrefix:
+                    this.configService.get<string>('CUSTOMER_GROUP_POLICY_ADMINISTRATOR_PREFIX') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
             },
         };

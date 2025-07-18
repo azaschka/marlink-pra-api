@@ -3,13 +3,37 @@ import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
 import { SiteCreatedEvent } from '../../events';
+import { SiteWorkflowResult } from '../../models';
 import { RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
 import { CreateSiteCommandHandler } from './create-site.command-handler';
+
+class TestHelper {
+    public static get mockedSiteWorkflowResult(): SiteWorkflowResult {
+        return {
+            siteManagers: [{ userId: 1, username: 'manager-username', email: 'manager-email' }],
+            siteAdministrators: [
+                { userId: 2, username: 'admin-username', email: 'admin-email', isAdminOperator: true },
+            ],
+            siteSupportTeamMembers: [
+                {
+                    userId: 3,
+                    firstname: 'support-firstname',
+                    lastname: 'support-lastname',
+                    email: 'support-email',
+                    supportTeamName: 'support-team',
+                    supportTeamAccessLevel: SiteSupportTeamAccessLevel.Limited,
+                    supportTeamTrustLevel: SiteSupportTeamTrustLevel.NotifyOnly,
+                },
+            ],
+        };
+    }
+}
 
 describe('CreateSiteCommandHandler', () => {
     let appConfigService: AppConfigService;
@@ -38,12 +62,7 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [
-                        {
-                            username: 'approver-username-1',
-                            email: 'approver-email-1',
-                        },
-                    ]),
+                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [], [], []),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(1);
@@ -64,12 +83,7 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [
-                        {
-                            username: 'approver-username-1',
-                            email: 'approver-email-1',
-                        },
-                    ]),
+                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [], [], []),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(2);
@@ -95,12 +109,7 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [
-                        {
-                            username: 'approver-username-1',
-                            email: 'approver-email-1',
-                        },
-                    ]),
+                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [], [], []),
                 ),
             ).rejects.toThrow(NotFoundException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(3);
@@ -132,21 +141,18 @@ describe('CreateSiteCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [
-                    {
-                        username: 'approver-username-1',
-                        email: 'approver-email-1',
-                    },
-                ]),
+                new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [], [], []),
             );
 
             // Assert
-            expect(siteEntityCreateWithoutIdMethod).toHaveBeenCalledWith('key-1', 'name-1', 'customer-key-1', [
-                {
-                    username: 'approver-username-1',
-                    email: 'approver-email-1',
-                },
-            ]);
+            expect(siteEntityCreateWithoutIdMethod).toHaveBeenCalledWith(
+                'key-1',
+                'name-1',
+                'customer-key-1',
+                TestHelper.mockedSiteWorkflowResult.siteManagers,
+                TestHelper.mockedSiteWorkflowResult.siteAdministrators,
+                TestHelper.mockedSiteWorkflowResult.siteSupportTeamMembers,
+            );
             expect(siteRepositoryServiceCreateMethod).toHaveBeenCalledWith(siteEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
                 expect.objectContaining(<SiteCreatedEvent>{
@@ -169,12 +175,7 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [
-                        {
-                            username: 'approver-username-1',
-                            email: 'approver-email-1',
-                        },
-                    ]),
+                    new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [], [], []),
                 ),
             ).rejects.toThrow();
             expect(siteRepositoryServiceCreateMethod).toHaveBeenCalled();
@@ -183,7 +184,9 @@ describe('CreateSiteCommandHandler', () => {
 });
 
 function mockSiteWorkflow() {
-    jest.spyOn(SiteWorkflow.prototype, 'run').mockReturnValue(Promise.resolve());
+    jest.spyOn(SiteWorkflow.prototype, 'getOrCreate').mockReturnValue(
+        Promise.resolve(TestHelper.mockedSiteWorkflowResult),
+    );
 }
 
 function mockQueryBus() {

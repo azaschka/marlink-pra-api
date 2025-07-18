@@ -5,9 +5,23 @@ import { BusinessUnit } from '../../../customer/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteCreatedEvent } from '../../events';
-import { Site, SiteApprover } from '../../models';
+import {
+    PartialSiteAdministrator,
+    PartialSiteAdministratorWithUserId,
+    PartialSiteManager,
+    PartialSiteManagerWithUserId,
+    PartialSiteSupportTeamMember,
+    PartialSiteSupportTeamMemberWithUserId,
+    Site,
+    SiteWorkflowResult,
+} from '../../models';
 import { RetrieveSitesQuery } from '../../queries';
-import { SiteEntity } from '../../repositories/entities';
+import {
+    SiteAdministratorEntity,
+    SiteEntity,
+    SiteManagerEntity,
+    SiteSupportTeamMemberEntity,
+} from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
@@ -26,22 +40,25 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         await this.validateSiteKeyAndName(command.transactionId, command.key, command.name);
         const customer = await this.validateCustomerExist(command.transactionId, command.customerKey);
 
-        await this.runWorkflow(
+        const siteWorkflowResult = await this.runWorkflow(
             command.transactionId,
             command.name,
             command.key,
-            command.approvers,
+            command.siteManagers,
+            command.siteAdministrators,
+            command.siteSupportTeamMembers,
             customer.name,
             customer.businessUnit,
         );
 
-        const siteEntity = SiteEntity.createWithoutId(
+        const createdSite = await this.createSite(
             command.key,
             command.name,
             command.customerKey,
-            command.approvers,
+            siteWorkflowResult.siteManagers,
+            siteWorkflowResult.siteAdministrators,
+            siteWorkflowResult.siteSupportTeamMembers,
         );
-        const createdSite = await this.siteRepositoryService.create(siteEntity);
 
         this.eventBus.publish(
             new SiteCreatedEvent(command.transactionId, {
@@ -86,10 +103,12 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         transactionId: string,
         siteName: string,
         siteKey: string,
-        siteApprovers: SiteApprover[],
+        siteManagers: PartialSiteManager[],
+        siteAdministrators: PartialSiteAdministrator[],
+        siteSupportTeamMembers: PartialSiteSupportTeamMember[],
         customerName: string,
         customerBusinessUnit: BusinessUnit,
-    ): Promise<void> {
+    ): Promise<SiteWorkflowResult> {
         const siteWorkflow = new SiteWorkflow(
             this.appConfigService,
             this.queryBus,
@@ -97,11 +116,52 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             transactionId,
             siteName,
             siteKey,
-            siteApprovers,
+            siteManagers,
+            siteAdministrators,
+            siteSupportTeamMembers,
             customerName,
             customerBusinessUnit,
         );
 
-        await siteWorkflow.run();
+        return await siteWorkflow.getOrCreate();
+    }
+
+    private async createSite(
+        key: string,
+        name: string,
+        customerKey: string,
+        managers: PartialSiteManagerWithUserId[],
+        administrators: PartialSiteAdministratorWithUserId[],
+        supportTeamMembers: PartialSiteSupportTeamMemberWithUserId[],
+    ) {
+        const siteEntity = SiteEntity.createWithoutId(
+            key,
+            name,
+            customerKey,
+            managers.map((manager) =>
+                SiteManagerEntity.createWithoutId(manager.userId, manager.username, manager.email),
+            ),
+            administrators.map((administrator) =>
+                SiteAdministratorEntity.createWithoutId(
+                    administrator.userId,
+                    administrator.username,
+                    administrator.email,
+                    administrator.isAdminOperator,
+                ),
+            ),
+            supportTeamMembers.map((supportTeamMember) =>
+                SiteSupportTeamMemberEntity.createWithoutId(
+                    supportTeamMember.userId,
+                    supportTeamMember.firstname,
+                    supportTeamMember.lastname,
+                    supportTeamMember.email,
+                    supportTeamMember.supportTeamName,
+                    supportTeamMember.supportTeamAccessLevel,
+                    supportTeamMember.supportTeamTrustLevel,
+                ),
+            ),
+        );
+
+        return await this.siteRepositoryService.create(siteEntity);
     }
 }

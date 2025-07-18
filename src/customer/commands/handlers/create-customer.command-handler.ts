@@ -6,7 +6,7 @@ import { Customer } from '../../models';
 import { RetrieveCustomersQuery } from '../../queries';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
-import { AdminGroupPolicyWorkflow } from '../../workflows';
+import { AdministratorGroupPolicyWorkflow } from '../../workflows';
 import { CreateCustomerCommand } from '../create-customer.command';
 
 @CommandHandler(CreateCustomerCommand)
@@ -60,7 +60,7 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
     }
 
     private async runWorkflow(transactionId: string, customerName: string): Promise<void> {
-        const adminGroupPolicyWorkflow = new AdminGroupPolicyWorkflow(
+        const workflow = new AdministratorGroupPolicyWorkflow(
             this.appConfigService,
             this.queryBus,
             this.commandBus,
@@ -68,6 +68,6 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
             customerName,
         );
 
-        await adminGroupPolicyWorkflow.getOrCreate();
+        await workflow.getOrCreate();
     }
 }

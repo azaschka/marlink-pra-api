@@ -6,7 +6,6 @@ import {
     HttpCode,
     HttpStatus,
     Param,
-    Patch,
     Post,
     Query,
     UsePipes,
@@ -21,15 +20,34 @@ import {
     ApiOkResponse,
     ApiParam,
     ApiTags,
-    ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
-import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
-import { CreateSiteCommand, DeleteSiteCommand, ModifySiteCommand } from '../commands';
-import { CreateSiteDtoInput, ModifySiteDtoInput, RetrieveSitesDtoInput } from '../dtos/inputs';
-import { SiteCreatedDtoOutput, SiteModifiedDtoOutput, SiteRetrievedDtoOutput } from '../dtos/outputs';
-import { Site } from '../models';
+import {
+    AddSiteAdministratorCommand,
+    AddSiteManagerCommand,
+    AddSiteSupportTeamMemberCommand,
+    CreateSiteCommand,
+    DeleteSiteCommand,
+    RemoveSiteAdministratorCommand,
+    RemoveSiteManagerCommand,
+    RemoveSiteSupportTeamMemberCommand,
+} from '../commands';
+import {
+    CreateSiteDtoInput,
+    RetrieveSitesDtoInput,
+    SiteAdministratorDtoInput,
+    SiteManagerDtoInput,
+    SiteSupportTeamMemberDtoInput,
+} from '../dtos/inputs';
+import {
+    SiteAdministratorDtoOutput,
+    SiteCreatedDtoOutput,
+    SiteManagerDtoOutput,
+    SiteRetrievedDtoOutput,
+    SiteSupportTeamMemberDtoOutput,
+} from '../dtos/outputs';
+import { Site, SiteAdministrator, SiteManager, SiteSupportTeamMember } from '../models';
 import { RetrieveSitesQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -71,34 +89,20 @@ export class SiteController {
         description: 'The specified site already exists.',
     })
     @ApiNotFoundResponse({ description: 'The customer key is not found.' })
-    @ApiUnprocessableEntityResponse({
-        description: 'Failed in downstream process.',
-    })
     public async createSite(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Body() dtoInput: CreateSiteDtoInput,
     ): Promise<SiteCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateSiteCommand, Site>(
-            new CreateSiteCommand(transactionId, dtoInput.key, dtoInput.name, dtoInput.customerKey, dtoInput.approvers),
-        );
-
-        return result;
-    }
-
-    @Patch(':id')
-    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
-    @ApiOkResponse({
-        type: SiteModifiedDtoOutput,
-        description: 'Indicates the site was successfully updated and contains the updated site.',
-    })
-    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
-    public async modifySite(
-        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
-        @Param('id') id: number,
-        @Body(new NonEmptyBodyPipe()) dtoInput: ModifySiteDtoInput,
-    ): Promise<SiteModifiedDtoOutput> {
-        const result = await this.commandBus.execute<ModifySiteCommand, Site>(
-            new ModifySiteCommand(transactionId, id, dtoInput.approvers),
+            new CreateSiteCommand(
+                transactionId,
+                dtoInput.key,
+                dtoInput.name,
+                dtoInput.customerKey,
+                dtoInput.siteManagers,
+                dtoInput.siteAdministrators ?? [],
+                dtoInput.siteSupportTeamMembers ?? [],
+            ),
         );
 
         return result;
@@ -114,5 +118,149 @@ export class SiteController {
         @Param('id') id: number,
     ): Promise<void> {
         await this.commandBus.execute<DeleteSiteCommand, void>(new DeleteSiteCommand(transactionId, id));
+    }
+
+    @Post(':id/manager')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiCreatedResponse({
+        type: SiteManagerDtoOutput,
+        description: 'Indicates the site manager was added successfully.',
+    })
+    @ApiConflictResponse({
+        description: 'The specified site manager already exists.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async addSiteManager(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+        @Body() dtoInput: SiteManagerDtoInput,
+    ): Promise<SiteManagerDtoOutput> {
+        const result = await this.commandBus.execute<AddSiteManagerCommand, SiteManager>(
+            new AddSiteManagerCommand(transactionId, id, dtoInput.username, dtoInput.email),
+        );
+
+        return result;
+    }
+
+    @Delete(':id/manager/:managerId')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiParam({
+        name: 'managerId',
+        type: Number,
+        required: true,
+        description: 'Unique identifier for the site manager.',
+    })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the site manager was successfully removed.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async removeSiteManager(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+        @Param('managerId') managerId: number,
+    ): Promise<void> {
+        await this.commandBus.execute<RemoveSiteManagerCommand, void>(
+            new RemoveSiteManagerCommand(transactionId, id, managerId),
+        );
+    }
+
+    @Post(':id/administrator')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiCreatedResponse({
+        type: SiteAdministratorDtoOutput,
+        description: 'Indicates the site administrator was added successfully.',
+    })
+    @ApiConflictResponse({
+        description: 'The specified site administrator already exists.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async addSiteAdministrator(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+        @Body() dtoInput: SiteAdministratorDtoInput,
+    ): Promise<SiteAdministratorDtoOutput> {
+        const result = await this.commandBus.execute<AddSiteAdministratorCommand, SiteAdministrator>(
+            new AddSiteAdministratorCommand(
+                transactionId,
+                id,
+                dtoInput.username,
+                dtoInput.email,
+                dtoInput.isAdminOperator,
+            ),
+        );
+
+        return result;
+    }
+
+    @Delete(':id/administrator/:administratorId')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiParam({
+        name: 'administratorId',
+        type: Number,
+        required: true,
+        description: 'Unique identifier for the site administrator.',
+    })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the site administrator was successfully removed.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async removeSiteAdministrator(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+        @Param('administratorId') administratorId: number,
+    ): Promise<void> {
+        await this.commandBus.execute<RemoveSiteAdministratorCommand, void>(
+            new RemoveSiteAdministratorCommand(transactionId, id, administratorId),
+        );
+    }
+
+    @Post(':id/support-team-member')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiCreatedResponse({
+        type: SiteSupportTeamMemberDtoInput,
+        description: 'Indicates the site support team member was added successfully.',
+    })
+    @ApiConflictResponse({
+        description: 'The specified site support team member already exists.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async addSiteSupportTeamMember(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+        @Body() dtoInput: SiteSupportTeamMemberDtoInput,
+    ): Promise<SiteSupportTeamMemberDtoOutput> {
+        const result = await this.commandBus.execute<AddSiteSupportTeamMemberCommand, SiteSupportTeamMember>(
+            new AddSiteSupportTeamMemberCommand(
+                transactionId,
+                id,
+                dtoInput.firstname,
+                dtoInput.lastname,
+                dtoInput.email,
+                dtoInput.supportTeamName,
+                dtoInput.supportTeamAccessLevel,
+                dtoInput.supportTeamTrustLevel,
+            ),
+        );
+
+        return result;
+    }
+
+    @Delete(':id/support-team-member/:supportTeamMemberId')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiParam({
+        name: 'supportTeamMemberId',
+        type: Number,
+        required: true,
+        description: 'Unique identifier for the site support team member.',
+    })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the site support team member was successfully removed.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async removeSiteSupportTeamMember(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+        @Param('supportTeamMemberId') supportTeamMemberId: number,
+    ): Promise<void> {
+        await this.commandBus.execute<RemoveSiteSupportTeamMemberCommand, void>(
+            new RemoveSiteSupportTeamMemberCommand(transactionId, id, supportTeamMemberId),
+        );
     }
 }

@@ -7,7 +7,7 @@ import { CustomerCreatedEvent } from '../../events';
 import { RetrieveCustomersQuery } from '../../queries';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
-import { AdminGroupPolicyWorkflow } from '../../workflows';
+import { AdministratorGroupPolicyWorkflow } from '../../workflows';
 import { CreateCustomerCommand } from '../create-customer.command';
 import { CreateCustomerCommandHandler } from './create-customer.command-handler';
 
@@ -93,8 +93,8 @@ describe('CreateCustomerCommandHandler', () => {
             // Arrange
             queryBus.execute = jest.fn().mockResolvedValue([]); // Mocking query bus to return empty array for key and name validation
             const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
-            const adminGroupPolicyWorkflowGetOrCreate = jest
-                .spyOn(AdminGroupPolicyWorkflow.prototype, 'getOrCreate')
+            const administratorGroupPolicyWorkflowGetOrCreate = jest
+                .spyOn(AdministratorGroupPolicyWorkflow.prototype, 'getOrCreate')
                 .mockResolvedValue({ id: 456 } as GroupPolicy);
             const customerEntityToBeCreated = { id: 123 } as CustomerEntity;
             const customerEntityCreateWithoutIdMethod = jest
@@ -124,7 +124,7 @@ describe('CreateCustomerCommandHandler', () => {
                 false,
                 BillingType.User,
             );
-            expect(adminGroupPolicyWorkflowGetOrCreate).toHaveBeenCalledTimes(1);
+            expect(administratorGroupPolicyWorkflowGetOrCreate).toHaveBeenCalledTimes(1);
             expect(customerRepositoryServiceCreateMethod).toHaveBeenCalledWith(customerEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
                 expect.objectContaining(<CustomerCreatedEvent>{

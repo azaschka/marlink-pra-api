@@ -1,1 +1,1 @@
-export * from './admin-group-policy.workflow';
+export * from './administrator-group-policy.workflow';

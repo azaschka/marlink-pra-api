@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { SiteApproverDtoInput } from './site-approver.dto-input';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { SiteAdministratorDtoInput } from './site-administrator.dto-input';
+import { SiteManagerDtoInput } from './site-manager.dto-input';
+import { SiteSupportTeamMemberDtoInput } from './site-support-team-member.dto-input';
 
 export class CreateSiteDtoInput {
     @ApiProperty({
@@ -29,11 +31,33 @@ export class CreateSiteDtoInput {
 
     @ApiProperty({
         required: true,
-        type: [SiteApproverDtoInput],
+        type: [SiteManagerDtoInput],
     })
     @IsArray()
     @ArrayNotEmpty()
     @ValidateNested({ each: true })
-    @Type(() => SiteApproverDtoInput)
-    public approvers!: SiteApproverDtoInput[];
+    @Type(() => SiteManagerDtoInput)
+    public siteManagers!: SiteManagerDtoInput[];
+
+    @ApiProperty({
+        required: false,
+        type: [SiteAdministratorDtoInput],
+        description: 'The list of site administrators.',
+    })
+    @IsArray()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => SiteAdministratorDtoInput)
+    public siteAdministrators?: SiteAdministratorDtoInput[];
+
+    @ApiProperty({
+        required: false,
+        type: [SiteSupportTeamMemberDtoInput],
+        description: 'The list of site support team members.',
+    })
+    @IsArray()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => SiteSupportTeamMemberDtoInput)
+    public siteSupportTeamMembers?: SiteSupportTeamMemberDtoInput[];
 }

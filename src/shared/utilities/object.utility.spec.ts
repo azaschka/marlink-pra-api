@@ -85,4 +85,39 @@ describe('ObjectUtility', () => {
             },
         );
     });
+
+    describe('filterUnique', () => {
+        it.each([
+            {
+                input: [],
+                expectedOutput: [],
+            },
+            {
+                input: [1, 2, 3, 4, 5, 5, 4, 3, 2, 1],
+                expectedOutput: [1, 2, 3, 4, 5],
+            },
+            {
+                input: ['a', 'b', 'c', 'a', 'b'],
+                expectedOutput: ['a', 'b', 'c'],
+            },
+            {
+                input: [{ id: 1, name: 'A' }],
+                expectedOutput: [{ id: 1, name: 'A' }],
+            },
+            {
+                input: [
+                    { id: 1, name: 'A' },
+                    { id: 2, name: 'B' },
+                    { id: 1, name: 'A' },
+                ],
+                expectedOutput: [
+                    { id: 1, name: 'A' },
+                    { id: 2, name: 'B' },
+                ],
+            },
+        ])('should return as expected', ({ input, expectedOutput }) => {
+            const result = ObjectUtility.filterUnique<unknown>(input);
+            expect(result).toStrictEqual(expectedOutput);
+        });
+    });
 });

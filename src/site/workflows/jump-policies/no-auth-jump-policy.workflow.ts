@@ -1,0 +1,140 @@
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { AppConfigService } from '../../../app-config/services/app-config.service';
+import {
+    CreateJumpPolicyCommand,
+    DeleteJumpPolicyCommand,
+    ModifyJumpPolicyCommand,
+} from '../../../jump-policy/commands';
+import { JumpPolicy } from '../../../jump-policy/models';
+import { RetrieveJumpPoliciesQuery } from '../../../jump-policy/queries';
+import { BaseWorkflow } from '../../../shared/workflows';
+
+export class NoAuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
+    private static readonly HAS_SCHEDULED_ACCESS_RESTRICTION = false;
+    private static readonly APPROVAL_MAX_DURATION_IN_MINUTES = 240;
+
+    private get jumpPolicyDisplayName(): string {
+        return `${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}${this.appConfigService.site.jumpPolicy.noAuthSuffix}`;
+    }
+
+    private get jumpPolicyCodeName(): string {
+        return this.jumpPolicyDisplayName.toLowerCase();
+    }
+
+    constructor(
+        private readonly appConfigService: AppConfigService,
+        private readonly queryBus: QueryBus,
+        private readonly commandBus: CommandBus,
+        private readonly transactionId: string,
+        private readonly siteName: string,
+        private readonly siteKey: string,
+        private readonly customerName: string,
+    ) {}
+
+    public async getOrCreate(): Promise<JumpPolicy> {
+        const jumpPolicy = await this.getOrModify();
+
+        if (jumpPolicy) {
+            return jumpPolicy;
+        }
+
+        return await this.commandBus.execute<CreateJumpPolicyCommand, JumpPolicy>(
+            new CreateJumpPolicyCommand(
+                this.transactionId,
+                this.jumpPolicyDisplayName, // displayName
+                this.jumpPolicyCodeName, // codeName
+                undefined, // description
+                NoAuthJumpPolicyWorkflow.HAS_SCHEDULED_ACCESS_RESTRICTION, // hasScheduledAccessRestriction
+                undefined, // simultaneousJumpsType
+                undefined, // doesSimultaneousJumpBehaviorApplyToCopies
+                undefined, // simultaneousJumpsRdpType
+                undefined, // shouldForceRemoveUsersWhenScheduleDisallows
+                undefined, // isTicketIdRequired
+                undefined, // isTwoFactorChallengeRequired
+                undefined, // isSessionStartNotificationEnabled
+                undefined, // isSessionEndNotificationEnabled
+                undefined, // notificationEmailAddresses
+                undefined, // notificationDisplayName
+                undefined, // notificationEmailLanguage
+                undefined, // isApprovalRequired
+                NoAuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES, // approvalMaxDurationInMinutes
+                undefined, // approvalScopeType
+                undefined, // approvalEmailAddresses
+                undefined, // approvalUserIds
+                undefined, // approvalTeamIds
+                undefined, // approvalDisplayName
+                undefined, // approvalEmailLanguage
+                undefined, // approvalApproverScopeType
+                undefined, // isRecordingsDisabled
+            ),
+        );
+    }
+
+    public async delete(): Promise<void> {
+        const jumpPolicy = await this.get();
+
+        if (!jumpPolicy) {
+            return;
+        }
+
+        await this.commandBus.execute<DeleteJumpPolicyCommand, void>(
+            new DeleteJumpPolicyCommand(this.transactionId, jumpPolicy.id),
+        );
+    }
+
+    private async getOrModify(): Promise<JumpPolicy | null> {
+        const jumpPolicy = await this.get();
+
+        if (!jumpPolicy) {
+            return null;
+        }
+
+        if (
+            jumpPolicy.displayName !== this.jumpPolicyDisplayName ||
+            jumpPolicy.hasScheduledAccessRestriction !== NoAuthJumpPolicyWorkflow.HAS_SCHEDULED_ACCESS_RESTRICTION ||
+            jumpPolicy.approvalMaxDurationInMinutes !== NoAuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES
+        ) {
+            return await this.commandBus.execute<ModifyJumpPolicyCommand, JumpPolicy>(
+                new ModifyJumpPolicyCommand(
+                    this.transactionId,
+                    jumpPolicy.id,
+                    this.jumpPolicyDisplayName, // displayName
+                    undefined, // codeName
+                    undefined, // description
+                    NoAuthJumpPolicyWorkflow.HAS_SCHEDULED_ACCESS_RESTRICTION, // hasScheduledAccessRestriction
+                    undefined, // simultaneousJumpsType
+                    undefined, // doesSimultaneousJumpBehaviorApplyToCopies
+                    undefined, // simultaneousJumpsRdpType
+                    undefined, // shouldForceRemoveUsersWhenScheduleDisallows
+                    undefined, // isTicketIdRequired
+                    undefined, // isTwoFactorChallengeRequired
+                    undefined, // isSessionStartNotificationEnabled
+                    undefined, // isSessionEndNotificationEnabled
+                    undefined, // notificationEmailAddresses
+                    undefined, // notificationDisplayName
+                    undefined, // notificationEmailLanguage
+                    undefined, // isApprovalRequired
+                    NoAuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES, // approvalMaxDurationInMinutes
+                    undefined, // approvalScopeType
+                    undefined, // approvalEmailAddresses
+                    undefined, // approvalUserIds
+                    undefined, // approvalTeamIds
+                    undefined, // approvalDisplayName
+                    undefined, // approvalEmailLanguage
+                    undefined, // approvalApproverScopeType
+                    undefined, // isRecordingsDisabled
+                ),
+            );
+        }
+
+        return jumpPolicy;
+    }
+
+    private async get(): Promise<JumpPolicy | null> {
+        const jumpPolicies = await this.queryBus.execute<RetrieveJumpPoliciesQuery, JumpPolicy[]>(
+            new RetrieveJumpPoliciesQuery(this.transactionId, 1, 1, this.jumpPolicyCodeName),
+        );
+
+        return jumpPolicies[0] ?? null;
+    }
+}

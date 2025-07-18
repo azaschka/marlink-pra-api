@@ -524,17 +524,75 @@ describe('AppConfigService', () => {
         });
     });
 
-    describe('customer', () => {
+    describe('site', () => {
         it.each([
             {
                 input: {
                     groupPolicy: {
-                        adminPrefix: 'ADMINISTRATOR',
+                        managerPrefix: 'MANAGER',
+                        operatorPrefix: 'OPERATOR',
+                        administratorPrefix: 'ADMINISTRATOR',
+                        marlink: {
+                            superuser: 'MARLINK_SUPERUSER',
+                            operator: 'MARLINK_OPERATOR',
+                        },
+                        managerAccess: 'MANAGER_ACCESS',
+                        administratorAccess: 'ADMINISTRATOR_ACCESS',
+                        adminOperatorAccess: 'ADMIN_OPERATOR_ACCESS',
+                        limitedAccess: 'LIMITED_ACCESS',
+                        fullAccess: 'FULL_ACCESS',
+                    },
+                    user: {
+                        siteManager: {
+                            publicDisplayNamePrefix: 'SITE_MANAGER',
+                        },
+                        siteAdministrator: {
+                            publicDisplayNamePrefix: 'SITE_ADMINISTRATOR',
+                        },
+                    },
+                    jumpPolicy: {
+                        authSuffix: 'AUTH',
+                        noAuthSuffix: 'NO_AUTH',
+                        notifySuffix: 'NOTIFY',
+                        notificationDisplayNamePrefix: 'NOTIFICATION',
+                        approvalDisplayNamePrefix: 'APPROVAL',
+                    },
+                    jumpoint: {
+                        prefix: 'JUMPOINT',
                     },
                 },
                 expected: {
                     groupPolicy: {
-                        adminPrefix: 'ADMINISTRATOR',
+                        managerPrefix: 'MANAGER',
+                        operatorPrefix: 'OPERATOR',
+                        administratorPrefix: 'ADMINISTRATOR',
+                        marlink: {
+                            superuser: 'MARLINK_SUPERUSER',
+                            operator: 'MARLINK_OPERATOR',
+                        },
+                        managerAccess: 'MANAGER_ACCESS',
+                        administratorAccess: 'ADMINISTRATOR_ACCESS',
+                        adminOperatorAccess: 'ADMIN_OPERATOR_ACCESS',
+                        limitedAccess: 'LIMITED_ACCESS',
+                        fullAccess: 'FULL_ACCESS',
+                    },
+                    user: {
+                        siteManager: {
+                            publicDisplayNamePrefix: 'SITE_MANAGER',
+                        },
+                        siteAdministrator: {
+                            publicDisplayNamePrefix: 'SITE_ADMINISTRATOR',
+                        },
+                    },
+                    jumpPolicy: {
+                        authSuffix: 'AUTH',
+                        noAuthSuffix: 'NO_AUTH',
+                        notifySuffix: 'NOTIFY',
+                        notificationDisplayNamePrefix: 'NOTIFICATION',
+                        approvalDisplayNamePrefix: 'APPROVAL',
+                    },
+                    jumpoint: {
+                        prefix: 'JUMPOINT',
                     },
                 },
             },
@@ -542,15 +600,147 @@ describe('AppConfigService', () => {
                 input: {},
                 expected: {
                     groupPolicy: {
-                        adminPrefix: 'unknown',
+                        managerPrefix: 'unknown',
+                        operatorPrefix: 'unknown',
+                        administratorPrefix: 'unknown',
+                        marlink: {
+                            superuser: 'unknown',
+                            operator: 'unknown',
+                        },
+                        managerAccess: 'unknown',
+                        administratorAccess: 'unknown',
+                        adminOperatorAccess: 'unknown',
+                        limitedAccess: 'unknown',
+                        fullAccess: 'unknown',
+                    },
+                    user: {
+                        siteManager: {
+                            publicDisplayNamePrefix: 'unknown',
+                        },
+                        siteAdministrator: {
+                            publicDisplayNamePrefix: 'unknown',
+                        },
+                    },
+                    jumpPolicy: {
+                        authSuffix: 'unknown',
+                        noAuthSuffix: 'unknown',
+                        notifySuffix: 'unknown',
+                        notificationDisplayNamePrefix: 'unknown',
+                        approvalDisplayNamePrefix: 'unknown',
+                    },
+                    jumpoint: {
+                        prefix: 'unknown',
+                    },
+                },
+            },
+        ])('should return the site configuration as expected', ({ input, expected }) => {
+            configService.get = jest.fn().mockImplementation((key: string) => {
+                switch (key) {
+                    case 'SITE_GROUP_POLICY_MANAGER_PREFIX':
+                        return input.groupPolicy?.managerPrefix;
+                    case 'SITE_GROUP_POLICY_OPERATOR_PREFIX':
+                        return input.groupPolicy?.operatorPrefix;
+                    case 'SITE_GROUP_POLICY_ADMINISTRATOR_PREFIX':
+                        return input.groupPolicy?.administratorPrefix;
+                    case 'SITE_GROUP_POLICY_MARLINK_SUPERUSER':
+                        return input.groupPolicy?.marlink?.superuser;
+                    case 'SITE_GROUP_POLICY_MARLINK_OPERATOR':
+                        return input.groupPolicy?.marlink?.operator;
+                    case 'SITE_GROUP_POLICY_MANAGER_ACCESS':
+                        return input.groupPolicy?.managerAccess;
+                    case 'SITE_GROUP_POLICY_ADMINISTRATOR_ACCESS':
+                        return input.groupPolicy?.administratorAccess;
+                    case 'SITE_GROUP_POLICY_ADMIN_OPERATOR_ACCESS':
+                        return input.groupPolicy?.adminOperatorAccess;
+                    case 'SITE_GROUP_POLICY_LIMITED_ACCESS':
+                        return input.groupPolicy?.limitedAccess;
+                    case 'SITE_GROUP_POLICY_FULL_ACCESS':
+                        return input.groupPolicy?.fullAccess;
+                    case 'SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME_PREFIX':
+                        return input.user?.siteManager?.publicDisplayNamePrefix;
+                    case 'SITE_USER_SITE_ADMINISTRATOR_PUBLIC_DISPLAY_NAME_PREFIX':
+                        return input.user?.siteAdministrator?.publicDisplayNamePrefix;
+                    case 'SITE_JUMP_POLICY_AUTH_SUFFIX':
+                        return input.jumpPolicy?.authSuffix;
+                    case 'SITE_JUMP_POLICY_NO_AUTH_SUFFIX':
+                        return input.jumpPolicy?.noAuthSuffix;
+                    case 'SITE_JUMP_POLICY_NOTIFY_SUFFIX':
+                        return input.jumpPolicy?.notifySuffix;
+                    case 'SITE_JUMP_POLICY_NOTIFICATION_DISPLAY_NAME_PREFIX':
+                        return input.jumpPolicy?.notificationDisplayNamePrefix;
+                    case 'SITE_JUMP_POLICY_APPROVAL_DISPLAY_NAME_PREFIX':
+                        return input.jumpPolicy?.approvalDisplayNamePrefix;
+                    case 'SITE_JUMPOINT_PREFIX':
+                        return input.jumpoint?.prefix;
+                    default:
+                        return undefined;
+                }
+            });
+
+            expect(service.site).toEqual({
+                groupPolicy: {
+                    managerPrefix: expected.groupPolicy.managerPrefix,
+                    operatorPrefix: expected.groupPolicy.operatorPrefix,
+                    administratorPrefix: expected.groupPolicy.administratorPrefix,
+                    marlink: {
+                        superuser: expected.groupPolicy.marlink.superuser,
+                        operator: expected.groupPolicy.marlink.operator,
+                    },
+                    managerAccess: expected.groupPolicy.managerAccess,
+                    administratorAccess: expected.groupPolicy.administratorAccess,
+                    adminOperatorAccess: expected.groupPolicy.adminOperatorAccess,
+                    limitedAccess: expected.groupPolicy.limitedAccess,
+                    fullAccess: expected.groupPolicy.fullAccess,
+                },
+                user: {
+                    siteManager: {
+                        publicDisplayNamePrefix: expected.user.siteManager.publicDisplayNamePrefix,
+                    },
+                    siteAdministrator: {
+                        publicDisplayNamePrefix: expected.user.siteAdministrator.publicDisplayNamePrefix,
+                    },
+                },
+                jumpPolicy: {
+                    authSuffix: expected.jumpPolicy.authSuffix,
+                    noAuthSuffix: expected.jumpPolicy.noAuthSuffix,
+                    notifySuffix: expected.jumpPolicy.notifySuffix,
+                    notificationDisplayNamePrefix: expected.jumpPolicy.notificationDisplayNamePrefix,
+                    approvalDisplayNamePrefix: expected.jumpPolicy.approvalDisplayNamePrefix,
+                },
+                jumpoint: {
+                    prefix: expected.jumpoint.prefix,
+                },
+            });
+        });
+    });
+
+    describe('customer', () => {
+        it.each([
+            {
+                input: {
+                    groupPolicy: {
+                        administratorPrefix: 'ADMINISTRATOR',
+                    },
+                },
+                expected: {
+                    groupPolicy: {
+                        administratorPrefix: 'ADMINISTRATOR',
+                    },
+                },
+            },
+            {
+                input: {},
+                expected: {
+                    groupPolicy: {
+                        administratorPrefix: 'unknown',
                     },
                 },
             },
         ])('should return the customer configuration as expected', ({ input, expected }) => {
             configService.get = jest.fn().mockImplementation((key: string) => {
                 switch (key) {
-                    case 'CUSTOMER_GROUP_POLICY_ADMIN_PREFIX':
-                        return input.groupPolicy?.adminPrefix;
+                    case 'CUSTOMER_GROUP_POLICY_ADMINISTRATOR_PREFIX':
+                        return input.groupPolicy?.administratorPrefix;
                     default:
                         return undefined;
                 }
@@ -558,7 +748,7 @@ describe('AppConfigService', () => {
 
             expect(service.customer).toEqual({
                 groupPolicy: {
-                    adminPrefix: expected.groupPolicy.adminPrefix,
+                    administratorPrefix: expected.groupPolicy.administratorPrefix,
                 },
             });
         });
