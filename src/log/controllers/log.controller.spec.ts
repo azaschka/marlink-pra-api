@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
+import { AppConfigService } from '../../app-config/services/app-config.service';
 import { SortOrderType } from '../../shared/enums';
 import { Log } from '../models';
 import { LogService } from '../services/log.service';
@@ -10,6 +11,7 @@ const DEFAULT_DATE_TIME = new Date('2025-12-01T00:00:00Z');
 
 describe('LogController', () => {
     let controller: LogController;
+    let appConfigService: AppConfigService;
     let commandBus: CommandBus;
     let queryBus: QueryBus;
     let eventBus: EventBus;
@@ -17,11 +19,12 @@ describe('LogController', () => {
 
     beforeEach(() => {
         jest.useFakeTimers().setSystemTime(DEFAULT_DATE_TIME);
+        appConfigService = mockAppConfigService();
         commandBus = mockCommandBus();
         queryBus = mockQueryBus();
         eventBus = mockEventBus();
         logService = mockLogService();
-        controller = new LogController(commandBus, queryBus, eventBus, logService);
+        controller = new LogController(appConfigService, commandBus, queryBus, eventBus, logService);
     });
 
     describe('retrieveLogs', () => {
@@ -91,6 +94,12 @@ describe('LogController', () => {
         );
     });
 });
+
+function mockAppConfigService() {
+    return {
+        isProduction: false,
+    } as AppConfigService;
+}
 
 function mockCommandBus() {
     const commandBus = {} as CommandBus;

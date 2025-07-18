@@ -13,6 +13,10 @@ export class AppConfigService {
 
     constructor(private readonly configService: ConfigService) {}
 
+    public get isProduction(): boolean {
+        return this.env.toLowerCase() === 'production' || this.env.toLowerCase() === 'prod';
+    }
+
     public get env(): string {
         return this.configService.get<string>('ENV') ?? AppConfigService.DEFAULT_UNDEFINED_STRING;
     }
@@ -179,8 +183,8 @@ export class AppConfigService {
             password: this.configService.get<string>('DB_PASSWORD') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             database: this.configService.get<string>('DB_NAME') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: this.env !== 'production',
-            logging: this.env !== 'production',
+            synchronize: !this.isProduction,
+            logging: false,
             autoLoadEntities: true,
         };
     }

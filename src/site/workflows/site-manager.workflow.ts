@@ -121,6 +121,10 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             currentApprovalEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
         );
 
+        if (newNotificationEmails.length === 0 || newApprovalEmails.length === 0) {
+            return; // Site manager's auth jump policy must have at least one notification and approval email
+        }
+
         if (
             newNotificationEmails.length === currentNotificationEmails.length &&
             newApprovalEmails.length === currentApprovalEmails.length &&
@@ -174,6 +178,10 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         const newNotificationEmails = ObjectUtility.filterUnique(
             currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
         );
+
+        if (newNotificationEmails.length === 0) {
+            return; // Site manager's notify jump policy must have at least one notification email
+        }
 
         if (
             newNotificationEmails.length === currentNotificationEmails.length &&
