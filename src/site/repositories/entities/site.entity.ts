@@ -1,5 +1,13 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Site, SiteAdministrator, SiteManager, SiteSupportTeamMember } from '../../models';
+import {
+    PartialSiteAdministratorWithUserId,
+    PartialSiteManagerWithUserId,
+    PartialSiteSupportTeamMemberWithUserId,
+    Site,
+    SiteAdministrator,
+    SiteManager,
+    SiteSupportTeamMember,
+} from '../../models';
 import { SiteAdministratorEntity } from './site-administrator.entity';
 import { SiteManagerEntity } from './site-manager.entity';
 import { SiteSupportTeamMemberEntity } from './site-support-team-member.entity';
@@ -46,17 +54,17 @@ export class SiteEntity implements Site {
         key: string,
         name: string,
         customerKey: string,
-        siteManagers: SiteManager[],
-        siteAdministrators: SiteAdministrator[],
-        siteSupportTeamMembers: SiteSupportTeamMember[],
+        siteManagers: (SiteManager | PartialSiteManagerWithUserId)[],
+        siteAdministrators: (SiteAdministrator | PartialSiteAdministratorWithUserId)[],
+        siteSupportTeamMembers: (SiteSupportTeamMember | PartialSiteSupportTeamMemberWithUserId)[],
     ): SiteEntity {
         const entity = new SiteEntity();
         entity.key = key;
         entity.name = name;
         entity.customerKey = customerKey;
-        entity.siteManagers = siteManagers;
-        entity.siteAdministrators = siteAdministrators;
-        entity.siteSupportTeamMembers = siteSupportTeamMembers;
+        entity.siteManagers = siteManagers as SiteManagerEntity[];
+        entity.siteAdministrators = siteAdministrators as SiteAdministratorEntity[];
+        entity.siteSupportTeamMembers = siteSupportTeamMembers as SiteSupportTeamMemberEntity[];
 
         return entity;
     }

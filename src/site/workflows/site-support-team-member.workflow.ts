@@ -12,14 +12,16 @@ import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { SiteSupportTeamAccessLevel } from '../enums';
 import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId } from '../models';
-import { AdministratorGroupPolicyWorkflow } from './group-policies/administrator-group-policy.workflow';
-import { FullAccessGroupPolicyWorkflow } from './group-policies/full-access-group-policy.workflow';
-import { LimitedAccessGroupPolicyWorkflow } from './group-policies/limited-access-group-policy.workflow';
-import { OperatorGroupPolicyWorkflow } from './group-policies/operator-group-policy.workflow';
-import { SupportTeamGroupPolicyWorkflow } from './group-policies/support-team-group-policy.workflow';
-import { SupportTeamJumpGroupWorkflow } from './jump-groups/support-team-jump-group.workflow';
-import { JumpointsWorkflow } from './jumpoints/jumpoints.workflow';
-import { SiteSupportTeamMemberUserWorkflow } from './users/site-support-team-member-user.workflow';
+import {
+    AdministratorGroupPolicyWorkflow,
+    FullAccessGroupPolicyWorkflow,
+    LimitedAccessGroupPolicyWorkflow,
+    OperatorGroupPolicyWorkflow,
+    SupportTeamGroupPolicyWorkflow,
+} from './group-policies';
+import { SupportTeamJumpGroupWorkflow } from './jump-groups';
+import { JumpointsWorkflow } from './jumpoints';
+import { SiteSupportTeamMemberUserWorkflow } from './users';
 
 export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSupportTeamMemberWithUserId> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;

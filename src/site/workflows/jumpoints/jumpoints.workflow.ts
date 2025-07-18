@@ -10,6 +10,7 @@ import { BaseWorkflow } from '../../../shared/workflows';
 export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
     private static readonly PLATFORM_TYPE = JumpointPlatformType.LinuxX86;
     private static readonly IS_SHELL_JUMP_ENABLED = true;
+    private static readonly TOTAL_JUMPOINTS = 1;
 
     private getJumpointName(jumpointNumber: number): string {
         return `${this.customerBusinessUnit}_${this.appConfigService.site.jumpoint.prefix}${jumpointNumber}_${this.customerName.toUpperCase()}_${this.siteName.toUpperCase()}_${this.siteKey.toUpperCase()}`;
@@ -24,7 +25,6 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
         private readonly transactionId: string,
-        private readonly totalJumpoints: number,
         private readonly siteName: string,
         private readonly siteKey: string,
         private readonly customerName: string,
@@ -34,7 +34,7 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
     public async getOrCreate(): Promise<Jumpoint[]> {
         const jumpoints: Jumpoint[] = [];
 
-        for (let i = 1; i <= this.totalJumpoints; i++) {
+        for (let i = 1; i <= JumpointsWorkflow.TOTAL_JUMPOINTS; i++) {
             const jumpoint = await this.getOrModify(i);
 
             if (jumpoint) {
@@ -62,7 +62,7 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
     }
 
     public async delete(): Promise<void> {
-        for (let i = 1; i <= this.totalJumpoints; i++) {
+        for (let i = 1; i <= JumpointsWorkflow.TOTAL_JUMPOINTS; i++) {
             const jumpoint = await this.get(i);
 
             if (!jumpoint) {

@@ -16,12 +16,7 @@ import {
     SiteWorkflowResult,
 } from '../../models';
 import { RetrieveSitesQuery } from '../../queries';
-import {
-    SiteAdministratorEntity,
-    SiteEntity,
-    SiteManagerEntity,
-    SiteSupportTeamMemberEntity,
-} from '../../repositories/entities';
+import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
@@ -138,28 +133,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             key,
             name,
             customerKey,
-            managers.map((manager) =>
-                SiteManagerEntity.createWithoutId(manager.userId, manager.username, manager.email),
-            ),
-            administrators.map((administrator) =>
-                SiteAdministratorEntity.createWithoutId(
-                    administrator.userId,
-                    administrator.username,
-                    administrator.email,
-                    administrator.isAdminOperator,
-                ),
-            ),
-            supportTeamMembers.map((supportTeamMember) =>
-                SiteSupportTeamMemberEntity.createWithoutId(
-                    supportTeamMember.userId,
-                    supportTeamMember.firstname,
-                    supportTeamMember.lastname,
-                    supportTeamMember.email,
-                    supportTeamMember.supportTeamName,
-                    supportTeamMember.supportTeamAccessLevel,
-                    supportTeamMember.supportTeamTrustLevel,
-                ),
-            ),
+            managers,
+            administrators,
+            supportTeamMembers,
         );
 
         return await this.siteRepositoryService.create(siteEntity);

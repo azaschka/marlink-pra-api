@@ -10,7 +10,10 @@ import {
     SiteManagerEntity,
     SiteSupportTeamMemberEntity,
 } from './repositories/entities';
+import { SiteAdministratorRepositoryService } from './repositories/services/site-administrator.service';
+import { SiteManagerRepositoryService } from './repositories/services/site-manager.service';
 import { SiteRepositoryService } from './repositories/services/site-repository.service';
+import { SiteSupportTeamMemberRepositoryService } from './repositories/services/site-support-team-member.service';
 
 @Module({
     imports: [
@@ -18,6 +21,13 @@ import { SiteRepositoryService } from './repositories/services/site-repository.s
         AppConfigModule,
     ],
     controllers: [SiteController],
-    providers: [...QueryHandlers, ...CommandHandlers, SiteRepositoryService],
+    providers: [
+        ...QueryHandlers,
+        ...CommandHandlers,
+        SiteRepositoryService,
+        SiteAdministratorRepositoryService,
+        SiteManagerRepositoryService,
+        SiteSupportTeamMemberRepositoryService,
+    ],
 })
 export class SiteModule {}

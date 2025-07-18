@@ -7,11 +7,9 @@ import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { PartialSiteManager, PartialSiteManagerWithUserId } from '../models';
-import { ManagerAccessGroupPolicyWorkflow } from './group-policies/manager-access-group-policy.workflow';
-import { ManagerGroupPolicyWorkflow } from './group-policies/manager-group-policy.workflow';
-import { AuthJumpPolicyWorkflow } from './jump-policies/auth-jump-policy.workflow';
-import { NotifyJumpPolicyWorkflow } from './jump-policies/notify-jump-policy.workflow';
-import { SiteManagerUserWorkflow } from './users/site-manager-user.workflow';
+import { ManagerAccessGroupPolicyWorkflow, ManagerGroupPolicyWorkflow } from './group-policies';
+import { AuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from './jump-policies';
+import { SiteManagerUserWorkflow } from './users';
 
 export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithUserId> {
     private readonly siteManagerUserWorkflow: SiteManagerUserWorkflow;

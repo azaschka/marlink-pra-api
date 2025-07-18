@@ -4,10 +4,12 @@ import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { PartialSiteAdministrator, PartialSiteAdministratorWithUserId } from '../models';
-import { AdminOperatorAccessGroupPolicyWorkflow } from './group-policies/admin-operator-access-group-policy.workflow';
-import { AdministratorAccessGroupPolicyWorkflow } from './group-policies/administrator-access-group-policy.workflow';
-import { AdministratorGroupPolicyWorkflow } from './group-policies/administrator-group-policy.workflow';
-import { SiteAdministratorUserWorkflow } from './users/site-administrator-user.workflow';
+import {
+    AdministratorAccessGroupPolicyWorkflow,
+    AdministratorGroupPolicyWorkflow,
+    AdminOperatorAccessGroupPolicyWorkflow,
+} from './group-policies';
+import { SiteAdministratorUserWorkflow } from './users';
 
 export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdministratorWithUserId> {
     private readonly siteAdministratorUserWorkflow: SiteAdministratorUserWorkflow;

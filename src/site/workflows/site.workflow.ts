@@ -16,24 +16,23 @@ import {
     PartialSiteSupportTeamMember,
     SiteWorkflowResult,
 } from '../models';
-import { AdministratorGroupPolicyWorkflow } from './group-policies/administrator-group-policy.workflow';
-import { ManagerGroupPolicyWorkflow } from './group-policies/manager-group-policy.workflow';
-import { MarlinkOperatorGroupPolicyWorkflow } from './group-policies/marlink-operator-group-policy.workflow';
-import { MarlinkSuperuserGroupPolicyWorkflow } from './group-policies/marlink-superuser-group-policy.workflow';
-import { OperatorGroupPolicyWorkflow } from './group-policies/operator-group-policy.workflow';
-import { AuthJumpPolicyWorkflow } from './jump-policies/auth-jump-policy.workflow';
-import { NoAuthJumpPolicyWorkflow } from './jump-policies/no-auth-jump-policy.workflow';
-import { NotifyJumpPolicyWorkflow } from './jump-policies/notify-jump-policy.workflow';
-import { JumpointsWorkflow } from './jumpoints/jumpoints.workflow';
+import {
+    AdministratorGroupPolicyWorkflow,
+    ManagerGroupPolicyWorkflow,
+    MarlinkOperatorGroupPolicyWorkflow,
+    MarlinkSuperuserGroupPolicyWorkflow,
+    OperatorGroupPolicyWorkflow,
+} from './group-policies';
+import { AuthJumpPolicyWorkflow, NoAuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from './jump-policies';
+import { JumpointsWorkflow } from './jumpoints';
 import { SiteAdministratorWorkflow } from './site-administrator.workflow';
 import { SiteManagerWorkflow } from './site-manager.workflow';
 import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workflow';
-import { TeamWorkflow } from './teams/team.workflow';
+import { TeamWorkflow } from './teams';
 
 export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
-    private static readonly TOTAL_JUMPOINTS = 1;
     private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow;
     private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow;
     private readonly siteManagerWorkflows: SiteManagerWorkflow[];
@@ -127,7 +126,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.queryBus,
             this.commandBus,
             this.transactionId,
-            SiteWorkflow.TOTAL_JUMPOINTS,
             this.siteName,
             this.siteKey,
             this.customerName,

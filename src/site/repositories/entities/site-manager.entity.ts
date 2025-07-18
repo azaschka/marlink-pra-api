@@ -4,21 +4,24 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
     PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 import { SiteManager } from '../../models';
 import { SiteEntity } from './site.entity';
 
+@Unique(['siteId', 'userId'])
 @Entity({ name: 'pra_site_managers' })
 export class SiteManagerEntity implements SiteManager {
     @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
     public id!: number;
 
-    @Column({ name: 'site_id', type: 'int' })
+    @PrimaryColumn({ name: 'site_id', type: 'int' })
     public siteId!: number;
 
-    @Column({ name: 'user_id', type: 'int' })
+    @PrimaryColumn({ name: 'user_id', type: 'int' })
     public userId!: number;
 
     @Column({ name: 'username', type: 'varchar' })
@@ -39,8 +42,9 @@ export class SiteManagerEntity implements SiteManager {
     @JoinColumn({ name: 'site_id' })
     public site!: SiteEntity;
 
-    public static createWithoutId(userId: number, username: string, email: string): SiteManagerEntity {
+    public static createWithoutId(siteId: number, userId: number, username: string, email: string): SiteManagerEntity {
         const entity = new SiteManagerEntity();
+        entity.siteId = siteId;
         entity.userId = userId;
         entity.username = username;
         entity.email = email;
