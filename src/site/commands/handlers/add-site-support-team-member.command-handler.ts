@@ -29,8 +29,8 @@ export class AddSiteSupportTeamMemberCommandHandler implements ICommandHandler<A
     ) {}
 
     public async execute(command: AddSiteSupportTeamMemberCommand): Promise<SiteSupportTeamMember> {
-        const site = await this.retrieveSite(command.siteId);
-        const customer = await this.retrieveCustomer(command.transactionId, site.customerKey);
+        const site = await this.getSite(command.siteId);
+        const customer = await this.getCustomer(command.transactionId, site.customerKey);
         const siteSupportTeamMember = await this.runWorkflow(command.transactionId, customer, site, {
             firstname: command.firstname,
             lastname: command.lastname,
@@ -55,13 +55,13 @@ export class AddSiteSupportTeamMemberCommandHandler implements ICommandHandler<A
             ),
         );
 
-        const updatedSite = await this.retrieveSite(command.siteId);
+        const updatedSite = await this.getSite(command.siteId);
         this.eventBus.publish(new SiteModifiedEvent(command.transactionId, { site: updatedSite }));
 
         return createdSiteSupportTeamMember;
     }
 
-    private async retrieveSite(siteId: number) {
+    private async getSite(siteId: number) {
         const site = await this.siteRepositoryService.findOneById(siteId);
 
         if (!site) {
@@ -71,7 +71,7 @@ export class AddSiteSupportTeamMemberCommandHandler implements ICommandHandler<A
         return site;
     }
 
-    private async retrieveCustomer(transactionId: string, customerKey: string) {
+    private async getCustomer(transactionId: string, customerKey: string) {
         const customers = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
             new RetrieveCustomersQuery(transactionId, 1, 1, customerKey),
         );

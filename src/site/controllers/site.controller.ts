@@ -152,6 +152,9 @@ export class SiteController {
     })
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiNoContentResponse({ description: 'Indicates the site manager was successfully removed.' })
+    @ApiConflictResponse({
+        description: 'The specified site manager cannot be removed due to minimum count requirements.',
+    })
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async removeSiteManager(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),

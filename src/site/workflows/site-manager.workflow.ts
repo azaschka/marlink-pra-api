@@ -6,7 +6,9 @@ import { ObjectUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
-import { PartialSiteManager, PartialSiteManagerWithUserId } from '../models';
+import { User } from '../../user/models';
+import { PartialSiteManager, PartialSiteManagerWithUserId, SiteManager } from '../models';
+import { RetrieveSiteManagersQuery } from '../queries';
 import { ManagerAccessGroupPolicyWorkflow, ManagerGroupPolicyWorkflow } from './group-policies';
 import { AuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from './jump-policies';
 import { SiteManagerUserWorkflow } from './users';
@@ -47,6 +49,8 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
         const managerAccessGroupPolicy = await this.managerAccessGroupPolicyWorkflow.getOrCreate();
         const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
+        const authJumpPolicy = await this.authJumpPolicyWorkflow.getOrCreate();
+        const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
 
         // Add the site manager user to the manager group policy and manager access group policy
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
@@ -58,8 +62,12 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             ),
         );
 
-        await this.modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses();
-        await this.modifyNotifyJumpPolicyNotificationEmailAddresses();
+        await this.modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses(
+            authJumpPolicy,
+            [this.siteManager.email],
+            [],
+        );
+        await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [this.siteManager.email], []);
 
         return {
             ...this.siteManager,
@@ -67,23 +75,57 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         };
     }
 
-    public async delete(): Promise<void> {}
-
-    private async modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses() {
+    public async delete(): Promise<void> {
+        const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
+        const managerAccessGroupPolicy = await this.managerAccessGroupPolicyWorkflow.getOrCreate();
+        const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
         const authJumpPolicy = await this.authJumpPolicyWorkflow.getOrCreate();
+        const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
+        const isSiteManagerAssociatedWithMultipleSites =
+            await this.isSiteManagerAssociatedWithMultipleSites(siteManagerUser);
 
-        const newNotificationEmailAddresses = ObjectUtility.filterUnique([
-            ...(authJumpPolicy.notificationEmailAddresses ?? []),
-            this.siteManager.email,
-        ]);
-        const newApprovalEmailAddresses = ObjectUtility.filterUnique([
-            ...(authJumpPolicy.approvalEmailAddresses ?? []),
-            this.siteManager.email,
-        ]);
+        // Remove the site manager user from the manager group policy and
+        // manager access group policy if they are not associated with multiple sites
+        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
+            new ModifyUserGroupPoliciesCommand(
+                this.transactionId,
+                siteManagerUser.id,
+                [],
+                isSiteManagerAssociatedWithMultipleSites
+                    ? [managerGroupPolicy.id]
+                    : [managerGroupPolicy.id, managerAccessGroupPolicy.id],
+            ),
+        );
+
+        await this.modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses(
+            authJumpPolicy,
+            [],
+            [this.siteManager.email],
+        );
+        await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
+    }
+
+    private async modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses(
+        authJumpPolicy: JumpPolicy,
+        emailsToAdd: string[],
+        emailsToRemove: string[],
+    ): Promise<void> {
+        const currentNotificationEmails = authJumpPolicy.notificationEmailAddresses ?? [];
+        const currentApprovalEmails = authJumpPolicy.approvalEmailAddresses ?? [];
+
+        // Merge, deduplicate, and remove unwanted emails
+        const newNotificationEmails = ObjectUtility.filterUnique(
+            currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
+        );
+        const newApprovalEmails = ObjectUtility.filterUnique(
+            currentApprovalEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
+        );
 
         if (
-            newNotificationEmailAddresses.length === (authJumpPolicy.notificationEmailAddresses ?? []).length &&
-            newApprovalEmailAddresses.length === (authJumpPolicy.approvalEmailAddresses ?? []).length
+            newNotificationEmails.length === currentNotificationEmails.length &&
+            newApprovalEmails.length === currentApprovalEmails.length &&
+            newNotificationEmails.every((email) => currentNotificationEmails.includes(email)) &&
+            newApprovalEmails.every((email) => currentApprovalEmails.includes(email))
         ) {
             return; // No changes needed
         }
@@ -104,13 +146,13 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
                 undefined, // isTwoFactorChallengeRequired
                 undefined, // isSessionStartNotificationEnabled
                 undefined, // isSessionEndNotificationEnabled
-                newNotificationEmailAddresses, // notificationEmailAddresses
+                newNotificationEmails, // notificationEmailAddresses
                 undefined, // notificationDisplayName
                 undefined, // notificationEmailLanguage
                 undefined, // isApprovalRequired
                 undefined, // approvalMaxDurationInMinutes
                 undefined, // approvalScopeType
-                newApprovalEmailAddresses, // approvalEmailAddresses
+                newApprovalEmails, // approvalEmailAddresses
                 undefined, // approvalUserIds
                 undefined, // approvalTeamIds
                 undefined, // approvalDisplayName
@@ -121,15 +163,22 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         );
     }
 
-    private async modifyNotifyJumpPolicyNotificationEmailAddresses() {
-        const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
+    private async modifyNotifyJumpPolicyNotificationEmailAddresses(
+        notifyJumpPolicy: JumpPolicy,
+        emailsToAdd: string[],
+        emailsToRemove: string[],
+    ) {
+        const currentNotificationEmails = notifyJumpPolicy.notificationEmailAddresses ?? [];
 
-        const newNotificationEmailAddresses = ObjectUtility.filterUnique([
-            ...(notifyJumpPolicy.notificationEmailAddresses ?? []),
-            this.siteManager.email,
-        ]);
+        // Merge, deduplicate, and remove unwanted emails
+        const newNotificationEmails = ObjectUtility.filterUnique(
+            currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
+        );
 
-        if (newNotificationEmailAddresses.length === (notifyJumpPolicy.notificationEmailAddresses ?? []).length) {
+        if (
+            newNotificationEmails.length === currentNotificationEmails.length &&
+            newNotificationEmails.every((email) => currentNotificationEmails.includes(email))
+        ) {
             return; // No changes needed
         }
 
@@ -149,7 +198,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
                 undefined, // isTwoFactorChallengeRequired
                 undefined, // isSessionStartNotificationEnabled
                 undefined, // isSessionEndNotificationEnabled
-                newNotificationEmailAddresses, // notificationEmailAddresses
+                newNotificationEmails, // notificationEmailAddresses
                 undefined, // notificationDisplayName
                 undefined, // notificationEmailLanguage
                 undefined, // isApprovalRequired
@@ -164,5 +213,13 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
                 undefined,
             ),
         );
+    }
+
+    private async isSiteManagerAssociatedWithMultipleSites(siteManagerUser: User) {
+        const siteManagers = await this.queryBus.execute<RetrieveSiteManagersQuery, SiteManager[]>(
+            new RetrieveSiteManagersQuery(this.transactionId, 2, 1, siteManagerUser.id),
+        );
+
+        return siteManagers.length > 1;
     }
 }

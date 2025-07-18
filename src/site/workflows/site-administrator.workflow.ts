@@ -3,7 +3,9 @@ import { AppConfigService } from '../../app-config/services/app-config.service';
 import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
-import { PartialSiteAdministrator, PartialSiteAdministratorWithUserId } from '../models';
+import { User } from '../../user/models';
+import { PartialSiteAdministrator, PartialSiteAdministratorWithUserId, SiteAdministrator } from '../models';
+import { RetrieveSiteAdministratorsQuery } from '../queries';
 import {
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
@@ -76,5 +78,38 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
         };
     }
 
-    public async delete(): Promise<void> {}
+    public async delete(): Promise<void> {
+        const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
+        const administratorAccessGroupPolicy = await this.administratorAccessGroupPolicyWorkflow.getOrCreate();
+        const adminOperatorAccessGroupPolicy = await this.adminOperatorAccessGroupPolicyWorkflow.getOrCreate();
+        const siteAdministratorUser = await this.siteAdministratorUserWorkflow.getOrCreate();
+        const isSiteAdministratorAssociatedWithMultipleSites =
+            await this.isSiteAdministratorAssociatedWithMultipleSites(siteAdministratorUser);
+
+        // When site administrator is associated to only one site, we can remove the user from the group policies
+        // Remove the site administrator user from the administrator group policy and administrator access group policy
+        // and optionally from the admin operator access group policy if the site administrator is an admin operator
+        if (!isSiteAdministratorAssociatedWithMultipleSites) {
+            await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
+                new ModifyUserGroupPoliciesCommand(
+                    this.transactionId,
+                    siteAdministratorUser.id,
+                    [],
+                    [
+                        administratorGroupPolicy.id,
+                        administratorAccessGroupPolicy.id,
+                        this.siteAdministrator.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
+                    ].filter((id) => id !== undefined),
+                ),
+            );
+        }
+    }
+
+    private async isSiteAdministratorAssociatedWithMultipleSites(siteAdministratorUser: User) {
+        const siteAdministrators = await this.queryBus.execute<RetrieveSiteAdministratorsQuery, SiteAdministrator[]>(
+            new RetrieveSiteAdministratorsQuery(this.transactionId, 2, 1, siteAdministratorUser.id),
+        );
+
+        return siteAdministrators.length > 1;
+    }
 }

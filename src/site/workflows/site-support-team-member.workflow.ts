@@ -10,8 +10,10 @@ import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
+import { User } from '../../user/models';
 import { SiteSupportTeamAccessLevel } from '../enums';
-import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId } from '../models';
+import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId, SiteSupportTeamMember } from '../models';
+import { RetrieveSiteSupportTeamMembersQuery } from '../queries';
 import {
     AdministratorGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
@@ -145,7 +147,40 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         };
     }
 
-    public async delete(): Promise<void> {}
+    public async delete(): Promise<void> {
+        const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
+        const supportTeamGroupPolicy = await this.supportTeamGroupPolicyWorkflow.getOrCreate();
+        const limitedAccessGroupPolicy = await this.limitedAccessGroupPolicyWorkflow.getOrCreate();
+        const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
+        const siteSupportTeamMemberUser = await this.siteSupportTeamMemberUserWorkflow.getOrCreate();
+        const isSiteSupportTeamMemberAssociatedWithMultipleSites =
+            await this.isSiteSupportTeamMemberAssociatedWithMultipleSites(siteSupportTeamMemberUser);
+
+        // Remove the user from the support team group policy and operator group policy
+        // and from the limited access or full access group policy based on the access level
+        // If the site support team member is associated with multiple sites, we only remove them from the operator group policy
+        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
+            new ModifyUserGroupPoliciesCommand(
+                this.transactionId,
+                siteSupportTeamMemberUser.id,
+                [],
+                isSiteSupportTeamMemberAssociatedWithMultipleSites
+                    ? [operatorGroupPolicy.id]
+                    : [
+                          supportTeamGroupPolicy.id,
+                          operatorGroupPolicy.id,
+                          this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
+                              ? fullAccessGroupPolicy.id
+                              : limitedAccessGroupPolicy.id,
+                      ],
+            ),
+        );
+
+        // TODO
+        // 1. Jumpoint and jump group removal from the group policies.
+        // 2. Remove support team group policy and jump group.
+        // Perhaps it's customer responsibility since it's way too much harder to apply here (?)
+    }
 
     private async getAllGroupPolicyJumpoints(groupPolicyId: number): Promise<GroupPolicyJumpoint[]> {
         return await PaginationUtility.queryUntilLastPage<GroupPolicyJumpoint>((pageNumber) =>
@@ -171,5 +206,14 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
                 ),
             ),
         );
+    }
+
+    private async isSiteSupportTeamMemberAssociatedWithMultipleSites(siteSupportTeamMemberUser: User) {
+        const siteSupportTeamMembers = await this.queryBus.execute<
+            RetrieveSiteSupportTeamMembersQuery,
+            SiteSupportTeamMember[]
+        >(new RetrieveSiteSupportTeamMembersQuery(this.transactionId, 2, 1, siteSupportTeamMemberUser.id));
+
+        return siteSupportTeamMembers.length > 1;
     }
 }
