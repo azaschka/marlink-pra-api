@@ -10,6 +10,28 @@ describe('AppConfigService', () => {
         service = new AppConfigService(configService);
     });
 
+    describe('isProduction', () => {
+        it.each([
+            {
+                input: 'production',
+                expected: true,
+            },
+            {
+                input: 'prod',
+                expected: true,
+            },
+            {
+                input: 'development',
+                expected: false,
+            },
+        ])('should return the correct production status', ({ input, expected }) => {
+            const configServiceGetMethod = jest.spyOn(configService, 'get').mockReturnValue(input);
+
+            expect(service.isProduction).toBe(expected);
+            expect(configServiceGetMethod).toHaveBeenCalledWith('ENV');
+        });
+    });
+
     describe('env', () => {
         it.each([
             {
@@ -482,7 +504,7 @@ describe('AppConfigService', () => {
                     password: 'unknown',
                     database: 'unknown',
                     synchronize: true,
-                    logging: true,
+                    logging: false,
                     autoLoadEntities: true,
                 },
             },
