@@ -42,6 +42,13 @@ export class BeyondtrustInstanceModifiedDtoOutput implements BeyondtrustInstance
 
     @ApiProperty({
         required: true,
+        type: String,
+        description: 'The url for the backup API of the BeyondTrust instance.',
+    })
+    public backupApiUrl!: string;
+
+    @ApiProperty({
+        required: true,
         type: Date,
         description: 'The date and time when this BeyondTrust instance was created.',
     })

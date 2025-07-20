@@ -42,4 +42,13 @@ export class CreateBeyondtrustInstanceDtoInput {
     @IsNotEmpty()
     @IsString()
     public apiBaseUrl!: string;
+
+    @ApiProperty({
+        required: true,
+        type: String,
+        description: 'The url for the backup API of the BeyondTrust instance.',
+    })
+    @IsNotEmpty()
+    @IsString()
+    public backupApiUrl!: string;
 }

@@ -119,6 +119,9 @@ describe('AppConfigService', () => {
                     baseUrl: 'api-base-url-1',
                     beyondtrustInstance: {
                         path: 'api-path-beyondtrust-instance-1',
+                        backup: {
+                            path: 'api-path-beyondtrust-instance-backup-1',
+                        },
                     },
                     user: {
                         path: 'api-path-user-1',
@@ -190,6 +193,9 @@ describe('AppConfigService', () => {
                     baseUrl: 'api-base-url-1',
                     beyondtrustInstance: {
                         path: 'api-path-beyondtrust-instance-1',
+                        backup: {
+                            path: 'api-path-beyondtrust-instance-backup-1',
+                        },
                     },
                     user: {
                         path: 'api-path-user-1',
@@ -264,6 +270,9 @@ describe('AppConfigService', () => {
                     baseUrl: 'unknown',
                     beyondtrustInstance: {
                         path: 'unknown',
+                        backup: {
+                            path: 'unknown',
+                        },
                     },
                     user: {
                         path: 'unknown',
@@ -339,6 +348,8 @@ describe('AppConfigService', () => {
                         return input.baseUrl;
                     case 'PRA_SYNC_API_BEYONDTRUST_INSTANCE_PATH':
                         return input.beyondtrustInstance?.path;
+                    case 'PRA_SYNC_API_BEYONDTRUST_INSTANCE_BACKUP_PATH':
+                        return input.beyondtrustInstance?.backup?.path;
                     case 'PRA_SYNC_API_USER_PATH':
                         return input.user?.path;
                     case 'PRA_SYNC_API_USER_GROUP_POLICY_PATH':
@@ -398,6 +409,9 @@ describe('AppConfigService', () => {
                 baseUrl: expected.baseUrl,
                 beyondtrustInstance: {
                     path: expected.beyondtrustInstance?.path,
+                    backup: {
+                        path: expected.beyondtrustInstance?.backup?.path,
+                    },
                 },
                 user: {
                     path: expected.user?.path,
@@ -542,6 +556,37 @@ describe('AppConfigService', () => {
                 synchronize: expected.synchronize,
                 logging: expected.logging,
                 autoLoadEntities: expected.autoLoadEntities,
+            });
+        });
+    });
+
+    describe('storage', () => {
+        it.each([
+            {
+                input: {
+                    rootPath: 'root/path',
+                    beyondTrustBackupPath: 'https://backup.api.url',
+                },
+                expected: {
+                    rootPath: 'root/path',
+                    beyondTrustBackupPath: 'https://backup.api.url',
+                },
+            },
+        ])('should return the storage configuration as expected', ({ input, expected }) => {
+            configService.get = jest.fn().mockImplementation((key: string) => {
+                if (key === 'STORAGE_ROOT_PATH') {
+                    return input.rootPath;
+                }
+                if (key === 'STORAGE_BEYONDTRUST_BACKUP_PATH') {
+                    return input.beyondTrustBackupPath;
+                }
+
+                return undefined;
+            });
+
+            expect(service.storage).toEqual({
+                rootPath: expected.rootPath,
+                beyondTrustBackupPath: expected.beyondTrustBackupPath,
             });
         });
     });

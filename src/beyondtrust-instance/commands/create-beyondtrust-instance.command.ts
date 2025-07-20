@@ -8,5 +8,6 @@ export class CreateBeyondtrustInstanceCommand {
         public readonly authClientSecret: string,
         public readonly oauth2TokenUrl: string,
         public readonly apiBaseUrl: string,
+        public readonly backupApiUrl: string,
     ) {}
 }

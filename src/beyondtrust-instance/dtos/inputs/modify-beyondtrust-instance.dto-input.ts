@@ -42,4 +42,13 @@ export class ModifyBeyondtrustInstanceDtoInput {
     @IsOptional()
     @IsString()
     public apiBaseUrl?: string;
+
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'The url for the backup API of the BeyondTrust instance.',
+    })
+    @IsOptional()
+    @IsString()
+    public backupApiUrl?: string;
 }

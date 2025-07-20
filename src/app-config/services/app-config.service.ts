@@ -55,6 +55,11 @@ export class AppConfigService {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_BEYONDTRUST_INSTANCE_PATH') ??
                     AppConfigService.DEFAULT_UNDEFINED_STRING,
+                backup: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_BEYONDTRUST_INSTANCE_BACKUP_PATH') ??
+                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                },
             },
             user: {
                 path:
@@ -186,6 +191,15 @@ export class AppConfigService {
             synchronize: !this.isProduction,
             logging: false,
             autoLoadEntities: true,
+        };
+    }
+
+    public get storage() {
+        return {
+            rootPath: this.configService.get<string>('STORAGE_ROOT_PATH') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            beyondTrustBackupPath:
+                this.configService.get<string>('STORAGE_BEYONDTRUST_BACKUP_PATH') ??
+                AppConfigService.DEFAULT_UNDEFINED_STRING,
         };
     }
 

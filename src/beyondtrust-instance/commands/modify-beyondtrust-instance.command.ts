@@ -9,5 +9,6 @@ export class ModifyBeyondtrustInstanceCommand {
         public readonly authClientSecret?: string,
         public readonly oauth2TokenUrl?: string,
         public readonly apiBaseUrl?: string,
+        public readonly backupApiUrl?: string,
     ) {}
 }

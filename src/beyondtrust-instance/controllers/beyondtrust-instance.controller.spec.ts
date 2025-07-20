@@ -61,6 +61,7 @@ describe('BeyondtrustInstanceController', () => {
                 authClientSecret: 'auth-client-secret-1',
                 oauth2TokenUrl: 'https://oauth2.example.com/token',
                 apiBaseUrl: 'https://api.example.com',
+                backupApiUrl: 'https://backup-api.example.com',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -71,6 +72,7 @@ describe('BeyondtrustInstanceController', () => {
                     'auth-client-secret-1',
                     'https://oauth2.example.com/token',
                     'https://api.example.com',
+                    'https://backup-api.example.com',
                 ),
             );
             expect(result).toBe(expectedResult);
@@ -88,6 +90,7 @@ describe('BeyondtrustInstanceController', () => {
                 authClientSecret: 'auth-client-secret-1',
                 oauth2TokenUrl: 'https://oauth2.example.com/token',
                 apiBaseUrl: 'https://api.example.com',
+                backupApiUrl: 'https://backup-api.example.com',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -99,6 +102,7 @@ describe('BeyondtrustInstanceController', () => {
                     'auth-client-secret-1',
                     'https://oauth2.example.com/token',
                     'https://api.example.com',
+                    'https://backup-api.example.com',
                 ),
             );
             expect(result).toBe(expectedResult);

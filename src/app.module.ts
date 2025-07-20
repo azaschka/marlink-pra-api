@@ -6,6 +6,7 @@ import { AppConfigModule } from './app-config/app-config.module';
 import { AppConfigService } from './app-config/services/app-config.service';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
+import { BeyondtrustInstanceBackupModule } from './beyondtrust-instance-backup/beyondtrust-instance-backup.module';
 import { BeyondtrustInstanceModule } from './beyondtrust-instance/beyondtrust-instance.module';
 import { CustomerModule } from './customer/customer.module';
 import { GroupPolicyJumpGroupModule } from './group-policy-jump-group/group-policy-jump-group.module';
@@ -40,6 +41,7 @@ import { UserModule } from './user/user.module';
         CustomerModule,
         SiteModule,
         BeyondtrustInstanceModule,
+        BeyondtrustInstanceBackupModule,
         UserModule,
         UserGroupPolicyModule,
         TeamModule,
