@@ -1,3 +1,5 @@
+import { BusinessUnit, UserRole } from '../enums';
+
 export class CreatePraUserCommand {
     public readonly commandType = 'create-pra-user';
 
@@ -6,7 +8,8 @@ export class CreatePraUserCommand {
         public readonly username: string,
         public readonly password: string,
         public readonly email: string,
-        public readonly role: string,
+        public readonly role: UserRole,
         public readonly displayName: string,
+        public readonly businessUnit?: BusinessUnit,
     ) {}
 }

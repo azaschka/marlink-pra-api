@@ -18,8 +18,9 @@ import { UuidUtility } from '../../shared/utilities';
 import { CreatePraUserCommand, DeletePraUserCommand, ModifyPraUserCommand } from '../commands';
 import { CreatePraUserDtoInput, ModifyPraUserDtoInput, RetrievePraUsersDtoInput } from '../dtos/inputs';
 import { ApiKeyAuthGuard, JwtAuthGuard } from '../guards';
-import { PraUser } from '../models';
 import { RetrievePraUsersQuery } from '../queries';
+import { PraUserEntity } from '../repositories/entities';
+import { PraUser } from '../models';
 
 @Controller('pra-users')
 @UseGuards(ApiKeyAuthGuard, JwtAuthGuard)
@@ -36,7 +37,7 @@ export class PraUserController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrievePraUsersDtoInput,
     ): Promise<PraUser[]> {
-        const result = await this.queryBus.execute<RetrievePraUsersQuery, PraUser[]>(
+        const result = await this.queryBus.execute<RetrievePraUsersQuery, PraUserEntity[]>(
             new RetrievePraUsersQuery(
                 transactionId,
                 dtoInput.pageSize,
@@ -45,7 +46,6 @@ export class PraUserController {
                 dtoInput.username,
             ),
         );
-
         return result;
     }
 
@@ -54,7 +54,7 @@ export class PraUserController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Body() dtoInput: CreatePraUserDtoInput,
     ): Promise<PraUser> {
-        const result = await this.commandBus.execute<CreatePraUserCommand, PraUser>(
+        const result = await this.commandBus.execute<CreatePraUserCommand, PraUserEntity>(
             new CreatePraUserCommand(
                 transactionId,
                 dtoInput.username,
@@ -62,9 +62,9 @@ export class PraUserController {
                 dtoInput.email,
                 dtoInput.role,
                 dtoInput.displayName,
+                dtoInput.businessUnit,
             ),
         );
-
         return result;
     }
 
@@ -74,7 +74,7 @@ export class PraUserController {
         @Param('id') id: number,
         @Body() dtoInput: ModifyPraUserDtoInput,
     ): Promise<PraUser> {
-        const result = await this.commandBus.execute<ModifyPraUserCommand, PraUser>(
+        const result = await this.commandBus.execute<ModifyPraUserCommand, PraUserEntity>(
             new ModifyPraUserCommand(
                 transactionId,
                 id,
@@ -83,9 +83,9 @@ export class PraUserController {
                 dtoInput.email,
                 dtoInput.role,
                 dtoInput.displayName,
+                dtoInput.businessUnit,
             ),
         );
-
         return result;
     }
 

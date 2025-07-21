@@ -1,7 +1,6 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
 import { PraUserCreatedEvent } from '../../events';
-import { PraUser } from '../../models';
 import { PraUserEntity } from '../../repositories/entities';
 import { PraUserRepositoryService } from 'src/auth/repositories/services/pra-user-repository.service';
 import { CreatePraUserCommand } from '../create-pra-user.command';
@@ -15,7 +14,7 @@ export class CreatePraUserCommandHandler implements ICommandHandler<CreatePraUse
         private readonly praUserRepositoryService: PraUserRepositoryService,
     ) {}
 
-    public async execute(command: CreatePraUserCommand): Promise<PraUser> {
+    public async execute(command: CreatePraUserCommand): Promise<PraUserEntity> {
         const hashedPassword = await bcrypt.hash(command.password, CreatePraUserCommandHandler.SALT_ROUNDS);
         const praUserEntity = PraUserEntity.createWithoutId(
             command.username,
@@ -23,6 +22,7 @@ export class CreatePraUserCommandHandler implements ICommandHandler<CreatePraUse
             command.email,
             command.role,
             command.displayName,
+            command.businessUnit,
         );
         const createdPraUser = await this.praUserRepositoryService.create(praUserEntity);
 

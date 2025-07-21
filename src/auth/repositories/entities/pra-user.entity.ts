@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { PraUser } from 'src/auth/models';
+import { PraUser } from '../../models';
+import { UserRole, BusinessUnit } from '../../enums';
 
 @Entity({ name: 'pra_user' })
 export class PraUserEntity implements PraUser {
@@ -16,10 +17,13 @@ export class PraUserEntity implements PraUser {
     public email!: string;
 
     @Column({ name: 'role', type: 'varchar', length: 50 })
-    public role!: string;
+    public role!: UserRole;
 
     @Column({ name: 'display_name', type: 'varchar', length: 100 })
     public displayName!: string;
+
+    @Column({ name: 'business_unit', type: 'varchar', length: 50, nullable: true })
+    public businessUnit?: BusinessUnit;
 
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
@@ -32,8 +36,9 @@ export class PraUserEntity implements PraUser {
         username: string,
         password: string,
         email: string,
-        role: string,
+        role: UserRole,
         displayName: string,
+        businessUnit?: BusinessUnit,
     ): PraUserEntity {
         const entity = new PraUserEntity();
         entity.id = id;
@@ -42,6 +47,7 @@ export class PraUserEntity implements PraUser {
         entity.email = email;
         entity.role = role;
         entity.displayName = displayName;
+        entity.businessUnit = businessUnit;
 
         return entity;
     }
@@ -50,8 +56,9 @@ export class PraUserEntity implements PraUser {
         username: string,
         password: string,
         email: string,
-        role: string,
+        role: UserRole,
         displayName: string,
+        businessUnit?: BusinessUnit,
     ): PraUserEntity {
         const entity = new PraUserEntity();
         entity.username = username;
@@ -59,6 +66,7 @@ export class PraUserEntity implements PraUser {
         entity.email = email;
         entity.role = role;
         entity.displayName = displayName;
+        entity.businessUnit = businessUnit;
 
         return entity;
     }

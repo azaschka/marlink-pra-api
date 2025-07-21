@@ -9,6 +9,7 @@ import { AppConfigService } from '../app-config/services/app-config.service';
 import { PraUserRepositoryService } from './repositories/services/pra-user-repository.service';
 import { AuthService } from './services/auth.service';
 import { AuthController } from './controllers/auth.controller';
+import { PraUserController } from './controllers/pra-user.controller';
 import { ApiKeyStrategy, JwtStrategy, LocalStrategy } from './strategies';
 import { PraUserEntity } from './repositories/entities';
 
@@ -28,7 +29,7 @@ import { PraUserEntity } from './repositories/entities';
             inject: [AppConfigService],
         }),
     ],
-    controllers: [AuthController],
+    controllers: [AuthController, PraUserController],
     providers: [
         AuthService,
         ApiKeyStrategy,

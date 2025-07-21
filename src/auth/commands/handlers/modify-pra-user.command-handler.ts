@@ -2,7 +2,6 @@ import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
 import { PraUserModifiedEvent } from '../../events';
-import { PraUser } from '../../models';
 import { PraUserEntity } from '../../repositories/entities';
 import { PraUserRepositoryService } from '../../repositories/services/pra-user-repository.service';
 import { ModifyPraUserCommand } from '../modify-pra-user.command';
@@ -16,7 +15,7 @@ export class ModifyPraUserCommandHandler implements ICommandHandler<ModifyPraUse
         private readonly praUserRepositoryService: PraUserRepositoryService,
     ) {}
 
-    public async execute(command: ModifyPraUserCommand): Promise<PraUser> {
+    public async execute(command: ModifyPraUserCommand): Promise<PraUserEntity> {
         const praUserEntity = await this.praUserRepositoryService.findOneById(command.id);
         if (!praUserEntity) {
             throw new NotFoundException();
@@ -32,6 +31,7 @@ export class ModifyPraUserCommandHandler implements ICommandHandler<ModifyPraUse
             command.email ?? praUserEntity.email,
             command.role ?? praUserEntity.role,
             command.displayName ?? praUserEntity.displayName,
+            command.businessUnit ?? praUserEntity.businessUnit,
         );
 
         await this.praUserRepositoryService.createOrUpdateById(modifydPraUserEntity);

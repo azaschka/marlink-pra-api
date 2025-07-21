@@ -1,4 +1,5 @@
 import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
+import { BusinessUnit, UserRole } from 'src/auth/enums';
 
 export class ModifyPraUserDtoInput {
     @IsOptional()
@@ -14,10 +15,14 @@ export class ModifyPraUserDtoInput {
     public email?: string;
 
     @IsOptional()
-    @IsEnum(['Super Admin', 'Admin', 'Data Center Engineer'])
-    public role?: string;
+    @IsEnum(UserRole)
+    public role?: UserRole;
 
     @IsOptional()
     @IsString()
     public displayName?: string;
+
+    @IsOptional()
+    @IsEnum(BusinessUnit)
+    public businessUnit?: BusinessUnit;
 }

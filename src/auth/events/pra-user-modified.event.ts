@@ -1,8 +1,8 @@
 import { BaseEvent } from '../../core/events';
-import { PraUser } from '../models';
+import { PraUserEntity } from '../repositories/entities';
 
 export interface PraUserModifiedEventPayload {
-    praUser: PraUser;
+    praUser: PraUserEntity;
 }
 
 export class PraUserModifiedEvent extends BaseEvent {
