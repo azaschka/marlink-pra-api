@@ -1,4 +1,5 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Jumpoint } from '../../jumpoint/models';
 import { UuidUtility } from '../../shared/utilities';
 import {
     AddSiteAdministratorCommand,
@@ -14,7 +15,7 @@ import { SiteSupportTeamMemberDtoInput } from '../dtos/inputs';
 import { SiteAdministratorDtoOutput, SiteManagerDtoOutput } from '../dtos/outputs';
 import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../enums';
 import { Site } from '../models';
-import { RetrieveSitesQuery } from '../queries';
+import { RetrieveSiteJumpointsQuery, RetrieveSitesQuery } from '../queries';
 import { SiteController } from './site.controller';
 
 describe('SiteController', () => {
@@ -216,6 +217,23 @@ describe('SiteController', () => {
             await controller.removeSiteSupportTeamMember('uuid-123', 1, 2);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new RemoveSiteSupportTeamMemberCommand('uuid-123', 1, 2));
+        });
+    });
+
+    describe('getSiteJumpoints', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = [] as Jumpoint[]; // Replace with actual Jumpoint type
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+            const result = await controller.getSiteJumpoints(
+                'uuid-123',
+                {
+                    pageSize: 10,
+                    pageNumber: 1,
+                },
+                123,
+            );
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveSiteJumpointsQuery('uuid-123', 10, 1, 123));
+            expect(result).toBe(expectedResult);
         });
     });
 });

@@ -22,6 +22,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { JumpointRetrievedDtoOutput } from '../../jumpoint/dtos/outputs';
 import { UuidUtility } from '../../shared/utilities';
 import {
     AddSiteAdministratorCommand,
@@ -35,6 +36,7 @@ import {
 } from '../commands';
 import {
     CreateSiteDtoInput,
+    RetrieveSiteJumpointsDtoInput,
     RetrieveSitesDtoInput,
     SiteAdministratorDtoInput,
     SiteManagerDtoInput,
@@ -48,7 +50,7 @@ import {
     SiteSupportTeamMemberDtoOutput,
 } from '../dtos/outputs';
 import { Site, SiteAdministrator, SiteManager, SiteSupportTeamMember } from '../models';
-import { RetrieveSitesQuery } from '../queries';
+import { RetrieveSiteJumpointsQuery, RetrieveSitesQuery } from '../queries';
 
 @ApiTransactionIdHeader()
 @ApiTags('Sites')
@@ -265,5 +267,25 @@ export class SiteController {
         await this.commandBus.execute<RemoveSiteSupportTeamMemberCommand, void>(
             new RemoveSiteSupportTeamMemberCommand(transactionId, id, supportTeamMemberId),
         );
+    }
+
+    @Get(':id/jumpoints')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
+    @ApiOkResponse({
+        type: JumpointRetrievedDtoOutput,
+        isArray: true,
+        description: 'Returns a list of jumpoints associated with the specified site.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified site was not found.' })
+    public async getSiteJumpoints(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Query() dtoInput: RetrieveSiteJumpointsDtoInput,
+        @Param('id') id: number,
+    ) {
+        const result = await this.queryBus.execute<RetrieveSiteJumpointsQuery, JumpointRetrievedDtoOutput[]>(
+            new RetrieveSiteJumpointsQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id),
+        );
+
+        return result;
     }
 }

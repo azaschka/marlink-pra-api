@@ -30,10 +30,21 @@ describe('JumpointController', () => {
                 pageNumber: 1,
                 name: 'jumpoint-1',
                 codeName: 'code-1',
+                namePattern: 'jumpoint%',
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveJumpointsQuery('uuid-123', 10, 1, 'jumpoint-1', undefined, undefined, undefined, 'code-1'),
+                new RetrieveJumpointsQuery(
+                    'uuid-123',
+                    10,
+                    1,
+                    'jumpoint-1',
+                    undefined,
+                    undefined,
+                    undefined,
+                    'code-1',
+                    'jumpoint%',
+                ),
             );
             expect(result).toBe(expectedResult);
         });

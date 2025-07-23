@@ -72,4 +72,13 @@ export class RetrieveJumpointsDtoInput {
     @IsString()
     @IsOptional()
     public codeName?: string;
+
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'Filters results to include only Jumpoints with a name that matches the specified pattern.',
+    })
+    @IsString()
+    @IsOptional()
+    public namePattern?: string;
 }

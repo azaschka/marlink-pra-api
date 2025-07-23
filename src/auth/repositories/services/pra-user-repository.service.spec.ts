@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { BaseRepositoryService } from '../../../core/services/base-repository.service';
+import { UserRole } from '../../enums';
 import { PraUserRepositoryService } from './pra-user-repository.service';
 
 describe('PraUserRepositoryService', () => {
@@ -18,7 +19,7 @@ describe('PraUserRepositoryService', () => {
             const entity = {
                 username: 'testuser',
                 password: 'password',
-                role: 'Data Center Engineer',
+                role: UserRole.Admin,
                 displayName: 'Test User',
             };
             const expectedConflictPaths = ['id'];
