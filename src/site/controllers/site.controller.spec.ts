@@ -220,11 +220,11 @@ describe('SiteController', () => {
         });
     });
 
-    describe('getSiteJumpoints', () => {
+    describe('retrieveSiteJumpoints', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as Jumpoint[]; // Replace with actual Jumpoint type
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
-            const result = await controller.getSiteJumpoints(
+            const result = await controller.retrieveSiteJumpoints(
                 'uuid-123',
                 {
                     pageSize: 10,

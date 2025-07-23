@@ -277,7 +277,7 @@ export class SiteController {
         description: 'Returns a list of jumpoints associated with the specified site.',
     })
     @ApiNotFoundResponse({ description: 'The specified site was not found.' })
-    public async getSiteJumpoints(
+    public async retrieveSiteJumpoints(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveSiteJumpointsDtoInput,
         @Param('id') id: number,
