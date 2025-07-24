@@ -5,7 +5,7 @@ import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { PartialSiteAdministrator, PartialSiteAdministratorWithUserId, SiteAdministrator } from '../models';
-import { RetrieveSiteAdministratorsQuery } from '../queries';
+import { RetrieveSiteAdministratorsByUserIdQuery } from '../queries';
 import {
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
@@ -106,9 +106,10 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
     }
 
     private async isSiteAdministratorAssociatedWithMultipleSites(siteAdministratorUser: User) {
-        const siteAdministrators = await this.queryBus.execute<RetrieveSiteAdministratorsQuery, SiteAdministrator[]>(
-            new RetrieveSiteAdministratorsQuery(this.transactionId, 2, 1, siteAdministratorUser.id),
-        );
+        const siteAdministrators = await this.queryBus.execute<
+            RetrieveSiteAdministratorsByUserIdQuery,
+            SiteAdministrator[]
+        >(new RetrieveSiteAdministratorsByUserIdQuery(this.transactionId, 2, 1, siteAdministratorUser.id));
 
         return siteAdministrators.length > 1;
     }

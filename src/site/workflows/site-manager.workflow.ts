@@ -8,7 +8,7 @@ import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { PartialSiteManager, PartialSiteManagerWithUserId, SiteManager } from '../models';
-import { RetrieveSiteManagersQuery } from '../queries';
+import { RetrieveSiteManagersByUserIdQuery } from '../queries';
 import { ManagerAccessGroupPolicyWorkflow, ManagerGroupPolicyWorkflow } from './group-policies';
 import { AuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from './jump-policies';
 import { SiteManagerUserWorkflow } from './users';
@@ -224,8 +224,8 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
     }
 
     private async isSiteManagerAssociatedWithMultipleSites(siteManagerUser: User) {
-        const siteManagers = await this.queryBus.execute<RetrieveSiteManagersQuery, SiteManager[]>(
-            new RetrieveSiteManagersQuery(this.transactionId, 2, 1, siteManagerUser.id),
+        const siteManagers = await this.queryBus.execute<RetrieveSiteManagersByUserIdQuery, SiteManager[]>(
+            new RetrieveSiteManagersByUserIdQuery(this.transactionId, 2, 1, siteManagerUser.id),
         );
 
         return siteManagers.length > 1;

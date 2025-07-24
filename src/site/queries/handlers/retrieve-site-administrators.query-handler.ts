@@ -10,10 +10,7 @@ export class RetrieveSiteAdministratorsQueryHandler implements IQueryHandler<Ret
 
     public async execute(query: RetrieveSiteAdministratorsQuery): Promise<SiteAdministrator[]> {
         const siteAdministratorFindByQuery = <FindOptionsWhere<SiteAdministrator>>{};
-
-        if (query.userId) {
-            siteAdministratorFindByQuery.userId = query.userId;
-        }
+        siteAdministratorFindByQuery.siteId = query.siteId;
 
         const siteAdministrators = await this.siteAdministratorRepositoryService.findBy(
             siteAdministratorFindByQuery,

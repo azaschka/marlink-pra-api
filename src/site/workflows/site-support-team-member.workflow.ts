@@ -13,7 +13,7 @@ import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { SiteSupportTeamAccessLevel } from '../enums';
 import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId, SiteSupportTeamMember } from '../models';
-import { RetrieveSiteSupportTeamMembersQuery } from '../queries';
+import { RetrieveSiteSupportTeamMembersByUserIdQuery } from '../queries';
 import {
     AdministratorGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
@@ -210,9 +210,9 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
 
     private async isSiteSupportTeamMemberAssociatedWithMultipleSites(siteSupportTeamMemberUser: User) {
         const siteSupportTeamMembers = await this.queryBus.execute<
-            RetrieveSiteSupportTeamMembersQuery,
+            RetrieveSiteSupportTeamMembersByUserIdQuery,
             SiteSupportTeamMember[]
-        >(new RetrieveSiteSupportTeamMembersQuery(this.transactionId, 2, 1, siteSupportTeamMemberUser.id));
+        >(new RetrieveSiteSupportTeamMembersByUserIdQuery(this.transactionId, 2, 1, siteSupportTeamMemberUser.id));
 
         return siteSupportTeamMembers.length > 1;
     }

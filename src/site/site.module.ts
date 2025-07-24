@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { CommandHandlers } from './commands/handlers';
+import { SiteAdministratorController } from './controllers/site-administrator.controller';
+import { SiteJumpointController } from './controllers/site-jumpoint.controller';
+import { SiteManagerController } from './controllers/site-manager.controller';
+import { SiteSupportTeamMemberController } from './controllers/site-support-team-member.controller';
 import { SiteController } from './controllers/site.controller';
 import { QueryHandlers } from './queries/handlers';
 import {
@@ -20,7 +24,13 @@ import { SiteSupportTeamMemberRepositoryService } from './repositories/services/
         TypeOrmModule.forFeature([SiteEntity, SiteManagerEntity, SiteAdministratorEntity, SiteSupportTeamMemberEntity]),
         AppConfigModule,
     ],
-    controllers: [SiteController],
+    controllers: [
+        SiteController,
+        SiteAdministratorController,
+        SiteManagerController,
+        SiteSupportTeamMemberController,
+        SiteJumpointController,
+    ],
     providers: [
         ...QueryHandlers,
         ...CommandHandlers,

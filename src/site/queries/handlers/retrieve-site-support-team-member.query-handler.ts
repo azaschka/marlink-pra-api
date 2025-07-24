@@ -10,14 +10,7 @@ export class RetrieveSiteSupportTeamMembersQueryHandler implements IQueryHandler
 
     public async execute(query: RetrieveSiteSupportTeamMembersQuery): Promise<SiteSupportTeamMember[]> {
         const siteSupportTeamMemberFindByQuery = <FindOptionsWhere<SiteSupportTeamMember>>{};
-
-        if (query.userId) {
-            siteSupportTeamMemberFindByQuery.userId = query.userId;
-        }
-
-        if (query.supportTeamName) {
-            siteSupportTeamMemberFindByQuery.supportTeamName = query.supportTeamName;
-        }
+        siteSupportTeamMemberFindByQuery.siteId = query.siteId;
 
         const siteSupportTeamMembers = await this.siteSupportTeamMemberRepositoryService.findBy(
             siteSupportTeamMemberFindByQuery,
