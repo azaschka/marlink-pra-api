@@ -4,10 +4,12 @@ import {
     Delete,
     Get,
     HttpCode,
+    HttpException,
     HttpStatus,
     Param,
     Post,
     Query,
+    Res,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,13 +23,16 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { AxiosResponse } from 'axios';
+import { Response } from 'express';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
-import { UuidUtility } from '../../shared/utilities';
+import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
 import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput } from '../dtos/inputs';
 import { JumpClientInstallerCreatedDtoOutput, JumpClientInstallerRetrievedDtoOutput } from '../dtos/outputs';
+import { JumpClientInstallerPlatformType } from '../enums';
 import { JumpClientInstaller } from '../models';
-import { RetrieveJumpClientInstallersQuery } from '../queries';
+import { RetrieveJumpClientInstallerPlatformQuery, RetrieveJumpClientInstallersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
 @ApiTags('Jump Clients')
@@ -120,5 +125,43 @@ export class JumpClientInstallerController {
         await this.commandBus.execute<DeleteJumpClientInstallerCommand, void>(
             new DeleteJumpClientInstallerCommand(transactionId, id),
         );
+    }
+
+    @Get(':installerId/platforms/:platformType')
+    public async retrieveJumpClientInstallerPlatform(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('installerId') installerId: string,
+        @Param('platformType') platformType: JumpClientInstallerPlatformType,
+        @Res() res: Response,
+    ): Promise<void> {
+        try {
+            const response = await this.queryBus.execute<
+                RetrieveJumpClientInstallerPlatformQuery,
+                AxiosResponse<NodeJS.ReadableStream>
+            >(new RetrieveJumpClientInstallerPlatformQuery(transactionId, installerId, platformType));
+
+            if (response.headers['content-type']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Type', response.headers['content-type']);
+            }
+            if (response.headers['content-disposition']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Disposition', response.headers['content-disposition']);
+            }
+
+            response.data.pipe(res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                res.status(error.getStatus()).json({
+                    statusCode: error.getStatus(),
+                    message: error.message,
+                });
+            } else {
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: ErrorProcessorUtility.stringify(error),
+                });
+            }
+        }
     }
 }

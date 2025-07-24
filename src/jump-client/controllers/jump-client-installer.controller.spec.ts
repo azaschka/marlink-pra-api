@@ -1,9 +1,11 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { AxiosResponse } from 'axios';
+import { Response } from 'express';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
-import { JumpClientConnectionType, JumpClientGroupType } from '../enums';
+import { JumpClientConnectionType, JumpClientGroupType, JumpClientInstallerPlatformType } from '../enums';
 import { JumpClientInstaller } from '../models';
-import { RetrieveJumpClientInstallersQuery } from '../queries';
+import { RetrieveJumpClientInstallerPlatformQuery, RetrieveJumpClientInstallersQuery } from '../queries';
 import { JumpClientInstallerController } from './jump-client-installer.controller';
 
 describe('JumpClientInstallerController', () => {
@@ -118,6 +120,45 @@ describe('JumpClientInstallerController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpClientInstallerCommand('uuid-123', 1));
         });
     });
+
+    describe('retrieveJumpClientInstallerPlatform', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {
+                headers: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-type': 'application/octet-stream',
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-disposition': 'attachment; filename=installer.exe',
+                },
+                data: {
+                    pipe: jest.fn(), // Mocking the pipe method
+                } as unknown as NodeJS.ReadableStream,
+            } as unknown as AxiosResponse<NodeJS.ReadableStream>;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+            const res = mockResponse();
+            const setHeaderMethod = jest.spyOn(res, 'setHeader');
+
+            await controller.retrieveJumpClientInstallerPlatform(
+                'uuid-100',
+                'installer-1',
+                JumpClientInstallerPlatformType.Windows64,
+                res,
+            );
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
+                new RetrieveJumpClientInstallerPlatformQuery(
+                    'uuid-100',
+                    'installer-1',
+                    JumpClientInstallerPlatformType.Windows64,
+                ),
+            );
+            expect(setHeaderMethod).toHaveBeenCalledWith('Content-Type', expectedResult.headers['content-type']);
+            expect(setHeaderMethod).toHaveBeenCalledWith(
+                'Content-Disposition',
+                expectedResult.headers['content-disposition'],
+            );
+        });
+    });
 });
 
 function mockCommandBus() {
@@ -132,4 +173,13 @@ function mockQueryBus() {
     queryBus.execute = jest.fn();
 
     return queryBus;
+}
+
+function mockResponse(): Response {
+    const res: Partial<Response> = {};
+    res.set = jest.fn().mockReturnValue(res);
+    res.send = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
+
+    return res as Response;
 }

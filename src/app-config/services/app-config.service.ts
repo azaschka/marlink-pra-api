@@ -82,6 +82,11 @@ export class AppConfigService {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PATH') ??
                         AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    platform: {
+                        path:
+                            this.configService.get<string>('PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PLATFORM_PATH') ??
+                            AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    },
                 },
             },
             groupPolicy: {

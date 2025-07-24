@@ -134,6 +134,9 @@ describe('AppConfigService', () => {
                         copy: 'api-path-jump-client-copy-1',
                         installer: {
                             path: 'api-path-jump-client-installer-1',
+                            platform: {
+                                path: 'api-path-jump-client-installer-platform-1',
+                            },
                         },
                     },
                     groupPolicy: {
@@ -208,6 +211,9 @@ describe('AppConfigService', () => {
                         copy: 'api-path-jump-client-copy-1',
                         installer: {
                             path: 'api-path-jump-client-installer-1',
+                            platform: {
+                                path: 'api-path-jump-client-installer-platform-1',
+                            },
                         },
                     },
                     groupPolicy: {
@@ -285,6 +291,9 @@ describe('AppConfigService', () => {
                         copy: 'unknown',
                         installer: {
                             path: 'unknown',
+                            platform: {
+                                path: 'unknown',
+                            },
                         },
                     },
                     groupPolicy: {
@@ -360,6 +369,8 @@ describe('AppConfigService', () => {
                         return input.jumpClient?.copy;
                     case 'PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PATH':
                         return input.jumpClient?.installer?.path;
+                    case 'PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PLATFORM_PATH':
+                        return input.jumpClient?.installer?.platform?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_PATH':
                         return input.groupPolicy?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_JUMP_GROUP_PATH':
@@ -424,6 +435,9 @@ describe('AppConfigService', () => {
                     copy: expected.jumpClient?.copy,
                     installer: {
                         path: expected.jumpClient?.installer?.path,
+                        platform: {
+                            path: expected.jumpClient?.installer?.platform?.path,
+                        },
                     },
                 },
                 groupPolicy: {
