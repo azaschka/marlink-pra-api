@@ -9,7 +9,13 @@ import { BaseWorkflow } from '../../../shared/workflows';
 
 export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
     private static readonly PLATFORM_TYPE = JumpointPlatformType.LinuxX86;
+    private static readonly COMMENTS = '';
+    private static readonly IS_ENABLED = true;
+    private static readonly IS_CLUSTERED = false;
     private static readonly IS_SHELL_JUMP_ENABLED = true;
+    private static readonly EXTERNAL_JUMP_ITEM_NETWORK_ID = undefined;
+    private static readonly IS_PROTOCOL_TUNNEL_ENABLED = true;
+    private static readonly RDP_SERVICE_ACCOUNT_ID = null;
     private static readonly TOTAL_JUMPOINTS = 1;
 
     private getJumpointName(jumpointNumber: number): string {
@@ -48,10 +54,13 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
                     this.getJumpointName(i), // name
                     JumpointsWorkflow.PLATFORM_TYPE, // platformType
                     this.getJumpointCodeName(i), // codeName
-                    undefined, // comments
-                    undefined, // isEnabled
-                    undefined, // isClustered
+                    JumpointsWorkflow.COMMENTS, // comments
+                    JumpointsWorkflow.IS_ENABLED, // isEnabled
+                    JumpointsWorkflow.IS_CLUSTERED, // isClustered
                     JumpointsWorkflow.IS_SHELL_JUMP_ENABLED, // isShellJumpEnabled
+                    JumpointsWorkflow.EXTERNAL_JUMP_ITEM_NETWORK_ID, // externalJumpItemNetworkId
+                    JumpointsWorkflow.IS_PROTOCOL_TUNNEL_ENABLED, // isProtocolTunnelEnabled
+                    JumpointsWorkflow.RDP_SERVICE_ACCOUNT_ID, // rdpServiceAccountId
                 ),
             );
 
