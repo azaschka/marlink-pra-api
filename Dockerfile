@@ -17,10 +17,5 @@ RUN npm run build
 ENV PORT=9000
 EXPOSE 9000
 
-# Drop root privileges
-RUN addgroup -S app && adduser -S app -G app \
-    && chown -R app:app /app
-USER app
-
 # ---- 4. Start the NestJS server -----------------------------------
 CMD [ "npm", "run", "start" ]
