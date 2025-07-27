@@ -10,6 +10,10 @@ export class SupportTeamJumpGroupWorkflow implements BaseWorkflow<JumpGroup> {
         return `${this.customerName.toUpperCase()}_${this.siteSupportTeamMember.supportTeamName.toUpperCase()}`;
     }
 
+    private get jumpGroupCodeName(): string {
+        return this.jumpGroupName.toLowerCase();
+    }
+
     constructor(
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
@@ -29,7 +33,7 @@ export class SupportTeamJumpGroupWorkflow implements BaseWorkflow<JumpGroup> {
             new CreateJumpGroupCommand(
                 this.transactionId,
                 this.jumpGroupName,
-                undefined,
+                this.jumpGroupCodeName,
                 this.siteSupportTeamMember.supportTeamTrustLevel,
             ),
         );
