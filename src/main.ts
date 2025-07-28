@@ -24,7 +24,8 @@ async function bootstrap() {
         origin: true,
         methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
         allowedHeaders: 'Content-Type, X-Api-Key, Authorization',
-        credentials: false, // true, falls Cookies oder Authorization-Header benötigt
+        exposedHeaders: ['X-Total-Count'],
+        credentials: false,
         maxAge: 600,
     });
 
