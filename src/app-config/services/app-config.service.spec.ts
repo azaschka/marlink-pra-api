@@ -507,6 +507,9 @@ describe('AppConfigService', () => {
                     username: 'root',
                     password: 'password',
                     database: 'test',
+                    retryAttempts: 30,
+                    retryDelayInMs: 5000,
+                    maxQueryExecutionTimeInMs: 1000,
                 },
                 expected: {
                     type: 'mysql',
@@ -518,6 +521,9 @@ describe('AppConfigService', () => {
                     synchronize: false,
                     logging: false,
                     autoLoadEntities: true,
+                    retryAttempts: 30,
+                    retryDelayInMs: 5000,
+                    maxQueryExecutionTimeInMs: 1000,
                 },
             },
             {
@@ -534,6 +540,9 @@ describe('AppConfigService', () => {
                     synchronize: true,
                     logging: false,
                     autoLoadEntities: true,
+                    retryAttempts: 60,
+                    retryDelayInMs: 8000,
+                    maxQueryExecutionTimeInMs: 15000,
                 },
             },
         ])('should return the database configuration as expected', ({ input, expected }) => {
@@ -553,6 +562,12 @@ describe('AppConfigService', () => {
                         return input.password;
                     case 'DB_NAME':
                         return input.database;
+                    case 'DB_RETRY_ATTEMPTS':
+                        return input.retryAttempts;
+                    case 'DB_RETRY_DELAY_IN_MS':
+                        return input.retryDelayInMs;
+                    case 'DB_MAX_QUERY_EXECUTION_TIME_IN_MS':
+                        return input.maxQueryExecutionTimeInMs;
                     default:
                         return undefined;
                 }
@@ -570,6 +585,9 @@ describe('AppConfigService', () => {
                 synchronize: expected.synchronize,
                 logging: expected.logging,
                 autoLoadEntities: expected.autoLoadEntities,
+                retryAttempts: expected.retryAttempts,
+                retryDelay: expected.retryDelayInMs,
+                maxQueryExecutionTime: expected.maxQueryExecutionTimeInMs,
             });
         });
     });

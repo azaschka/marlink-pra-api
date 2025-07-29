@@ -10,6 +10,9 @@ export class AppConfigService {
     private static readonly DEFAULT_HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT = 80;
     private static readonly DEFAULT_HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 256;
     private static readonly DEFAULT_HEALTH_PING_CHECK_PRA_SYNC_API_URL = 'http://pra-sync-api:9001/health';
+    private static readonly DEFAULT_DB_RETRY_ATTEMPTS = 60;
+    private static readonly DEFAULT_DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
+    private static readonly DEFAULT_DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
 
     constructor(private readonly configService: ConfigService) {}
 
@@ -196,6 +199,13 @@ export class AppConfigService {
             synchronize: !this.isProduction,
             logging: false,
             autoLoadEntities: true,
+            retryAttempts:
+                this.configService.get<number>('DB_RETRY_ATTEMPTS') ?? AppConfigService.DEFAULT_DB_RETRY_ATTEMPTS,
+            retryDelay:
+                this.configService.get<number>('DB_RETRY_DELAY_IN_MS') ?? AppConfigService.DEFAULT_DB_RETRY_DELAY_IN_MS,
+            maxQueryExecutionTime:
+                this.configService.get<number>('DB_MAX_QUERY_EXECUTION_TIME_IN_MS') ??
+                AppConfigService.DEFAULT_DB_MAX_QUERY_EXECUTION_TIME_IN_MS, // Only applicable to MariaDB and MySQL
         };
     }
 
