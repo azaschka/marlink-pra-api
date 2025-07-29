@@ -1,6 +1,6 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { PasswordGenerator } from '../../../shared/utilities/password-generator.utility';
+import { PasswordGeneratorUtility } from '../../../shared/utilities';
 import { BaseWorkflow } from '../../../shared/workflows';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../../../user/commands';
 import { User } from '../../../user/models';
@@ -39,7 +39,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
                 this.transactionId,
                 this.userPublicDisplayName,
                 this.siteAdministrator.username,
-                PasswordGenerator.generate(), // generate password according to Marlink's password policy
+                PasswordGeneratorUtility.generate(), // generate password according to Marlink's password policy
                 undefined, // passwordExpirationDate
                 this.siteAdministrator.email,
                 SiteAdministratorUserWorkflow.PREFERRED_EMAIL_LANGUAGE,

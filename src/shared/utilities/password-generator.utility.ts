@@ -1,4 +1,4 @@
-export class PasswordGenerator {
+export class PasswordGeneratorUtility {
     private static readonly LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
     private static readonly UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     private static readonly NUMBERS = '0123456789';

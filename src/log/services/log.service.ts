@@ -67,16 +67,21 @@ export class LogService {
         );
     }
 
-    public async logRaw(log: Omit<Log, 'id'>): Promise<void> {
+    public async log(
+        actionName: string,
+        transactionId: string,
+        initiatedBy: string | undefined,
+        payload: string,
+    ): Promise<void> {
         await this.logRepositoryService.create(
             LogEntity.createWithoutId(
-                log.serviceName,
-                log.actionType,
-                log.actionName,
-                log.transactionId,
-                log.initiatedBy,
-                log.creationDate,
-                log.payload,
+                serviceName,
+                LogActionType.System,
+                actionName,
+                transactionId,
+                initiatedBy,
+                DateUtility.getCurrentUtcDate(),
+                payload,
             ),
         );
     }

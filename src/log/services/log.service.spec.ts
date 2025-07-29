@@ -112,6 +112,24 @@ describe('LogService', () => {
         );
     });
 
+    it('should log log data', async () => {
+        const logRepositoryCreateMethod = jest.spyOn(logRepositoryService, 'create');
+
+        await logService.log('CustomAction', 'transaction-4', 'user-2', JSON.stringify({ key: 'value' }));
+
+        expect(logRepositoryCreateMethod).toHaveBeenCalledWith(
+            expect.objectContaining({
+                serviceName: 'test-service',
+                actionType: LogActionType.System,
+                actionName: 'CustomAction',
+                transactionId: 'transaction-4',
+                initiatedBy: 'user-2',
+                creationDate: new Date('2025-01-01T00:00:00Z'),
+                payload: JSON.stringify({ key: 'value' }),
+            }),
+        );
+    });
+
     it('should retrieve logs', async () => {
         const expectedResults = [{ id: 1 } as LogEntity];
         const logRepositoryServiceFindByDateBetweenMethod = jest
