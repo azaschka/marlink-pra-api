@@ -67,6 +67,20 @@ export class LogService {
         );
     }
 
+    public async logRaw(log: Omit<Log, 'id'>): Promise<void> {
+        await this.logRepositoryService.create(
+            LogEntity.createWithoutId(
+                log.serviceName,
+                log.actionType,
+                log.actionName,
+                log.transactionId,
+                log.initiatedBy,
+                log.creationDate,
+                log.payload,
+            ),
+        );
+    }
+
     public async retrieveLogs(
         pageSize: number,
         pageNumber: number,
