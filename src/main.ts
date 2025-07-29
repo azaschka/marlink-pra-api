@@ -1,9 +1,8 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json } from 'express';
 import helmet from 'helmet';
-import compression from 'compression';
 import { description, name, version } from '../package.json';
 import { AppModule } from './app.module';
 import { LogService } from './log/services/log.service';
@@ -26,13 +25,9 @@ async function bootstrap() {
     try {
         const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
         // Enable HTTP security headers
-        app.use(helmet({ contentSecurityPolicy: false }));
-        // Enable compression for better performance
-        app.use(compression({ threshold: '1kb' }));
+        app.use(helmet());
         // Parse JSON requests with a limit of 5MB
         app.use(json({ limit: '5mb' }));
-        // Setup global validation pipe
-        app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
         // Setup logging and error handling interceptors
         app.useGlobalInterceptors(new LoggingInterceptor(app.get(LogService)), new TimeoutInterceptor());
         // Setup global exception filter

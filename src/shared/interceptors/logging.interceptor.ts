@@ -17,28 +17,29 @@ export class LoggingInterceptor implements NestInterceptor {
 
         return next.handle().pipe(
             tap(() => {
-                const duration = Date.now() - startTime;
-                this.logService
-                    .logRaw({
-                        serviceName: process.env.npm_package_name ?? 'pra-api',
-                        actionType: LogActionType.System,
-                        actionName: `${req.method} ${req.originalUrl}`,
-                        transactionId: (req.headers['x-transaction-id'] as string) ?? 'n/a',
-                        initiatedBy: (req.user as { username?: string })?.username ?? 'anonymous',
-                        creationDate: DateUtility.getCurrentUtcDate(),
-                        payload: JSON.stringify({
-                            duration,
-                            status: httpCtx.getResponse<{ statusCode: number }>().statusCode,
-                        }),
-                    })
-                    .catch(() => void 0); // Ignore logging errors to avoid breaking the request flow
+                // TODO: Clean up, as we don't need to log every request, but only errors or specific actions
+                // const duration = Date.now() - startTime;
+                // this.logService
+                //     .logRaw({
+                //         serviceName: process.env.npm_package_name ?? 'pra-api',
+                //         actionType: LogActionType.System,
+                //         actionName: `${req.method} ${req.originalUrl}`,
+                //         transactionId: (req.headers['x-transaction-id'] as string) ?? 'n/a',
+                //         initiatedBy: (req.user as { username?: string })?.username ?? 'anonymous',
+                //         creationDate: DateUtility.getCurrentUtcDate(),
+                //         payload: JSON.stringify({
+                //             duration,
+                //             status: httpCtx.getResponse<{ statusCode: number }>().statusCode,
+                //         }),
+                //     })
+                //     .catch(() => void 0);
             }),
             catchError((err: unknown) => {
                 const duration = Date.now() - startTime;
                 const errorMessage = err instanceof Error ? err.message : String(err);
                 this.logService
                     .logRaw({
-                        serviceName: process.env.npm_package_name ?? 'pra-api',
+                        serviceName: process.env.npm_package_name ?? 'marlink-pra-api',
                         actionType: LogActionType.System,
                         actionName: `${req.method} ${req.originalUrl}✖`,
                         transactionId: (req.headers['x-transaction-id'] as string) ?? 'n/a',
