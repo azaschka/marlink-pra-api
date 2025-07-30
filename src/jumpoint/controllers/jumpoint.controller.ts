@@ -4,11 +4,13 @@ import {
     Delete,
     Get,
     HttpCode,
+    HttpException,
     HttpStatus,
     Param,
     Patch,
     Post,
     Query,
+    Res,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -22,14 +24,21 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { AxiosResponse } from 'axios';
+import { Response } from 'express';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
-import { UuidUtility } from '../../shared/utilities';
+import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
 import { CreateJumpointDtoInput, ModifyJumpointDtoInput, RetrieveJumpointsDtoInput } from '../dtos/inputs';
-import { JumpointCreatedDtoOutput, JumpointModifiedDtoOutput, JumpointRetrievedDtoOutput } from '../dtos/outputs';
+import {
+    JumpointCreatedDtoOutput,
+    JumpointModifiedDtoOutput,
+    JumpointNodeRetrievedDtoOutput,
+    JumpointRetrievedDtoOutput,
+} from '../dtos/outputs';
 import { Jumpoint } from '../models';
-import { RetrieveJumpointsQuery } from '../queries';
+import { RetrieveJumpointInstallerQuery, RetrieveJumpointNodesQuery, RetrieveJumpointsQuery } from '../queries';
 
 @ApiTransactionIdHeader()
 @ApiTags('Jumpoints')
@@ -158,5 +167,61 @@ export class JumpointController {
         @Param('id') id: number,
     ): Promise<void> {
         await this.commandBus.execute<DeleteJumpointCommand, void>(new DeleteJumpointCommand(transactionId, id));
+    }
+
+    @Get(':id/nodes')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({
+        type: [JumpointNodeRetrievedDtoOutput],
+        description: 'Indicates the Jumpoint nodes were successfully retrieved.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpointNodes(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+    ): Promise<JumpointNodeRetrievedDtoOutput[]> {
+        const result = this.queryBus.execute<RetrieveJumpointNodesQuery, JumpointNodeRetrievedDtoOutput[]>(
+            new RetrieveJumpointNodesQuery(transactionId, id),
+        );
+
+        return result;
+    }
+
+    @Get(':id/installer')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    public async retrieveJumpointInstaller(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+        @Res() res: Response,
+    ): Promise<void> {
+        try {
+            const response = await this.queryBus.execute<
+                RetrieveJumpointInstallerQuery,
+                AxiosResponse<NodeJS.ReadableStream>
+            >(new RetrieveJumpointInstallerQuery(transactionId, id));
+
+            if (response.headers['content-type']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Type', response.headers['content-type']);
+            }
+            if (response.headers['content-disposition']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Disposition', response.headers['content-disposition']);
+            }
+
+            response.data.pipe(res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                res.status(error.getStatus()).json({
+                    statusCode: error.getStatus(),
+                    message: error.message,
+                });
+            } else {
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: ErrorProcessorUtility.stringify(error),
+                });
+            }
+        }
     }
 }

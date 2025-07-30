@@ -167,7 +167,8 @@ export class JumpointCreatedDtoOutput implements Jumpoint {
     @ApiProperty({
         type: Date,
         required: true,
-        description: 'The date which the user was last synchronized with BeyondTrust Privileged Remote Access system.',
+        description:
+            'The date which the jumpoint was last synchronized with BeyondTrust Privileged Remote Access system.',
     })
     public lastSyncDate!: Date;
 }

@@ -1,9 +1,11 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { AxiosResponse } from 'axios';
+import { Response } from 'express';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
 import { JumpointPlatformType, JzpClientAddressRestrictionsType } from '../enums';
-import { Jumpoint } from '../models';
-import { RetrieveJumpointsQuery } from '../queries';
+import { Jumpoint, JumpointNode } from '../models';
+import { RetrieveJumpointInstallerQuery, RetrieveJumpointNodesQuery, RetrieveJumpointsQuery } from '../queries';
 import { JumpointController } from './jumpoint.controller';
 
 describe('JumpointController', () => {
@@ -158,6 +160,46 @@ describe('JumpointController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpointCommand('uuid-123', 1));
         });
     });
+
+    describe('retrieveJumpointNodes', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = [{}] as JumpointNode[];
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpointNodes(undefined, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointNodesQuery('uuid-123', 1));
+            expect(result).toBe(expectedResult);
+        });
+    });
+
+    describe('retrieveJumpointInstaller', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {
+                headers: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-type': 'application/octet-stream',
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-disposition': 'attachment; filename=installer.exe',
+                },
+                data: {
+                    pipe: jest.fn(), // Mocking the pipe method
+                } as unknown as NodeJS.ReadableStream,
+            } as unknown as AxiosResponse<NodeJS.ReadableStream>;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+            const res = mockResponse();
+            const setHeaderMethod = jest.spyOn(res, 'setHeader');
+
+            await controller.retrieveJumpointInstaller('uuid-100', 123, res);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointInstallerQuery('uuid-100', 123));
+            expect(setHeaderMethod).toHaveBeenCalledWith('Content-Type', expectedResult.headers['content-type']);
+            expect(setHeaderMethod).toHaveBeenCalledWith(
+                'Content-Disposition',
+                expectedResult.headers['content-disposition'],
+            );
+        });
+    });
 });
 
 function mockCommandBus() {
@@ -172,4 +214,13 @@ function mockQueryBus() {
     queryBus.execute = jest.fn();
 
     return queryBus;
+}
+
+function mockResponse(): Response {
+    const res: Partial<Response> = {};
+    res.set = jest.fn().mockReturnValue(res);
+    res.send = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
+
+    return res as Response;
 }

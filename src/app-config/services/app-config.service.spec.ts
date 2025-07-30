@@ -168,6 +168,12 @@ describe('AppConfigService', () => {
                     },
                     jumpoint: {
                         path: 'api-path-jumpoint-1',
+                        node: {
+                            path: 'api-path-jumpoint-node-1',
+                        },
+                        installer: {
+                            path: 'api-path-jumpoint-installer-1',
+                        },
                     },
                     jumpItem: {
                         remoteRdp: {
@@ -245,6 +251,12 @@ describe('AppConfigService', () => {
                     },
                     jumpoint: {
                         path: 'api-path-jumpoint-1',
+                        node: {
+                            path: 'api-path-jumpoint-node-1',
+                        },
+                        installer: {
+                            path: 'api-path-jumpoint-installer-1',
+                        },
                     },
                     jumpItem: {
                         remoteRdp: {
@@ -325,6 +337,12 @@ describe('AppConfigService', () => {
                     },
                     jumpoint: {
                         path: 'unknown',
+                        node: {
+                            path: 'unknown',
+                        },
+                        installer: {
+                            path: 'unknown',
+                        },
                     },
                     jumpItem: {
                         remoteRdp: {
@@ -391,6 +409,10 @@ describe('AppConfigService', () => {
                         return input.jumpPolicy?.path;
                     case 'PRA_SYNC_API_JUMPOINT_PATH':
                         return input.jumpoint?.path;
+                    case 'PRA_SYNC_API_JUMPOINT_NODE_PATH':
+                        return input.jumpoint?.node?.path;
+                    case 'PRA_SYNC_API_JUMPOINT_INSTALLER_PATH':
+                        return input.jumpoint?.installer?.path;
                     case 'PRA_SYNC_API_JUMP_ITEM_REMOTE_RDP_PATH':
                         return input.jumpItem?.remoteRdp?.path;
                     case 'PRA_SYNC_API_JUMP_ITEM_COPY_REMOTE_RDP':
@@ -469,6 +491,12 @@ describe('AppConfigService', () => {
                 },
                 jumpoint: {
                     path: expected.jumpoint?.path,
+                    node: {
+                        path: expected.jumpoint?.node?.path,
+                    },
+                    installer: {
+                        path: expected.jumpoint?.installer?.path,
+                    },
                 },
                 jumpItem: {
                     remoteRdp: {
