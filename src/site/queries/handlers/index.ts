@@ -1,5 +1,6 @@
 import { RetrieveSiteAdministratorsByUserIdQueryHandler } from './retrieve-site-administrators-by-user-id.query-handler';
 import { RetrieveSiteAdministratorsQueryHandler } from './retrieve-site-administrators.query-handler';
+import { RetrieveSiteByIdQueryHandler } from './retrieve-site-by-id.query-handler';
 import { RetrieveSiteJumpointsQueryHandler } from './retrieve-site-jumpoints.query-handler';
 import { RetrieveSiteManagersByUserIdQueryHandler } from './retrieve-site-managers-by-user-id.query-handler';
 import { RetrieveSiteManagersQueryHandler } from './retrieve-site-managers.query-handler';
@@ -16,4 +17,5 @@ export const QueryHandlers = [
     RetrieveSiteAdministratorsQueryHandler,
     RetrieveSiteManagersQueryHandler,
     RetrieveSiteSupportTeamMembersQueryHandler,
+    RetrieveSiteByIdQueryHandler,
 ];

@@ -29,6 +29,7 @@ import {
     CreateCustomerCommand,
     DeactivateCustomerCommand,
     ModifyCustomerCommand,
+    ReactivateCustomerCommand,
 } from '../commands';
 import { CreateCustomerDtoInput, ModifyCustomerDtoInput, RetrieveCustomersDtoInput } from '../dtos/inputs';
 import {
@@ -127,6 +128,20 @@ export class CustomerController {
     ): Promise<void> {
         await this.commandBus.execute<DeactivateCustomerCommand, void>(
             new DeactivateCustomerCommand(transactionId, id),
+        );
+    }
+
+    @Post(':id/reactivate')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({ description: 'Indicates the customer was successfully reactivated.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async reactivateCustomer(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+    ): Promise<void> {
+        await this.commandBus.execute<ReactivateCustomerCommand, void>(
+            new ReactivateCustomerCommand(transactionId, id),
         );
     }
 

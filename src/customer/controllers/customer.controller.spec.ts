@@ -5,6 +5,7 @@ import {
     CreateCustomerCommand,
     DeactivateCustomerCommand,
     ModifyCustomerCommand,
+    ReactivateCustomerCommand,
 } from '../commands';
 import { BillingType, BusinessUnit } from '../enums';
 import { Customer, CustomerLicenseUsage } from '../models';
@@ -92,6 +93,16 @@ describe('CustomerController', () => {
             await controller.deactivateCustomer(undefined, 1);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeactivateCustomerCommand('uuid-123', 1));
+        });
+    });
+
+    describe('reactivateCustomer', () => {
+        it('should execute the command bus with the correct parameters', async () => {
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            await controller.reactivateCustomer(undefined, 1);
+
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new ReactivateCustomerCommand('uuid-123', 1));
         });
     });
 
