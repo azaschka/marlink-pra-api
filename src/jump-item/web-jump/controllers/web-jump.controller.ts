@@ -49,7 +49,7 @@ export class WebJumpController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveWebJumpsDtoInput,
     ): Promise<WebJumpRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveWebJumpsQuery, WebJump[]>(
+        const result = await this.queryBus.execute<RetrieveWebJumpsQuery, WebJumpRetrievedDtoOutput[]>(
             new RetrieveWebJumpsQuery(
                 transactionId,
                 dtoInput.pageSize,

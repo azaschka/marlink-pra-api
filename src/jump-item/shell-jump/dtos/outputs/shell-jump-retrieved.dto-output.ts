@@ -1,4 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { JumpGroupRetrievedDtoOutput } from '../../../../jump-group/dtos/outputs';
+import { JumpPolicyRetrievedDtoOutput } from '../../../../jump-policy/dtos/outputs';
+import { JumpointRetrievedDtoOutput } from '../../../../jumpoint/dtos/outputs';
 import { JumpGroupType, ShellJumpProtocolType, ShellJumpTerminalType } from '../../enums';
 import { ShellJump } from '../../models';
 
@@ -50,4 +53,13 @@ export class ShellJumpRetrievedDtoOutput implements ShellJump {
 
     @ApiProperty({ required: true, type: Date })
     public lastSyncDate!: Date;
+
+    @ApiProperty({ required: true, type: JumpointRetrievedDtoOutput })
+    public jumpoint!: JumpointRetrievedDtoOutput;
+
+    @ApiProperty({ required: true, type: JumpGroupRetrievedDtoOutput })
+    public jumpGroup!: JumpGroupRetrievedDtoOutput;
+
+    @ApiProperty({ required: true, type: JumpPolicyRetrievedDtoOutput, nullable: true })
+    public jumpPolicy?: JumpPolicyRetrievedDtoOutput | null;
 }

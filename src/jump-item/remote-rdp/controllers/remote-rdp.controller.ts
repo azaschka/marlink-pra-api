@@ -54,7 +54,7 @@ export class RemoteRdpController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveRemoteRdpsDtoInput,
     ): Promise<RemoteRdpRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveRemoteRdpsQuery, RemoteRdp[]>(
+        const result = await this.queryBus.execute<RetrieveRemoteRdpsQuery, RemoteRdpRetrievedDtoOutput[]>(
             new RetrieveRemoteRdpsQuery(
                 transactionId,
                 dtoInput.pageSize,

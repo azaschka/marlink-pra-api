@@ -1,4 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { JumpGroupRetrievedDtoOutput } from '../../../../jump-group/dtos/outputs';
+import { JumpPolicyRetrievedDtoOutput } from '../../../../jump-policy/dtos/outputs';
+import { JumpointRetrievedDtoOutput } from '../../../../jumpoint/dtos/outputs';
 import { JumpGroupType } from '../../enums';
 import { RemoteVnc } from '../../models';
 
@@ -38,4 +41,13 @@ export class RemoteVncRetrievedDtoOutput implements RemoteVnc {
 
     @ApiProperty({ required: true, type: Date })
     public lastSyncDate!: Date;
+
+    @ApiProperty({ required: true, type: JumpointRetrievedDtoOutput })
+    public jumpoint!: JumpointRetrievedDtoOutput;
+
+    @ApiProperty({ required: true, type: JumpGroupRetrievedDtoOutput })
+    public jumpGroup!: JumpGroupRetrievedDtoOutput;
+
+    @ApiProperty({ required: true, type: JumpPolicyRetrievedDtoOutput, nullable: true })
+    public jumpPolicy?: JumpPolicyRetrievedDtoOutput | null;
 }

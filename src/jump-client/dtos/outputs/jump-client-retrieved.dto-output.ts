@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { JumpGroupRetrievedDtoOutput } from '../../../jump-group/dtos/outputs';
+import { JumpPolicyRetrievedDtoOutput } from '../../../jump-policy/dtos/outputs';
 import {
     JumpClientConnectionType,
     JumpClientEndpointAgreementPolicyType,
@@ -187,4 +189,10 @@ export class JumpClientRetrievedDtoOutput implements JumpClient {
         description: 'The date which the user was last synchronized with BeyondTrust Privileged Remote Access system.',
     })
     public lastSyncDate!: Date;
+
+    @ApiProperty({ required: true, type: JumpGroupRetrievedDtoOutput })
+    public jumpGroup!: JumpGroupRetrievedDtoOutput;
+
+    @ApiProperty({ required: true, type: JumpPolicyRetrievedDtoOutput, nullable: true })
+    public jumpPolicy?: JumpPolicyRetrievedDtoOutput | null;
 }

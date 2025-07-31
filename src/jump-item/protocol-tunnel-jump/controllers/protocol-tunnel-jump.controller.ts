@@ -54,7 +54,10 @@ export class ProtocolTunnelJumpController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveProtocolTunnelJumpsDtoInput,
     ): Promise<ProtocolTunnelJumpRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveProtocolTunnelJumpsQuery, ProtocolTunnelJump[]>(
+        const result = await this.queryBus.execute<
+            RetrieveProtocolTunnelJumpsQuery,
+            ProtocolTunnelJumpRetrievedDtoOutput[]
+        >(
             new RetrieveProtocolTunnelJumpsQuery(
                 transactionId,
                 dtoInput.pageSize,

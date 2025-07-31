@@ -54,7 +54,7 @@ export class ShellJumpController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveShellJumpsDtoInput,
     ): Promise<ShellJumpRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveShellJumpsQuery, ShellJump[]>(
+        const result = await this.queryBus.execute<RetrieveShellJumpsQuery, ShellJumpRetrievedDtoOutput[]>(
             new RetrieveShellJumpsQuery(
                 transactionId,
                 dtoInput.pageSize,

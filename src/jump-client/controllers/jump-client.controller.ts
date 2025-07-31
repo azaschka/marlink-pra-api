@@ -46,7 +46,7 @@ export class JumpClientController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveJumpClientsDtoInput,
     ): Promise<JumpClientRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveJumpClientsQuery, JumpClient[]>(
+        const result = await this.queryBus.execute<RetrieveJumpClientsQuery, JumpClientRetrievedDtoOutput[]>(
             new RetrieveJumpClientsQuery(
                 transactionId,
                 dtoInput.pageSize,

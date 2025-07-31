@@ -1,4 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { JumpGroupRetrievedDtoOutput } from '../../../../jump-group/dtos/outputs';
+import { JumpPolicyRetrievedDtoOutput } from '../../../../jump-policy/dtos/outputs';
+import { JumpointRetrievedDtoOutput } from '../../../../jumpoint/dtos/outputs';
 import { JumpGroupType, RdpQualityMode, SecureAppType } from '../../enums';
 import { RemoteRdp } from '../../models';
 
@@ -77,4 +80,13 @@ export class RemoteRdpRetrievedDtoOutput implements RemoteRdp {
 
     @ApiProperty({ required: true, type: Date })
     public lastSyncDate!: Date;
+
+    @ApiProperty({ required: true, type: JumpointRetrievedDtoOutput })
+    public jumpoint!: JumpointRetrievedDtoOutput;
+
+    @ApiProperty({ required: true, type: JumpGroupRetrievedDtoOutput })
+    public jumpGroup!: JumpGroupRetrievedDtoOutput;
+
+    @ApiProperty({ required: true, type: JumpPolicyRetrievedDtoOutput, nullable: true })
+    public jumpPolicy?: JumpPolicyRetrievedDtoOutput | null;
 }

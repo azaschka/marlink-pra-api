@@ -54,7 +54,7 @@ export class RemoteVncController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Query() dtoInput: RetrieveRemoteVncsDtoInput,
     ): Promise<RemoteVncRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveRemoteVncsQuery, RemoteVnc[]>(
+        const result = await this.queryBus.execute<RetrieveRemoteVncsQuery, RemoteVncRetrievedDtoOutput[]>(
             new RetrieveRemoteVncsQuery(
                 transactionId,
                 dtoInput.pageSize,
