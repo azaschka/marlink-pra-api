@@ -303,6 +303,7 @@ export class CalculateCustomerLicenseUsageCommandHandler
                 uniqueObjects.add(
                     JSON.stringify({
                         jumpointId: data.jumpItemJumpointId,
+                        hostname: data.jumpItemHostname,
                     }),
                 );
             }
@@ -310,6 +311,7 @@ export class CalculateCustomerLicenseUsageCommandHandler
             if (data.jumpItemType === JumpItemType.WebJump) {
                 uniqueObjects.add(
                     JSON.stringify({
+                        name: data.jumpItemName,
                         jumpointId: data.jumpItemJumpointId,
                         endpointUrl: data.jumpItemEndpointUrl,
                     }),
