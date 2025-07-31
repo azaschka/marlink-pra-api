@@ -1,13 +1,17 @@
 import { NotFoundException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
-import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { GroupPolicyMember } from '../../../group-policy-member/models';
 import { RetrieveGroupPolicyMembersQuery } from '../../../group-policy-member/queries';
 import { GroupPolicy } from '../../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
 import { ErrorProcessorUtility, PaginationUtility } from '../../../shared/utilities';
-import { UserGroupPolicy } from '../../../user-group-policy/models';
-import { RetrieveUserGroupPoliciesQuery } from '../../../user-group-policy/queries';
+import { Site, SiteAdministrator, SiteManager, SiteSupportTeamMember } from '../../../site/models';
+import {
+    RetrieveSiteAdministratorsByUserIdQuery,
+    RetrieveSiteByIdQuery,
+    RetrieveSiteManagersByUserIdQuery,
+    RetrieveSiteSupportTeamMembersByUserIdQuery,
+} from '../../../site/queries';
 import { ModifyUserCommand } from '../../../user/commands';
 import { EnableUsersLoginAfterCustomerReactivationFailedEvent } from '../../events';
 import { Customer } from '../../models';
@@ -21,7 +25,6 @@ export class EnableUsersLoginAfterCustomerReactivationCommandHandler
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     constructor(
-        private readonly appConfigService: AppConfigService,
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
@@ -84,28 +87,107 @@ export class EnableUsersLoginAfterCustomerReactivationCommandHandler
         }
 
         for (const associatedUserId of allAssociatedUserIds) {
-            const userGroupPolicies = await PaginationUtility.queryUntilLastPage<UserGroupPolicy>(
-                (pageNumber: number) =>
-                    this.queryBus.execute<RetrieveUserGroupPoliciesQuery, UserGroupPolicy[]>(
-                        new RetrieveUserGroupPoliciesQuery(
-                            transactionId,
-                            EnableUsersLoginAfterCustomerReactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
-                            pageNumber,
-                            associatedUserId,
-                        ),
+            // Site administrator
+            const siteAdministrators = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
+                this.queryBus.execute<RetrieveSiteAdministratorsByUserIdQuery, SiteAdministrator[]>(
+                    new RetrieveSiteAdministratorsByUserIdQuery(
+                        transactionId,
+                        EnableUsersLoginAfterCustomerReactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                        pageNumber,
+                        associatedUserId,
                     ),
+                ),
             );
+            const siteAdministratorCustomerKeys = (
+                await Promise.all(
+                    siteAdministrators.map(async (siteAdministrator) => {
+                        try {
+                            const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
+                                new RetrieveSiteByIdQuery(transactionId, siteAdministrator.siteId),
+                            );
 
-            const isUserAssociatedWithMultipleCustomers =
-                userGroupPolicies.filter((userGroupPolicy) =>
-                    (userGroupPolicy as unknown as { groupPolicy: GroupPolicy }).groupPolicy.name.includes(
-                        this.appConfigService.customer.groupPolicy.administratorPrefix,
+                            return site.customerKey;
+                        } catch {
+                            return undefined;
+                        }
+                    }),
+                )
+            ).filter((value) => value !== undefined);
+
+            // Site manager
+            const siteManagers = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
+                this.queryBus.execute<RetrieveSiteManagersByUserIdQuery, SiteManager[]>(
+                    new RetrieveSiteManagersByUserIdQuery(
+                        transactionId,
+                        EnableUsersLoginAfterCustomerReactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                        pageNumber,
+                        associatedUserId,
                     ),
-                ).length > 1;
+                ),
+            );
+            const siteManagerCustomerKeys = (
+                await Promise.all(
+                    siteManagers.map(async (siteManager) => {
+                        try {
+                            const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
+                                new RetrieveSiteByIdQuery(transactionId, siteManager.siteId),
+                            );
 
-            if (!isUserAssociatedWithMultipleCustomers) {
-                exclusiveUserIds.add(associatedUserId);
+                            return site.customerKey;
+                        } catch {
+                            return undefined;
+                        }
+                    }),
+                )
+            ).filter((value) => value !== undefined);
+
+            // Support team member
+            const siteSupportTeamMembers = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
+                this.queryBus.execute<RetrieveSiteSupportTeamMembersByUserIdQuery, SiteSupportTeamMember[]>(
+                    new RetrieveSiteSupportTeamMembersByUserIdQuery(
+                        transactionId,
+                        EnableUsersLoginAfterCustomerReactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                        pageNumber,
+                        associatedUserId,
+                    ),
+                ),
+            );
+            const siteSupportTeamMemberCustomerKeys = (
+                await Promise.all(
+                    siteSupportTeamMembers.map(async (siteSupportTeamMember) => {
+                        try {
+                            const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
+                                new RetrieveSiteByIdQuery(transactionId, siteSupportTeamMember.siteId),
+                            );
+
+                            return site.customerKey;
+                        } catch {
+                            return undefined;
+                        }
+                    }),
+                )
+            ).filter((value) => value !== undefined);
+
+            // TODO handle case where user is associated with other customer but other customer is also being deactivated
+            if (
+                siteAdministratorCustomerKeys.length > 0 &&
+                siteAdministratorCustomerKeys.some((key) => key !== customer.key)
+            ) {
+                continue; // Skip if site administrator is associated with different customers
             }
+
+            if (siteManagerCustomerKeys.length > 0 && siteManagerCustomerKeys.some((key) => key !== customer.key)) {
+                continue; // Skip if site manager is associated with different customers
+            }
+
+            if (
+                siteSupportTeamMemberCustomerKeys.length > 0 &&
+                siteSupportTeamMemberCustomerKeys.some((key) => key !== customer.key)
+            ) {
+                continue; // Skip if support team member is associated with different customers
+            }
+
+            exclusiveUserIds.add(associatedUserId);
         }
 
         return exclusiveUserIds;
