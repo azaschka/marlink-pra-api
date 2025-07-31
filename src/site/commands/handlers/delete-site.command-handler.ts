@@ -5,7 +5,12 @@ import { BusinessUnit } from '../../../customer/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteDeletedEvent } from '../../events';
-import { PartialSiteAdministrator, PartialSiteManager, PartialSiteSupportTeamMember } from '../../models';
+import {
+    PartialSiteAdministrator,
+    PartialSiteApprover,
+    PartialSiteManager,
+    PartialSiteSupportTeamMember,
+} from '../../models';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { DeleteSiteCommand } from '../delete-site.command';
@@ -31,6 +36,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             site.siteManagers as PartialSiteManager[],
             site.siteAdministrators as PartialSiteAdministrator[],
             site.siteSupportTeamMembers as PartialSiteSupportTeamMember[],
+            site.siteApprovers as PartialSiteApprover[],
             customer.name,
             customer.businessUnit,
         );
@@ -68,6 +74,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
         siteManagers: PartialSiteManager[],
         siteAdministrators: PartialSiteAdministrator[],
         siteSupportTeamMembers: PartialSiteSupportTeamMember[],
+        siteApprovers: PartialSiteApprover[],
         customerName: string,
         customerBusinessUnit: BusinessUnit,
     ): Promise<void> {
@@ -81,6 +88,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             siteManagers,
             siteAdministrators,
             siteSupportTeamMembers,
+            siteApprovers,
             customerName,
             customerBusinessUnit,
         );

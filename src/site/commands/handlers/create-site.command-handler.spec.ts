@@ -5,7 +5,7 @@ import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
 import { SiteCreatedEvent } from '../../events';
-import { SiteWorkflowResult } from '../../models';
+import { PartialSiteApprover, SiteWorkflowResult } from '../../models';
 import { RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
@@ -62,7 +62,16 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [], [], []),
+                    new CreateSiteCommand(
+                        'transaction-1',
+                        'site-key-1',
+                        'site-name-1',
+                        'customer-key-1',
+                        [],
+                        [],
+                        [],
+                        [],
+                    ),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(1);
@@ -72,6 +81,7 @@ describe('CreateSiteCommandHandler', () => {
         });
 
         it('should throw ConflictException if a site with the same name already exists', async () => {
+            'approver-1';
             // Arrange
             const existingSite = { id: 1, key: 'site-key-1', name: 'site-name-1' } as SiteEntity;
             const queryBusExecuteMethod = jest
@@ -83,7 +93,16 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [], [], []),
+                    new CreateSiteCommand(
+                        'transaction-1',
+                        'site-key-1',
+                        'site-name-1',
+                        'customer-key-1',
+                        [],
+                        [],
+                        [],
+                        [],
+                    ),
                 ),
             ).rejects.toThrow(ConflictException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(2);
@@ -98,6 +117,7 @@ describe('CreateSiteCommandHandler', () => {
         });
 
         it('should throw NotFoundException if the customer does not exist', async () => {
+            'approver-1';
             // Arrange
             const queryBusExecuteMethod = jest
                 .spyOn(queryBus, 'execute')
@@ -109,7 +129,16 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [], [], []),
+                    new CreateSiteCommand(
+                        'transaction-1',
+                        'site-key-1',
+                        'site-name-1',
+                        'customer-key-1',
+                        [],
+                        [],
+                        [],
+                        [],
+                    ),
                 ),
             ).rejects.toThrow(NotFoundException);
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(3);
@@ -141,7 +170,7 @@ describe('CreateSiteCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [], [], []),
+                new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [], [], [], ['approver-1']),
             );
 
             // Assert
@@ -152,6 +181,7 @@ describe('CreateSiteCommandHandler', () => {
                 TestHelper.mockedSiteWorkflowResult.siteManagers,
                 TestHelper.mockedSiteWorkflowResult.siteAdministrators,
                 TestHelper.mockedSiteWorkflowResult.siteSupportTeamMembers,
+                [{ email: 'approver-1' } as PartialSiteApprover],
             );
             expect(siteRepositoryServiceCreateMethod).toHaveBeenCalledWith(siteEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
@@ -175,7 +205,16 @@ describe('CreateSiteCommandHandler', () => {
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateSiteCommand('transaction-1', 'key-1', 'name-1', 'customer-key-1', [], [], []),
+                    new CreateSiteCommand(
+                        'transaction-1',
+                        'key-1',
+                        'name-1',
+                        'customer-key-1',
+                        [],
+                        [],
+                        [],
+                        ['approver-1'],
+                    ),
                 ),
             ).rejects.toThrow();
             expect(siteRepositoryServiceCreateMethod).toHaveBeenCalled();

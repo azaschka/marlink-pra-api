@@ -15,6 +15,7 @@ import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
 import {
     PartialSiteAdministrator,
+    PartialSiteApprover,
     PartialSiteManager,
     PartialSiteSupportTeamMember,
     SiteWorkflowResult,
@@ -60,6 +61,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         private readonly siteManagers: PartialSiteManager[],
         private readonly siteAdministrators: PartialSiteAdministrator[],
         private readonly siteSupportTeamMembers: PartialSiteSupportTeamMember[],
+        private readonly siteApprovers: PartialSiteApprover[],
         private readonly customerName: string,
         private readonly customerBusinessUnit: BusinessUnit,
     ) {
@@ -100,6 +102,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteName,
             this.siteKey,
             this.siteManagers,
+            this.siteApprovers,
             this.customerName,
         );
 

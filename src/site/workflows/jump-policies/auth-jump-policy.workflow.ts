@@ -7,8 +7,9 @@ import {
 } from '../../../jump-policy/commands';
 import { JumpPolicy } from '../../../jump-policy/models';
 import { RetrieveJumpPoliciesQuery } from '../../../jump-policy/queries';
+import { ObjectUtility } from '../../../shared/utilities';
 import { BaseWorkflow } from '../../../shared/workflows';
-import { PartialSiteManager } from '../../models';
+import { PartialSiteApprover, PartialSiteManager } from '../../models';
 
 export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     private static readonly HAS_SCHEDULED_ACCESS_RESTRICTION = false;
@@ -41,6 +42,7 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         private readonly siteName: string,
         private readonly siteKey: string,
         private readonly siteManagers: PartialSiteManager[],
+        private readonly siteApprovers: PartialSiteApprover[],
         private readonly customerName: string,
     ) {}
 
@@ -72,7 +74,7 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                 AuthJumpPolicyWorkflow.IS_APPROVAL_REQUIRED, // isApprovalRequired
                 AuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES, // approvalMaxDurationInMinutes
                 undefined, // approvalScopeType
-                this.siteManagers.map((siteManager) => siteManager.email), // approvalEmailAddresses
+                this.generateApprovalEmailAddresses(), // approvalEmailAddresses
                 undefined, // approvalUserIds
                 undefined, // approvalTeamIds
                 this.jumpPolicyApprovalDisplayName, // approvalDisplayName
@@ -114,7 +116,7 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
             jumpPolicy.isApprovalRequired !== AuthJumpPolicyWorkflow.IS_APPROVAL_REQUIRED ||
             jumpPolicy.approvalMaxDurationInMinutes !== AuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES ||
             JSON.stringify(jumpPolicy.approvalEmailAddresses ?? []) !==
-                JSON.stringify(this.siteManagers.map((siteManager) => siteManager.email)) ||
+                JSON.stringify(this.generateApprovalEmailAddresses()) ||
             jumpPolicy.approvalDisplayName !== this.jumpPolicyApprovalDisplayName
         ) {
             return await this.commandBus.execute<ModifyJumpPolicyCommand, JumpPolicy>(
@@ -159,5 +161,12 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         );
 
         return jumpPolicies[0] ?? null;
+    }
+
+    private generateApprovalEmailAddresses(): string[] {
+        return ObjectUtility.filterUnique<string>([
+            ...this.siteManagers.map((siteManager) => siteManager.email),
+            ...this.siteApprovers.map((siteApprover) => siteApprover.email),
+        ]);
     }
 }

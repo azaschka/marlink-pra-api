@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import {
     PartialSiteAdministratorWithUserId,
+    PartialSiteApprover,
     PartialSiteManagerWithUserId,
     PartialSiteSupportTeamMemberWithUserId,
     Site,
@@ -9,6 +10,7 @@ import {
     SiteSupportTeamMember,
 } from '../../models';
 import { SiteAdministratorEntity } from './site-administrator.entity';
+import { SiteApproverEntity } from './site-approver.entity';
 import { SiteManagerEntity } from './site-manager.entity';
 import { SiteSupportTeamMemberEntity } from './site-support-team-member.entity';
 
@@ -44,6 +46,12 @@ export class SiteEntity implements Site {
     })
     public siteSupportTeamMembers!: SiteSupportTeamMember[];
 
+    @OneToMany(() => SiteApproverEntity, (siteApproverEntity) => siteApproverEntity.site, {
+        eager: true,
+        cascade: true,
+    })
+    public siteApprovers!: SiteApproverEntity[];
+
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
 
@@ -54,9 +62,10 @@ export class SiteEntity implements Site {
         key: string,
         name: string,
         customerKey: string,
-        siteManagers: (SiteManager | PartialSiteManagerWithUserId)[],
-        siteAdministrators: (SiteAdministrator | PartialSiteAdministratorWithUserId)[],
-        siteSupportTeamMembers: (SiteSupportTeamMember | PartialSiteSupportTeamMemberWithUserId)[],
+        siteManagers: (SiteManagerEntity | PartialSiteManagerWithUserId)[],
+        siteAdministrators: (SiteAdministratorEntity | PartialSiteAdministratorWithUserId)[],
+        siteSupportTeamMembers: (SiteSupportTeamMemberEntity | PartialSiteSupportTeamMemberWithUserId)[],
+        siteApprovers: (SiteApproverEntity | PartialSiteApprover)[],
     ): SiteEntity {
         const entity = new SiteEntity();
         entity.key = key;
@@ -65,6 +74,7 @@ export class SiteEntity implements Site {
         entity.siteManagers = siteManagers as SiteManagerEntity[];
         entity.siteAdministrators = siteAdministrators as SiteAdministratorEntity[];
         entity.siteSupportTeamMembers = siteSupportTeamMembers as SiteSupportTeamMemberEntity[];
+        entity.siteApprovers = siteApprovers as SiteApproverEntity[];
 
         return entity;
     }

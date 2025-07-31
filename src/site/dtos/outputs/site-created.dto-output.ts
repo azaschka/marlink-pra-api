@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Site, SiteAdministrator, SiteManager, SiteSupportTeamMember } from '../../models';
 import { SiteAdministratorDtoOutput } from './site-administrator.dto-output';
+import { SiteApproverDtoOutput } from './site-approver.dto-output';
 import { SiteManagerDtoOutput } from './site-manager.dto-output';
 import { SiteSupportTeamMemberDtoOutput } from './site-support-team-member.dto-output';
 
@@ -49,6 +50,13 @@ export class SiteCreatedDtoOutput implements Site {
         description: 'The list of site support team members associated with this site.',
     })
     public siteSupportTeamMembers!: SiteSupportTeamMember[];
+
+    @ApiProperty({
+        required: true,
+        type: [SiteApproverDtoOutput],
+        description: 'The list of site approvers associated with this site.',
+    })
+    public siteApprovers!: SiteApproverDtoOutput[];
 
     @ApiProperty({
         required: true,

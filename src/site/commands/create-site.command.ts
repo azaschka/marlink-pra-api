@@ -11,5 +11,6 @@ export class CreateSiteCommand {
         public readonly siteManagers: PartialSiteManager[],
         public readonly siteAdministrators: PartialSiteAdministrator[],
         public readonly siteSupportTeamMembers: PartialSiteSupportTeamMember[],
+        public readonly siteApproverEmails: string[],
     ) {}
 }

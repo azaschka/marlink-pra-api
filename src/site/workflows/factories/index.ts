@@ -107,6 +107,7 @@ export class WorkflowFactory {
             this.site.name,
             this.site.key,
             this.site.siteManagers,
+            this.site.siteApprovers,
             this.customer.name,
         );
     }

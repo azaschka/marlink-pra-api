@@ -10,18 +10,26 @@ import { SiteController } from './controllers/site.controller';
 import { QueryHandlers } from './queries/handlers';
 import {
     SiteAdministratorEntity,
+    SiteApproverEntity,
     SiteEntity,
     SiteManagerEntity,
     SiteSupportTeamMemberEntity,
 } from './repositories/entities';
 import { SiteAdministratorRepositoryService } from './repositories/services/site-administrator.service';
+import { SiteApproverRepositoryService } from './repositories/services/site-approver.service';
 import { SiteManagerRepositoryService } from './repositories/services/site-manager.service';
 import { SiteRepositoryService } from './repositories/services/site-repository.service';
 import { SiteSupportTeamMemberRepositoryService } from './repositories/services/site-support-team-member.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([SiteEntity, SiteManagerEntity, SiteAdministratorEntity, SiteSupportTeamMemberEntity]),
+        TypeOrmModule.forFeature([
+            SiteEntity,
+            SiteManagerEntity,
+            SiteAdministratorEntity,
+            SiteSupportTeamMemberEntity,
+            SiteApproverEntity,
+        ]),
         AppConfigModule,
     ],
     controllers: [
@@ -38,6 +46,7 @@ import { SiteSupportTeamMemberRepositoryService } from './repositories/services/
         SiteAdministratorRepositoryService,
         SiteManagerRepositoryService,
         SiteSupportTeamMemberRepositoryService,
+        SiteApproverRepositoryService,
     ],
 })
 export class SiteModule {}

@@ -8,6 +8,7 @@ import { SiteCreatedEvent } from '../../events';
 import {
     PartialSiteAdministrator,
     PartialSiteAdministratorWithUserId,
+    PartialSiteApprover,
     PartialSiteManager,
     PartialSiteManagerWithUserId,
     PartialSiteSupportTeamMember,
@@ -34,6 +35,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
     public async execute(command: CreateSiteCommand): Promise<Site> {
         await this.validateSiteKeyAndName(command.transactionId, command.key, command.name);
         const customer = await this.validateCustomerExist(command.transactionId, command.customerKey);
+        const partialSiteApprovers = command.siteApproverEmails.map((email) => ({
+            email,
+        }));
 
         const siteWorkflowResult = await this.runWorkflow(
             command.transactionId,
@@ -42,6 +46,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             command.siteManagers,
             command.siteAdministrators,
             command.siteSupportTeamMembers,
+            partialSiteApprovers,
             customer.name,
             customer.businessUnit,
         );
@@ -53,6 +58,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             siteWorkflowResult.siteManagers,
             siteWorkflowResult.siteAdministrators,
             siteWorkflowResult.siteSupportTeamMembers,
+            partialSiteApprovers,
         );
 
         this.eventBus.publish(
@@ -101,6 +107,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         siteManagers: PartialSiteManager[],
         siteAdministrators: PartialSiteAdministrator[],
         siteSupportTeamMembers: PartialSiteSupportTeamMember[],
+        siteApprovers: PartialSiteApprover[],
         customerName: string,
         customerBusinessUnit: BusinessUnit,
     ): Promise<SiteWorkflowResult> {
@@ -114,6 +121,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             siteManagers,
             siteAdministrators,
             siteSupportTeamMembers,
+            siteApprovers,
             customerName,
             customerBusinessUnit,
         );
@@ -128,6 +136,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         managers: PartialSiteManagerWithUserId[],
         administrators: PartialSiteAdministratorWithUserId[],
         supportTeamMembers: PartialSiteSupportTeamMemberWithUserId[],
+        approvers: PartialSiteApprover[],
     ) {
         const siteEntity = SiteEntity.createWithoutId(
             key,
@@ -136,6 +145,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             managers,
             administrators,
             supportTeamMembers,
+            approvers,
         );
 
         return await this.siteRepositoryService.create(siteEntity);

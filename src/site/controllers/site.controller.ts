@@ -81,6 +81,7 @@ export class SiteController {
                 dtoInput.siteManagers,
                 dtoInput.siteAdministrators ?? [],
                 dtoInput.siteSupportTeamMembers ?? [],
+                dtoInput.siteApprovers ?? [],
             ),
         );
 

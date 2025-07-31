@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { SiteAdministratorDtoInput } from './site-administrator.dto-input';
 import { SiteManagerDtoInput } from './site-manager.dto-input';
 import { SiteSupportTeamMemberDtoInput } from './site-support-team-member.dto-input';
@@ -60,4 +60,15 @@ export class CreateSiteDtoInput {
     @ValidateNested({ each: true })
     @Type(() => SiteSupportTeamMemberDtoInput)
     public siteSupportTeamMembers?: SiteSupportTeamMemberDtoInput[];
+
+    @ApiProperty({
+        required: false,
+        type: [String],
+        description: 'The list of site approver emails.',
+    })
+    @IsArray()
+    @ArrayUnique()
+    @IsOptional()
+    @IsString({ each: true })
+    public siteApprovers?: string[];
 }
