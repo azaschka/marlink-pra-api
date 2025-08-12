@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { BeyondtrustInstanceBackupModule } from './beyondtrust-instance-backup/beyondtrust-instance-backup.module';
 import { BeyondtrustInstanceModule } from './beyondtrust-instance/beyondtrust-instance.module';
 import { CustomerModule } from './customer/customer.module';
+import { EmailModule } from './email/email.module';
 import { GroupPolicyJumpGroupModule } from './group-policy-jump-group/group-policy-jump-group.module';
 import { GroupPolicyJumpointModule } from './group-policy-jumpoint/group-policy-jumpoint.module';
 import { GroupPolicyMemberModule } from './group-policy-member/group-policy-member.module';
@@ -57,6 +58,7 @@ import { UserModule } from './user/user.module';
         JumpPolicyModule,
         JumpItemModule,
         LogModule,
+        EmailModule,
     ],
     controllers: [AppController],
 })

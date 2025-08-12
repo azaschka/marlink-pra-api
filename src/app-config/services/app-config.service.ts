@@ -309,4 +309,13 @@ export class AppConfigService {
             },
         };
     }
+
+    public get smtp() {
+        return {
+            username: this.configService.get<string>('SMTP_USERNAME') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            password: this.configService.get<string>('SMTP_PASSWORD') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            host: this.configService.get<string>('SMTP_HOST') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            port: this.configService.get<number>('SMTP_PORT') ?? AppConfigService.DEFAULT_UNDEFINED_NUMBER,
+        };
+    }
 }

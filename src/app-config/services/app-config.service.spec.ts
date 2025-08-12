@@ -880,6 +880,56 @@ describe('AppConfigService', () => {
             });
         });
     });
+
+    describe('smtp', () => {
+        it.each([
+            {
+                input: {
+                    username: 'your_smtp_username',
+                    password: 'your_smtp_password',
+                    host: 'smtp.example.com',
+                    port: 587,
+                },
+                expected: {
+                    username: 'your_smtp_username',
+                    password: 'your_smtp_password',
+                    host: 'smtp.example.com',
+                    port: 587,
+                },
+            },
+            {
+                input: {},
+                expected: {
+                    username: 'unknown',
+                    password: 'unknown',
+                    host: 'unknown',
+                    port: 0,
+                },
+            },
+        ])('should return the SMTP configuration as expected', ({ input, expected }) => {
+            configService.get = jest.fn().mockImplementation((key: string) => {
+                switch (key) {
+                    case 'SMTP_USERNAME':
+                        return input.username;
+                    case 'SMTP_PASSWORD':
+                        return input.password;
+                    case 'SMTP_HOST':
+                        return input.host;
+                    case 'SMTP_PORT':
+                        return input.port;
+                    default:
+                        return undefined;
+                }
+            });
+
+            expect(service.smtp).toEqual({
+                username: expected.username,
+                password: expected.password,
+                host: expected.host,
+                port: expected.port,
+            });
+        });
+    });
 });
 
 function mockConfigService() {

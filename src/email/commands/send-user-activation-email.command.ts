@@ -1,0 +1,10 @@
+export class SendUserActivationEmailCommand {
+    public readonly commandType = 'send-user-activation-email';
+
+    constructor(
+        public readonly transactionId: string,
+        public readonly sendTo: string,
+        public readonly username: string,
+        public readonly activationUrl: string,
+    ) {}
+}
