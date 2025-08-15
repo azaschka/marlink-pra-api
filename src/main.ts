@@ -29,7 +29,7 @@ async function bootstrap() {
         // Parse JSON requests with a limit of 5MB
         app.use(json({ limit: '5mb' }));
         // Setup logging and error handling interceptors
-        app.useGlobalInterceptors(new LoggingInterceptor(app.get(LogService)), new TimeoutInterceptor());
+        app.useGlobalInterceptors(new LoggingInterceptor(app.get(LogService)), new TimeoutInterceptor(180_000));
         // Setup global exception filter
         app.useGlobalFilters(new AllExceptionsFilter(app.get(LogService)));
         // Enable CORS
