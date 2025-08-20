@@ -13,7 +13,16 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiCreatedResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+    ApiConflictResponse,
+    ApiCreatedResponse,
+    ApiNoContentResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiParam,
+    ApiTags,
+    ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
@@ -72,7 +81,18 @@ export class ShellJumpController {
     }
 
     @Post()
-    @ApiCreatedResponse({ type: ShellJumpCreatedDtoOutput })
+    @ApiCreatedResponse({
+        type: ShellJumpCreatedDtoOutput,
+        description:
+            'Indicates the Shell Jump Item was created successfully and contains the new Shell Jump Item instance.',
+    })
+    @ApiConflictResponse({
+        description: 'A Shell Jump Item already exists.',
+    })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async createShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Body() dtoInput: CreateShellJumpDtoInput,
@@ -101,7 +121,16 @@ export class ShellJumpController {
     }
 
     @Patch(':id')
-    @ApiOkResponse({ type: ShellJumpModifiedDtoOutput })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({
+        type: ShellJumpModifiedDtoOutput,
+        description: 'Indicates the existing Shell Jump was successfully updated and returns the Shell Jump.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async modifyShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
@@ -132,8 +161,14 @@ export class ShellJumpController {
     }
 
     @Delete(':id')
-    @ApiParam({ name: 'id', type: Number, required: true })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
     @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the Shell Jump was successfully deleted.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async deleteShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
@@ -142,9 +177,17 @@ export class ShellJumpController {
     }
 
     @Post(':id/copy')
-    @ApiParam({ name: 'id', type: Number, required: true })
-    @ApiOkResponse({ type: ShellJumpCopiedDtoOutput })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
     @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({
+        type: ShellJumpCopiedDtoOutput,
+        description: 'Indicates the Shell Jump was successfully copied.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async copyShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,

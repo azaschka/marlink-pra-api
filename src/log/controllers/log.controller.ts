@@ -1,11 +1,10 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, HttpStatus, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { DateUtility } from '../../shared/utilities';
 import { DeleteLogsDtoInput, RetrieveLogsDtoInput } from '../dtos/inputs';
-import { LogRetrievedDtoOutput } from '../dtos/outputs';
+import { LogsRetrievedDtoOutput } from '../dtos/outputs';
 import { LogService } from '../services/log.service';
 
 @ApiTags('Logs')
@@ -43,11 +42,8 @@ export class LogController {
     }
 
     @Get()
-    @ApiOkResponse({ type: LogRetrievedDtoOutput, isArray: true })
-    public async retrieveLogs(
-        @Query() dto: RetrieveLogsDtoInput,
-        @Res({ passthrough: true }) res: Response,
-    ): Promise<LogRetrievedDtoOutput[]> {
+    @ApiOkResponse({ type: LogsRetrievedDtoOutput })
+    public async retrieveLogs(@Query() dto: RetrieveLogsDtoInput): Promise<LogsRetrievedDtoOutput> {
         const logs = await this.logService.retrieveLogs(
             dto.pageSize,
             dto.pageNumber,
@@ -56,10 +52,12 @@ export class LogController {
             dto.sortOrderType,
         );
 
-        const total = await this.logService.countLogs(dto.creationDateFrom, dto.creationDateTo);
-        res.set('X-Total-Count', total.toString());
+        const totalCount = await this.logService.countLogs(dto.creationDateFrom, dto.creationDateTo);
 
-        return logs;
+        return {
+            logs: logs,
+            totalCount: totalCount,
+        };
     }
 
     @Delete()

@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
+    ApiConflictResponse,
     ApiCreatedResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
@@ -73,6 +74,9 @@ export class JumpClientInstallerController {
         type: JumpClientInstallerCreatedDtoOutput,
         description:
             'Indicates the Jump Client installer was created successfully and contains the installer identifier and key information.',
+    })
+    @ApiConflictResponse({
+        description: 'A Jump Client installer already exists.',
     })
     @ApiUnprocessableEntityResponse({
         description:

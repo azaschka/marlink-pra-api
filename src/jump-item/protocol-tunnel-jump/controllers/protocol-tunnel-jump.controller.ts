@@ -13,7 +13,16 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiCreatedResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+    ApiConflictResponse,
+    ApiCreatedResponse,
+    ApiNoContentResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiParam,
+    ApiTags,
+    ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
@@ -75,7 +84,18 @@ export class ProtocolTunnelJumpController {
     }
 
     @Post()
-    @ApiCreatedResponse({ type: ProtocolTunnelJumpCreatedDtoOutput })
+    @ApiCreatedResponse({
+        type: ProtocolTunnelJumpCreatedDtoOutput,
+        description:
+            'Indicates the Protocol Tunnel Jump Item was created successfully and contains the new Protocol Tunnel Jump Item instance.',
+    })
+    @ApiConflictResponse({
+        description: 'A Protocol Tunnel Jump Item already exists.',
+    })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async createProtocolTunnelJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Body() dtoInput: CreateProtocolTunnelJumpDtoInput,
@@ -106,7 +126,17 @@ export class ProtocolTunnelJumpController {
     }
 
     @Patch(':id')
-    @ApiOkResponse({ type: ProtocolTunnelJumpModifiedDtoOutput })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({
+        type: ProtocolTunnelJumpModifiedDtoOutput,
+        description:
+            'Indicates the existing Protocol Tunnel Jump was successfully updated and returns the Protocol Tunnel Jump.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async modifyProtocolTunnelJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
@@ -139,8 +169,14 @@ export class ProtocolTunnelJumpController {
     }
 
     @Delete(':id')
-    @ApiParam({ name: 'id', type: Number, required: true })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
     @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the Protocol Tunnel Jump was successfully deleted.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async deleteProtocolTunnelJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
@@ -151,9 +187,17 @@ export class ProtocolTunnelJumpController {
     }
 
     @Post(':id/copy')
-    @ApiParam({ name: 'id', type: Number, required: true })
-    @ApiOkResponse({ type: ProtocolTunnelJumpCopiedDtoOutput })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
     @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({
+        type: ProtocolTunnelJumpCopiedDtoOutput,
+        description: 'Indicates the Protocol Tunnel Jump was successfully copied.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async copyProtocolTunnelJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,

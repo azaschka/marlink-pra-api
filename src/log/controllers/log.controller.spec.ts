@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
-import { Response } from 'express';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { SortOrderType } from '../../shared/enums';
 import { Log } from '../models';
@@ -29,24 +27,20 @@ describe('LogController', () => {
 
     describe('retrieveLogs', () => {
         it('should call the log service retrieve and count logs and return the result', async () => {
-            const expectedTotal = 123;
-            const expectedResult = [] as Log[];
-            const mockRes = mockResponse();
-            const logServiceRetrieveLogsMethod = jest
-                .spyOn(logService, 'retrieveLogs')
-                .mockResolvedValue(expectedResult);
-            const logServiceCountLogsMethod = jest.spyOn(logService, 'countLogs').mockResolvedValue(expectedTotal);
+            const expectedTotalCounts = 123;
+            const expectedLogs = [{ actionName: 'test-action-1' }] as Log[];
+            const logServiceRetrieveLogsMethod = jest.spyOn(logService, 'retrieveLogs').mockResolvedValue(expectedLogs);
+            const logServiceCountLogsMethod = jest
+                .spyOn(logService, 'countLogs')
+                .mockResolvedValue(expectedTotalCounts);
 
-            const result = await controller.retrieveLogs(
-                {
-                    pageSize: 10,
-                    pageNumber: 1,
-                    creationDateFrom: new Date('2023-01-01T00:00:00Z'),
-                    creationDateTo: new Date('2023-01-31T23:59:59Z'),
-                    sortOrderType: SortOrderType.Descending,
-                },
-                mockRes,
-            );
+            const result = await controller.retrieveLogs({
+                pageSize: 10,
+                pageNumber: 1,
+                creationDateFrom: new Date('2023-01-01T00:00:00Z'),
+                creationDateTo: new Date('2023-01-31T23:59:59Z'),
+                sortOrderType: SortOrderType.Descending,
+            });
 
             expect(logServiceRetrieveLogsMethod).toHaveBeenCalledWith(
                 10,
@@ -59,9 +53,10 @@ describe('LogController', () => {
                 new Date('2023-01-01T00:00:00Z'),
                 new Date('2023-01-31T23:59:59Z'),
             );
-            expect(mockRes.set).toHaveBeenCalledTimes(1);
-            expect(mockRes.set).toHaveBeenCalledWith('X-Total-Count', expectedTotal.toString());
-            expect(result).toBe(expectedResult);
+            expect(result).toStrictEqual({
+                logs: expectedLogs,
+                totalCount: expectedTotalCounts,
+            });
         });
     });
 
@@ -132,13 +127,4 @@ function mockLogService() {
     logService.clearLogs = jest.fn();
 
     return logService;
-}
-
-function mockResponse(): Response {
-    const res: Partial<Response> = {};
-    res.set = jest.fn().mockReturnValue(res);
-    res.status = jest.fn().mockReturnValue(res);
-    res.json = jest.fn().mockReturnValue(res);
-
-    return res as Response;
 }

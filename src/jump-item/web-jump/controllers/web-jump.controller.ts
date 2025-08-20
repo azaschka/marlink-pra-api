@@ -13,7 +13,16 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiCreatedResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+    ApiConflictResponse,
+    ApiCreatedResponse,
+    ApiNoContentResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiParam,
+    ApiTags,
+    ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
@@ -67,7 +76,18 @@ export class WebJumpController {
     }
 
     @Post()
-    @ApiCreatedResponse({ type: WebJumpCreatedDtoOutput })
+    @ApiCreatedResponse({
+        type: WebJumpCreatedDtoOutput,
+        description:
+            'Indicates the Web Jump Item was created successfully and contains the new Web Jump Item instance.',
+    })
+    @ApiConflictResponse({
+        description: 'A Web Jump Item already exists.',
+    })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async createWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Body() dtoInput: CreateWebJumpDtoInput,
@@ -97,7 +117,16 @@ export class WebJumpController {
     }
 
     @Patch(':id')
-    @ApiOkResponse({ type: WebJumpModifiedDtoOutput })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({
+        type: WebJumpModifiedDtoOutput,
+        description: 'Indicates the existing Web Jump was successfully updated and returns the Web Jump.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async modifyWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
@@ -129,8 +158,14 @@ export class WebJumpController {
     }
 
     @Delete(':id')
-    @ApiParam({ name: 'id', type: Number, required: true })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
     @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the Web Jump was successfully deleted.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async deleteWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
@@ -139,9 +174,17 @@ export class WebJumpController {
     }
 
     @Post(':id/copy')
-    @ApiParam({ name: 'id', type: Number, required: true })
-    @ApiOkResponse({ type: WebJumpCopiedDtoOutput })
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
     @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({
+        type: WebJumpCopiedDtoOutput,
+        description: 'Indicates the Web Jump was successfully copied.',
+    })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiUnprocessableEntityResponse({
+        description:
+            'One or more request parameters are invalid. The body contains a general error message as well as a validation error dictionary.',
+    })
     public async copyWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
