@@ -5,6 +5,6 @@ export class SendUserActivationEmailCommand {
         public readonly transactionId: string,
         public readonly sendTo: string,
         public readonly username: string,
-        public readonly activationUrl: string,
+        public readonly password: string,
     ) {}
 }

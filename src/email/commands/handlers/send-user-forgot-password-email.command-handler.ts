@@ -6,8 +6,8 @@ import { SendUserForgotPasswordEmailCommand } from '../send-user-forgot-password
 
 @CommandHandler(SendUserForgotPasswordEmailCommand)
 export class SendUserForgotPasswordEmailCommandHandler implements ICommandHandler<SendUserForgotPasswordEmailCommand> {
-    private static readonly FORGOT_PASSWORD_TEMPLATE = 'user-forgot-password.mjml';
-    private static readonly FORGOT_PASSWORD_SUBJECT = 'New Password Generated';
+    private static readonly TEMPLATE = 'user-forgot-password.mjml';
+    private static readonly SUBJECT = 'New Password Generated';
 
     constructor(
         private readonly emailService: EmailService,
@@ -17,9 +17,9 @@ export class SendUserForgotPasswordEmailCommandHandler implements ICommandHandle
     public async execute(command: SendUserForgotPasswordEmailCommand): Promise<void> {
         try {
             await this.emailService.sendEmail(
-                SendUserForgotPasswordEmailCommandHandler.FORGOT_PASSWORD_TEMPLATE,
+                SendUserForgotPasswordEmailCommandHandler.TEMPLATE,
                 command.sendTo,
-                SendUserForgotPasswordEmailCommandHandler.FORGOT_PASSWORD_SUBJECT,
+                SendUserForgotPasswordEmailCommandHandler.SUBJECT,
                 {
                     username: command.username,
                     password: command.password,

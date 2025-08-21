@@ -6,8 +6,8 @@ import { SendUserActivationEmailCommand } from '../send-user-activation-email.co
 
 @CommandHandler(SendUserActivationEmailCommand)
 export class SendUserActivationEmailCommandHandler implements ICommandHandler<SendUserActivationEmailCommand> {
-    private static readonly WELCOME_TEMPLATE = 'user-activation.mjml';
-    private static readonly WELCOME_SUBJECT = 'Welcome!';
+    private static readonly TEMPLATE = 'user-activation.mjml';
+    private static readonly SUBJECT = 'Activate your PRA account';
 
     constructor(
         private readonly emailService: EmailService,
@@ -17,12 +17,12 @@ export class SendUserActivationEmailCommandHandler implements ICommandHandler<Se
     public async execute(command: SendUserActivationEmailCommand): Promise<void> {
         try {
             await this.emailService.sendEmail(
-                SendUserActivationEmailCommandHandler.WELCOME_TEMPLATE,
+                SendUserActivationEmailCommandHandler.TEMPLATE,
                 command.sendTo,
-                SendUserActivationEmailCommandHandler.WELCOME_SUBJECT,
+                SendUserActivationEmailCommandHandler.SUBJECT,
                 {
-                    name: command.username,
-                    activationUrl: command.activationUrl,
+                    username: command.username,
+                    password: command.password,
                 },
             );
 

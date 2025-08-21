@@ -5,16 +5,15 @@
     <mj-body background-color="#f5f7fa">
         <mj-section>
             <mj-column>
-                <mj-text font-size="20px" font-weight="bold"> Hi {{name}}, </mj-text>
+                <mj-text font-size="20px" font-weight="bold"> Hi {{username}}, </mj-text>
 
                 <mj-text> Welcome to the PRA Portal. </mj-text>
 
-                <mj-button href="{{activationUrl}}" background-color="#0070f3"> Activate your account </mj-button>
-
-                <mj-text font-size="12px" color="#8898aa">
-                    If the button doesn’t work, paste this link in your browser:<br />
-                    {{activationUrl}}
+                <mj-text font-size="14px" color="#555555" line-height="1.5">
+                    Here is your password:
                 </mj-text>
+
+                <mj-text font-size="16px" font-weight="bold" color="#007BFF"> {{password}} </mj-text>
             </mj-column>
         </mj-section>
     </mj-body>
