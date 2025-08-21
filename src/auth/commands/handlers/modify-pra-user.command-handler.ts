@@ -24,7 +24,7 @@ export class ModifyPraUserCommandHandler implements ICommandHandler<ModifyPraUse
         const hashedPassword: string | undefined = command.password
             ? await bcrypt.hash(command.password, ModifyPraUserCommandHandler.SALT_ROUNDS)
             : undefined;
-        const modifydPraUserEntity = PraUserEntity.create(
+        const modifiedPraUserEntity = PraUserEntity.create(
             command.id,
             command.username ?? praUserEntity.username,
             hashedPassword ?? praUserEntity.password,
@@ -34,14 +34,14 @@ export class ModifyPraUserCommandHandler implements ICommandHandler<ModifyPraUse
             command.businessUnit ?? praUserEntity.businessUnit,
         );
 
-        await this.praUserRepositoryService.createOrUpdateById(modifydPraUserEntity);
+        await this.praUserRepositoryService.createOrUpdateById(modifiedPraUserEntity);
 
         this.eventBus.publish(
             new PraUserModifiedEvent(command.transactionId, {
-                praUser: modifydPraUserEntity,
+                praUser: modifiedPraUserEntity,
             }),
         );
 
-        return modifydPraUserEntity;
+        return modifiedPraUserEntity;
     }
 }
