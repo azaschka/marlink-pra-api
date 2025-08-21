@@ -1,6 +1,6 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
-import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand, ProcessUserForgotPasswordCommand } from '../commands';
+import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
 import { User } from '../models';
 import { RetrieveUsersQuery } from '../queries';
 import { UserController } from './user.controller';
@@ -115,18 +115,6 @@ describe('UserController', () => {
             await controller.deleteUser(undefined, 1);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteUserCommand('uuid-123', 1));
-        });
-    });
-
-    describe('forgotPassword', () => {
-        it('should execute the command bus with the correct parameters', async () => {
-            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
-
-            await controller.forgotPassword('uuid-100', { email: 'user1@example.com' });
-
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ProcessUserForgotPasswordCommand('uuid-100', 'user1@example.com'),
-            );
         });
     });
 });

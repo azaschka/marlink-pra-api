@@ -4,11 +4,10 @@ import { AppConfigModule } from '../app-config/app-config.module';
 import { CommandHandlers } from './commands/handlers';
 import { UserController } from './controllers/user.controller';
 import { QueryHandlers } from './queries/handlers';
-import { UserSaga } from './sagas';
 
 @Module({
     imports: [AppConfigModule, HttpModule],
     controllers: [UserController],
-    providers: [...QueryHandlers, ...CommandHandlers, UserSaga],
+    providers: [...QueryHandlers, ...CommandHandlers],
 })
 export class UserModule {}

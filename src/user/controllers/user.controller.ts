@@ -25,13 +25,8 @@ import {
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
-import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand, ProcessUserForgotPasswordCommand } from '../commands';
-import {
-    CreateUserDtoInput,
-    ModifyUserDtoInput,
-    RetrieveUsersDtoInput,
-    UserForgotPasswordDtoInput,
-} from '../dtos/inputs';
+import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
+import { CreateUserDtoInput, ModifyUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } from '../dtos/outputs';
 import { User } from '../models';
 import { RetrieveUsersQuery } from '../queries';
@@ -148,21 +143,5 @@ export class UserController {
         @Param('id') id: number,
     ): Promise<void> {
         await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(transactionId, id));
-    }
-
-    @Post('forgot-password')
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({
-        description:
-            "Indicates the forgot password request was processed successfully and a reset link was sent to the user's email address.",
-    })
-    @ApiNotFoundResponse({ description: 'The specified user was not found.' })
-    public async forgotPassword(
-        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
-        @Body() dtoInput: UserForgotPasswordDtoInput,
-    ): Promise<void> {
-        await this.commandBus.execute<ProcessUserForgotPasswordCommand, void>(
-            new ProcessUserForgotPasswordCommand(transactionId, dtoInput.email),
-        );
     }
 }
