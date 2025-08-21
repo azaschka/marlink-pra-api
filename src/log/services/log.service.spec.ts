@@ -139,6 +139,7 @@ describe('LogService', () => {
         const result = await logService.retrieveLogs(
             10,
             1,
+            undefined,
             new Date('2024-01-01'),
             new Date('2024-01-02'),
             SortOrderType.Ascending,
@@ -146,6 +147,7 @@ describe('LogService', () => {
         expect(logRepositoryServiceFindByDateBetweenMethod).toHaveBeenCalledWith(
             1,
             10,
+            undefined,
             new Date('2024-01-01'),
             new Date('2024-01-02'),
             SortOrderType.Ascending,
@@ -159,8 +161,9 @@ describe('LogService', () => {
             .spyOn(logRepositoryService, 'countByDateBetween')
             .mockResolvedValue(expectedCount);
 
-        const result = await logService.countLogs(new Date('2024-01-01'), new Date('2024-01-02'));
+        const result = await logService.countLogs(undefined, new Date('2024-01-01'), new Date('2024-01-02'));
         expect(logRepositoryServiceCountByDateBetweenMethod).toHaveBeenCalledWith(
+            undefined,
             new Date('2024-01-01'),
             new Date('2024-01-02'),
         );

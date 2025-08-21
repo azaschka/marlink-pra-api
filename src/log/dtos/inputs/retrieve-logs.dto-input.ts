@@ -28,6 +28,14 @@ export class RetrieveLogsDtoInput {
 
     @ApiProperty({
         required: false,
+        type: String,
+        description: 'A search string to filter logs by service name, action name, or transaction ID.',
+    })
+    @IsOptional()
+    public searchString?: string;
+
+    @ApiProperty({
+        required: false,
         type: Date,
         description: 'The earliest creation date of the logs to retrieve.',
     })

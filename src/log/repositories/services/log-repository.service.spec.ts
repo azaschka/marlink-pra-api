@@ -22,7 +22,7 @@ describe('LogRepositoryService', () => {
 
             const spy = jest.spyOn(BaseRepositoryService.prototype, 'findBy').mockResolvedValue([]);
 
-            await service.findByDateBetween(page, size, from, to, SortOrderType.Descending);
+            await service.findByDateBetween(page, size, undefined, from, to, SortOrderType.Descending);
 
             expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) }, page, size, {
                 creationDate: SortOrderType.Descending,
@@ -33,7 +33,7 @@ describe('LogRepositoryService', () => {
             const from = new Date('2023-01-01');
             const spy = jest.spyOn(BaseRepositoryService.prototype, 'findBy').mockResolvedValue([]);
 
-            await service.findByDateBetween(1, 10, from, undefined);
+            await service.findByDateBetween(1, 10, undefined, from, undefined);
 
             expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) }, 1, 10, undefined);
         });
@@ -42,7 +42,7 @@ describe('LogRepositoryService', () => {
             const to = new Date('2023-01-31');
             const spy = jest.spyOn(BaseRepositoryService.prototype, 'findBy').mockResolvedValue([]);
 
-            await service.findByDateBetween(1, 10, undefined, to);
+            await service.findByDateBetween(1, 10, undefined, undefined, to);
 
             expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) }, 1, 10, undefined);
         });
@@ -55,7 +55,7 @@ describe('LogRepositoryService', () => {
 
             const spy = jest.spyOn(BaseRepositoryService.prototype, 'countBy').mockResolvedValue(42);
 
-            await service.countByDateBetween(from, to);
+            await service.countByDateBetween(undefined, from, to);
 
             expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) });
         });
@@ -64,7 +64,7 @@ describe('LogRepositoryService', () => {
             const from = new Date('2023-03-01');
             const spy = jest.spyOn(BaseRepositoryService.prototype, 'countBy').mockResolvedValue(7);
 
-            await service.countByDateBetween(from, undefined);
+            await service.countByDateBetween(undefined, from, undefined);
 
             expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) });
         });
@@ -73,7 +73,7 @@ describe('LogRepositoryService', () => {
             const to = new Date('2023-03-31');
             const spy = jest.spyOn(BaseRepositoryService.prototype, 'countBy').mockResolvedValue(11);
 
-            await service.countByDateBetween(undefined, to);
+            await service.countByDateBetween(undefined, undefined, to);
 
             expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) });
         });

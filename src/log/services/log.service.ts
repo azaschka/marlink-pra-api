@@ -89,6 +89,7 @@ export class LogService {
     public async retrieveLogs(
         pageSize: number,
         pageNumber: number,
+        searchString?: string,
         creationDateFrom?: Date,
         creationDateTo?: Date,
         sortOrderType?: SortOrderType,
@@ -96,14 +97,15 @@ export class LogService {
         return await this.logRepositoryService.findByDateBetween(
             pageNumber,
             pageSize,
+            searchString,
             creationDateFrom,
             creationDateTo,
             sortOrderType,
         );
     }
 
-    public async countLogs(creationDateFrom?: Date, creationDateTo?: Date): Promise<number> {
-        return this.logRepositoryService.countByDateBetween(creationDateFrom, creationDateTo);
+    public async countLogs(searchString?: string, creationDateFrom?: Date, creationDateTo?: Date): Promise<number> {
+        return this.logRepositoryService.countByDateBetween(searchString, creationDateFrom, creationDateTo);
     }
 
     public async clearLogs(creationDateFrom?: Date, creationDateTo?: Date): Promise<void> {

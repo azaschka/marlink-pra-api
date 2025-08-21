@@ -47,12 +47,13 @@ export class LogController {
         const logs = await this.logService.retrieveLogs(
             dto.pageSize,
             dto.pageNumber,
+            dto.searchString,
             dto.creationDateFrom,
             dto.creationDateTo,
             dto.sortOrderType,
         );
 
-        const totalCount = await this.logService.countLogs(dto.creationDateFrom, dto.creationDateTo);
+        const totalCount = await this.logService.countLogs(dto.searchString, dto.creationDateFrom, dto.creationDateTo);
 
         return {
             logs: logs,

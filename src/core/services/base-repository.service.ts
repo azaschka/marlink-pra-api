@@ -59,7 +59,7 @@ export class BaseRepositoryService<T> {
     }
 
     public async findBy<K extends Extract<keyof T, string>>(
-        where: Pick<T, K> | FindOptionsWhere<T>,
+        where: Pick<T, K> | FindOptionsWhere<T> | FindOptionsWhere<T>[],
         pageNumber: number | undefined,
         pageSize: number | undefined,
         order?: FindOptionsOrder<() => T>,
@@ -95,7 +95,9 @@ export class BaseRepositoryService<T> {
         }
     }
 
-    public async countBy<K extends Extract<keyof T, string>>(where: Pick<T, K> | FindOptionsWhere<T>): Promise<number> {
+    public async countBy<K extends Extract<keyof T, string>>(
+        where: Pick<T, K> | FindOptionsWhere<T> | FindOptionsWhere<T>[],
+    ): Promise<number> {
         const queryRunner = await this.createQueryRunnerAndConnect();
 
         try {

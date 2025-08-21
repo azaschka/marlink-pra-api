@@ -37,6 +37,7 @@ describe('LogController', () => {
             const result = await controller.retrieveLogs({
                 pageSize: 10,
                 pageNumber: 1,
+                searchString: undefined,
                 creationDateFrom: new Date('2023-01-01T00:00:00Z'),
                 creationDateTo: new Date('2023-01-31T23:59:59Z'),
                 sortOrderType: SortOrderType.Descending,
@@ -45,11 +46,13 @@ describe('LogController', () => {
             expect(logServiceRetrieveLogsMethod).toHaveBeenCalledWith(
                 10,
                 1,
+                undefined,
                 new Date('2023-01-01T00:00:00Z'),
                 new Date('2023-01-31T23:59:59Z'),
                 SortOrderType.Descending,
             );
             expect(logServiceCountLogsMethod).toHaveBeenCalledWith(
+                undefined,
                 new Date('2023-01-01T00:00:00Z'),
                 new Date('2023-01-31T23:59:59Z'),
             );
