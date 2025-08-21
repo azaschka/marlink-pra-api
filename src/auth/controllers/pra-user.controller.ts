@@ -3,6 +3,8 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
+    HttpStatus,
     Param,
     Patch,
     Post,
@@ -15,8 +17,18 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { TransactionIdHeader } from '../../core/decorators';
 import { UuidUtility } from '../../shared/utilities';
-import { CreatePraUserCommand, DeletePraUserCommand, ModifyPraUserCommand } from '../commands';
-import { CreatePraUserDtoInput, ModifyPraUserDtoInput, RetrievePraUsersDtoInput } from '../dtos/inputs';
+import {
+    CreatePraUserCommand,
+    DeletePraUserCommand,
+    ModifyPraUserCommand,
+    PraUserForgotPasswordCommand,
+} from '../commands';
+import {
+    CreatePraUserDtoInput,
+    ModifyPraUserDtoInput,
+    PraUserForgotPasswordDtoInput,
+    RetrievePraUsersDtoInput,
+} from '../dtos/inputs';
 import { ApiKeyAuthGuard, JwtAuthGuard } from '../guards';
 import { RetrievePraUsersQuery } from '../queries';
 import { PraUserEntity } from '../repositories/entities';
@@ -89,7 +101,19 @@ export class PraUserController {
         return result;
     }
 
+    @Post('forgot-password')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    public async forgotPassword(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Body() dtoInput: PraUserForgotPasswordDtoInput,
+    ): Promise<void> {
+        await this.commandBus.execute<PraUserForgotPasswordCommand, void>(
+            new PraUserForgotPasswordCommand(transactionId, dtoInput.email),
+        );
+    }
+
     @Delete(':id')
+    @HttpCode(HttpStatus.NO_CONTENT)
     public async deletePraUser(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,

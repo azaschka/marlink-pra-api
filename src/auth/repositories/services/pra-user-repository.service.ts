@@ -21,6 +21,10 @@ export class PraUserRepositoryService extends BaseRepositoryService<PraUserEntit
         return await super.findOneBy({ username: username });
     }
 
+    public async findOneByEmail(email: string): Promise<PraUserEntity | null> {
+        return await super.findOneBy({ email: email });
+    }
+
     public async deleteById(id: number): Promise<void> {
         return await super.deleteBy({ id: id });
     }
