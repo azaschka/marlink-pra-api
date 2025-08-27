@@ -35,7 +35,7 @@ export class CalculateUserLicenseUsageCommandHandler implements ICommandHandler<
         const associatedGroupPolicies = await this.getCustomerAssociatedGroupPolicies(transactionId, customer);
 
         for (const associatedGroupPolicy of associatedGroupPolicies) {
-            if (site && !associatedGroupPolicy.name.toLowerCase().includes(site.name.toLowerCase())) {
+            if (site && !associatedGroupPolicy.name.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase())) {
                 continue;
             }
 
