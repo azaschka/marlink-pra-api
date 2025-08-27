@@ -1,9 +1,7 @@
-import { NotFoundException } from '@nestjs/common';
-import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { Customer } from '../../../customer/models';
 import { GroupPolicyJumpGroup } from '../../../group-policy-jump-group/models';
 import { RetrieveGroupPolicyJumpGroupsQuery } from '../../../group-policy-jump-group/queries';
-import { GroupPolicyMember } from '../../../group-policy-member/models';
-import { RetrieveGroupPolicyMembersQuery } from '../../../group-policy-member/queries';
 import { GroupPolicy } from '../../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
 import { JumpClient } from '../../../jump-client/models';
@@ -20,108 +18,31 @@ import { RetrieveShellJumpsQuery } from '../../../jump-item/shell-jump/queries';
 import { WebJump } from '../../../jump-item/web-jump/models';
 import { RetrieveWebJumpsQuery } from '../../../jump-item/web-jump/queries';
 import { PaginationUtility } from '../../../shared/utilities';
-import { User } from '../../../user/models';
-import { BillingType, JumpItemType } from '../../enums';
-import { CustomerLicenseUsageCalculatedEvent } from '../../events';
-import { AssetLicenseUsageSourceData, Customer, CustomerLicenseUsage, UserLicenseUsageSourceData } from '../../models';
-import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
-import { CalculateCustomerLicenseUsageCommand } from '../calculate-customer-license-usage.command';
+import { Site } from '../../../site/models';
+import { JumpItemType } from '../../enums';
+import { AssetLicenseUsageSourceData, LicenseUsage } from '../../models';
+import { CalculateAssetLicenseUsageCommand } from '../calculate-asset-license-usage.command';
 
-@CommandHandler(CalculateCustomerLicenseUsageCommand)
-export class CalculateCustomerLicenseUsageCommandHandler
-    implements ICommandHandler<CalculateCustomerLicenseUsageCommand>
-{
+@CommandHandler(CalculateAssetLicenseUsageCommand)
+export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler<CalculateAssetLicenseUsageCommand> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
-    constructor(
-        private readonly queryBus: QueryBus,
-        private readonly eventBus: EventBus,
-        private readonly customerRepositoryService: CustomerRepositoryService,
-    ) {}
+    constructor(private readonly queryBus: QueryBus) {}
 
-    public async execute(command: CalculateCustomerLicenseUsageCommand): Promise<CustomerLicenseUsage> {
-        const customer = await this.customerRepositoryService.findOneById(command.id);
+    public async execute(command: CalculateAssetLicenseUsageCommand): Promise<LicenseUsage> {
+        const { totalLicenseUsage, licenseUsageSourceData } = await this.calculateCustomerAndSiteUsage(
+            command.transactionId,
+            command.customer,
+            command.site,
+        );
 
-        if (!customer) {
-            throw new NotFoundException();
-        }
-
-        let totalLicenseUsage: number = 0;
-        let licenseUsageSourceData: UserLicenseUsageSourceData[] | AssetLicenseUsageSourceData[] = [];
-
-        if (customer.billingType === BillingType.User) {
-            ({ totalLicenseUsage, licenseUsageSourceData } = await this.calculateLicenseUsageForUserBillingType(
-                command.transactionId,
-                customer,
-            ));
-        } else {
-            ({ totalLicenseUsage, licenseUsageSourceData } = await this.calculateLicenseUsageForAssetBillingType(
-                command.transactionId,
-                customer,
-            ));
-        }
-
-        const customerLicenseUsage: CustomerLicenseUsage = {
-            customerId: customer.id,
-            billingType: customer.billingType,
+        return {
             totalLicenseUsage: totalLicenseUsage,
             licenseUsageSourceData: licenseUsageSourceData,
         };
-
-        this.eventBus.publish(
-            new CustomerLicenseUsageCalculatedEvent(command.transactionId, {
-                customerLicenseUsage,
-            }),
-        );
-
-        return customerLicenseUsage;
     }
 
-    private async calculateLicenseUsageForUserBillingType(transactionId: string, customer: Customer) {
-        const licenseUsageSourceData: UserLicenseUsageSourceData[] = [];
-
-        const associatedGroupPolicies = await this.getCustomerAssociatedGroupPolicies(transactionId, customer);
-
-        for (const associatedGroupPolicy of associatedGroupPolicies) {
-            const groupPolicyMembers = await PaginationUtility.queryUntilLastPage<GroupPolicyMember>(
-                (pageNumber: number) =>
-                    this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
-                        new RetrieveGroupPolicyMembersQuery(
-                            transactionId,
-                            CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
-                            pageNumber,
-                            associatedGroupPolicy.id,
-                        ),
-                    ),
-            );
-
-            groupPolicyMembers.forEach((groupPolicyMember) => {
-                licenseUsageSourceData.push({
-                    groupPolicyId: associatedGroupPolicy.id,
-                    groupPolicyName: associatedGroupPolicy.name,
-                    groupPolicyLastSyncDate: associatedGroupPolicy.lastSyncDate,
-                    groupPolicyMemberLastSyncDate: groupPolicyMember.lastSyncDate,
-                    memberId: groupPolicyMember.memberId,
-                    userId: groupPolicyMember.userId,
-                    username: (groupPolicyMember as unknown as { user: User }).user.username,
-                    userLastSyncDate: (groupPolicyMember as unknown as { user: User }).user.lastSyncDate,
-                });
-            });
-        }
-
-        // Calculate using the number of unique users
-        const uniqueUserIds = new Set<number>();
-        licenseUsageSourceData.forEach((data) => {
-            uniqueUserIds.add(data.userId);
-        });
-
-        return {
-            totalLicenseUsage: uniqueUserIds.size,
-            licenseUsageSourceData: licenseUsageSourceData,
-        };
-    }
-
-    private async calculateLicenseUsageForAssetBillingType(transactionId: string, customer: Customer) {
+    private async calculateCustomerAndSiteUsage(transactionId: string, customer: Customer, site?: Site) {
         const licenseUsageSourceData: AssetLicenseUsageSourceData[] = [];
 
         const associatedGroupPolicies = await this.getCustomerAssociatedGroupPolicies(transactionId, customer);
@@ -132,7 +53,7 @@ export class CalculateCustomerLicenseUsageCommandHandler
                     this.queryBus.execute<RetrieveGroupPolicyJumpGroupsQuery, GroupPolicyJumpGroup[]>(
                         new RetrieveGroupPolicyJumpGroupsQuery(
                             transactionId,
-                            CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                            CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             associatedGroupPolicy.id,
                         ),
@@ -140,11 +61,11 @@ export class CalculateCustomerLicenseUsageCommandHandler
             );
 
             for (const associatedGroupPolicyJumpGroup of allAssociatedGroupPolicyJumpGroups) {
-                const remoteRdps = await PaginationUtility.queryUntilLastPage<RemoteRdp>((pageNumber: number) =>
+                let remoteRdps = await PaginationUtility.queryUntilLastPage<RemoteRdp>((pageNumber: number) =>
                     this.queryBus.execute<RetrieveRemoteRdpsQuery, RemoteRdp[]>(
                         new RetrieveRemoteRdpsQuery(
                             transactionId,
-                            CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                            CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
@@ -153,11 +74,11 @@ export class CalculateCustomerLicenseUsageCommandHandler
                     ),
                 );
 
-                const remoteVncs = await PaginationUtility.queryUntilLastPage<RemoteVnc>((pageNumber: number) =>
+                let remoteVncs = await PaginationUtility.queryUntilLastPage<RemoteVnc>((pageNumber: number) =>
                     this.queryBus.execute<RetrieveRemoteVncsQuery, RemoteVnc[]>(
                         new RetrieveRemoteVncsQuery(
                             transactionId,
-                            CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                            CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
@@ -166,11 +87,11 @@ export class CalculateCustomerLicenseUsageCommandHandler
                     ),
                 );
 
-                const shellJumps = await PaginationUtility.queryUntilLastPage<ShellJump>((pageNumber: number) =>
+                let shellJumps = await PaginationUtility.queryUntilLastPage<ShellJump>((pageNumber: number) =>
                     this.queryBus.execute<RetrieveShellJumpsQuery, ShellJump[]>(
                         new RetrieveShellJumpsQuery(
                             transactionId,
-                            CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                            CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
@@ -179,12 +100,12 @@ export class CalculateCustomerLicenseUsageCommandHandler
                     ),
                 );
 
-                const protocolTunnelJumps = await PaginationUtility.queryUntilLastPage<ProtocolTunnelJump>(
+                let protocolTunnelJumps = await PaginationUtility.queryUntilLastPage<ProtocolTunnelJump>(
                     (pageNumber: number) =>
                         this.queryBus.execute<RetrieveProtocolTunnelJumpsQuery, ProtocolTunnelJump[]>(
                             new RetrieveProtocolTunnelJumpsQuery(
                                 transactionId,
-                                CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                                CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                                 pageNumber,
                                 undefined,
                                 undefined,
@@ -193,11 +114,11 @@ export class CalculateCustomerLicenseUsageCommandHandler
                         ),
                 );
 
-                const webJumps = await PaginationUtility.queryUntilLastPage<WebJump>((pageNumber: number) =>
+                let webJumps = await PaginationUtility.queryUntilLastPage<WebJump>((pageNumber: number) =>
                     this.queryBus.execute<RetrieveWebJumpsQuery, WebJump[]>(
                         new RetrieveWebJumpsQuery(
                             transactionId,
-                            CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                            CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
@@ -206,11 +127,11 @@ export class CalculateCustomerLicenseUsageCommandHandler
                     ),
                 );
 
-                const jumpClients = await PaginationUtility.queryUntilLastPage<JumpClient>((pageNumber: number) =>
+                let jumpClients = await PaginationUtility.queryUntilLastPage<JumpClient>((pageNumber: number) =>
                     this.queryBus.execute<RetrieveJumpClientsQuery, JumpClient[]>(
                         new RetrieveJumpClientsQuery(
                             transactionId,
-                            CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                            CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
@@ -220,6 +141,27 @@ export class CalculateCustomerLicenseUsageCommandHandler
                         ),
                     ),
                 );
+
+                if (site) {
+                    remoteRdps = remoteRdps.filter((remoteRdp) =>
+                        remoteRdp.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                    );
+                    remoteVncs = remoteVncs.filter((remoteVnc) =>
+                        remoteVnc.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                    );
+                    shellJumps = shellJumps.filter((shellJump) =>
+                        shellJump.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                    );
+                    protocolTunnelJumps = protocolTunnelJumps.filter((protocolTunnelJump) =>
+                        protocolTunnelJump.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                    );
+                    webJumps = webJumps.filter((webJump) =>
+                        webJump.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                    );
+                    jumpClients = jumpClients.filter((jumpClient) =>
+                        jumpClient.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                    );
+                }
 
                 remoteRdps.forEach((remoteRdp) => {
                     licenseUsageSourceData.push(
@@ -338,7 +280,7 @@ export class CalculateCustomerLicenseUsageCommandHandler
             this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
                 new RetrieveGroupPoliciesQuery(
                     transactionId,
-                    CalculateCustomerLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
+                    CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,
                     `%${customer.name.toUpperCase()}%`,
@@ -364,6 +306,7 @@ export class CalculateCustomerLicenseUsageCommandHandler
             jumpItemType: jumpItemType,
             jumpItemId: jumpItem.id,
             jumpItemName: jumpItem.name,
+            jumpItemTag: jumpItem.tag,
             jumpItemJumpointId: [
                 JumpItemType.RemoteRdp,
                 JumpItemType.RemoteVnc,

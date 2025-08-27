@@ -25,20 +25,14 @@ import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorato
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import {
-    CalculateCustomerLicenseUsageCommand,
     CreateCustomerCommand,
     DeactivateCustomerCommand,
     ModifyCustomerCommand,
     ReactivateCustomerCommand,
 } from '../commands';
 import { CreateCustomerDtoInput, ModifyCustomerDtoInput, RetrieveCustomersDtoInput } from '../dtos/inputs';
-import {
-    CustomerCreatedDtoOutput,
-    CustomerLicenseUsageDtoOutput,
-    CustomerModifiedDtoOutput,
-    CustomerRetrievedDtoOutput,
-} from '../dtos/outputs';
-import { Customer, CustomerLicenseUsage } from '../models';
+import { CustomerCreatedDtoOutput, CustomerModifiedDtoOutput, CustomerRetrievedDtoOutput } from '../dtos/outputs';
+import { Customer } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -143,24 +137,5 @@ export class CustomerController {
         await this.commandBus.execute<ReactivateCustomerCommand, void>(
             new ReactivateCustomerCommand(transactionId, id),
         );
-    }
-
-    @Post(':id/calculateLicenseUsage')
-    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({
-        type: CustomerLicenseUsageDtoOutput,
-        description: 'Indicates the customer license usage was successfully calculated.',
-    })
-    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
-    public async calculateCustomerLicenseUsage(
-        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
-        @Param('id') id: number,
-    ): Promise<CustomerLicenseUsageDtoOutput> {
-        const result = await this.commandBus.execute<CalculateCustomerLicenseUsageCommand, CustomerLicenseUsage>(
-            new CalculateCustomerLicenseUsageCommand(transactionId, id),
-        );
-
-        return result;
     }
 }
