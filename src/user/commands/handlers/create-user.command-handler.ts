@@ -63,7 +63,7 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
                 new SendUserActivationEmailCommand(
                     transactionId,
                     user.email,
-                    user.username ?? user.publicDisplayName,
+                    user.publicDisplayName ?? user.username,
                     password,
                 ),
             )
