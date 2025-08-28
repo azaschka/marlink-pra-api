@@ -7,7 +7,7 @@ import { description, name, version } from '../package.json';
 import { AppModule } from './app.module';
 import { LogService } from './log/services/log.service';
 import { AllExceptionsFilter } from './shared/filters';
-import { LoggingInterceptor, TimeoutInterceptor } from './shared/interceptors';
+import { TimeoutInterceptor } from './shared/interceptors';
 
 function configureOpenApi(app: INestApplication<unknown>) {
     const options = new DocumentBuilder()
@@ -29,7 +29,8 @@ async function bootstrap() {
         // Parse JSON requests with a limit of 5MB
         app.use(json({ limit: '5mb' }));
         // Setup logging and error handling interceptors
-        app.useGlobalInterceptors(new LoggingInterceptor(app.get(LogService)), new TimeoutInterceptor(180_000));
+        app.useGlobalInterceptors(new TimeoutInterceptor(180_000));
+        // app.useGlobalInterceptors(new LoggingInterceptor(app.get(LogService)), new TimeoutInterceptor(180_000));
         // Setup global exception filter
         app.useGlobalFilters(new AllExceptionsFilter(app.get(LogService)));
         // Enable CORS

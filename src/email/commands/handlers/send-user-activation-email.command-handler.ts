@@ -25,7 +25,6 @@ export class SendUserActivationEmailCommandHandler implements ICommandHandler<Se
                     password: command.password,
                 },
             );
-
             this.eventBus.publish(
                 new UserActivationEmailSentEvent(command.transactionId, {
                     email: command.sendTo,
