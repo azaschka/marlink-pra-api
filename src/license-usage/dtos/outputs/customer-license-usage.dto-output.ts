@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { BillingType } from '../../enums';
+import { BillingType } from '../../../customer/enums';
 import { CustomerLicenseUsage } from '../../models';
 import { AssetLicenseUsageSourceDataDtoOutput } from './asset-license-usage-source-data.dto-output';
 import { UserLicenseUsageSourceDataDtoOutput } from './user-license-usage-source-data.dto-output';

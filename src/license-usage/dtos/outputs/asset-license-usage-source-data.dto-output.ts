@@ -54,6 +54,13 @@ export class AssetLicenseUsageSourceDataDtoOutput implements AssetLicenseUsageSo
 
     @ApiProperty({
         required: false,
+        type: String,
+        description: 'The tag of the jump item.',
+    })
+    public jumpItemTag?: string;
+
+    @ApiProperty({
+        required: false,
         type: Number,
         description: 'The unique identifier of the jump point.',
     })

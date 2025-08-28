@@ -9,6 +9,7 @@ export interface AssetLicenseUsageSourceData extends BaseLicenseUsageSourceData 
     jumpItemType: JumpItemType;
     jumpItemId: number;
     jumpItemName?: string;
+    jumpItemTag?: string;
     jumpItemJumpointId?: number;
     jumpItemHostname?: string;
     jumpItemEndpointUrl?: string;

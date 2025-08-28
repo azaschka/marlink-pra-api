@@ -1,4 +1,3 @@
-import { CalculateCustomerLicenseUsageCommandHandler } from './calculate-customer-license-usage.command-handler';
 import { CreateCustomerCommandHandler } from './create-customer.command-handler';
 import { DeactivateCustomerCommandHandler } from './deactivate-customer.command-handler';
 import { DisableUsersLoginAfterCustomerDeactivationCommandHandler } from './disable-users-login-after-customer-deactivation.command-handler';
@@ -11,7 +10,6 @@ export const CommandHandlers = [
     ModifyCustomerCommandHandler,
     DeactivateCustomerCommandHandler,
     ReactivateCustomerCommandHandler,
-    CalculateCustomerLicenseUsageCommandHandler,
     DisableUsersLoginAfterCustomerDeactivationCommandHandler,
     EnableUsersLoginAfterCustomerReactivationCommandHandler,
 ];

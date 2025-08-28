@@ -16,11 +16,13 @@ import { GroupPolicyMemberModule } from './group-policy-member/group-policy-memb
 import { GroupPolicyTeamModule } from './group-policy-team/group-policy-team.module';
 import { GroupPolicyModule } from './group-policy/group-policy.module';
 import { HealthModule } from './health/health.module';
+import { JobModule } from './job/job.module';
 import { JumpClientModule } from './jump-client/jump-client.module';
 import { JumpGroupModule } from './jump-group/jump-group.module';
 import { JumpItemModule } from './jump-item/jump-item.module';
 import { JumpPolicyModule } from './jump-policy/jump-policy.module';
 import { JumpointModule } from './jumpoint/jumpoint.module';
+import { LicenseUsageModule } from './license-usage/license-usage.module';
 import { LogModule } from './log/log.module';
 import { SiteModule } from './site/site.module';
 import { TeamUserModule } from './team-user/team-user.module';
@@ -39,6 +41,7 @@ import { UserModule } from './user/user.module';
         HttpModule,
         AuthModule,
         HealthModule,
+        LicenseUsageModule,
         CustomerModule,
         SiteModule,
         BeyondtrustInstanceModule,
@@ -59,6 +62,7 @@ import { UserModule } from './user/user.module';
         JumpItemModule,
         LogModule,
         EmailModule,
+        JobModule,
     ],
     controllers: [AppController],
 })

@@ -13,6 +13,8 @@ export class AppConfigService {
     private static readonly DEFAULT_DB_RETRY_ATTEMPTS = 60;
     private static readonly DEFAULT_DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
     private static readonly DEFAULT_DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
+    private static readonly DEFAULT_CRON_JOB_TIMEZONE = 'Europe/Berlin';
+    private static readonly DEFAULT_CRON_JOB_EXPRESSION = '0 0 * * *'; // Every day at midnight
 
     constructor(private readonly configService: ConfigService) {}
 
@@ -316,6 +318,19 @@ export class AppConfigService {
             password: this.configService.get<string>('SMTP_PASSWORD') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             host: this.configService.get<string>('SMTP_HOST') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             port: this.configService.get<number>('SMTP_PORT') ?? AppConfigService.DEFAULT_UNDEFINED_NUMBER,
+        };
+    }
+
+    public get cronJob() {
+        return {
+            timezone: this.configService.get<string>('CRON_JOB_TIMEZONE') ?? AppConfigService.DEFAULT_CRON_JOB_TIMEZONE,
+            expressions:
+                this.configService.get<string>('CRON_JOB_EXPRESSIONS') ?? AppConfigService.DEFAULT_CRON_JOB_EXPRESSION,
+            retryAttempts:
+                this.configService.get<number>('CRON_JOB_RETRY_ATTEMPTS') ?? AppConfigService.DEFAULT_UNDEFINED_NUMBER,
+            retryDelayInMs:
+                this.configService.get<number>('CRON_JOB_RETRY_DELAY_IN_MS') ??
+                AppConfigService.DEFAULT_UNDEFINED_NUMBER,
         };
     }
 }

@@ -1,4 +1,3 @@
-export * from './calculate-customer-license-usage.command';
 export * from './create-customer.command';
 export * from './deactivate-customer.command';
 export * from './disable-users-login-after-customer-deactivation.command';
