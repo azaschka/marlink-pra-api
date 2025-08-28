@@ -930,6 +930,58 @@ describe('AppConfigService', () => {
             });
         });
     });
+
+    describe('cronJob', () => {
+        it.each([
+            {
+                input: {
+                    timezone: 'Europe/Berlin',
+                    expressions: '0 10 * * *',
+                    retryAttempts: 5,
+                    retryDelayInMs: 10000,
+                },
+                expected: {
+                    timezone: 'Europe/Berlin',
+                    expressions: '0 10 * * *',
+                    retryAttempts: 5,
+                    retryDelayInMs: 10000,
+                },
+            },
+            {
+                input: {},
+                expected: {
+                    timezone: 'Europe/Berlin',
+                    expressions: '0 0 * * *',
+                    retryAttempts: 0,
+                    retryDelayInMs: 0,
+                },
+            },
+        ])('should return the sync configuration as expected', ({ input, expected }) => {
+            configService.get = jest.fn().mockImplementation((key: string) => {
+                if (key === 'CRON_JOB_TIMEZONE') {
+                    return input.timezone;
+                }
+                if (key === 'CRON_JOB_EXPRESSIONS') {
+                    return input.expressions;
+                }
+                if (key === 'CRON_JOB_RETRY_ATTEMPTS') {
+                    return input.retryAttempts;
+                }
+                if (key === 'CRON_JOB_RETRY_DELAY_IN_MS') {
+                    return input.retryDelayInMs;
+                }
+
+                return undefined;
+            });
+
+            expect(service.cronJob).toEqual({
+                timezone: expected.timezone,
+                expressions: expected.expressions,
+                retryAttempts: expected.retryAttempts,
+                retryDelayInMs: expected.retryDelayInMs,
+            });
+        });
+    });
 });
 
 function mockConfigService() {

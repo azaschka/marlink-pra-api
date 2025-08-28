@@ -16,6 +16,7 @@ import { GroupPolicyMemberModule } from './group-policy-member/group-policy-memb
 import { GroupPolicyTeamModule } from './group-policy-team/group-policy-team.module';
 import { GroupPolicyModule } from './group-policy/group-policy.module';
 import { HealthModule } from './health/health.module';
+import { JobModule } from './job/job.module';
 import { JumpClientModule } from './jump-client/jump-client.module';
 import { JumpGroupModule } from './jump-group/jump-group.module';
 import { JumpItemModule } from './jump-item/jump-item.module';
@@ -61,6 +62,7 @@ import { UserModule } from './user/user.module';
         JumpItemModule,
         LogModule,
         EmailModule,
+        JobModule,
     ],
     controllers: [AppController],
 })
