@@ -23,14 +23,24 @@ export class AuthService {
         const praUser = await this.praUserRepositoryService.findOneByUsername(username);
         if (praUser && (await this.verifyPassword(plainTextPassword, praUser.password))) {
             // Return the jwt user object without the md5 hash password
-            return { username: praUser.username, role: praUser.role, displayName: praUser.displayName } as JWTUser;
+            return {
+                username: praUser.username,
+                role: praUser.role,
+                displayName: praUser.displayName,
+                businessUnit: praUser.businessUnit,
+            } as JWTUser;
         }
 
         return null;
     }
 
     public async login(user: JWTUser): Promise<{ accessToken: string }> {
-        const payload = { username: user.username, role: user.role, displayName: user.displayName };
+        const payload = {
+            username: user.username,
+            role: user.role,
+            displayName: user.displayName,
+            businessUnit: user.businessUnit,
+        };
 
         return Promise.resolve({
             accessToken: this.jwtService.sign(payload),
@@ -46,6 +56,7 @@ export class AuthService {
             username: 'odin',
             role: 'Super Admin',
             displayName: 'Odin Admin',
+            businessUnit: undefined,
         };
     }
 }
