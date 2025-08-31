@@ -100,4 +100,13 @@ export class ModifyUserDtoInput {
     @IsOptional()
     @IsBoolean()
     public mustResetPasswordOnNextLogin?: boolean;
+
+    @ApiProperty({
+        required: false,
+        type: Boolean,
+        description: 'If true, a new password will be generated for the user.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    public regeneratePassword?: boolean;
 }

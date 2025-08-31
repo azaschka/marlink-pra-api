@@ -123,6 +123,7 @@ export class UserController {
                 dtoInput.isLoginAllowed,
                 dtoInput.failedLoginAttempts,
                 dtoInput.mustResetPasswordOnNextLogin,
+                dtoInput.regeneratePassword,
             ),
         );
 
