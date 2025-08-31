@@ -51,7 +51,6 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
         }
     }
 
-    // TODO review the content of the email
     private trySendUserActivationEmailAsync(transactionId: string, user: User, password: string): void {
         if (!user.email) {
             console.warn(`User with ID ${user.id} does not have an email address, skipping activation email.`);
@@ -63,7 +62,8 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
                 new SendUserActivationEmailCommand(
                     transactionId,
                     user.email,
-                    user.publicDisplayName ?? user.username,
+                    user.publicDisplayName,
+                    user.username ?? user.email, // Username and email should match in most cases
                     password,
                 ),
             )

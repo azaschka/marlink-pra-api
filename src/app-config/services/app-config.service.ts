@@ -10,6 +10,7 @@ export class AppConfigService {
     private static readonly DEFAULT_HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT = 80;
     private static readonly DEFAULT_HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 256;
     private static readonly DEFAULT_HEALTH_PING_CHECK_PRA_SYNC_API_URL = 'http://pra-sync-api:9001/health';
+    private static readonly DEFAULT_BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra-pp.beyondtrustcloud.com/login';
     private static readonly DEFAULT_DB_RETRY_ATTEMPTS = 60;
     private static readonly DEFAULT_DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
     private static readonly DEFAULT_DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
@@ -49,6 +50,14 @@ export class AppConfigService {
             apiKey: this.configService.get<string>('PRA_API_KEY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             jwtSecret: this.configService.get<string>('JWT_SECRET') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             jwtExpiry: this.configService.get<string>('JWT_EXPIRY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+        };
+    }
+
+    public get beyondTrust() {
+        return {
+            consoleUrl:
+                this.configService.get<string>('BEYONDTRUST_CONSOLE_URL') ??
+                AppConfigService.DEFAULT_BEYOND_TRUST_CONSOLE_URL,
         };
     }
 
