@@ -129,6 +129,8 @@ describe('JumpClientInstallerController', () => {
                     'content-type': 'application/octet-stream',
                     // eslint-disable-next-line @typescript-eslint/naming-convention
                     'content-disposition': 'attachment; filename=installer.exe',
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-length': '12345',
                 },
                 data: {
                     pipe: jest.fn(), // Mocking the pipe method
@@ -157,6 +159,7 @@ describe('JumpClientInstallerController', () => {
                 'Content-Disposition',
                 expectedResult.headers['content-disposition'],
             );
+            expect(setHeaderMethod).toHaveBeenCalledWith('Content-Length', expectedResult.headers['content-length']);
         });
     });
 });

@@ -208,6 +208,10 @@ export class JumpointController {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 res.setHeader('Content-Disposition', response.headers['content-disposition']);
             }
+            if (response.headers['content-length']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Length', response.headers['content-length']);
+            }
 
             response.data.pipe(res);
         } catch (error) {
