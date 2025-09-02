@@ -1,11 +1,17 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
+import { BusinessUnit } from '../../customer/enums';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
 import { JumpointPlatformType, JzpClientAddressRestrictionsType } from '../enums';
 import { Jumpoint, JumpointNode } from '../models';
-import { RetrieveJumpointInstallerQuery, RetrieveJumpointNodesQuery, RetrieveJumpointsQuery } from '../queries';
+import {
+    RetrieveJumpointInstallerByCustomerAndSiteQuery,
+    RetrieveJumpointInstallerQuery,
+    RetrieveJumpointNodesQuery,
+    RetrieveJumpointsQuery,
+} from '../queries';
 import { JumpointController } from './jumpoint.controller';
 
 describe('JumpointController', () => {
@@ -195,6 +201,43 @@ describe('JumpointController', () => {
             await controller.retrieveJumpointInstaller('uuid-100', 123, res);
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointInstallerQuery('uuid-100', 123));
+            expect(setHeaderMethod).toHaveBeenCalledWith('Content-Type', expectedResult.headers['content-type']);
+            expect(setHeaderMethod).toHaveBeenCalledWith(
+                'Content-Disposition',
+                expectedResult.headers['content-disposition'],
+            );
+            expect(setHeaderMethod).toHaveBeenCalledWith('Content-Length', expectedResult.headers['content-length']);
+        });
+    });
+
+    describe('retrieveJumpointInstallerByCustomerAndSite', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {
+                headers: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-type': 'application/octet-stream',
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-disposition': 'attachment; filename=installer.exe',
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    'content-length': '12345',
+                },
+                data: {
+                    pipe: jest.fn(), // Mocking the pipe method
+                } as unknown as NodeJS.ReadableStream,
+            } as unknown as AxiosResponse<NodeJS.ReadableStream>;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+            const res = mockResponse();
+            const setHeaderMethod = jest.spyOn(res, 'setHeader');
+
+            await controller.retrieveJumpointInstallerByCustomerAndSite(
+                'uuid-100',
+                { businessUnit: BusinessUnit.EG, customerKey: 'cust-1', siteKey: 'site-1' },
+                res,
+            );
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
+                new RetrieveJumpointInstallerByCustomerAndSiteQuery('uuid-100', BusinessUnit.EG, 'cust-1', 'site-1'),
+            );
             expect(setHeaderMethod).toHaveBeenCalledWith('Content-Type', expectedResult.headers['content-type']);
             expect(setHeaderMethod).toHaveBeenCalledWith(
                 'Content-Disposition',
