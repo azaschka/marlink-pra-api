@@ -58,7 +58,7 @@ describe('AppConfigService', () => {
             },
             {
                 input: undefined,
-                expected: 3000,
+                expected: 9000,
             },
         ])('should return the port variable as expected', ({ input, expected }) => {
             const configServiceGetMethod = jest.spyOn(configService, 'get').mockReturnValue(input);
@@ -285,85 +285,85 @@ describe('AppConfigService', () => {
             {
                 input: {},
                 expected: {
-                    baseUrl: 'unknown',
+                    baseUrl: 'http://pra-sync-api:9001',
                     beyondtrustInstance: {
-                        path: 'unknown',
+                        path: '/beyondtrust-instances',
                         backup: {
-                            path: 'unknown',
+                            path: '/backups',
                         },
                     },
                     user: {
-                        path: 'unknown',
+                        path: '/users',
                         groupPolicy: {
-                            path: 'unknown',
+                            path: '/group-policies',
                         },
                     },
                     jumpClient: {
-                        path: 'unknown',
-                        copy: 'unknown',
+                        path: '/jump-clients',
+                        copy: 'copy',
                         installer: {
-                            path: 'unknown',
+                            path: '/installers',
                             platform: {
-                                path: 'unknown',
+                                path: '/platforms',
                             },
                         },
                     },
                     groupPolicy: {
-                        path: 'unknown',
+                        path: '/group-policies',
                         jumpoint: {
-                            path: 'unknown',
+                            path: '/jumpoints',
                         },
                         jumpGroup: {
-                            path: 'unknown',
+                            path: '/jump-groups',
                         },
                         member: {
-                            path: 'unknown',
+                            path: '/members',
                         },
                         team: {
-                            path: 'unknown',
+                            path: '/teams',
                         },
                     },
                     team: {
-                        path: 'unknown',
+                        path: '/teams',
                         user: {
-                            path: 'unknown',
+                            path: '/users',
                         },
                     },
                     jumpGroup: {
-                        path: 'unknown',
+                        path: '/jump-groups',
                     },
                     jumpPolicy: {
-                        path: 'unknown',
+                        path: '/jump-policies',
                     },
                     jumpoint: {
-                        path: 'unknown',
+                        path: '/jumpoints',
                         node: {
-                            path: 'unknown',
+                            path: '/nodes',
                         },
                         installer: {
-                            path: 'unknown',
+                            path: '/installer',
                         },
                     },
                     jumpItem: {
                         remoteRdp: {
-                            path: 'unknown',
-                            copy: 'unknown',
+                            path: '/jump-items/remote-rdps',
+                            copy: 'copy',
                         },
                         shellJump: {
-                            path: 'unknown',
-                            copy: 'unknown',
+                            path: '/jump-items/shell-jumps',
+                            copy: 'copy',
                         },
                         webJump: {
-                            path: 'unknown',
-                            copy: 'unknown',
+                            path: '/jump-items/web-jumps',
+                            copy: 'copy',
                         },
                         remoteVnc: {
-                            path: 'unknown',
-                            copy: 'unknown',
+                            path: '/jump-items/remote-vncs',
+                            copy: 'copy',
                         },
                         protocolTunnelJump: {
-                            path: 'unknown',
-                            copy: 'unknown',
+                            path: '/jump-items/protocol-tunnel-jumps',
+                            copy: 'copy',
                         },
                     },
                 },
@@ -727,36 +727,36 @@ describe('AppConfigService', () => {
                 input: {},
                 expected: {
                     groupPolicy: {
-                        managerPrefix: 'unknown',
-                        operatorPrefix: 'unknown',
-                        administratorPrefix: 'unknown',
+                        managerPrefix: 'MANAGERS_',
+                        operatorPrefix: 'OPERATORS_',
+                        administratorPrefix: 'ADMINISTRATORS_',
                         marlink: {
-                            superuser: 'unknown',
-                            operator: 'unknown',
+                            superuser: 'MARLINK_SUPERUSERS',
+                            operator: 'MARLINK_OPERATORS',
                         },
-                        managerAccess: 'unknown',
-                        administratorAccess: 'unknown',
-                        adminOperatorAccess: 'unknown',
-                        limitedAccess: 'unknown',
-                        fullAccess: 'unknown',
+                        managerAccess: 'MANAGER_ACCESS',
+                        administratorAccess: 'ADMINISTRATOR_ACCESS',
+                        adminOperatorAccess: 'ADMINOPERATOR_ACCESS',
+                        limitedAccess: 'LIMITED_ACCESS',
+                        fullAccess: 'FULL_ACCESS',
                     },
                     user: {
                         siteManager: {
-                            publicDisplayNamePrefix: 'unknown',
+                            publicDisplayNamePrefix: 'SITE MANAGER',
                         },
                         siteAdministrator: {
-                            publicDisplayNamePrefix: 'unknown',
+                            publicDisplayNamePrefix: 'ADMINISTRATOR',
                         },
                     },
                     jumpPolicy: {
-                        authSuffix: 'unknown',
-                        noAuthSuffix: 'unknown',
-                        notifySuffix: 'unknown',
-                        notificationDisplayNamePrefix: 'unknown',
-                        approvalDisplayNamePrefix: 'unknown',
+                        authSuffix: '_AUTH',
+                        noAuthSuffix: '_NOAUTH',
+                        notifySuffix: '_NOTIFY',
+                        notificationDisplayNamePrefix: 'SITE MANAGER',
+                        approvalDisplayNamePrefix: 'SITE MANAGER',
                     },
                     jumpoint: {
-                        prefix: 'unknown',
+                        prefix: 'JPOI',
                     },
                 },
             },
@@ -859,7 +859,7 @@ describe('AppConfigService', () => {
                 input: {},
                 expected: {
                     groupPolicy: {
-                        administratorPrefix: 'unknown',
+                        administratorPrefix: 'ADMINISTRATORS_',
                     },
                 },
             },
@@ -952,8 +952,8 @@ describe('AppConfigService', () => {
                 expected: {
                     timezone: 'Europe/Berlin',
                     expressions: '0 0 * * *',
-                    retryAttempts: 0,
-                    retryDelayInMs: 0,
+                    retryAttempts: 5,
+                    retryDelayInMs: 10000,
                 },
             },
         ])('should return the sync configuration as expected', ({ input, expected }) => {

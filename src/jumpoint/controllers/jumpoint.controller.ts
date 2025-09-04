@@ -30,7 +30,12 @@ import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorato
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
-import { CreateJumpointDtoInput, ModifyJumpointDtoInput, RetrieveJumpointsDtoInput } from '../dtos/inputs';
+import {
+    CreateJumpointDtoInput,
+    ModifyJumpointDtoInput,
+    RetrieveJumpointInstallerByCustomerAndSiteDtoInput,
+    RetrieveJumpointsDtoInput,
+} from '../dtos/inputs';
 import {
     JumpointCreatedDtoOutput,
     JumpointModifiedDtoOutput,
@@ -38,7 +43,12 @@ import {
     JumpointRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { Jumpoint } from '../models';
-import { RetrieveJumpointInstallerQuery, RetrieveJumpointNodesQuery, RetrieveJumpointsQuery } from '../queries';
+import {
+    RetrieveJumpointInstallerByCustomerAndSiteQuery,
+    RetrieveJumpointInstallerQuery,
+    RetrieveJumpointNodesQuery,
+    RetrieveJumpointsQuery,
+} from '../queries';
 
 @ApiTransactionIdHeader()
 @ApiTags('Jumpoints')
@@ -189,6 +199,7 @@ export class JumpointController {
 
     @Get(':id/installer')
     @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async retrieveJumpointInstaller(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
@@ -207,6 +218,59 @@ export class JumpointController {
             if (response.headers['content-disposition']) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 res.setHeader('Content-Disposition', response.headers['content-disposition']);
+            }
+            if (response.headers['content-length']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Length', response.headers['content-length']);
+            }
+
+            response.data.pipe(res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                res.status(error.getStatus()).json({
+                    statusCode: error.getStatus(),
+                    message: error.message,
+                });
+            } else {
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: ErrorProcessorUtility.stringify(error),
+                });
+            }
+        }
+    }
+
+    @Get('installers')
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpointInstallerByCustomerAndSite(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Query() dtoInput: RetrieveJumpointInstallerByCustomerAndSiteDtoInput,
+        @Res() res: Response,
+    ): Promise<void> {
+        try {
+            const response = await this.queryBus.execute<
+                RetrieveJumpointInstallerByCustomerAndSiteQuery,
+                AxiosResponse<NodeJS.ReadableStream>
+            >(
+                new RetrieveJumpointInstallerByCustomerAndSiteQuery(
+                    transactionId,
+                    dtoInput.businessUnit,
+                    dtoInput.customerKey,
+                    dtoInput.siteKey,
+                ),
+            );
+
+            if (response.headers['content-type']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Type', response.headers['content-type']);
+            }
+            if (response.headers['content-disposition']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Disposition', response.headers['content-disposition']);
+            }
+            if (response.headers['content-length']) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                res.setHeader('Content-Length', response.headers['content-length']);
             }
 
             response.data.pipe(res);

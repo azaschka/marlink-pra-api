@@ -1,21 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DefaultAppConfig } from '../consts';
 
 @Injectable()
 export class AppConfigService {
     private static readonly DEFAULT_UNDEFINED_STRING = 'unknown';
     private static readonly DEFAULT_UNDEFINED_NUMBER = 0;
-    private static readonly DEFAULT_PORT_NUMBER = 3000;
-    private static readonly DEFAULT_HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT = 80;
-    private static readonly DEFAULT_HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 256;
-    private static readonly DEFAULT_HEALTH_PING_CHECK_PRA_SYNC_API_URL = 'http://pra-sync-api:9001/health';
-    private static readonly DEFAULT_BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra-pp.beyondtrustcloud.com/login';
-    private static readonly DEFAULT_DB_RETRY_ATTEMPTS = 60;
-    private static readonly DEFAULT_DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
-    private static readonly DEFAULT_DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
-    private static readonly DEFAULT_CRON_JOB_TIMEZONE = 'Europe/Berlin';
-    private static readonly DEFAULT_CRON_JOB_EXPRESSION = '0 0 * * *'; // Every day at midnight
 
     constructor(private readonly configService: ConfigService) {}
 
@@ -28,20 +19,20 @@ export class AppConfigService {
     }
 
     public get port(): number {
-        return this.configService.get<number>('PORT') ?? AppConfigService.DEFAULT_PORT_NUMBER;
+        return this.configService.get<number>('PORT') ?? DefaultAppConfig.port;
     }
 
     public get health() {
         return {
             diskStorageUsageThresholdInPercent:
                 this.configService.get<number>('HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT') ??
-                AppConfigService.DEFAULT_HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT,
+                DefaultAppConfig.health.diskStorageUsageThresholdInPercent,
             memoryHeapUsageThresholdInMB:
                 this.configService.get<number>('HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB') ??
-                AppConfigService.DEFAULT_HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB,
+                DefaultAppConfig.health.memoryHeapUsageThresholdInMB,
             pingCheckPraSyncApiUrl:
                 this.configService.get<string>('HEALTH_PING_CHECK_PRA_SYNC_API_URL') ??
-                AppConfigService.DEFAULT_HEALTH_PING_CHECK_PRA_SYNC_API_URL,
+                DefaultAppConfig.health.pingCheckPraSyncApiUrl,
         };
     }
 
@@ -56,153 +47,147 @@ export class AppConfigService {
     public get beyondTrust() {
         return {
             consoleUrl:
-                this.configService.get<string>('BEYONDTRUST_CONSOLE_URL') ??
-                AppConfigService.DEFAULT_BEYOND_TRUST_CONSOLE_URL,
+                this.configService.get<string>('BEYONDTRUST_CONSOLE_URL') ?? DefaultAppConfig.beyondTrust.consoleUrl,
         };
     }
 
     public get praSyncApi() {
         return {
-            baseUrl:
-                this.configService.get<string>('PRA_SYNC_API_BASE_URL') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            baseUrl: this.configService.get<string>('PRA_SYNC_API_BASE_URL') ?? DefaultAppConfig.praSyncApi.baseUrl,
             beyondtrustInstance: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_BEYONDTRUST_INSTANCE_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.praSyncApi.beyondtrustInstance.path,
                 backup: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_BEYONDTRUST_INSTANCE_BACKUP_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.beyondtrustInstance.backup.path,
                 },
             },
             user: {
-                path:
-                    this.configService.get<string>('PRA_SYNC_API_USER_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                path: this.configService.get<string>('PRA_SYNC_API_USER_PATH') ?? DefaultAppConfig.praSyncApi.user.path,
                 groupPolicy: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_USER_GROUP_POLICY_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.user.groupPolicy.path,
                 },
             },
             jumpClient: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_JUMP_CLIENT_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.praSyncApi.jumpClient.path,
                 copy:
                     this.configService.get<string>('PRA_SYNC_API_COPY_JUMP_CLIENT') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.praSyncApi.jumpClient.copy,
                 installer: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpClient.installer.path,
                     platform: {
                         path:
                             this.configService.get<string>('PRA_SYNC_API_JUMP_CLIENT_INSTALLER_PLATFORM_PATH') ??
-                            AppConfigService.DEFAULT_UNDEFINED_STRING,
+                            DefaultAppConfig.praSyncApi.jumpClient.installer.platform.path,
                     },
                 },
             },
             groupPolicy: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.praSyncApi.groupPolicy.path,
                 jumpoint: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_JUMPOINT_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.groupPolicy.jumpoint.path,
                 },
                 jumpGroup: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_JUMP_GROUP_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.groupPolicy.jumpGroup.path,
                 },
                 member: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_MEMBER_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.groupPolicy.member.path,
                 },
                 team: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_TEAM_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.groupPolicy.team.path,
                 },
             },
             team: {
-                path:
-                    this.configService.get<string>('PRA_SYNC_API_TEAM_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                path: this.configService.get<string>('PRA_SYNC_API_TEAM_PATH') ?? DefaultAppConfig.praSyncApi.team.path,
                 user: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_TEAM_USER_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.team.user.path,
                 },
             },
             jumpGroup: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_JUMP_GROUP_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.praSyncApi.jumpGroup.path,
             },
             jumpPolicy: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_JUMP_POLICY_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.praSyncApi.jumpPolicy.path,
             },
             jumpoint: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_JUMPOINT_PATH') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.praSyncApi.jumpoint.path,
                 node: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMPOINT_NODE_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpoint.node.path,
                 },
                 installer: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMPOINT_INSTALLER_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpoint.installer.path,
                 },
             },
             jumpItem: {
                 remoteRdp: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_REMOTE_RDP_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.remoteRdp.path,
                     copy:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_COPY_REMOTE_RDP') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.remoteRdp.copy,
                 },
                 shellJump: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_SHELL_JUMP_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.shellJump.path,
                     copy:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_COPY_SHELL_JUMP') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.shellJump.copy,
                 },
                 webJump: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_WEB_JUMP_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.webJump.path,
                     copy:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_COPY_WEB_JUMP') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.webJump.copy,
                 },
                 remoteVnc: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_REMOTE_VNC_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.remoteVnc.path,
                     copy:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_COPY_REMOTE_VNC') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.remoteVnc.copy,
                 },
                 protocolTunnelJump: {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_PROTOCOL_TUNNEL_JUMP_PATH') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.protocolTunnelJump.path,
                     copy:
                         this.configService.get<string>('PRA_SYNC_API_JUMP_ITEM_COPY_PROTOCOL_TUNNEL_JUMP') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.praSyncApi.jumpItem.protocolTunnelJump.copy,
                 },
             },
         };
@@ -221,12 +206,11 @@ export class AppConfigService {
             logging: false,
             autoLoadEntities: true,
             retryAttempts:
-                this.configService.get<number>('DB_RETRY_ATTEMPTS') ?? AppConfigService.DEFAULT_DB_RETRY_ATTEMPTS,
-            retryDelay:
-                this.configService.get<number>('DB_RETRY_DELAY_IN_MS') ?? AppConfigService.DEFAULT_DB_RETRY_DELAY_IN_MS,
+                this.configService.get<number>('DB_RETRY_ATTEMPTS') ?? DefaultAppConfig.database.retryAttempts,
+            retryDelay: this.configService.get<number>('DB_RETRY_DELAY_IN_MS') ?? DefaultAppConfig.database.retryDelay,
             maxQueryExecutionTime:
                 this.configService.get<number>('DB_MAX_QUERY_EXECUTION_TIME_IN_MS') ??
-                AppConfigService.DEFAULT_DB_MAX_QUERY_EXECUTION_TIME_IN_MS, // Only applicable to MariaDB and MySQL
+                DefaultAppConfig.database.maxQueryExecutionTime, // Only applicable to MariaDB and MySQL
         };
     }
 
@@ -244,69 +228,68 @@ export class AppConfigService {
             groupPolicy: {
                 managerPrefix:
                     this.configService.get<string>('SITE_GROUP_POLICY_MANAGER_PREFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.managerPrefix,
                 operatorPrefix:
                     this.configService.get<string>('SITE_GROUP_POLICY_OPERATOR_PREFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.operatorPrefix,
                 administratorPrefix:
                     this.configService.get<string>('SITE_GROUP_POLICY_ADMINISTRATOR_PREFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.administratorPrefix,
                 marlink: {
                     superuser:
                         this.configService.get<string>('SITE_GROUP_POLICY_MARLINK_SUPERUSER') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.site.groupPolicy.marlink.superuser,
                     operator:
                         this.configService.get<string>('SITE_GROUP_POLICY_MARLINK_OPERATOR') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.site.groupPolicy.marlink.operator,
                 },
                 managerAccess:
                     this.configService.get<string>('SITE_GROUP_POLICY_MANAGER_ACCESS') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.managerAccess,
                 administratorAccess:
                     this.configService.get<string>('SITE_GROUP_POLICY_ADMINISTRATOR_ACCESS') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.administratorAccess,
                 adminOperatorAccess:
                     this.configService.get<string>('SITE_GROUP_POLICY_ADMIN_OPERATOR_ACCESS') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.adminOperatorAccess,
                 limitedAccess:
                     this.configService.get<string>('SITE_GROUP_POLICY_LIMITED_ACCESS') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.limitedAccess,
                 fullAccess:
                     this.configService.get<string>('SITE_GROUP_POLICY_FULL_ACCESS') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.groupPolicy.fullAccess,
             },
             user: {
                 siteManager: {
                     publicDisplayNamePrefix:
                         this.configService.get<string>('SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME_PREFIX') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.site.user.siteManager.publicDisplayNamePrefix,
                 },
                 siteAdministrator: {
                     publicDisplayNamePrefix:
                         this.configService.get<string>('SITE_USER_SITE_ADMINISTRATOR_PUBLIC_DISPLAY_NAME_PREFIX') ??
-                        AppConfigService.DEFAULT_UNDEFINED_STRING,
+                        DefaultAppConfig.site.user.siteAdministrator.publicDisplayNamePrefix,
                 },
             },
             jumpPolicy: {
                 authSuffix:
                     this.configService.get<string>('SITE_JUMP_POLICY_AUTH_SUFFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.jumpPolicy.authSuffix,
                 noAuthSuffix:
                     this.configService.get<string>('SITE_JUMP_POLICY_NO_AUTH_SUFFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.jumpPolicy.noAuthSuffix,
                 notifySuffix:
                     this.configService.get<string>('SITE_JUMP_POLICY_NOTIFY_SUFFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.jumpPolicy.notifySuffix,
                 notificationDisplayNamePrefix:
                     this.configService.get<string>('SITE_JUMP_POLICY_NOTIFICATION_DISPLAY_NAME_PREFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.jumpPolicy.notificationDisplayNamePrefix,
                 approvalDisplayNamePrefix:
                     this.configService.get<string>('SITE_JUMP_POLICY_APPROVAL_DISPLAY_NAME_PREFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.site.jumpPolicy.approvalDisplayNamePrefix,
             },
             jumpoint: {
-                prefix:
-                    this.configService.get<string>('SITE_JUMPOINT_PREFIX') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+                prefix: this.configService.get<string>('SITE_JUMPOINT_PREFIX') ?? DefaultAppConfig.site.jumpoint.prefix,
             },
         };
     }
@@ -316,7 +299,7 @@ export class AppConfigService {
             groupPolicy: {
                 administratorPrefix:
                     this.configService.get<string>('CUSTOMER_GROUP_POLICY_ADMINISTRATOR_PREFIX') ??
-                    AppConfigService.DEFAULT_UNDEFINED_STRING,
+                    DefaultAppConfig.customer.groupPolicy.administratorPrefix,
             },
         };
     }
@@ -332,14 +315,12 @@ export class AppConfigService {
 
     public get cronJob() {
         return {
-            timezone: this.configService.get<string>('CRON_JOB_TIMEZONE') ?? AppConfigService.DEFAULT_CRON_JOB_TIMEZONE,
-            expressions:
-                this.configService.get<string>('CRON_JOB_EXPRESSIONS') ?? AppConfigService.DEFAULT_CRON_JOB_EXPRESSION,
+            timezone: this.configService.get<string>('CRON_JOB_TIMEZONE') ?? DefaultAppConfig.cronJob.timezone,
+            expressions: this.configService.get<string>('CRON_JOB_EXPRESSIONS') ?? DefaultAppConfig.cronJob.expressions,
             retryAttempts:
-                this.configService.get<number>('CRON_JOB_RETRY_ATTEMPTS') ?? AppConfigService.DEFAULT_UNDEFINED_NUMBER,
+                this.configService.get<number>('CRON_JOB_RETRY_ATTEMPTS') ?? DefaultAppConfig.cronJob.retryAttempts,
             retryDelayInMs:
-                this.configService.get<number>('CRON_JOB_RETRY_DELAY_IN_MS') ??
-                AppConfigService.DEFAULT_UNDEFINED_NUMBER,
+                this.configService.get<number>('CRON_JOB_RETRY_DELAY_IN_MS') ?? DefaultAppConfig.cronJob.retryDelayInMs,
         };
     }
 }
