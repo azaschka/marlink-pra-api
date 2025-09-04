@@ -24,15 +24,15 @@
 
                 <mj-text>
                     <strong>Login URL:</strong>
-                    <a href="{{praConsoleUrl}}">{{praConsoleUrl}}</a><br /><br />
-                    <strong>Username:</strong> {{username}}<br /><br />
+                    <a href="{{praConsoleUrl}}">{{praConsoleUrl}}</a><br />
+                    <strong>Username:</strong> {{username}}<br />
                     <strong>Temporary Password:</strong>
-                    <span style="font-family: 'Courier New', Courier, monospace">{{password}}</span>
+                    <span style="font-family: 'Courier New', Courier, monospace">{{password}}</span><br />
                 </mj-text>
 
                 <mj-text>
-                    <br />🔐 <strong>Important:</strong> For security reasons, you will be prompted to change your
-                    password upon your first login.
+                    🔐 <strong>Important:</strong><br />
+                    For security reasons, you will be prompted to change your password upon your first login.
                 </mj-text>
 
                 <mj-text>
