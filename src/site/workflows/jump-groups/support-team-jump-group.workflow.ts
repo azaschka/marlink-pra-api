@@ -7,7 +7,7 @@ import { PartialSiteSupportTeamMember } from '../../models';
 
 export class SupportTeamJumpGroupWorkflow implements BaseWorkflow<JumpGroup> {
     private get jumpGroupName(): string {
-        return `${this.customerName.toUpperCase()}_${this.siteSupportTeamMember.supportTeamName.toUpperCase()}`;
+        return `${this.customerName}_${this.siteSupportTeamMember.supportTeamName}`;
     }
 
     private get jumpGroupCodeName(): string {
