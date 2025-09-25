@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
     UserAllowedAccessPermissionType,
+    UserEndpointAutomationPermissionType,
     UserViewSupportReportsPermissionType,
     UserViewVaultReportsPermissionType,
 } from '../../enums';
@@ -361,10 +362,10 @@ export class UserRetrievedDtoOutput implements User {
 
     @ApiProperty({
         required: false,
-        type: Boolean,
+        enum: UserEndpointAutomationPermissionType,
         description: 'Allowed to Administer Endpoint Automation.',
     })
-    public hasEndpointAutomationPermission?: boolean;
+    public endpointAutomationPermissionType?: UserEndpointAutomationPermissionType;
 
     @ApiProperty({
         required: true,

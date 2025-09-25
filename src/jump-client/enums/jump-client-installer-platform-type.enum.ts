@@ -1,4 +1,5 @@
 export enum JumpClientInstallerPlatformType {
+    Linux32Armv7 = 'linux32-armv7',
     Linux32Armv7Headless = 'linux32-armv7-headless',
     Linux64X86 = 'linux64-x86',
     Linux64X86Headless = 'linux64-x86-headless',
