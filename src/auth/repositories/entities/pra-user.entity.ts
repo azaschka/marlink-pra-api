@@ -22,7 +22,7 @@ export class PraUserEntity implements PraUser {
     @Column({ name: 'display_name', type: 'varchar', length: 100 })
     public displayName!: string;
 
-    @Column({ name: 'business_unit', type: 'varchar', length: 50, nullable: true })
+    @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit, nullable: true })
     public businessUnit?: BusinessUnit;
 
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
