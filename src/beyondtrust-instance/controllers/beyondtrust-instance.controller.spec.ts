@@ -5,6 +5,7 @@ import {
     DeleteBeyondtrustInstanceCommand,
     ModifyBeyondtrustInstanceCommand,
 } from '../commands';
+import { BillingType } from '../enums';
 import { BeyondtrustInstance } from '../models';
 import { RetrieveBeyondtrustInstancesQuery } from '../queries';
 import { BeyondtrustInstanceController } from './beyondtrust-instance.controller';
@@ -61,7 +62,7 @@ describe('BeyondtrustInstanceController', () => {
                 authClientSecret: 'auth-client-secret-1',
                 oauth2TokenUrl: 'https://oauth2.example.com/token',
                 apiBaseUrl: 'https://api.example.com',
-                backupApiUrl: 'https://backup-api.example.com',
+                billingType: BillingType.Asset,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -72,7 +73,7 @@ describe('BeyondtrustInstanceController', () => {
                     'auth-client-secret-1',
                     'https://oauth2.example.com/token',
                     'https://api.example.com',
-                    'https://backup-api.example.com',
+                    BillingType.Asset,
                 ),
             );
             expect(result).toBe(expectedResult);
@@ -90,7 +91,7 @@ describe('BeyondtrustInstanceController', () => {
                 authClientSecret: 'auth-client-secret-1',
                 oauth2TokenUrl: 'https://oauth2.example.com/token',
                 apiBaseUrl: 'https://api.example.com',
-                backupApiUrl: 'https://backup-api.example.com',
+                billingType: BillingType.Asset,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -102,7 +103,7 @@ describe('BeyondtrustInstanceController', () => {
                     'auth-client-secret-1',
                     'https://oauth2.example.com/token',
                     'https://api.example.com',
-                    'https://backup-api.example.com',
+                    BillingType.Asset,
                 ),
             );
             expect(result).toBe(expectedResult);

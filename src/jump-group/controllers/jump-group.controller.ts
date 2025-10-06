@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpGroupCommand, DeleteJumpGroupCommand, ModifyJumpGroupCommand } from '../commands';
@@ -23,6 +23,7 @@ import { JumpGroupCreatedDtoOutput, JumpGroupModifiedDtoOutput, JumpGroupRetriev
 import { JumpGroup } from '../models';
 import { RetrieveJumpGroupsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Jump Groups')
 @Controller('jump-groups')
@@ -37,11 +38,13 @@ export class JumpGroupController {
     @ApiOkResponse({ type: JumpGroupRetrievedDtoOutput, isArray: true })
     public async retrieveJumpGroups(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveJumpGroupsDtoInput,
     ): Promise<JumpGroupRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveJumpGroupsQuery, JumpGroup[]>(
             new RetrieveJumpGroupsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
@@ -56,10 +59,11 @@ export class JumpGroupController {
     @ApiCreatedResponse({ type: JumpGroupCreatedDtoOutput })
     public async createJumpGroup(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateJumpGroupDtoInput,
     ): Promise<JumpGroupCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateJumpGroupCommand, JumpGroup>(
-            new CreateJumpGroupCommand(transactionId, dtoInput.name, dtoInput.codeName, dtoInput.comments),
+            new CreateJumpGroupCommand(transactionId, tenantId, dtoInput.name, dtoInput.codeName, dtoInput.comments),
         );
 
         return result;
@@ -69,11 +73,19 @@ export class JumpGroupController {
     @ApiOkResponse({ type: JumpGroupModifiedDtoOutput })
     public async modifyJumpGroup(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyJumpGroupDtoInput,
     ): Promise<JumpGroupModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyJumpGroupCommand, JumpGroup>(
-            new ModifyJumpGroupCommand(transactionId, id, dtoInput.name, dtoInput.codeName, dtoInput.comments),
+            new ModifyJumpGroupCommand(
+                transactionId,
+                tenantId,
+                id,
+                dtoInput.name,
+                dtoInput.codeName,
+                dtoInput.comments,
+            ),
         );
 
         return result;
@@ -84,8 +96,11 @@ export class JumpGroupController {
     @HttpCode(HttpStatus.NO_CONTENT)
     public async deleteJumpGroup(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteJumpGroupCommand, void>(new DeleteJumpGroupCommand(transactionId, id));
+        await this.commandBus.execute<DeleteJumpGroupCommand, void>(
+            new DeleteJumpGroupCommand(transactionId, tenantId, id),
+        );
     }
 }

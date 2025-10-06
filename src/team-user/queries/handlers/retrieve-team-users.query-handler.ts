@@ -3,7 +3,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { TRANSACTION_ID_HEADER } from '../../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
 import { ErrorProcessorUtility, ObjectUtility, UrlUtility } from '../../../shared/utilities';
 import { TeamUser } from '../../models';
 import { RetrieveTeamUsersQuery } from '../retrieve-team-users.query';
@@ -26,6 +26,7 @@ export class RetrieveTeamUsersQueryHandler implements IQueryHandler<RetrieveTeam
 
             const headers = new AxiosHeaders();
             headers.set(TRANSACTION_ID_HEADER, query.transactionId);
+            headers.set(TENANT_ID_HEADER, query.tenantId);
 
             const response = await firstValueFrom(
                 this.httpService.get<TeamUser[]>(url, {

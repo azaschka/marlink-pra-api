@@ -23,7 +23,12 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
+import {
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../../core/decorators';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import { CopyWebJumpCommand, CreateWebJumpCommand, DeleteWebJumpCommand, ModifyWebJumpCommand } from '../commands';
@@ -42,6 +47,7 @@ import {
 import { WebJump } from '../models';
 import { RetrieveWebJumpsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Jump Items')
 @Controller('jump-items/web-jumps')
@@ -56,11 +62,13 @@ export class WebJumpController {
     @ApiOkResponse({ type: WebJumpRetrievedDtoOutput, isArray: true })
     public async retrieveWebJumps(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveWebJumpsDtoInput,
     ): Promise<WebJumpRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveWebJumpsQuery, WebJumpRetrievedDtoOutput[]>(
             new RetrieveWebJumpsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
@@ -90,11 +98,13 @@ export class WebJumpController {
     })
     public async createWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateWebJumpDtoInput,
     ): Promise<WebJumpCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateWebJumpCommand, WebJump>(
             new CreateWebJumpCommand(
                 transactionId,
+                tenantId,
                 dtoInput.name,
                 dtoInput.jumpointId,
                 dtoInput.url,
@@ -129,12 +139,14 @@ export class WebJumpController {
     })
     public async modifyWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyWebJumpDtoInput,
     ): Promise<WebJumpModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyWebJumpCommand, WebJump>(
             new ModifyWebJumpCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.name,
                 dtoInput.jumpointId,
@@ -168,9 +180,12 @@ export class WebJumpController {
     })
     public async deleteWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteWebJumpCommand, void>(new DeleteWebJumpCommand(transactionId, id));
+        await this.commandBus.execute<DeleteWebJumpCommand, void>(
+            new DeleteWebJumpCommand(transactionId, tenantId, id),
+        );
     }
 
     @Post(':id/copy')
@@ -187,11 +202,19 @@ export class WebJumpController {
     })
     public async copyWebJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: CopyWebJumpDtoInput,
     ): Promise<WebJumpCopiedDtoOutput> {
         const result = await this.commandBus.execute<CopyWebJumpCommand, WebJump>(
-            new CopyWebJumpCommand(transactionId, id, dtoInput.jumpGroupId, dtoInput.jumpGroupType, dtoInput.name),
+            new CopyWebJumpCommand(
+                transactionId,
+                tenantId,
+                id,
+                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupType,
+                dtoInput.name,
+            ),
         );
 
         return result;

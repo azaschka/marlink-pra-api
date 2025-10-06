@@ -64,6 +64,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         private readonly siteApprovers: PartialSiteApprover[],
         private readonly customerName: string,
         private readonly customerBusinessUnit: BusinessUnit,
+        private readonly customerBeyondtrustInstanceId: number,
     ) {
         this.managerGroupPolicyWorkflow = new ManagerGroupPolicyWorkflow(
             this.appConfigService,
@@ -73,6 +74,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteName,
             this.siteKey,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.operatorGroupPolicyWorkflow = new OperatorGroupPolicyWorkflow(
@@ -83,6 +85,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteName,
             this.siteKey,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.teamWorkflow = new TeamWorkflow(
@@ -92,6 +95,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteName,
             this.siteKey,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.authJumpPolicyWorkflow = new AuthJumpPolicyWorkflow(
@@ -104,6 +108,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteManagers,
             this.siteApprovers,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.noAuthJumpPolicyWorkflow = new NoAuthJumpPolicyWorkflow(
@@ -114,6 +119,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteName,
             this.siteKey,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.notifyJumpPolicyWorkflow = new NotifyJumpPolicyWorkflow(
@@ -125,6 +131,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteKey,
             this.siteManagers,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.jumpointsWorkflow = new JumpointsWorkflow(
@@ -136,6 +143,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteKey,
             this.customerName,
             this.customerBusinessUnit,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.administratorGroupPolicyWorkflow = new AdministratorGroupPolicyWorkflow(
@@ -144,6 +152,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.commandBus,
             this.transactionId,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.marlinkOperatorGroupPolicyWorkflow = new MarlinkOperatorGroupPolicyWorkflow(
@@ -151,6 +160,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.queryBus,
             this.commandBus,
             this.transactionId,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.marlinkSuperuserGroupPolicyWorkflow = new MarlinkSuperuserGroupPolicyWorkflow(
@@ -158,6 +168,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.queryBus,
             this.commandBus,
             this.transactionId,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.siteManagerWorkflows = this.siteManagers.map(
@@ -169,6 +180,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     this.transactionId,
                     this.siteName,
                     siteManager,
+                    this.customerBeyondtrustInstanceId,
                     this.managerGroupPolicyWorkflow,
                     this.authJumpPolicyWorkflow,
                     this.notifyJumpPolicyWorkflow,
@@ -184,6 +196,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     this.transactionId,
                     siteAdministrator,
                     this.customerName,
+                    this.customerBeyondtrustInstanceId,
                     this.administratorGroupPolicyWorkflow,
                 ),
         );
@@ -197,6 +210,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     this.transactionId,
                     siteSupportTeamMember,
                     this.customerName,
+                    this.customerBeyondtrustInstanceId,
                     this.administratorGroupPolicyWorkflow,
                     this.operatorGroupPolicyWorkflow,
                     this.jumpointsWorkflow,
@@ -254,12 +268,23 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             // If the team is already added to the group policy with different role type, remove it
             if (groupPolicyTeam && groupPolicyTeam.roleType !== roleType) {
                 await this.commandBus.execute<RemoveTeamFromGroupPolicyCommand, GroupPolicyTeam>(
-                    new RemoveTeamFromGroupPolicyCommand(this.transactionId, groupPolicyId, team.id),
+                    new RemoveTeamFromGroupPolicyCommand(
+                        this.transactionId,
+                        this.customerBeyondtrustInstanceId,
+                        groupPolicyId,
+                        team.id,
+                    ),
                 );
             }
 
             await this.commandBus.execute<AddTeamToGroupPolicyCommand, GroupPolicyTeam>(
-                new AddTeamToGroupPolicyCommand(this.transactionId, groupPolicyId, team.id, roleType),
+                new AddTeamToGroupPolicyCommand(
+                    this.transactionId,
+                    this.customerBeyondtrustInstanceId,
+                    groupPolicyId,
+                    team.id,
+                    roleType,
+                ),
             );
         }
 
@@ -276,7 +301,12 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                 }
 
                 await this.commandBus.execute<AddJumpointToGroupPolicyCommand, GroupPolicyJumpoint>(
-                    new AddJumpointToGroupPolicyCommand(this.transactionId, groupPolicy.id, jumpoint.id),
+                    new AddJumpointToGroupPolicyCommand(
+                        this.transactionId,
+                        this.customerBeyondtrustInstanceId,
+                        groupPolicy.id,
+                        jumpoint.id,
+                    ),
                 );
             }
         }
@@ -314,7 +344,12 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
 
             if (groupPolicyTeam) {
                 await this.commandBus.execute<RemoveTeamFromGroupPolicyCommand, GroupPolicyTeam>(
-                    new RemoveTeamFromGroupPolicyCommand(this.transactionId, groupPolicy.id, team.id),
+                    new RemoveTeamFromGroupPolicyCommand(
+                        this.transactionId,
+                        this.customerBeyondtrustInstanceId,
+                        groupPolicy.id,
+                        team.id,
+                    ),
                 );
             }
         }
@@ -332,7 +367,12 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                 }
 
                 await this.commandBus.execute<RemoveJumpointFromGroupPolicyCommand, GroupPolicyJumpoint>(
-                    new RemoveJumpointFromGroupPolicyCommand(this.transactionId, groupPolicy.id, jumpoint.id),
+                    new RemoveJumpointFromGroupPolicyCommand(
+                        this.transactionId,
+                        this.customerBeyondtrustInstanceId,
+                        groupPolicy.id,
+                        jumpoint.id,
+                    ),
                 );
             }
         }
@@ -351,6 +391,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.queryBus.execute<RetrieveGroupPolicyTeamsQuery, GroupPolicyTeam[]>(
                 new RetrieveGroupPolicyTeamsQuery(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     SiteWorkflow.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     groupPolicyId,
@@ -364,6 +405,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.queryBus.execute<RetrieveGroupPolicyJumpointsQuery, GroupPolicyJumpoint[]>(
                 new RetrieveGroupPolicyJumpointsQuery(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     SiteWorkflow.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     groupPolicyId,

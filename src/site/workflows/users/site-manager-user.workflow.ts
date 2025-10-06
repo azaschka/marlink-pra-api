@@ -25,6 +25,7 @@ export class SiteManagerUserWorkflow implements BaseWorkflow<User> {
         private readonly transactionId: string,
         private readonly siteName: string,
         private readonly siteManager: PartialSiteManager,
+        private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
     public async getOrCreate(): Promise<User> {
@@ -37,6 +38,7 @@ export class SiteManagerUserWorkflow implements BaseWorkflow<User> {
         return await this.commandBus.execute<CreateUserCommand, User>(
             new CreateUserCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 this.userPublicDisplayName,
                 this.siteManager.username,
                 PasswordGeneratorUtility.generate(), // generate password according to Marlink's password policy
@@ -58,13 +60,16 @@ export class SiteManagerUserWorkflow implements BaseWorkflow<User> {
             return;
         }
 
-        await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(this.transactionId, user.id));
+        await this.commandBus.execute<DeleteUserCommand, void>(
+            new DeleteUserCommand(this.transactionId, this.customerBeyondtrustInstanceId, user.id),
+        );
     }
 
     private async get(): Promise<User | null> {
         const users = await this.queryBus.execute<RetrieveUsersQuery, User[]>(
             new RetrieveUsersQuery(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 1,
                 1,
                 undefined,

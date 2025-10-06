@@ -26,7 +26,7 @@ export class ModifyCustomerCommandHandler implements ICommandHandler<ModifyCusto
             customerEntity.name,
             customerEntity.businessUnit,
             customerEntity.isDeactivated,
-            command.billingType ?? customerEntity.billingType,
+            command.beyondtrustInstanceId ?? customerEntity.beyondtrustInstanceId,
         );
 
         await this.customerRepositoryService.createOrUpdateById(modifiedCustomerEntity);

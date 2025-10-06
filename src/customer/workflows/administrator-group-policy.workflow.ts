@@ -16,6 +16,7 @@ export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolic
         private readonly commandBus: CommandBus,
         private readonly transactionId: string,
         private readonly customerName: string,
+        private readonly customerBeyondTrustInstanceId: number,
     ) {}
 
     public async getOrCreate(): Promise<GroupPolicy> {
@@ -26,7 +27,7 @@ export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolic
         }
 
         return await this.commandBus.execute<CreateGroupPolicyCommand, GroupPolicy>(
-            new CreateGroupPolicyCommand(this.transactionId, this.groupPolicyName),
+            new CreateGroupPolicyCommand(this.transactionId, this.customerBeyondTrustInstanceId, this.groupPolicyName),
         );
     }
 
@@ -38,13 +39,19 @@ export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolic
         }
 
         await this.commandBus.execute<DeleteGroupPolicyCommand, void>(
-            new DeleteGroupPolicyCommand(this.transactionId, groupPolicy.id),
+            new DeleteGroupPolicyCommand(this.transactionId, this.customerBeyondTrustInstanceId, groupPolicy.id),
         );
     }
 
     private async get(): Promise<GroupPolicy | null> {
         const groupPolicies = await this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
-            new RetrieveGroupPoliciesQuery(this.transactionId, 1, 1, this.groupPolicyName),
+            new RetrieveGroupPoliciesQuery(
+                this.transactionId,
+                this.customerBeyondTrustInstanceId,
+                1,
+                1,
+                this.groupPolicyName,
+            ),
         );
 
         return groupPolicies[0] ?? null;

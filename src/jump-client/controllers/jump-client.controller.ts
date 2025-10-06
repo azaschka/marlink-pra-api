@@ -21,7 +21,7 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CopyJumpClientCommand, DeleteJumpClientCommand, ModifyJumpClientCommand } from '../commands';
@@ -30,6 +30,7 @@ import { JumpClientCopiedDtoOutput, JumpClientModifiedDtoOutput, JumpClientRetri
 import { JumpClient } from '../models';
 import { RetrieveJumpClientsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Jump Clients')
 @Controller('jump-clients')
@@ -44,11 +45,13 @@ export class JumpClientController {
     @ApiOkResponse({ type: JumpClientRetrievedDtoOutput, isArray: true })
     public async retrieveJumpClients(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveJumpClientsDtoInput,
     ): Promise<JumpClientRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveJumpClientsQuery, JumpClientRetrievedDtoOutput[]>(
             new RetrieveJumpClientsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
@@ -80,12 +83,14 @@ export class JumpClientController {
     })
     public async modifyJumpClient(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyJumpClientDtoInput,
     ): Promise<JumpClientModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyJumpClientCommand, JumpClient>(
             new ModifyJumpClientCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.jumpGroupId,
                 dtoInput.jumpGroupType,
@@ -113,9 +118,12 @@ export class JumpClientController {
     })
     public async deleteJumpClient(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteJumpClientCommand, void>(new DeleteJumpClientCommand(transactionId, id));
+        await this.commandBus.execute<DeleteJumpClientCommand, void>(
+            new DeleteJumpClientCommand(transactionId, tenantId, id),
+        );
     }
 
     @Post(':id/copy')
@@ -132,11 +140,19 @@ export class JumpClientController {
     })
     public async copyJumpClient(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: CopyJumpClientDtoInput,
     ): Promise<JumpClientCopiedDtoOutput> {
         const result = await this.commandBus.execute<CopyJumpClientCommand, JumpClient>(
-            new CopyJumpClientCommand(transactionId, id, dtoInput.jumpGroupId, dtoInput.jumpGroupType, dtoInput.name),
+            new CopyJumpClientCommand(
+                transactionId,
+                tenantId,
+                id,
+                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupType,
+                dtoInput.name,
+            ),
         );
 
         return result;

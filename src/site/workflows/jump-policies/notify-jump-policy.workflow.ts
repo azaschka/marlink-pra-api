@@ -37,6 +37,7 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         private readonly siteKey: string,
         private readonly siteManagers: PartialSiteManager[],
         private readonly customerName: string,
+        private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
     public async getOrCreate(): Promise<JumpPolicy> {
@@ -49,6 +50,7 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         return await this.commandBus.execute<CreateJumpPolicyCommand, JumpPolicy>(
             new CreateJumpPolicyCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 this.jumpPolicyDisplayName, // displayName
                 this.jumpPolicyCodeName, // codeName
                 undefined, // description
@@ -86,7 +88,7 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         }
 
         await this.commandBus.execute<DeleteJumpPolicyCommand, void>(
-            new DeleteJumpPolicyCommand(this.transactionId, jumpPolicy.id),
+            new DeleteJumpPolicyCommand(this.transactionId, this.customerBeyondtrustInstanceId, jumpPolicy.id),
         );
     }
 
@@ -112,6 +114,7 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
             return await this.commandBus.execute<ModifyJumpPolicyCommand, JumpPolicy>(
                 new ModifyJumpPolicyCommand(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     jumpPolicy.id,
                     this.jumpPolicyDisplayName, // displayName
                     undefined, // codeName
@@ -147,7 +150,13 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
 
     private async get(): Promise<JumpPolicy | null> {
         const jumpPolicies = await this.queryBus.execute<RetrieveJumpPoliciesQuery, JumpPolicy[]>(
-            new RetrieveJumpPoliciesQuery(this.transactionId, 1, 1, this.jumpPolicyCodeName),
+            new RetrieveJumpPoliciesQuery(
+                this.transactionId,
+                this.customerBeyondtrustInstanceId,
+                1,
+                1,
+                this.jumpPolicyCodeName,
+            ),
         );
 
         return jumpPolicies[0] ?? null;

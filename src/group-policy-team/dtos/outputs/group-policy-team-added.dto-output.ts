@@ -19,4 +19,12 @@ export class GroupPolicyTeamAddedDtoOutput implements GroupPolicyTeam {
         description: 'The role that members of this group policy will have on the team.',
     })
     public roleType?: GroupPolicyTeamRoleType;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the group policy team was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

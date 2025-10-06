@@ -3,7 +3,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosHeaders, AxiosResponse } from 'axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { TRANSACTION_ID_HEADER } from '../../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
 import { ErrorProcessorUtility, ObjectUtility, UrlUtility } from '../../../shared/utilities';
 import { RetrieveJumpClientInstallerPlatformQuery } from '../retrieve-jump-client-installer-platform.query';
 
@@ -31,6 +31,7 @@ export class RetrieveJumpClientInstallerPlatformQueryHandler
 
             const headers = new AxiosHeaders();
             headers.set(TRANSACTION_ID_HEADER, query.transactionId);
+            headers.set(TENANT_ID_HEADER, query.tenantId);
 
             return firstValueFrom(
                 this.httpService

@@ -6,7 +6,7 @@ import {
     ModifyCustomerCommand,
     ReactivateCustomerCommand,
 } from '../commands';
-import { BillingType, BusinessUnit } from '../enums';
+import { BusinessUnit } from '../enums';
 import { Customer } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 import { CustomerController } from './customer.controller';
@@ -53,17 +53,11 @@ describe('CustomerController', () => {
                 key: 'customer-key-1',
                 name: 'customer-name-1',
                 businessUnit: BusinessUnit.EG,
-                billingType: BillingType.Asset,
+                beyondtrustInstanceId: 1,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateCustomerCommand(
-                    'uuid-123',
-                    'customer-key-1',
-                    'customer-name-1',
-                    BusinessUnit.EG,
-                    BillingType.Asset,
-                ),
+                new CreateCustomerCommand('uuid-123', 'customer-key-1', 'customer-name-1', BusinessUnit.EG, 1),
             );
             expect(result).toBe(expectedResult);
         });
@@ -75,12 +69,10 @@ describe('CustomerController', () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
             const result = await controller.modifyCustomer(undefined, 1, {
-                billingType: BillingType.Asset,
+                beyondtrustInstanceId: 123,
             });
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ModifyCustomerCommand('uuid-123', 1, BillingType.Asset),
-            );
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new ModifyCustomerCommand('uuid-123', 1, 123));
             expect(result).toBe(expectedResult);
         });
     });

@@ -21,7 +21,7 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { UuidUtility } from '../../shared/utilities';
 import { AddJumpointToGroupPolicyCommand, RemoveJumpointFromGroupPolicyCommand } from '../commands';
 import { AddJumpointToGroupPolicyDtoInput, RetrieveGroupPolicyJumpointsDtoInput } from '../dtos/inputs';
@@ -29,6 +29,7 @@ import { GroupPolicyJumpointAddedDtoOutput, GroupPolicyJumpointRetrievedDtoOutpu
 import { GroupPolicyJumpoint } from '../models';
 import { RetrieveGroupPolicyJumpointsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Group Policies')
 @Controller('group-policies')
@@ -48,13 +49,14 @@ export class GroupPolicyJumpointController {
     })
     public async retrieveGroupPolicyJumpoints(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Query() dtoInput: RetrieveGroupPolicyJumpointsDtoInput,
     ): Promise<GroupPolicyJumpointRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<
             RetrieveGroupPolicyJumpointsQuery,
             GroupPolicyJumpointRetrievedDtoOutput[]
-        >(new RetrieveGroupPolicyJumpointsQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id));
+        >(new RetrieveGroupPolicyJumpointsQuery(transactionId, tenantId, dtoInput.pageSize, dtoInput.pageNumber, id));
 
         return result;
     }
@@ -72,11 +74,12 @@ export class GroupPolicyJumpointController {
     })
     public async addJumpointToGroupPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: AddJumpointToGroupPolicyDtoInput,
     ): Promise<GroupPolicyJumpointAddedDtoOutput> {
         const result = await this.commandBus.execute<AddJumpointToGroupPolicyCommand, GroupPolicyJumpoint>(
-            new AddJumpointToGroupPolicyCommand(transactionId, id, dtoInput.jumpointId),
+            new AddJumpointToGroupPolicyCommand(transactionId, tenantId, id, dtoInput.jumpointId),
         );
 
         return result;
@@ -90,9 +93,12 @@ export class GroupPolicyJumpointController {
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async removeJumpointFromGroupPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Param('jumpointId') jumpointId: number,
     ): Promise<void> {
-        await this.commandBus.execute(new RemoveJumpointFromGroupPolicyCommand(transactionId, id, jumpointId));
+        await this.commandBus.execute(
+            new RemoveJumpointFromGroupPolicyCommand(transactionId, tenantId, id, jumpointId),
+        );
     }
 }

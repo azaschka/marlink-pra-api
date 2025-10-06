@@ -1,5 +1,12 @@
+import { GroupPolicyJumpoint } from '../../group-policy-jumpoint/models';
+import { ProtocolTunnelJump } from '../../jump-item/protocol-tunnel-jump/models';
+import { RemoteRdp } from '../../jump-item/remote-rdp/models';
+import { RemoteVnc } from '../../jump-item/remote-vnc/models';
+import { ShellJump } from '../../jump-item/shell-jump/models';
+import { WebJump } from '../../jump-item/web-jump/models';
 import { JumpointPlatformType, JzpClientAddressRestrictionsType } from '../enums';
 import { JumpointIpRange } from './jumpoint-ip-range.model';
+import { JumpointNode } from './jumpoint-node.model';
 
 export interface Jumpoint {
     id: number;
@@ -24,4 +31,11 @@ export interface Jumpoint {
     dockerDeployKey?: string;
     keyInfo?: string;
     lastSyncDate: Date;
+    groupPolicyJumpoints?: GroupPolicyJumpoint[];
+    protocolTunnelJumps?: ProtocolTunnelJump[];
+    remoteRdps?: RemoteRdp[];
+    remoteVncs?: RemoteVnc[];
+    shellJumps?: ShellJump[];
+    webJumps?: WebJump[];
+    jumpointNodes?: JumpointNode[];
 }

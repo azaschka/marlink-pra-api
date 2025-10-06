@@ -25,12 +25,14 @@ describe('GroupPolicyTeamController', () => {
             const expectedResult = [] as GroupPolicyTeam[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveGroupPolicyTeams(undefined, 123, {
+            const result = await controller.retrieveGroupPolicyTeams(undefined, 100, 123, {
                 pageSize: 10,
                 pageNumber: 1,
             });
 
-            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveGroupPolicyTeamsQuery('uuid-123', 10, 1, 123));
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
+                new RetrieveGroupPolicyTeamsQuery('uuid-123', 100, 10, 1, 123),
+            );
             expect(result).toBe(expectedResult);
         });
     });
@@ -40,13 +42,13 @@ describe('GroupPolicyTeamController', () => {
             const expectedResult = {} as GroupPolicyTeam;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.addTeamToGroupPolicy(undefined, 1, {
+            const result = await controller.addTeamToGroupPolicy(undefined, 123, 1, {
                 teamId: 2,
                 roleType: GroupPolicyTeamRoleType.Lead,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new AddTeamToGroupPolicyCommand('uuid-123', 1, 2, GroupPolicyTeamRoleType.Lead),
+                new AddTeamToGroupPolicyCommand('uuid-123', 123, 1, 2, GroupPolicyTeamRoleType.Lead),
             );
             expect(result).toBe(expectedResult);
         });
@@ -56,9 +58,11 @@ describe('GroupPolicyTeamController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(undefined);
 
-            await controller.removeTeamFromGroupPolicy(undefined, 1, 2);
+            await controller.removeTeamFromGroupPolicy(undefined, 123, 1, 2);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new RemoveTeamFromGroupPolicyCommand('uuid-123', 1, 2));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(
+                new RemoveTeamFromGroupPolicyCommand('uuid-123', 123, 1, 2),
+            );
         });
     });
 });

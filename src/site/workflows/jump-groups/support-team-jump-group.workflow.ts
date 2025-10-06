@@ -20,6 +20,7 @@ export class SupportTeamJumpGroupWorkflow implements BaseWorkflow<JumpGroup> {
         private readonly transactionId: string,
         private readonly siteSupportTeamMember: PartialSiteSupportTeamMember,
         private readonly customerName: string,
+        private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
     public async getOrCreate(): Promise<JumpGroup> {
@@ -32,6 +33,7 @@ export class SupportTeamJumpGroupWorkflow implements BaseWorkflow<JumpGroup> {
         return await this.commandBus.execute<CreateJumpGroupCommand, JumpGroup>(
             new CreateJumpGroupCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 this.jumpGroupName,
                 this.jumpGroupCodeName,
                 this.siteSupportTeamMember.supportTeamTrustLevel,
@@ -47,13 +49,19 @@ export class SupportTeamJumpGroupWorkflow implements BaseWorkflow<JumpGroup> {
         }
 
         await this.commandBus.execute<DeleteJumpGroupCommand, void>(
-            new DeleteJumpGroupCommand(this.transactionId, jumpGroup.id),
+            new DeleteJumpGroupCommand(this.transactionId, this.customerBeyondtrustInstanceId, jumpGroup.id),
         );
     }
 
     private async get(): Promise<JumpGroup | null> {
         const jumpGroups = await this.queryBus.execute<RetrieveJumpGroupsQuery, JumpGroup[]>(
-            new RetrieveJumpGroupsQuery(this.transactionId, 1, 1, this.jumpGroupName),
+            new RetrieveJumpGroupsQuery(
+                this.transactionId,
+                this.customerBeyondtrustInstanceId,
+                1,
+                1,
+                this.jumpGroupName,
+            ),
         );
 
         return jumpGroups[0] ?? null;

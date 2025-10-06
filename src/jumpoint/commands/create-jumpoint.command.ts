@@ -6,6 +6,7 @@ export class CreateJumpointCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly name: string,
         public readonly platformType: JumpointPlatformType,
         public readonly codeName?: string,

@@ -1,3 +1,8 @@
+import { GroupPolicyJumpGroup } from '../../group-policy-jump-group/models';
+import { GroupPolicyJumpoint } from '../../group-policy-jumpoint/models';
+import { GroupPolicyMember } from '../../group-policy-member/models';
+import { GroupPolicyTeam } from '../../group-policy-team/models';
+import { UserGroupPolicy } from '../../user-group-policy/models';
 import { AccessPermissionStatusType } from '../enums';
 
 export interface GroupPolicy {
@@ -26,4 +31,9 @@ export interface GroupPolicy {
     inferiorJumpItemRoleId?: number;
     unassignedJumpItemRoleId?: number;
     lastSyncDate: Date;
+    userGroupPolicies?: UserGroupPolicy[];
+    groupPolicyJumpoints?: GroupPolicyJumpoint[];
+    groupPolicyJumpGroups?: GroupPolicyJumpGroup[];
+    groupPolicyMembers?: GroupPolicyMember[];
+    groupPolicyTeams?: GroupPolicyTeam[];
 }

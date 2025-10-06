@@ -44,6 +44,7 @@ export class CalculateUserLicenseUsageCommandHandler implements ICommandHandler<
                     this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
                         new RetrieveGroupPolicyMembersQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             CalculateUserLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             associatedGroupPolicy.id,
@@ -82,6 +83,7 @@ export class CalculateUserLicenseUsageCommandHandler implements ICommandHandler<
             this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
                 new RetrieveGroupPoliciesQuery(
                     transactionId,
+                    customer.beyondtrustInstanceId,
                     CalculateUserLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,

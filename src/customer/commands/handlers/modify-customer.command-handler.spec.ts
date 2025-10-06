@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
-import { BillingType, BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../enums';
 import { CustomerModifiedEvent } from '../../events';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
@@ -24,9 +24,9 @@ describe('ModifyCustomerCommandHandler', () => {
             const customerRepositoryServiceFindOneByIdMethod = jest.spyOn(customerRepositoryService, 'findOneById');
 
             // Act & Assert
-            await expect(
-                handler.execute(new ModifyCustomerCommand('transaction-1', 123, BillingType.Asset)),
-            ).rejects.toThrow(NotFoundException);
+            await expect(handler.execute(new ModifyCustomerCommand('transaction-1', 123, 1))).rejects.toThrow(
+                NotFoundException,
+            );
             expect(customerRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
         });
 
@@ -45,7 +45,7 @@ describe('ModifyCustomerCommandHandler', () => {
                 handler.execute(<ModifyCustomerCommand>{
                     transactionId: 'transaction-1',
                     id: 123,
-                    billingType: BillingType.Asset,
+                    beyondtrustInstanceId: 1,
                 }),
             ).rejects.toThrow(expectedError);
             expect(customerRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
@@ -61,7 +61,7 @@ describe('ModifyCustomerCommandHandler', () => {
                     key: 'customer-key-1',
                     name: 'customer-name-1',
                     businessUnit: BusinessUnit.EG,
-                    billingType: BillingType.User,
+                    beyondtrustInstanceId: 1,
                     isDeactivated: false,
                     creationDate: new Date('2025-01-01'),
                     lastModificationDate: new Date('2025-01-01'),
@@ -77,7 +77,7 @@ describe('ModifyCustomerCommandHandler', () => {
             );
 
             // Act
-            const result = await handler.execute(new ModifyCustomerCommand('transaction-1', 123, BillingType.Asset));
+            const result = await handler.execute(new ModifyCustomerCommand('transaction-1', 123, 1));
 
             // Assert
             expect(customerRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
@@ -87,7 +87,7 @@ describe('ModifyCustomerCommandHandler', () => {
                 'customer-name-1',
                 BusinessUnit.EG,
                 false,
-                BillingType.Asset,
+                1,
             );
             expect(customerRepositoryServiceCreateOrUpdateByIdMethod).toHaveBeenCalledWith(customerEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(

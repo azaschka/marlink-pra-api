@@ -1,3 +1,6 @@
+import { GroupPolicyMember } from '../../group-policy-member/models';
+import { TeamUser } from '../../team-user/models';
+import { UserGroupPolicy } from '../../user-group-policy/models';
 import {
     UserAllowedAccessPermissionType,
     UserEndpointAutomationPermissionType,
@@ -57,4 +60,7 @@ export interface User {
     hasVaultPermission?: boolean;
     endpointAutomationPermissionType?: UserEndpointAutomationPermissionType;
     lastSyncDate: Date;
+    userGroupPolicies?: UserGroupPolicy[];
+    teamUsers?: TeamUser[];
+    groupPolicyMembers?: GroupPolicyMember[];
 }

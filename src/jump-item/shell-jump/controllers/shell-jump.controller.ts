@@ -23,7 +23,12 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
+import {
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../../core/decorators';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
@@ -47,6 +52,7 @@ import {
 import { ShellJump } from '../models';
 import { RetrieveShellJumpsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Jump Items')
 @Controller('jump-items/shell-jumps')
@@ -61,11 +67,13 @@ export class ShellJumpController {
     @ApiOkResponse({ type: ShellJumpRetrievedDtoOutput, isArray: true })
     public async retrieveShellJumps(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveShellJumpsDtoInput,
     ): Promise<ShellJumpRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveShellJumpsQuery, ShellJumpRetrievedDtoOutput[]>(
             new RetrieveShellJumpsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
@@ -95,11 +103,13 @@ export class ShellJumpController {
     })
     public async createShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateShellJumpDtoInput,
     ): Promise<ShellJumpCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateShellJumpCommand, ShellJump>(
             new CreateShellJumpCommand(
                 transactionId,
+                tenantId,
                 dtoInput.name,
                 dtoInput.jumpointId,
                 dtoInput.hostname,
@@ -133,12 +143,14 @@ export class ShellJumpController {
     })
     public async modifyShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyShellJumpDtoInput,
     ): Promise<ShellJumpModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyShellJumpCommand, ShellJump>(
             new ModifyShellJumpCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.name,
                 dtoInput.jumpointId,
@@ -171,9 +183,12 @@ export class ShellJumpController {
     })
     public async deleteShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteShellJumpCommand, void>(new DeleteShellJumpCommand(transactionId, id));
+        await this.commandBus.execute<DeleteShellJumpCommand, void>(
+            new DeleteShellJumpCommand(transactionId, tenantId, id),
+        );
     }
 
     @Post(':id/copy')
@@ -190,11 +205,19 @@ export class ShellJumpController {
     })
     public async copyShellJump(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: CopyShellJumpDtoInput,
     ): Promise<ShellJumpCopiedDtoOutput> {
         const result = await this.commandBus.execute<CopyShellJumpCommand, ShellJump>(
-            new CopyShellJumpCommand(transactionId, id, dtoInput.jumpGroupId, dtoInput.jumpGroupType, dtoInput.name),
+            new CopyShellJumpCommand(
+                transactionId,
+                tenantId,
+                id,
+                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupType,
+                dtoInput.name,
+            ),
         );
 
         return result;

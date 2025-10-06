@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiParam, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { ModifyUserGroupPoliciesCommand } from '../commands';
@@ -10,6 +10,7 @@ import { UserGroupPolicyModifiedDtoOutput, UserGroupPolicyRetrievedDtoOutput } f
 import { UserGroupPolicy } from '../models';
 import { RetrieveUserGroupPoliciesQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Users')
 @Controller('users')
@@ -29,11 +30,12 @@ export class UserGroupPolicyController {
     })
     public async retrieveUserGroupPolicies(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Query() dtoInput: RetrieveUserGroupPoliciesDtoInput,
     ): Promise<UserGroupPolicyRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveUserGroupPoliciesQuery, UserGroupPolicyRetrievedDtoOutput[]>(
-            new RetrieveUserGroupPoliciesQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id),
+            new RetrieveUserGroupPoliciesQuery(transactionId, tenantId, dtoInput.pageSize, dtoInput.pageNumber, id),
         );
 
         return result;
@@ -52,12 +54,14 @@ export class UserGroupPolicyController {
     })
     public async modifyUserGroupPolicies(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyUserGroupPoliciesDtoInput,
     ): Promise<UserGroupPolicyModifiedDtoOutput[]> {
         const result = await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.groupPolicyIdsToAdd,
                 dtoInput.groupPolicyIdsToRemove,

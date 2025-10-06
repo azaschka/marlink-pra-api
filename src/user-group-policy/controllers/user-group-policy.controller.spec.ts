@@ -24,12 +24,14 @@ describe('UserGroupPolicyController', () => {
             const expectedResult = [] as UserGroupPolicy[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveUserGroupPolicies(undefined, 123, {
+            const result = await controller.retrieveUserGroupPolicies(undefined, 100, 123, {
                 pageSize: 10,
                 pageNumber: 1,
             });
 
-            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveUserGroupPoliciesQuery('uuid-123', 10, 1, 123));
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
+                new RetrieveUserGroupPoliciesQuery('uuid-123', 100, 10, 1, 123),
+            );
             expect(result).toBe(expectedResult);
         });
     });
@@ -39,13 +41,13 @@ describe('UserGroupPolicyController', () => {
             const expectedResult = [] as UserGroupPolicy[];
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyUserGroupPolicies(undefined, 1, {
+            const result = await controller.modifyUserGroupPolicies(undefined, 123, 1, {
                 groupPolicyIdsToAdd: [1, 2],
                 groupPolicyIdsToRemove: [3],
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ModifyUserGroupPoliciesCommand('uuid-123', 1, [1, 2], [3]),
+                new ModifyUserGroupPoliciesCommand('uuid-123', 123, 1, [1, 2], [3]),
             );
             expect(result).toBe(expectedResult);
         });

@@ -27,7 +27,7 @@ describe('JumpClientInstallerController', () => {
             const expectedResult = [] as JumpClientInstaller[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveJumpClientInstallers('uuid-100', {
+            const result = await controller.retrieveJumpClientInstallers('uuid-100', 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'jump-client-1',
@@ -42,6 +42,7 @@ describe('JumpClientInstallerController', () => {
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
                 new RetrieveJumpClientInstallersQuery(
                     'uuid-100',
+                    123,
                     10,
                     1,
                     'jump-client-1',
@@ -62,7 +63,7 @@ describe('JumpClientInstallerController', () => {
             const expectedResult = {} as JumpClientInstaller;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createJumpClientInstaller('uuid-100', {
+            const result = await controller.createJumpClientInstaller('uuid-100', 123, {
                 name: 'jump-client-1',
                 jumpGroupId: 1,
                 jumpGroupType: JumpClientGroupType.Personal,
@@ -86,6 +87,7 @@ describe('JumpClientInstallerController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
                 new CreateJumpClientInstallerCommand(
                     'uuid-100',
+                    123,
                     1,
                     'jump-client-1',
                     JumpClientGroupType.Personal,
@@ -115,9 +117,9 @@ describe('JumpClientInstallerController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteJumpClientInstaller(undefined, 1);
+            await controller.deleteJumpClientInstaller(undefined, 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpClientInstallerCommand('uuid-123', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpClientInstallerCommand('uuid-123', 123, 1));
         });
     });
 
@@ -142,6 +144,7 @@ describe('JumpClientInstallerController', () => {
 
             await controller.retrieveJumpClientInstallerPlatform(
                 'uuid-100',
+                123,
                 'installer-1',
                 JumpClientInstallerPlatformType.Windows64,
                 res,
@@ -150,6 +153,7 @@ describe('JumpClientInstallerController', () => {
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
                 new RetrieveJumpClientInstallerPlatformQuery(
                     'uuid-100',
+                    123,
                     'installer-1',
                     JumpClientInstallerPlatformType.Windows64,
                 ),

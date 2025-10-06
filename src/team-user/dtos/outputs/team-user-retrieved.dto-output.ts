@@ -27,4 +27,12 @@ export class TeamUserRetrievedDtoOutput implements TeamUser {
         description: 'The user associated with the team.',
     })
     public user!: UserRetrievedDtoOutput;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the team user was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

@@ -1,3 +1,9 @@
+import { JumpClient } from '../../jump-client/models';
+import { ProtocolTunnelJump } from '../../jump-item/protocol-tunnel-jump/models';
+import { RemoteRdp } from '../../jump-item/remote-rdp/models';
+import { RemoteVnc } from '../../jump-item/remote-vnc/models';
+import { ShellJump } from '../../jump-item/shell-jump/models';
+import { WebJump } from '../../jump-item/web-jump/models';
 import {
     ApprovalApproverScopeType,
     ApprovalScopeType,
@@ -33,4 +39,10 @@ export interface JumpPolicy {
     approvalApproverScopeType?: ApprovalApproverScopeType;
     isRecordingsDisabled?: boolean;
     lastSyncDate: Date;
+    protocolTunnelJumps?: ProtocolTunnelJump[];
+    remoteRdps?: RemoteRdp[];
+    remoteVncs?: RemoteVnc[];
+    shellJumps?: ShellJump[];
+    webJumps?: WebJump[];
+    jumpClients?: JumpClient[];
 }

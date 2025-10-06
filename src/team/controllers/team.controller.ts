@@ -22,7 +22,7 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateTeamCommand, DeleteTeamCommand, ModifyTeamCommand } from '../commands';
@@ -31,6 +31,7 @@ import { TeamCreatedDtoOutput, TeamModifiedDtoOutput, TeamRetrievedDtoOutput } f
 import { Team } from '../models';
 import { RetrieveTeamsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Teams')
 @Controller('teams')
@@ -45,11 +46,13 @@ export class TeamController {
     @ApiOkResponse({ type: TeamRetrievedDtoOutput, isArray: true })
     public async retrieveTeams(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveTeamsDtoInput,
     ): Promise<TeamRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveTeamsQuery, Team[]>(
             new RetrieveTeamsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
@@ -71,10 +74,11 @@ export class TeamController {
     })
     public async createTeam(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateTeamDtoInput,
     ): Promise<TeamCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateTeamCommand, Team>(
-            new CreateTeamCommand(transactionId, dtoInput.name, dtoInput.codeName, dtoInput.comments),
+            new CreateTeamCommand(transactionId, tenantId, dtoInput.name, dtoInput.codeName, dtoInput.comments),
         );
 
         return result;
@@ -93,11 +97,12 @@ export class TeamController {
     })
     public async modifyTeam(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyTeamDtoInput,
     ): Promise<TeamModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyTeamCommand, Team>(
-            new ModifyTeamCommand(transactionId, id, dtoInput.name, dtoInput.codeName, dtoInput.comments),
+            new ModifyTeamCommand(transactionId, tenantId, id, dtoInput.name, dtoInput.codeName, dtoInput.comments),
         );
 
         return result;
@@ -114,8 +119,9 @@ export class TeamController {
     })
     public async deleteTeam(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteTeamCommand, void>(new DeleteTeamCommand(transactionId, id));
+        await this.commandBus.execute<DeleteTeamCommand, void>(new DeleteTeamCommand(transactionId, tenantId, id));
     }
 }

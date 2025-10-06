@@ -1,3 +1,5 @@
+import { BillingType } from '../enums';
+
 export class CreateBeyondtrustInstanceCommand {
     public readonly commandType = 'create-beyondtrust-instance';
 
@@ -8,6 +10,6 @@ export class CreateBeyondtrustInstanceCommand {
         public readonly authClientSecret: string,
         public readonly oauth2TokenUrl: string,
         public readonly apiBaseUrl: string,
-        public readonly backupApiUrl: string,
+        public readonly billingType: BillingType,
     ) {}
 }

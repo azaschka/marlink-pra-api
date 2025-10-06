@@ -26,7 +26,7 @@ import {
 } from '@nestjs/swagger';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
 import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput } from '../dtos/inputs';
@@ -35,6 +35,7 @@ import { JumpClientInstallerPlatformType } from '../enums';
 import { JumpClientInstaller } from '../models';
 import { RetrieveJumpClientInstallerPlatformQuery, RetrieveJumpClientInstallersQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Jump Clients')
 @Controller('jump-clients/installers')
@@ -49,11 +50,13 @@ export class JumpClientInstallerController {
     @ApiOkResponse({ type: JumpClientInstallerRetrievedDtoOutput, isArray: true })
     public async retrieveJumpClientInstallers(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveJumpClientInstallersDtoInput,
     ): Promise<JumpClientInstallerRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveJumpClientInstallersQuery, JumpClientInstaller[]>(
             new RetrieveJumpClientInstallersQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
@@ -84,11 +87,13 @@ export class JumpClientInstallerController {
     })
     public async createJumpClientInstaller(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateJumpClientInstallerDtoInput,
     ): Promise<JumpClientInstallerCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateJumpClientInstallerCommand, JumpClientInstaller>(
             new CreateJumpClientInstallerCommand(
                 transactionId,
+                tenantId,
                 dtoInput.jumpGroupId,
                 dtoInput.name,
                 dtoInput.jumpGroupType,
@@ -124,16 +129,18 @@ export class JumpClientInstallerController {
     })
     public async deleteJumpClientInstaller(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
         await this.commandBus.execute<DeleteJumpClientInstallerCommand, void>(
-            new DeleteJumpClientInstallerCommand(transactionId, id),
+            new DeleteJumpClientInstallerCommand(transactionId, tenantId, id),
         );
     }
 
     @Get(':installerId/platforms/:platformType')
     public async retrieveJumpClientInstallerPlatform(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('installerId') installerId: string,
         @Param('platformType') platformType: JumpClientInstallerPlatformType,
         @Res() res: Response,
@@ -142,7 +149,7 @@ export class JumpClientInstallerController {
             const response = await this.queryBus.execute<
                 RetrieveJumpClientInstallerPlatformQuery,
                 AxiosResponse<NodeJS.ReadableStream>
-            >(new RetrieveJumpClientInstallerPlatformQuery(transactionId, installerId, platformType));
+            >(new RetrieveJumpClientInstallerPlatformQuery(transactionId, tenantId, installerId, platformType));
 
             if (response.headers['content-type']) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

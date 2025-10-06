@@ -1,8 +1,9 @@
 import { ConflictException } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
+import { RetrieveBeyondtrustInstanceByIdQuery } from '../../../beyondtrust-instance/queries';
 import { GroupPolicy } from '../../../group-policy/models';
-import { BillingType, BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../enums';
 import { CustomerCreatedEvent } from '../../events';
 import { RetrieveCustomersQuery } from '../../queries';
 import { CustomerEntity } from '../../repositories/entities';
@@ -35,25 +36,39 @@ describe('CreateCustomerCommandHandler', () => {
     });
 
     describe('execute', () => {
-        it('should throw ConflictException if a customer with the same key already exists', async () => {
+        it('should throw NotFoundException if BeyondTrust instance does not exist', async () => {
             // Arrange
-            const existingCustomer = { id: 1, key: 'customer-key-1', name: 'customer-name-1' } as CustomerEntity;
-            const queryBusExecuteMethod = jest.spyOn(queryBus, 'execute').mockResolvedValue([existingCustomer]);
+            const queryBusExecuteMethod = jest.spyOn(queryBus, 'execute').mockResolvedValue(null);
 
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateCustomerCommand(
-                        'transaction-1',
-                        'customer-key-1',
-                        'customer-name-1',
-                        BusinessUnit.EG,
-                        BillingType.User,
-                    ),
+                    new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BusinessUnit.EG, 1),
                 ),
-            ).rejects.toThrow(ConflictException);
+            ).rejects.toThrowError('BeyondTrust instance with ID "1" does not exist.');
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(1);
             expect(queryBusExecuteMethod).toHaveBeenCalledWith(
+                new RetrieveBeyondtrustInstanceByIdQuery('transaction-1', 1),
+            );
+        });
+
+        it('should throw ConflictException if a customer with the same key already exists', async () => {
+            // Arrange
+            const existingCustomer = { id: 1, key: 'customer-key-1', name: 'customer-name-1' } as CustomerEntity;
+            const queryBusExecuteMethod = jest
+                .spyOn(queryBus, 'execute')
+                .mockResolvedValue([existingCustomer])
+                .mockResolvedValueOnce({}); // First call for beyondtrust instance validation
+
+            // Act & Assert
+            await expect(
+                handler.execute(
+                    new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BusinessUnit.EG, 1),
+                ),
+            ).rejects.toThrow(ConflictException);
+            expect(queryBusExecuteMethod).toHaveBeenCalledTimes(2);
+            expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
+                2,
                 new RetrieveCustomersQuery('transaction-1', 1, 1, 'customer-key-1', undefined),
             );
         });
@@ -63,28 +78,23 @@ describe('CreateCustomerCommandHandler', () => {
             const existingCustomer = { id: 1, key: 'customer-key-1', name: 'customer-name-1' } as CustomerEntity;
             const queryBusExecuteMethod = jest
                 .spyOn(queryBus, 'execute')
-                .mockResolvedValueOnce([]) // First call for key check
-                .mockResolvedValueOnce([existingCustomer]); // Second call for name check
+                .mockResolvedValueOnce({}) // First call for beyondtrust instance validation
+                .mockResolvedValueOnce([]) // Second call for key check
+                .mockResolvedValueOnce([existingCustomer]); // Third call for name check
 
             // Act & Assert
             await expect(
                 handler.execute(
-                    new CreateCustomerCommand(
-                        'transaction-1',
-                        'customer-key-1',
-                        'customer-name-1',
-                        BusinessUnit.EG,
-                        BillingType.User,
-                    ),
+                    new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BusinessUnit.EG, 1),
                 ),
             ).rejects.toThrow(ConflictException);
-            expect(queryBusExecuteMethod).toHaveBeenCalledTimes(2);
+            expect(queryBusExecuteMethod).toHaveBeenCalledTimes(3);
             expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
-                1,
+                2,
                 new RetrieveCustomersQuery('transaction-1', 1, 1, 'customer-key-1', undefined),
             );
             expect(queryBusExecuteMethod).toHaveBeenNthCalledWith(
-                2,
+                3,
                 new RetrieveCustomersQuery('transaction-1', 1, 1, undefined, undefined, '%customer-name-1%'),
             );
         });
@@ -107,13 +117,7 @@ describe('CreateCustomerCommandHandler', () => {
 
             // Act
             const result = await handler.execute(
-                new CreateCustomerCommand(
-                    'transaction-1',
-                    'customer-key-1',
-                    'customer-name-1',
-                    BusinessUnit.EG,
-                    BillingType.User,
-                ),
+                new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BusinessUnit.EG, 1),
             );
 
             // Assert
@@ -122,7 +126,7 @@ describe('CreateCustomerCommandHandler', () => {
                 'customer-name-1',
                 BusinessUnit.EG,
                 false,
-                BillingType.User,
+                1,
             );
             expect(administratorGroupPolicyWorkflowGetOrCreate).toHaveBeenCalledTimes(1);
             expect(customerRepositoryServiceCreateMethod).toHaveBeenCalledWith(customerEntityToBeCreated);

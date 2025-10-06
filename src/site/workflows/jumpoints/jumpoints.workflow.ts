@@ -35,6 +35,7 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
         private readonly siteKey: string,
         private readonly customerName: string,
         private readonly customerBusinessUnit: BusinessUnit,
+        private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
     public async getOrCreate(): Promise<Jumpoint[]> {
@@ -51,6 +52,7 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
             const createdJumpoint = await this.commandBus.execute<CreateJumpointCommand, Jumpoint>(
                 new CreateJumpointCommand(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     this.getJumpointName(i), // name
                     JumpointsWorkflow.PLATFORM_TYPE, // platformType
                     this.getJumpointCodeName(i), // codeName
@@ -79,7 +81,7 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
             }
 
             await this.commandBus.execute<DeleteJumpointCommand, void>(
-                new DeleteJumpointCommand(this.transactionId, jumpoint.id),
+                new DeleteJumpointCommand(this.transactionId, this.customerBeyondtrustInstanceId, jumpoint.id),
             );
         }
     }
@@ -95,6 +97,7 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
             return await this.commandBus.execute<ModifyJumpointCommand, Jumpoint>(
                 new ModifyJumpointCommand(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     jumpoint.id,
                     undefined, // name
                     undefined, // codeName
@@ -112,6 +115,7 @@ export class JumpointsWorkflow implements BaseWorkflow<Jumpoint[]> {
         const jumpoints = await this.queryBus.execute<RetrieveJumpointsQuery, Jumpoint[]>(
             new RetrieveJumpointsQuery(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 1,
                 1,
                 this.getJumpointName(jumpointNumber),

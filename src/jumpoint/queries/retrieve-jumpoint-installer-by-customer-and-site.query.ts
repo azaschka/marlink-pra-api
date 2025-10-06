@@ -5,6 +5,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQuery {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly businessUnit: BusinessUnit,
         public readonly customerKey: string,
         public readonly siteKey: string,

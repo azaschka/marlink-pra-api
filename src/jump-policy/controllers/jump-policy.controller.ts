@@ -22,7 +22,7 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpPolicyCommand, DeleteJumpPolicyCommand, ModifyJumpPolicyCommand } from '../commands';
@@ -31,6 +31,7 @@ import { JumpPolicyCreatedDtoOutput, JumpPolicyModifiedDtoOutput, JumpPolicyRetr
 import { JumpPolicy } from '../models';
 import { RetrieveJumpPoliciesQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Jump Policies')
 @Controller('jump-policies')
@@ -45,10 +46,17 @@ export class JumpPolicyController {
     @ApiOkResponse({ type: JumpPolicyRetrievedDtoOutput, isArray: true })
     public async retrieveJumpPolicies(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveJumpPoliciesDtoInput,
     ): Promise<JumpPolicyRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveJumpPoliciesQuery, JumpPolicy[]>(
-            new RetrieveJumpPoliciesQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, dtoInput.codeName),
+            new RetrieveJumpPoliciesQuery(
+                transactionId,
+                tenantId,
+                dtoInput.pageSize,
+                dtoInput.pageNumber,
+                dtoInput.codeName,
+            ),
         );
 
         return result;
@@ -65,11 +73,13 @@ export class JumpPolicyController {
     })
     public async createJumpPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateJumpPolicyDtoInput,
     ): Promise<JumpPolicyCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateJumpPolicyCommand, JumpPolicy>(
             new CreateJumpPolicyCommand(
                 transactionId,
+                tenantId,
                 dtoInput.displayName,
                 dtoInput.codeName,
                 dtoInput.description,
@@ -114,12 +124,14 @@ export class JumpPolicyController {
     })
     public async modifyJumpPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyJumpPolicyDtoInput,
     ): Promise<JumpPolicyModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyJumpPolicyCommand, JumpPolicy>(
             new ModifyJumpPolicyCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.displayName,
                 dtoInput.codeName,
@@ -163,8 +175,11 @@ export class JumpPolicyController {
     })
     public async deleteJumpPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteJumpPolicyCommand, void>(new DeleteJumpPolicyCommand(transactionId, id));
+        await this.commandBus.execute<DeleteJumpPolicyCommand, void>(
+            new DeleteJumpPolicyCommand(transactionId, tenantId, id),
+        );
     }
 }

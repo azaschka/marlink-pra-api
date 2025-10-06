@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../../app-config/services/app-config.service';
-import { TRANSACTION_ID_HEADER } from '../../../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../../core/decorators';
 import { ErrorProcessorUtility, UrlUtility } from '../../../../shared/utilities';
 import { DeleteShellJumpCommand } from '../delete-shell-jump.command';
 
@@ -24,6 +24,7 @@ export class DeleteShellJumpCommandHandler implements ICommandHandler<DeleteShel
 
             const headers = new AxiosHeaders();
             headers.set(TRANSACTION_ID_HEADER, command.transactionId);
+            headers.set(TENANT_ID_HEADER, command.tenantId);
 
             await firstValueFrom(
                 this.httpService.delete(url, {

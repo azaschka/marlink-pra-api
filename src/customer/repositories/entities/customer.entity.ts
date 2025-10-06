@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { BillingType, BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../enums';
 import { Customer } from '../../models';
 
 @Entity({ name: 'pra_customers' })
@@ -19,8 +19,9 @@ export class CustomerEntity implements Customer {
     @Column({ name: 'is_deactivated', type: 'boolean' })
     public isDeactivated!: boolean;
 
-    @Column({ name: 'billing_type', type: 'enum', enum: BillingType })
-    public billingType!: BillingType;
+    // TODO remove default value. This is only for backward compatibility with existing databases that do not have this column yet.
+    @Column({ name: 'beyondtrust_instance_id', type: 'int', default: 1 })
+    public beyondtrustInstanceId!: number;
 
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
@@ -34,7 +35,7 @@ export class CustomerEntity implements Customer {
         name: string,
         businessUnit: BusinessUnit,
         isDeactivated: boolean,
-        billingType: BillingType,
+        beyondtrustInstanceId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
         entity.id = id;
@@ -42,7 +43,7 @@ export class CustomerEntity implements Customer {
         entity.name = name;
         entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
-        entity.billingType = billingType;
+        entity.beyondtrustInstanceId = beyondtrustInstanceId;
 
         return entity;
     }
@@ -52,14 +53,14 @@ export class CustomerEntity implements Customer {
         name: string,
         businessUnit: BusinessUnit,
         isDeactivated: boolean,
-        billingType: BillingType,
+        beyondtrustInstanceId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
         entity.key = key;
         entity.name = name;
         entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
-        entity.billingType = billingType;
+        entity.beyondtrustInstanceId = beyondtrustInstanceId;
 
         return entity;
     }

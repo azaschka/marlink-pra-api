@@ -16,6 +16,7 @@ export class TeamWorkflow implements BaseWorkflow<Team> {
         private readonly siteName: string,
         private readonly siteKey: string,
         private readonly customerName: string,
+        private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
     public async getOrCreate(): Promise<Team> {
@@ -26,7 +27,7 @@ export class TeamWorkflow implements BaseWorkflow<Team> {
         }
 
         return await this.commandBus.execute<CreateTeamCommand, Team>(
-            new CreateTeamCommand(this.transactionId, this.teamName),
+            new CreateTeamCommand(this.transactionId, this.customerBeyondtrustInstanceId, this.teamName),
         );
     }
 
@@ -37,12 +38,14 @@ export class TeamWorkflow implements BaseWorkflow<Team> {
             return;
         }
 
-        await this.commandBus.execute<DeleteTeamCommand, void>(new DeleteTeamCommand(this.transactionId, team.id));
+        await this.commandBus.execute<DeleteTeamCommand, void>(
+            new DeleteTeamCommand(this.transactionId, this.customerBeyondtrustInstanceId, team.id),
+        );
     }
 
     private async get(): Promise<Team | null> {
         const teams = await this.queryBus.execute<RetrieveTeamsQuery, Team[]>(
-            new RetrieveTeamsQuery(this.transactionId, 1, 1, this.teamName),
+            new RetrieveTeamsQuery(this.transactionId, this.customerBeyondtrustInstanceId, 1, 1, this.teamName),
         );
 
         return teams[0] ?? null;

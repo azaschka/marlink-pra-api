@@ -25,6 +25,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
         private readonly transactionId: string,
         private readonly siteAdministrator: PartialSiteAdministrator,
         private readonly customerName: string,
+        private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
     public async getOrCreate(): Promise<User> {
@@ -37,6 +38,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
         return await this.commandBus.execute<CreateUserCommand, User>(
             new CreateUserCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 this.userPublicDisplayName,
                 this.siteAdministrator.username,
                 PasswordGeneratorUtility.generate(), // generate password according to Marlink's password policy
@@ -58,7 +60,9 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
             return;
         }
 
-        await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(this.transactionId, user.id));
+        await this.commandBus.execute<DeleteUserCommand, void>(
+            new DeleteUserCommand(this.transactionId, this.customerBeyondtrustInstanceId, user.id),
+        );
     }
 
     private async getOrModify(): Promise<User | null> {
@@ -72,6 +76,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
             return await this.commandBus.execute<ModifyUserCommand, User>(
                 new ModifyUserCommand(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     user.id,
                     this.userPublicDisplayName, // publicDisplayName
                     undefined, // username
@@ -87,7 +92,15 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
 
     private async get(): Promise<User | null> {
         const users = await this.queryBus.execute<RetrieveUsersQuery, User[]>(
-            new RetrieveUsersQuery(this.transactionId, 1, 1, undefined, this.siteAdministrator.username, undefined),
+            new RetrieveUsersQuery(
+                this.transactionId,
+                this.customerBeyondtrustInstanceId,
+                1,
+                1,
+                undefined,
+                this.siteAdministrator.username,
+                undefined,
+            ),
         );
 
         return users[0] ?? null;

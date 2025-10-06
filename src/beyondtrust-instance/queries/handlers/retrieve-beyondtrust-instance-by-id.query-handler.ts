@@ -16,7 +16,7 @@ export class RetrieveBeyondtrustInstanceByIdQueryHandler
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,
     ) {}
-    public async execute(query: RetrieveBeyondtrustInstanceByIdQuery): Promise<BeyondtrustInstance | null> {
+    public async execute(query: RetrieveBeyondtrustInstanceByIdQuery): Promise<BeyondtrustInstance> {
         try {
             const url = UrlUtility.join(
                 this.appConfigService.praSyncApi.baseUrl,
@@ -28,7 +28,7 @@ export class RetrieveBeyondtrustInstanceByIdQueryHandler
             headers.set(TRANSACTION_ID_HEADER, query.transactionId);
 
             const response = await firstValueFrom(
-                this.httpService.get<BeyondtrustInstance | null>(url, {
+                this.httpService.get<BeyondtrustInstance>(url, {
                     params: ObjectUtility.stripProperties(query, 'transactionId', 'id'),
                     headers: headers,
                 }),

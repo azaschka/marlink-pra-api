@@ -85,7 +85,7 @@ export class CustomerController {
                 dtoInput.key,
                 dtoInput.name,
                 dtoInput.businessUnit,
-                dtoInput.billingType,
+                dtoInput.beyondtrustInstanceId,
             ),
         );
 
@@ -105,7 +105,7 @@ export class CustomerController {
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyCustomerDtoInput,
     ): Promise<CustomerModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyCustomerCommand, Customer>(
-            new ModifyCustomerCommand(transactionId, id, dtoInput.billingType),
+            new ModifyCustomerCommand(transactionId, id, dtoInput.beyondtrustInstanceId),
         );
 
         return result;

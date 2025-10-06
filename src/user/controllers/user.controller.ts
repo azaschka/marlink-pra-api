@@ -22,7 +22,7 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
@@ -31,6 +31,7 @@ import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } f
 import { User } from '../models';
 import { RetrieveUsersQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Users')
 @Controller('users')
@@ -45,11 +46,13 @@ export class UserController {
     @ApiOkResponse({ type: UserRetrievedDtoOutput, isArray: true })
     public async retrieveUsers(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveUsersDtoInput,
     ): Promise<UserRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveUsersQuery, User[]>(
             new RetrieveUsersQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.securityProviderId,
@@ -72,11 +75,13 @@ export class UserController {
     })
     public async createUser(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateUserDtoInput,
     ): Promise<UserCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateUserCommand, User>(
             new CreateUserCommand(
                 transactionId,
+                tenantId,
                 dtoInput.publicDisplayName,
                 dtoInput.username,
                 dtoInput.password,
@@ -106,12 +111,14 @@ export class UserController {
     })
     public async modifyUser(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyUserDtoInput,
     ): Promise<UserModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyUserCommand, User>(
             new ModifyUserCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.publicDisplayName,
                 dtoInput.username,
@@ -141,8 +148,9 @@ export class UserController {
     })
     public async deleteUser(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(transactionId, id));
+        await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(transactionId, tenantId, id));
     }
 }
