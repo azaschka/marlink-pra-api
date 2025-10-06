@@ -982,6 +982,52 @@ describe('AppConfigService', () => {
             });
         });
     });
+
+    describe('throttle', () => {
+        it.each([
+            {
+                input: {
+                    isEnabled: false,
+                    ttlInMs: 120,
+                    limit: 1000,
+                },
+                expected: {
+                    isEnabled: false,
+                    ttlInMs: 120,
+                    limit: 1000,
+                },
+            },
+            {
+                input: {},
+                expected: {
+                    isEnabled: true,
+                    ttlInMs: 60000,
+                    limit: 500,
+                },
+            },
+        ])('should return the throttle configuration as expected', ({ input, expected }) => {
+            configService.get = jest.fn().mockImplementation((key: string) => {
+                if (key === 'THROTTLE_IS_ENABLED') {
+                    return input.isEnabled;
+                }
+
+                if (key === 'THROTTLE_TTL_IN_MS') {
+                    return input.ttlInMs;
+                }
+                if (key === 'THROTTLE_LIMIT') {
+                    return input.limit;
+                }
+
+                return undefined;
+            });
+
+            expect(service.throttle).toEqual({
+                isEnabled: expected.isEnabled,
+                ttlInMs: expected.ttlInMs,
+                limit: expected.limit,
+            });
+        });
+    });
 });
 
 function mockConfigService() {
