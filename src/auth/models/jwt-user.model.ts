@@ -6,4 +6,5 @@ export interface JWTUser {
     role?: string;
     displayName?: string;
     businessUnit?: BusinessUnit;
+    canManagePraUsers?: boolean;
 }
