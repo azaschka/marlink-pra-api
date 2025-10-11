@@ -2,10 +2,11 @@ import { NotFoundException } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
 import { ErrorProcessorUtility, PasswordGeneratorUtility } from '../../../shared/utilities';
-import { SendUserForgotPasswordEmailCommand } from '../../../email/commands';
+import { SendPraUserNewPasswordEmailCommand } from '../../../email/commands';
 import { PraUserEntity } from '../../repositories/entities';
 import { PraUserRepositoryService } from '../../repositories/services/pra-user-repository.service';
 import { PraUserForgotPasswordCommand } from '../pra-user-forgot-password.command';
+import { PraUser } from '../../../auth/models';
 
 @CommandHandler(PraUserForgotPasswordCommand)
 export class PraUserForgotPasswordCommandHandler implements ICommandHandler<PraUserForgotPasswordCommand> {
@@ -17,51 +18,53 @@ export class PraUserForgotPasswordCommandHandler implements ICommandHandler<PraU
     ) {}
 
     public async execute(command: PraUserForgotPasswordCommand): Promise<void> {
-        const praUserEntity = await this.praUserRepositoryService.findOneByEmail(command.email);
-        if (!praUserEntity) {
-            throw new NotFoundException();
-        }
-
-        const newPassword = PasswordGeneratorUtility.generate();
-        const hashedPassword = await bcrypt.hash(newPassword, PraUserForgotPasswordCommandHandler.SALT_ROUNDS);
-
-        const modifiedPraUserEntity = PraUserEntity.create(
-            praUserEntity.id,
-            praUserEntity.username,
-            hashedPassword,
-            praUserEntity.email,
-            praUserEntity.role,
-            praUserEntity.displayName,
-            praUserEntity.businessUnit,
-        );
-
         try {
-            await this.praUserRepositoryService.createOrUpdateById(modifiedPraUserEntity);
-            this.trySendUserForgotPasswordEmailAsync(
-                command.transactionId,
-                command.email,
+            const praUserEntity = await this.praUserRepositoryService.findOneByEmail(command.email);
+            if (!praUserEntity) {
+                throw new NotFoundException();
+            }
+
+            const newPassword = PasswordGeneratorUtility.generate();
+            const hashedPassword = await bcrypt.hash(newPassword, PraUserForgotPasswordCommandHandler.SALT_ROUNDS);
+            const modifiedPraUserEntity = PraUserEntity.create(
+                praUserEntity.id,
+                praUserEntity.username,
+                hashedPassword,
+                praUserEntity.email,
+                praUserEntity.role,
                 praUserEntity.displayName,
-                newPassword,
+                praUserEntity.businessUnit,
+                praUserEntity.canManagePraUsers,
             );
+
+            await this.praUserRepositoryService.createOrUpdateById(modifiedPraUserEntity);
+
+            if (newPassword) {
+                this.trySendUserNewPasswordEmailAsync(
+                    command.transactionId,
+                    modifiedPraUserEntity as PraUser,
+                    newPassword,
+                );
+            }
         } catch (error) {
-            console.error(
-                `Failed to process forgot password for user ${praUserEntity.id}:`,
-                ErrorProcessorUtility.stringify(error),
-            );
+            throw ErrorProcessorUtility.composeError(error);
         }
     }
 
-    private trySendUserForgotPasswordEmailAsync(
-        transactionId: string,
-        email: string,
-        displayName: string,
-        password: string,
-    ): void {
+    private trySendUserNewPasswordEmailAsync(transactionId: string, user: PraUser, password: string): void {
         void this.commandBus
-            .execute(new SendUserForgotPasswordEmailCommand(transactionId, email, displayName, password))
+            .execute(
+                new SendPraUserNewPasswordEmailCommand(
+                    transactionId,
+                    user.email,
+                    user.displayName,
+                    user.username,
+                    password,
+                ),
+            )
             .catch((error) => {
                 console.error(
-                    `Failed to send forgot password email to ${email}:`,
+                    `Failed to send forgot password email to ${user.email}:`,
                     ErrorProcessorUtility.stringify(error),
                 );
             });

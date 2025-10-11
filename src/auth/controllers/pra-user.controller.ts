@@ -75,6 +75,7 @@ export class PraUserController {
                 dtoInput.role,
                 dtoInput.displayName,
                 dtoInput.businessUnit,
+                dtoInput.canManagePraUsers,
             ),
         );
         return result;
@@ -96,6 +97,8 @@ export class PraUserController {
                 dtoInput.role,
                 dtoInput.displayName,
                 dtoInput.businessUnit,
+                dtoInput.canManagePraUsers,
+                dtoInput.regeneratePassword,
             ),
         );
         return result;

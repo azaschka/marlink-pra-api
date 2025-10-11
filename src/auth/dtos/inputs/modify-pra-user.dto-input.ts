@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
 import { BusinessUnit, UserRole } from 'src/auth/enums';
 
 export class ModifyPraUserDtoInput {
@@ -25,4 +25,12 @@ export class ModifyPraUserDtoInput {
     @IsOptional()
     @IsEnum(BusinessUnit)
     public businessUnit?: BusinessUnit;
+
+    @IsOptional()
+    @IsBoolean()
+    public canManagePraUsers?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    public regeneratePassword?: boolean;
 }

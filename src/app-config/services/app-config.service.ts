@@ -44,6 +44,13 @@ export class AppConfigService {
         };
     }
 
+    public get praAdminConsole() {
+        return {
+            consoleUrl:
+                this.configService.get<string>('PRA_ADMIN_CONSOLE_URL') ?? DefaultAppConfig.praAdminConsole.consoleUrl,
+        };
+    }
+
     public get beyondTrust() {
         return {
             consoleUrl:

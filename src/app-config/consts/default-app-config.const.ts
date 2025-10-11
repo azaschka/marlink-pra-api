@@ -6,7 +6,8 @@ export abstract class DefaultAppConfig {
     private static readonly HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT = 80;
     private static readonly HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 256;
     private static readonly HEALTH_PING_CHECK_PRA_SYNC_API_URL = 'http://pra-sync-api:9001/health';
-    private static readonly BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra-pp.beyondtrustcloud.com/login';
+    private static readonly PRA_ADMIN_CONSOLE_URL = 'https://pra-admin.cdn-vas.net';
+    private static readonly BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra.beyondtrustcloud.com/login';
     private static readonly PRA_SYNC_API_BASE_URL = 'http://pra-sync-api:9001';
     private static readonly DB_RETRY_ATTEMPTS = 60;
     private static readonly DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
@@ -23,6 +24,12 @@ export abstract class DefaultAppConfig {
             diskStorageUsageThresholdInPercent: DefaultAppConfig.HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT,
             memoryHeapUsageThresholdInMB: DefaultAppConfig.HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB,
             pingCheckPraSyncApiUrl: DefaultAppConfig.HEALTH_PING_CHECK_PRA_SYNC_API_URL,
+        };
+    }
+
+    public static get praAdminConsole() {
+        return {
+            consoleUrl: DefaultAppConfig.PRA_ADMIN_CONSOLE_URL,
         };
     }
 

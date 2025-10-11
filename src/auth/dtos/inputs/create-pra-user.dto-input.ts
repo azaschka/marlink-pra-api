@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { BusinessUnit, UserRole } from 'src/auth/enums';
 
 export class CreatePraUserDtoInput {
@@ -6,9 +6,9 @@ export class CreatePraUserDtoInput {
     @IsString()
     public username!: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    public password!: string;
+    public password?: string;
 
     @IsNotEmpty()
     @IsEmail()
@@ -25,4 +25,8 @@ export class CreatePraUserDtoInput {
     @IsOptional()
     @IsEnum(BusinessUnit)
     public businessUnit?: BusinessUnit;
+
+    @IsOptional()
+    @IsBoolean()
+    public canManagePraUsers?: boolean;
 }
