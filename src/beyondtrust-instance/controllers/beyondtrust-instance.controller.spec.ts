@@ -7,7 +7,7 @@ import {
 } from '../commands';
 import { BillingType } from '../enums';
 import { BeyondtrustInstance } from '../models';
-import { RetrieveBeyondtrustInstancesQuery } from '../queries';
+import { RetrieveBeyondtrustInstanceByIdQuery, RetrieveBeyondtrustInstancesQuery } from '../queries';
 import { BeyondtrustInstanceController } from './beyondtrust-instance.controller';
 
 describe('BeyondtrustInstanceController', () => {
@@ -22,6 +22,18 @@ describe('BeyondtrustInstanceController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveBeyondtrustInstance', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as BeyondtrustInstance;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveBeyondtrustInstance(undefined, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveBeyondtrustInstanceByIdQuery('uuid-123', 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveBeyondtrustInstances', () => {

@@ -197,6 +197,16 @@ describe('AppConfigService', () => {
                             copy: 'api-path-jump-item-protocol-tunnel-jump-copy-1',
                         },
                     },
+                    discrepancy: {
+                        path: '/api-path-discrepancies-1',
+                        scan: {
+                            path: '/api-path-discrepancy-scan-1',
+                            all: '/api-path-discrepancy-scan-all-1',
+                        },
+                        sync: {
+                            path: '/api-path-discrepancy-sync-1',
+                        },
+                    },
                 },
                 expected: {
                     baseUrl: 'api-base-url-1',
@@ -278,6 +288,16 @@ describe('AppConfigService', () => {
                         protocolTunnelJump: {
                             path: 'api-path-jump-item-protocol-tunnel-jump-1',
                             copy: 'api-path-jump-item-protocol-tunnel-jump-copy-1',
+                        },
+                    },
+                    discrepancy: {
+                        path: '/api-path-discrepancies-1',
+                        scan: {
+                            path: '/api-path-discrepancy-scan-1',
+                            all: '/api-path-discrepancy-scan-all-1',
+                        },
+                        sync: {
+                            path: '/api-path-discrepancy-sync-1',
                         },
                     },
                 },
@@ -366,6 +386,16 @@ describe('AppConfigService', () => {
                             copy: 'copy',
                         },
                     },
+                    discrepancy: {
+                        path: '/discrepancies',
+                        scan: {
+                            path: '/scan',
+                            all: '/all',
+                        },
+                        sync: {
+                            path: '/sync',
+                        },
+                    },
                 },
             },
         ])('should return the configuration as expected', ({ input, expected }) => {
@@ -433,6 +463,14 @@ describe('AppConfigService', () => {
                         return input.jumpItem?.protocolTunnelJump?.path;
                     case 'PRA_SYNC_API_JUMP_ITEM_COPY_PROTOCOL_TUNNEL_JUMP':
                         return input.jumpItem?.protocolTunnelJump?.copy;
+                    case 'PRA_SYNC_API_DISCREPANCY_PATH':
+                        return input.discrepancy?.path;
+                    case 'PRA_SYNC_API_DISCREPANCY_SCAN_PATH':
+                        return input.discrepancy?.scan?.path;
+                    case 'PRA_SYNC_API_DISCREPANCY_SCAN_ALL':
+                        return input.discrepancy?.scan?.all;
+                    case 'PRA_SYNC_API_DISCREPANCY_SYNC_PATH':
+                        return input.discrepancy?.sync?.path;
                     default:
                         return undefined;
                 }
@@ -518,6 +556,16 @@ describe('AppConfigService', () => {
                     protocolTunnelJump: {
                         path: expected.jumpItem?.protocolTunnelJump?.path,
                         copy: expected.jumpItem?.protocolTunnelJump?.copy,
+                    },
+                },
+                discrepancy: {
+                    path: expected.discrepancy?.path,
+                    scan: {
+                        path: expected.discrepancy?.scan?.path,
+                        all: expected.discrepancy?.scan?.all,
+                    },
+                    sync: {
+                        path: expected.discrepancy?.sync?.path,
                     },
                 },
             });
@@ -936,24 +984,25 @@ describe('AppConfigService', () => {
             {
                 input: {
                     timezone: 'Europe/Berlin',
-                    expressions: '0 10 * * *',
                     retryAttempts: 5,
                     retryDelayInMs: 10000,
+                    btInstanceBackup: '0 10 * * *',
+                    discrepancyScan: '*/30 * * * *',
                 },
                 expected: {
                     timezone: 'Europe/Berlin',
-                    expressions: '0 10 * * *',
                     retryAttempts: 5,
                     retryDelayInMs: 10000,
+                    btInstanceBackup: '0 10 * * *',
                 },
             },
             {
                 input: {},
                 expected: {
                     timezone: 'Europe/Berlin',
-                    expressions: '0 0 * * *',
                     retryAttempts: 5,
                     retryDelayInMs: 10000,
+                    btInstanceBackup: '0 0 * * *',
                 },
             },
         ])('should return the sync configuration as expected', ({ input, expected }) => {
@@ -961,14 +1010,14 @@ describe('AppConfigService', () => {
                 if (key === 'CRON_JOB_TIMEZONE') {
                     return input.timezone;
                 }
-                if (key === 'CRON_JOB_EXPRESSIONS') {
-                    return input.expressions;
-                }
                 if (key === 'CRON_JOB_RETRY_ATTEMPTS') {
                     return input.retryAttempts;
                 }
                 if (key === 'CRON_JOB_RETRY_DELAY_IN_MS') {
                     return input.retryDelayInMs;
+                }
+                if (key === 'CRON_JOB_BT_INSTANCE_BACKUP') {
+                    return input.btInstanceBackup;
                 }
 
                 return undefined;
@@ -976,9 +1025,9 @@ describe('AppConfigService', () => {
 
             expect(service.cronJob).toEqual({
                 timezone: expected.timezone,
-                expressions: expected.expressions,
                 retryAttempts: expected.retryAttempts,
                 retryDelayInMs: expected.retryDelayInMs,
+                btInstanceBackup: expected.btInstanceBackup,
             });
         });
     });

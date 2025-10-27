@@ -129,8 +129,7 @@ export class UserController {
                 dtoInput.isTwoFactorAuthRequired,
                 dtoInput.isLoginAllowed,
                 dtoInput.failedLoginAttempts,
-                dtoInput.mustResetPasswordOnNextLogin,
-                dtoInput.regeneratePassword,
+                dtoInput.mustResetPasswordOnNextLogin || dtoInput.regeneratePassword,
             ),
         );
 

@@ -169,9 +169,12 @@ describe('JumpointController', () => {
             const expectedResult = [{}] as JumpointNode[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveJumpointNodes(undefined, 123, 1);
+            const result = await controller.retrieveJumpointNodes(undefined, 123, 1, {
+                pageNumber: 5,
+                pageSize: 100,
+            });
 
-            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointNodesQuery('uuid-123', 123, 1));
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointNodesQuery('uuid-123', 123, 100, 5, 1));
             expect(result).toBe(expectedResult);
         });
     });

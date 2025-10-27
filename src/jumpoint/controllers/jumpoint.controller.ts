@@ -30,7 +30,12 @@ import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionI
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
-import { CreateJumpointDtoInput, ModifyJumpointDtoInput, RetrieveJumpointsDtoInput } from '../dtos/inputs';
+import {
+    CreateJumpointDtoInput,
+    ModifyJumpointDtoInput,
+    RetrieveJumpointNodesDtoInput,
+    RetrieveJumpointsDtoInput,
+} from '../dtos/inputs';
 import {
     JumpointCreatedDtoOutput,
     JumpointModifiedDtoOutput,
@@ -190,9 +195,10 @@ export class JumpointController {
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
+        @Query() dtoInput: RetrieveJumpointNodesDtoInput,
     ): Promise<JumpointNodeRetrievedDtoOutput[]> {
         const result = this.queryBus.execute<RetrieveJumpointNodesQuery, JumpointNodeRetrievedDtoOutput[]>(
-            new RetrieveJumpointNodesQuery(transactionId, tenantId, id),
+            new RetrieveJumpointNodesQuery(transactionId, tenantId, dtoInput.pageSize, dtoInput.pageNumber, id),
         );
 
         return result;

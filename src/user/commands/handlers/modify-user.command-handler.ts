@@ -25,9 +25,8 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
                 command.id.toString(),
             );
 
-            if (command.regeneratePassword) {
+            if (command.mustResetPasswordOnNextLogin) {
                 (command.password as string) = PasswordGeneratorUtility.generate();
-                (command.mustResetPasswordOnNextLogin as boolean) = true;
             }
 
             const headers = new AxiosHeaders();
@@ -40,7 +39,7 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
                 }),
             );
 
-            if (command.regeneratePassword) {
+            if (command.mustResetPasswordOnNextLogin) {
                 this.trySendUserNewPasswordEmailAsync(command.transactionId, response.data, command.password!);
             }
 

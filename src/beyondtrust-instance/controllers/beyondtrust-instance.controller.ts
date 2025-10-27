@@ -40,7 +40,7 @@ import {
     BeyondtrustInstanceRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { BeyondtrustInstance } from '../models';
-import { RetrieveBeyondtrustInstancesQuery } from '../queries';
+import { RetrieveBeyondtrustInstanceByIdQuery, RetrieveBeyondtrustInstancesQuery } from '../queries';
 
 @ApiTransactionIdHeader()
 @ApiTags('Beyondtrust Instances')
@@ -51,6 +51,21 @@ export class BeyondtrustInstanceController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: BeyondtrustInstanceRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveBeyondtrustInstance(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+    ): Promise<BeyondtrustInstanceRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveBeyondtrustInstanceByIdQuery, BeyondtrustInstance>(
+            new RetrieveBeyondtrustInstanceByIdQuery(transactionId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: BeyondtrustInstanceRetrievedDtoOutput, isArray: true })

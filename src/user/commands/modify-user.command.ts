@@ -15,6 +15,5 @@ export class ModifyUserCommand {
         public readonly isLoginAllowed?: boolean,
         public readonly failedLoginAttempts?: number,
         public readonly mustResetPasswordOnNextLogin?: boolean,
-        public readonly regeneratePassword?: boolean,
     ) {}
 }
