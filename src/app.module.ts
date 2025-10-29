@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessModule } from './access/access.module';
 import { AppConfigModule } from './app-config/app-config.module';
 import { AppConfigService } from './app-config/services/app-config.service';
 import { AppController } from './app.controller';
@@ -55,6 +56,7 @@ import { UserModule } from './user/user.module';
         HttpModule,
         AuthModule,
         HealthModule,
+        AccessModule,
         LicenseUsageModule,
         CustomerModule,
         SiteModule,
@@ -74,10 +76,10 @@ import { UserModule } from './user/user.module';
         JumpGroupModule,
         JumpPolicyModule,
         JumpItemModule,
-        LogModule,
+        DiscrepancyModule,
         EmailModule,
         JobModule,
-        DiscrepancyModule,
+        LogModule,
     ],
     controllers: [AppController],
     providers: [
