@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { FindOptionsWhere, Like } from 'typeorm';
+import { FindOptionsWhere, In, Like } from 'typeorm';
 import { Customer } from '../../models';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
 import { RetrieveCustomersQuery } from '../retrieve-customers.query';
@@ -21,6 +21,10 @@ export class RetrieveCustomersQueryHandler implements IQueryHandler<RetrieveCust
 
         if (query.namePattern) {
             customerFindByQuery.name = Like(query.namePattern);
+        }
+
+        if (query.businessUnits && query.businessUnits.length > 0) {
+            customerFindByQuery.businessUnit = In(query.businessUnits);
         }
 
         const customers = await this.customerRepositoryService.findBy(
