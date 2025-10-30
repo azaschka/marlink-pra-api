@@ -120,4 +120,28 @@ describe('ObjectUtility', () => {
             expect(result).toStrictEqual(expectedOutput);
         });
     });
+
+    describe('convertToArray', () => {
+        it.each([
+            {
+                input: undefined,
+                expectedOutput: [undefined],
+            },
+            {
+                input: 'test',
+                expectedOutput: ['test'],
+            },
+            {
+                input: [1, 2, 3],
+                expectedOutput: [1, 2, 3],
+            },
+            {
+                input: ['a', 'b', 'c'],
+                expectedOutput: ['a', 'b', 'c'],
+            },
+        ])('should return as expected', ({ input, expectedOutput }) => {
+            const result = ObjectUtility.convertToArray<unknown>(input);
+            expect(result).toStrictEqual(expectedOutput);
+        });
+    });
 });

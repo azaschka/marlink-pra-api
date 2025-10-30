@@ -36,4 +36,8 @@ export abstract class ObjectUtility {
             return true;
         });
     }
+
+    public static convertToArray<T>(value: T | T[]): T[] {
+        return Array.isArray(value) ? value : [value];
+    }
 }

@@ -21,7 +21,7 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import {
@@ -36,6 +36,7 @@ import { Customer } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Customers')
 @Controller('customers')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -58,6 +59,8 @@ export class CustomerController {
                 dtoInput.pageNumber,
                 dtoInput.key,
                 dtoInput.name,
+                undefined,
+                dtoInput.businessUnits,
             ),
         );
 

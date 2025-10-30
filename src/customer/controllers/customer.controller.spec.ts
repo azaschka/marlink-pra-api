@@ -35,10 +35,14 @@ describe('CustomerController', () => {
                 pageNumber: 1,
                 key: 'customer-key-1',
                 name: 'customer-name-1',
+                businessUnits: [BusinessUnit.MC, BusinessUnit.EG],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveCustomersQuery('uuid-123', 10, 1, 'customer-key-1', 'customer-name-1'),
+                new RetrieveCustomersQuery('uuid-123', 10, 1, 'customer-key-1', 'customer-name-1', undefined, [
+                    BusinessUnit.MC,
+                    BusinessUnit.EG,
+                ]),
             );
             expect(result).toBe(expectedResult);
         });
