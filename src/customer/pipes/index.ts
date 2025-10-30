@@ -1,1 +1,1 @@
-export * from './customer-request-transformer.pipe';
+export * from './customer-request.pipe';

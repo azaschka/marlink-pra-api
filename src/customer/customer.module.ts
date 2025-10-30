@@ -5,7 +5,7 @@ import { BusinessUnitsScopeInterceptor } from '../access/interceptors';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { CommandHandlers } from './commands/handlers';
 import { CustomerController } from './controllers/customer.controller';
-import { CustomerRequestTransformerPipe } from './pipes';
+import { CustomerRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
 import { CustomerEntity } from './repositories/entities';
 import { CustomerRepositoryService } from './repositories/services/customer-repository.service';
@@ -17,7 +17,7 @@ import { CustomerSaga } from './sagas';
     providers: [
         AccessGuard,
         BusinessUnitsScopeInterceptor,
-        CustomerRequestTransformerPipe,
+        CustomerRequestPipe,
         ...QueryHandlers,
         ...CommandHandlers,
         CustomerRepositoryService,

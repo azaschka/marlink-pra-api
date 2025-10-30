@@ -31,7 +31,7 @@ import { AddSiteManagerCommand, RemoveSiteManagerCommand } from '../commands';
 import { RetrieveSiteManagersDtoInput, SiteManagerDtoInput } from '../dtos/inputs';
 import { SiteManagerDtoOutput } from '../dtos/outputs';
 import { SiteManager } from '../models';
-import { SiteRequestTransformerPipe } from '../pipes';
+import { SiteRequestPipe } from '../pipes';
 import { RetrieveSiteManagersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -41,7 +41,7 @@ import { RetrieveSiteManagersQuery } from '../queries';
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
-@UsePipes(SiteRequestTransformerPipe)
+@UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteManagerController {
     constructor(

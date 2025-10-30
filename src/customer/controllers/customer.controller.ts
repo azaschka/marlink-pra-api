@@ -37,7 +37,7 @@ import {
 import { CreateCustomerDtoInput, ModifyCustomerDtoInput, RetrieveCustomersDtoInput } from '../dtos/inputs';
 import { CustomerCreatedDtoOutput, CustomerModifiedDtoOutput, CustomerRetrievedDtoOutput } from '../dtos/outputs';
 import { Customer } from '../models';
-import { CustomerRequestTransformerPipe } from '../pipes';
+import { CustomerRequestPipe } from '../pipes';
 import { RetrieveCustomersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -46,7 +46,7 @@ import { RetrieveCustomersQuery } from '../queries';
 @Controller('customers')
 @UseGuards(AccessGuard)
 @UseInterceptors(BusinessUnitsScopeInterceptor)
-@UsePipes(CustomerRequestTransformerPipe)
+@UsePipes(CustomerRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class CustomerController {
     constructor(

@@ -17,7 +17,7 @@ import { Customer } from '../models';
 import { RetrieveCustomerByIdQuery } from '../queries';
 
 @Injectable()
-export class CustomerRequestTransformerPipe implements PipeTransform {
+export class CustomerRequestPipe implements PipeTransform {
     constructor(
         @Inject(REQUEST) private readonly request: Request,
         private readonly queryBus: QueryBus,

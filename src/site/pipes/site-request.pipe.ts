@@ -17,7 +17,7 @@ import { Site } from '../models';
 import { RetrieveSiteByIdQuery } from '../queries';
 
 @Injectable()
-export class SiteRequestTransformerPipe implements PipeTransform {
+export class SiteRequestPipe implements PipeTransform {
     constructor(
         @Inject(REQUEST) private readonly request: Request,
         private readonly queryBus: QueryBus,

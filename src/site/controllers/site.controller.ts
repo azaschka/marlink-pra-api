@@ -31,7 +31,7 @@ import { CreateSiteCommand, DeleteSiteCommand } from '../commands';
 import { CreateSiteDtoInput, RetrieveSitesDtoInput } from '../dtos/inputs';
 import { SiteCreatedDtoOutput, SiteRetrievedDtoOutput } from '../dtos/outputs';
 import { Site } from '../models';
-import { SiteRequestTransformerPipe } from '../pipes';
+import { SiteRequestPipe } from '../pipes';
 import { RetrieveSitesQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -40,7 +40,7 @@ import { RetrieveSitesQuery } from '../queries';
 @Controller('sites')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
-@UsePipes(SiteRequestTransformerPipe)
+@UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteController {
     constructor(

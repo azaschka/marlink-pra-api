@@ -1,31 +1,19 @@
 import { CommandBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
-import { CalculateCustomerLicenseUsageCommand, CalculateSiteLicenseUsageCommand } from '../commands';
-import { CustomerLicenseUsage, SiteLicenseUsage } from '../models';
-import { LicenseUsageController } from './license-usage.controller';
+import { CalculateSiteLicenseUsageCommand } from '../commands';
+import { SiteLicenseUsage } from '../models';
+import { SiteLicenseUsageController } from './site-license-usage.controller';
 
-describe('LicenseUsageController', () => {
-    let controller: LicenseUsageController;
+describe('SiteLicenseUsageController', () => {
+    let controller: SiteLicenseUsageController;
     let commandBus: CommandBus;
 
     beforeEach(() => {
         commandBus = mockCommandBus();
-        controller = new LicenseUsageController(commandBus);
+        controller = new SiteLicenseUsageController(commandBus);
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
-    });
-
-    describe('calculateCustomerLicenseUsage', () => {
-        it('should execute the command bus with the correct parameters', async () => {
-            const expectedResult = {} as CustomerLicenseUsage;
-            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
-
-            const result = await controller.calculateCustomerLicenseUsage(undefined, 1);
-
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new CalculateCustomerLicenseUsageCommand('uuid-123', 1));
-            expect(result).toBe(expectedResult);
-        });
     });
 
     describe('calculateSiteLicenseUsage', () => {

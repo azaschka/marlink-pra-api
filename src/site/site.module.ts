@@ -9,7 +9,7 @@ import { SiteJumpointController } from './controllers/site-jumpoint.controller';
 import { SiteManagerController } from './controllers/site-manager.controller';
 import { SiteSupportTeamMemberController } from './controllers/site-support-team-member.controller';
 import { SiteController } from './controllers/site.controller';
-import { SiteRequestTransformerPipe } from './pipes';
+import { SiteRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
 import {
     SiteAdministratorEntity,
@@ -45,7 +45,7 @@ import { SiteSupportTeamMemberRepositoryService } from './repositories/services/
     providers: [
         AccessGuard,
         CustomersScopeInterceptor,
-        SiteRequestTransformerPipe,
+        SiteRequestPipe,
         ...QueryHandlers,
         ...CommandHandlers,
         SiteRepositoryService,

@@ -31,7 +31,7 @@ import { AddSiteSupportTeamMemberCommand, RemoveSiteSupportTeamMemberCommand } f
 import { RetrieveSiteSupportTeamMembersDtoInput, SiteSupportTeamMemberDtoInput } from '../dtos/inputs';
 import { SiteSupportTeamMemberDtoOutput } from '../dtos/outputs';
 import { SiteSupportTeamMember } from '../models';
-import { SiteRequestTransformerPipe } from '../pipes';
+import { SiteRequestPipe } from '../pipes';
 import { RetrieveSiteSupportTeamMembersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -41,7 +41,7 @@ import { RetrieveSiteSupportTeamMembersQuery } from '../queries';
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
-@UsePipes(SiteRequestTransformerPipe)
+@UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteSupportTeamMemberController {
     constructor(

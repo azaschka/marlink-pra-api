@@ -31,7 +31,7 @@ import { AddSiteAdministratorCommand, RemoveSiteAdministratorCommand } from '../
 import { RetrieveSiteAdministratorsDtoInput, SiteAdministratorDtoInput } from '../dtos/inputs';
 import { SiteAdministratorDtoOutput } from '../dtos/outputs';
 import { SiteAdministrator } from '../models';
-import { SiteRequestTransformerPipe } from '../pipes';
+import { SiteRequestPipe } from '../pipes';
 import { RetrieveSiteAdministratorsQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -41,7 +41,7 @@ import { RetrieveSiteAdministratorsQuery } from '../queries';
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
-@UsePipes(SiteRequestTransformerPipe)
+@UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteAdministratorController {
     constructor(

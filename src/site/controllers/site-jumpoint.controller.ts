@@ -7,7 +7,7 @@ import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { JumpointRetrievedDtoOutput } from '../../jumpoint/dtos/outputs';
 import { UuidUtility } from '../../shared/utilities';
 import { RetrieveSiteJumpointsDtoInput } from '../dtos/inputs';
-import { SiteRequestTransformerPipe } from '../pipes';
+import { SiteRequestPipe } from '../pipes';
 import { RetrieveSiteJumpointsQuery } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -17,7 +17,7 @@ import { RetrieveSiteJumpointsQuery } from '../queries';
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
-@UsePipes(SiteRequestTransformerPipe)
+@UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteJumpointController {
     constructor(private readonly queryBus: QueryBus) {}
