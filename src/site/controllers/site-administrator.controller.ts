@@ -8,6 +8,8 @@ import {
     Param,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,18 +23,25 @@ import {
     ApiParam,
     ApiTags,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { UuidUtility } from '../../shared/utilities';
 import { AddSiteAdministratorCommand, RemoveSiteAdministratorCommand } from '../commands';
 import { RetrieveSiteAdministratorsDtoInput, SiteAdministratorDtoInput } from '../dtos/inputs';
 import { SiteAdministratorDtoOutput } from '../dtos/outputs';
 import { SiteAdministrator } from '../models';
+import { SiteRequestTransformerPipe } from '../pipes';
 import { RetrieveSiteAdministratorsQuery } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Sites')
 @Controller('sites/:id/administrators')
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(SiteRequestTransformerPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteAdministratorController {
     constructor(

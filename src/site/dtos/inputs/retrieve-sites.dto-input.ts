@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class RetrieveSitesDtoInput {
@@ -45,10 +45,12 @@ export class RetrieveSitesDtoInput {
 
     @ApiProperty({
         required: false,
-        type: String,
-        description: 'The key of the customer to which this site belongs.',
+        type: [String],
+        description: 'The keys of the customer to which this site belongs.',
     })
     @IsOptional()
-    @IsString()
-    public customerKey?: string;
+    @IsString({ each: true })
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public customerKeys?: string[];
 }

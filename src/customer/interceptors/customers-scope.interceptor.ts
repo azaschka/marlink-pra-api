@@ -3,11 +3,14 @@ import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { Access } from '../../access/models';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
+import { PaginationUtility } from '../../shared/utilities';
 import { Customer } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 
 @Injectable()
 export class CustomersScopeInterceptor implements NestInterceptor {
+    private static readonly PAGE_SIZE = 100;
+
     constructor(private readonly queryBus: QueryBus) {}
 
     public async intercept(context: ExecutionContext, next: CallHandler) {
@@ -20,15 +23,17 @@ export class CustomersScopeInterceptor implements NestInterceptor {
             throw new UnauthorizedException('Missing access info');
         }
 
-        const customers = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
-            new RetrieveCustomersQuery(
-                request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string,
-                1,
-                1,
-                undefined,
-                undefined,
-                undefined,
-                access.value.businessUnits,
+        const customers = await PaginationUtility.queryUntilLastPage((pageNumber) =>
+            this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
+                new RetrieveCustomersQuery(
+                    request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string,
+                    CustomersScopeInterceptor.PAGE_SIZE,
+                    pageNumber,
+                    undefined,
+                    undefined,
+                    undefined,
+                    access.value.businessUnits,
+                ),
             ),
         );
 

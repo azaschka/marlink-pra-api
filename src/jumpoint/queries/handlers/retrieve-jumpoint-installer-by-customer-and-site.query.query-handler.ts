@@ -74,7 +74,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
 
     private async getSite(transactionId: string, siteKey: string, customerKey: string) {
         const sites = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
-            new RetrieveSitesQuery(transactionId, 1, 1, siteKey, undefined, customerKey),
+            new RetrieveSitesQuery(transactionId, 1, 1, siteKey, undefined, [customerKey]),
         );
 
         if (sites.length === 0 || !sites[0]) {

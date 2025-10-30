@@ -1,5 +1,4 @@
-import { Module, Scope } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccessGuard } from '../access/guards';
 import { BusinessUnitsScopeInterceptor } from '../access/interceptors';
@@ -16,19 +15,9 @@ import { CustomerSaga } from './sagas';
     imports: [TypeOrmModule.forFeature([CustomerEntity]), AppConfigModule],
     controllers: [CustomerController],
     providers: [
-        {
-            provide: APP_GUARD,
-            useClass: AccessGuard,
-        },
-        {
-            provide: APP_INTERCEPTOR,
-            useClass: BusinessUnitsScopeInterceptor,
-        },
-        {
-            provide: APP_PIPE,
-            scope: Scope.REQUEST,
-            useClass: CustomerRequestTransformerPipe,
-        },
+        AccessGuard,
+        BusinessUnitsScopeInterceptor,
+        CustomerRequestTransformerPipe,
         ...QueryHandlers,
         ...CommandHandlers,
         CustomerRepositoryService,

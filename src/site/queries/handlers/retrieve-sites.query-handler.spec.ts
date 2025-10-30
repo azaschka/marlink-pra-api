@@ -1,4 +1,4 @@
-import { Like } from 'typeorm';
+import { In, Like } from 'typeorm';
 import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { RetrieveSitesQuery } from '../retrieve-sites.query';
@@ -20,11 +20,11 @@ describe('RetrieveSitesQueryHandler', () => {
                 expectedFindBy: {},
             },
             {
-                query: new RetrieveSitesQuery('transaction-1', 20, 2, 'key-1', 'site-1', 'customer-key-1'),
+                query: new RetrieveSitesQuery('transaction-1', 20, 2, 'key-1', 'site-1', ['customer-key-1']),
                 expectedFindBy: {
                     key: 'key-1',
                     name: 'site-1',
-                    customerKey: 'customer-key-1',
+                    customerKey: In(['customer-key-1']),
                 },
             },
             {

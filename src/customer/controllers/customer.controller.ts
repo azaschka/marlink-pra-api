@@ -8,6 +8,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,6 +23,8 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { AccessGuard } from '../../access/guards';
+import { BusinessUnitsScopeInterceptor } from '../../access/interceptors';
 import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
@@ -33,12 +37,16 @@ import {
 import { CreateCustomerDtoInput, ModifyCustomerDtoInput, RetrieveCustomersDtoInput } from '../dtos/inputs';
 import { CustomerCreatedDtoOutput, CustomerModifiedDtoOutput, CustomerRetrievedDtoOutput } from '../dtos/outputs';
 import { Customer } from '../models';
+import { CustomerRequestTransformerPipe } from '../pipes';
 import { RetrieveCustomersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
 @ApiAccessKeyHeader()
 @ApiTags('Customers')
 @Controller('customers')
+@UseGuards(AccessGuard)
+@UseInterceptors(BusinessUnitsScopeInterceptor)
+@UsePipes(CustomerRequestTransformerPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class CustomerController {
     constructor(
