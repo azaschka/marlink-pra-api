@@ -37,7 +37,7 @@ describe('RemoteRdpController', () => {
                 hostname: 'hostname-1',
                 jumpGroupType: JumpGroupType.Personal,
                 endpointId: 1,
-                jumpGroupId: 2,
+                jumpGroupIds: [2],
                 jumpointId: 3,
                 tag: 'tag-1',
             });
@@ -50,7 +50,7 @@ describe('RemoteRdpController', () => {
                     1,
                     'remote-rdp-1',
                     'hostname-1',
-                    2,
+                    [2],
                     JumpGroupType.Personal,
                     3,
                     1,

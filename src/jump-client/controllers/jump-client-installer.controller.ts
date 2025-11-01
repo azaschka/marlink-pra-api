@@ -63,7 +63,7 @@ export class JumpClientInstallerController {
                 dtoInput.hostname,
                 dtoInput.fqdn,
                 dtoInput.tag,
-                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupIds,
                 dtoInput.jumpGroupType,
                 dtoInput.connectionType,
             ),

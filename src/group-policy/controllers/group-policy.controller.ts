@@ -60,7 +60,7 @@ export class GroupPolicyController {
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
-                dtoInput.namePattern,
+                dtoInput.namePatterns,
             ),
         );
 

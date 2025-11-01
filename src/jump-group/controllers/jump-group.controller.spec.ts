@@ -29,10 +29,13 @@ describe('JumpGroupController', () => {
                 pageNumber: 1,
                 name: 'jump-group-1',
                 codeName: 'jump-group-code-1',
+                namePatterns: ['jump-group'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveJumpGroupsQuery('uuid-123', 123, 10, 1, 'jump-group-1', 'jump-group-code-1'),
+                new RetrieveJumpGroupsQuery('uuid-123', 123, 10, 1, 'jump-group-1', 'jump-group-code-1', [
+                    'jump-group',
+                ]),
             );
             expect(result).toBe(expectedResult);
         });

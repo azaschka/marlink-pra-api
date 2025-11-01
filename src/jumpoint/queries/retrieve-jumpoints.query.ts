@@ -11,6 +11,6 @@ export class RetrieveJumpointsQuery {
         public readonly privateIp?: string,
         public readonly hostname?: string,
         public readonly codeName?: string,
-        public readonly namePattern?: string,
+        public readonly namePatterns?: string[],
     ) {}
 }

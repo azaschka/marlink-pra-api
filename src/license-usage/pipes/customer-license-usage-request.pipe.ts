@@ -1,10 +1,10 @@
 import {
     ArgumentMetadata,
     BadRequestException,
+    ForbiddenException,
     Inject,
     Injectable,
     PipeTransform,
-    UnauthorizedException,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
@@ -31,7 +31,7 @@ export class CustomerLicenseUsageRequestPipe implements PipeTransform {
         }
 
         if (!customerScopes.map((c) => c.id).includes(requestParamId)) {
-            throw new UnauthorizedException('Unauthorized customer access');
+            throw new ForbiddenException('Forbidden customer access');
         }
 
         return value;

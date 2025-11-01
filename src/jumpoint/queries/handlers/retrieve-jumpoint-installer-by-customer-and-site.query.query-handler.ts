@@ -97,7 +97,9 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
                     undefined,
                     undefined,
                     undefined,
-                    `${customer.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
+                    [
+                        `${customer.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
+                    ],
                 ),
             ),
         );

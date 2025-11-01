@@ -208,7 +208,7 @@ export class EnableUsersLoginAfterCustomerReactivationCommandHandler
                     EnableUsersLoginAfterCustomerReactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,
-                    `%${customer.name.toUpperCase()}%`,
+                    [`%${customer.name.toUpperCase()}%`],
                 ),
             ),
         );

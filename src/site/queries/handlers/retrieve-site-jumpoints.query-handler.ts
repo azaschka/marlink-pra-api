@@ -30,7 +30,7 @@ export class RetrieveSiteJumpointsQueryHandler implements IQueryHandler<Retrieve
                 undefined, // privateIp
                 undefined, // hostname
                 undefined, // codeName
-                `%${site.name.toUpperCase()}_${site.key.toUpperCase()}`, // namePattern
+                [`%${site.name.toUpperCase()}_${site.key.toUpperCase()}`], // namePattern
             ),
         );
     }

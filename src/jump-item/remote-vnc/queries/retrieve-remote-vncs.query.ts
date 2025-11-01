@@ -10,7 +10,7 @@ export class RetrieveRemoteVncsQuery {
         public readonly pageNumber: number,
         public readonly name?: string,
         public readonly hostname?: string,
-        public readonly jumpGroupId?: number,
+        public readonly jumpGroupIds?: number[],
         public readonly jumpGroupType?: JumpGroupType,
         public readonly jumpointId?: number,
         public readonly tag?: string,

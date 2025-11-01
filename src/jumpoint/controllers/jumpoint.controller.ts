@@ -74,7 +74,7 @@ export class JumpointController {
                 dtoInput.privateIp,
                 dtoInput.hostname,
                 dtoInput.codeName,
-                dtoInput.namePattern,
+                dtoInput.namePatterns,
             ),
         );
 

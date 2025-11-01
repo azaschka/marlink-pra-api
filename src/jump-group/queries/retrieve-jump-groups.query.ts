@@ -8,5 +8,6 @@ export class RetrieveJumpGroupsQuery {
         public readonly pageNumber: number,
         public readonly name?: string,
         public readonly codeName?: string,
+        public readonly namePatterns?: string[],
     ) {}
 }

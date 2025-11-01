@@ -32,7 +32,7 @@ describe('JumpClientController', () => {
                 hostname: 'hostname-1',
                 fqdn: 'fqdn-1',
                 tag: 'tag-1',
-                jumpGroupId: 123,
+                jumpGroupIds: [123],
                 jumpGroupType: JumpClientGroupType.Personal,
                 connectionType: JumpClientConnectionType.Passive,
             });
@@ -47,7 +47,7 @@ describe('JumpClientController', () => {
                     'hostname-1',
                     'fqdn-1',
                     'tag-1',
-                    123,
+                    [123],
                     JumpClientGroupType.Personal,
                     undefined,
                     undefined,

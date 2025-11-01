@@ -58,7 +58,7 @@ export class JumpClientController {
                 dtoInput.hostname,
                 dtoInput.fqdn,
                 dtoInput.tag,
-                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupIds,
                 dtoInput.jumpGroupType,
                 dtoInput.consoleUser,
                 dtoInput.publicIp,

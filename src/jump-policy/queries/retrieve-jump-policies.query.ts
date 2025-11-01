@@ -7,5 +7,6 @@ export class RetrieveJumpPoliciesQuery {
         public readonly pageSize: number,
         public readonly pageNumber: number,
         public readonly codeName?: string,
+        public readonly displayNamePatterns?: string[],
     ) {}
 }

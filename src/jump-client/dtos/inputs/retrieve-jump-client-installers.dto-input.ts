@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { JumpClientConnectionType, JumpClientGroupType } from '../../enums';
 
@@ -56,13 +56,15 @@ export class RetrieveJumpClientInstallersDtoInput {
 
     @ApiProperty({
         required: false,
-        type: Number,
-        description: 'Filters Jump Clients installers by the given jump group id.',
+        type: [Number],
+        description: 'Filters Jump Clients installers by the given jump group ids.',
     })
     @Type(() => Number)
-    @IsInt()
+    @IsInt({ each: true })
     @IsOptional()
-    public jumpGroupId?: number;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public jumpGroupIds?: number[];
 
     @ApiProperty({
         required: false,

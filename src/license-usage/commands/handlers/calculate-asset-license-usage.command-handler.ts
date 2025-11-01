@@ -71,7 +71,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -85,7 +85,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -99,7 +99,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -114,7 +114,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                                 pageNumber,
                                 undefined,
                                 undefined,
-                                associatedGroupPolicyJumpGroup.jumpGroupId,
+                                [associatedGroupPolicyJumpGroup.jumpGroupId],
                             ),
                         ),
                 );
@@ -128,7 +128,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -144,7 +144,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                             undefined,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -291,7 +291,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                     CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,
-                    `%${customer.name.toUpperCase()}%`,
+                    [`%${customer.name.toUpperCase()}%`],
                 ),
             ),
         );

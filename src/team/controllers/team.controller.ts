@@ -57,6 +57,7 @@ export class TeamController {
                 dtoInput.pageNumber,
                 dtoInput.name,
                 dtoInput.codeName,
+                dtoInput.namePatterns,
             ),
         );
 

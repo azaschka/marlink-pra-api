@@ -58,6 +58,7 @@ export class UserController {
                 dtoInput.securityProviderId,
                 dtoInput.username,
                 dtoInput.email,
+                dtoInput.publicDisplayNamePatterns,
             ),
         );
 

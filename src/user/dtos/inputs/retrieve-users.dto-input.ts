@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class RetrieveUsersDtoInput {
@@ -52,4 +52,15 @@ export class RetrieveUsersDtoInput {
     @IsString()
     @IsOptional()
     public email?: string;
+
+    @ApiProperty({
+        required: false,
+        type: [String],
+        description: 'Filters results to include only users that match the given name patterns.',
+    })
+    @IsString({ each: true })
+    @IsOptional()
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public publicDisplayNamePatterns?: string[];
 }

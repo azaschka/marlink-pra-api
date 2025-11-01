@@ -73,7 +73,7 @@ export class WebJumpController {
                 dtoInput.pageNumber,
                 dtoInput.name,
                 dtoInput.url,
-                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupIds,
                 dtoInput.jumpGroupType,
                 dtoInput.jumpointId,
                 dtoInput.tag,

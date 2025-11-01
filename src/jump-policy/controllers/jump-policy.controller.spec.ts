@@ -34,10 +34,11 @@ describe('JumpPolicyController', () => {
                 pageSize: 10,
                 pageNumber: 1,
                 codeName: 'jump-policy-1',
+                displayNamePatterns: ['jump-policy'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveJumpPoliciesQuery('uuid-123', 123, 10, 1, 'jump-policy-1'),
+                new RetrieveJumpPoliciesQuery('uuid-123', 123, 10, 1, 'jump-policy-1', ['jump-policy']),
             );
             expect(result).toBe(expectedResult);
         });

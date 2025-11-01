@@ -29,10 +29,11 @@ describe('TeamController', () => {
                 pageNumber: 1,
                 name: 'team-1',
                 codeName: 'team-code-1',
+                namePatterns: ['team%'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveTeamsQuery('uuid-123', 123, 10, 1, 'team-1', 'team-code-1'),
+                new RetrieveTeamsQuery('uuid-123', 123, 10, 1, 'team-1', 'team-code-1', ['team%']),
             );
             expect(result).toBe(expectedResult);
         });

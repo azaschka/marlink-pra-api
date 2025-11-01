@@ -31,7 +31,7 @@ describe('WebJumpController', () => {
                 name: 'web-jump-1',
                 url: 'url-1',
                 jumpGroupType: JumpGroupType.Personal,
-                jumpGroupId: 2,
+                jumpGroupIds: [2],
                 jumpointId: 3,
                 tag: 'tag-1',
             });
@@ -44,7 +44,7 @@ describe('WebJumpController', () => {
                     1,
                     'web-jump-1',
                     'url-1',
-                    2,
+                    [2],
                     JumpGroupType.Personal,
                     3,
                     'tag-1',

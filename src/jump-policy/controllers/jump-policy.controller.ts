@@ -56,6 +56,7 @@ export class JumpPolicyController {
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.codeName,
+                dtoInput.displayNamePatterns,
             ),
         );
 

@@ -1,10 +1,10 @@
 import {
     ArgumentMetadata,
     BadRequestException,
+    ForbiddenException,
     Inject,
     Injectable,
     PipeTransform,
-    UnauthorizedException,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
@@ -52,14 +52,14 @@ export class CustomerRequestPipe implements PipeTransform {
             }
 
             if (!businessUnitsQuery.every((bu) => businessUnitScopes.includes(bu))) {
-                throw new UnauthorizedException('Unauthorized business unit access');
+                throw new ForbiddenException('Forbidden business unit access');
             }
         } else if (metadata.metatype?.name === CreateCustomerDtoInput.name) {
             // Validate business unit in the body is included in business unit scopes
             const dto = value as CreateCustomerDtoInput;
 
             if (!businessUnitScopes.includes(dto.businessUnit)) {
-                throw new UnauthorizedException('Unauthorized business unit access');
+                throw new ForbiddenException('Forbidden business unit access');
             }
         } else {
             const requestParamId = Number(this.request.params['id']);
@@ -73,7 +73,7 @@ export class CustomerRequestPipe implements PipeTransform {
             );
 
             if (!businessUnitScopes.includes(customer.businessUnit)) {
-                throw new UnauthorizedException('Unauthorized business unit access');
+                throw new ForbiddenException('Forbidden business unit access');
             }
         }
 

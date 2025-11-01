@@ -36,7 +36,7 @@ describe('ProtocolTunnelJumpController', () => {
                 name: 'protocol-tunnel-jump-1',
                 hostname: 'hostname-1',
                 jumpGroupType: JumpGroupType.Personal,
-                jumpGroupId: 2,
+                jumpGroupIds: [2],
                 jumpointId: 3,
                 tag: 'tag-1',
             });
@@ -49,7 +49,7 @@ describe('ProtocolTunnelJumpController', () => {
                     1,
                     'protocol-tunnel-jump-1',
                     'hostname-1',
-                    2,
+                    [2],
                     JumpGroupType.Personal,
                     3,
                     'tag-1',

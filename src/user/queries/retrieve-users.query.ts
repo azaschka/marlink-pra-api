@@ -9,5 +9,6 @@ export class RetrieveUsersQuery {
         public readonly securityProviderId?: number,
         public readonly username?: string,
         public readonly email?: string,
+        public readonly publicDisplayNamePatterns?: string[],
     ) {}
 }

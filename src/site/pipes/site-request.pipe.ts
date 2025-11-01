@@ -1,10 +1,10 @@
 import {
     ArgumentMetadata,
     BadRequestException,
+    ForbiddenException,
     Inject,
     Injectable,
     PipeTransform,
-    UnauthorizedException,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
@@ -51,14 +51,14 @@ export class SiteRequestPipe implements PipeTransform {
             }
 
             if (!customerKeysQuery.every((ck) => customerScopes.map((c) => c.key).includes(ck))) {
-                throw new UnauthorizedException('Unauthorized customer access');
+                throw new ForbiddenException('Forbidden customer access');
             }
         } else if (metadata.metatype?.name === CreateSiteDtoInput.name) {
             const dto = value as CreateSiteDtoInput;
 
             // Validate customer key in the body is included in customer scopes
             if (!customerScopes.map((c) => c.key).includes(dto.customerKey)) {
-                throw new UnauthorizedException('Unauthorized customer access');
+                throw new ForbiddenException('Forbidden customer access');
             }
         } else {
             const requestParamId = Number(this.request.params['id']);
@@ -72,7 +72,7 @@ export class SiteRequestPipe implements PipeTransform {
             );
 
             if (!customerScopes.map((c) => c.key).includes(site.customerKey)) {
-                throw new UnauthorizedException('Unauthorized customer access');
+                throw new ForbiddenException('Forbidden customer access');
             }
         }
 

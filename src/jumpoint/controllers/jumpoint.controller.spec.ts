@@ -32,7 +32,7 @@ describe('JumpointController', () => {
                 pageNumber: 1,
                 name: 'jumpoint-1',
                 codeName: 'code-1',
-                namePattern: 'jumpoint%',
+                namePatterns: ['jumpoint%'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
@@ -46,7 +46,7 @@ describe('JumpointController', () => {
                     undefined,
                     undefined,
                     'code-1',
-                    'jumpoint%',
+                    ['jumpoint%'],
                 ),
             );
             expect(result).toBe(expectedResult);

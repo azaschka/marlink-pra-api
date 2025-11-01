@@ -87,7 +87,7 @@ export class CalculateUserLicenseUsageCommandHandler implements ICommandHandler<
                     CalculateUserLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,
-                    `%${customer.name.toUpperCase()}%`,
+                    [`%${customer.name.toUpperCase()}%`],
                 ),
             ),
         );

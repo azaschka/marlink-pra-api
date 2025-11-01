@@ -12,7 +12,7 @@ export class RetrieveJumpClientInstallersQuery {
         public readonly hostname?: string,
         public readonly fqdn?: string,
         public readonly tag?: string,
-        public readonly jumpGroupId?: number,
+        public readonly jumpGroupIds?: number[],
         public readonly jumpGroupType?: JumpClientGroupType,
         public readonly connectionType?: JumpClientConnectionType,
     ) {}

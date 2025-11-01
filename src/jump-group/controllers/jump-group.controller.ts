@@ -49,6 +49,7 @@ export class JumpGroupController {
                 dtoInput.pageNumber,
                 dtoInput.name,
                 dtoInput.codeName,
+                dtoInput.namePatterns,
             ),
         );
 

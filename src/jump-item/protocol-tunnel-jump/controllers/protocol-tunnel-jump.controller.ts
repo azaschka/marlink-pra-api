@@ -81,7 +81,7 @@ export class ProtocolTunnelJumpController {
                 dtoInput.pageNumber,
                 dtoInput.name,
                 dtoInput.hostname,
-                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupIds,
                 dtoInput.jumpGroupType,
                 dtoInput.jumpointId,
                 dtoInput.tag,
