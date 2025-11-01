@@ -5,7 +5,11 @@ import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
 import { JumpClientConnectionType, JumpClientGroupType, JumpClientInstallerPlatformType } from '../enums';
 import { JumpClientInstaller } from '../models';
-import { RetrieveJumpClientInstallerPlatformQuery, RetrieveJumpClientInstallersQuery } from '../queries';
+import {
+    RetrieveJumpClientInstallerByIdQuery,
+    RetrieveJumpClientInstallerPlatformQuery,
+    RetrieveJumpClientInstallersQuery,
+} from '../queries';
 import { JumpClientInstallerController } from './jump-client-installer.controller';
 
 describe('JumpClientInstallerController', () => {
@@ -20,6 +24,20 @@ describe('JumpClientInstallerController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveJumpClientInstaller', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as JumpClientInstaller;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpClientInstaller('uuid-100', 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
+                new RetrieveJumpClientInstallerByIdQuery('uuid-100', 123, 1),
+            );
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveJumpClientInstallers', () => {

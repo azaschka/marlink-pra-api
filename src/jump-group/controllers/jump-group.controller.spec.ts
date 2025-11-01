@@ -2,7 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpGroupCommand, DeleteJumpGroupCommand, ModifyJumpGroupCommand } from '../commands';
 import { JumpGroup } from '../models';
-import { RetrieveJumpGroupsQuery } from '../queries';
+import { RetrieveJumpGroupByIdQuery, RetrieveJumpGroupsQuery } from '../queries';
 import { JumpGroupController } from './jump-group.controller';
 
 describe('JumpGroupController', () => {
@@ -17,6 +17,18 @@ describe('JumpGroupController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveJumpGroup', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as JumpGroup;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpGroup(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpGroupByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveJumpGroups', () => {

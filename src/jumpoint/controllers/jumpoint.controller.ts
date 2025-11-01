@@ -43,7 +43,12 @@ import {
     JumpointRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { Jumpoint } from '../models';
-import { RetrieveJumpointInstallerQuery, RetrieveJumpointNodesQuery, RetrieveJumpointsQuery } from '../queries';
+import {
+    RetrieveJumpointByIdQuery,
+    RetrieveJumpointInstallerQuery,
+    RetrieveJumpointNodesQuery,
+    RetrieveJumpointsQuery,
+} from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -55,6 +60,22 @@ export class JumpointController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: JumpointRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpoint(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<JumpointRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveJumpointByIdQuery, Jumpoint>(
+            new RetrieveJumpointByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: JumpointRetrievedDtoOutput, isArray: true })

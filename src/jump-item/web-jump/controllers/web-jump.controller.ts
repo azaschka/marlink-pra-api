@@ -45,7 +45,7 @@ import {
     WebJumpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { WebJump } from '../models';
-import { RetrieveWebJumpsQuery } from '../queries';
+import { RetrieveWebJumpByIdQuery, RetrieveWebJumpsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -57,6 +57,22 @@ export class WebJumpController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: WebJumpRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveWebJump(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<WebJumpRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveWebJumpByIdQuery, WebJumpRetrievedDtoOutput>(
+            new RetrieveWebJumpByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: WebJumpRetrievedDtoOutput, isArray: true })

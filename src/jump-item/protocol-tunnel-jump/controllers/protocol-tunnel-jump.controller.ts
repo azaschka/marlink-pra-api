@@ -50,7 +50,7 @@ import {
     ProtocolTunnelJumpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { ProtocolTunnelJump } from '../models';
-import { RetrieveProtocolTunnelJumpsQuery } from '../queries';
+import { RetrieveProtocolTunnelJumpByIdQuery, RetrieveProtocolTunnelJumpsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -62,6 +62,23 @@ export class ProtocolTunnelJumpController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: ProtocolTunnelJumpRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveProtocolTunnelJump(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<ProtocolTunnelJumpRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<
+            RetrieveProtocolTunnelJumpByIdQuery,
+            ProtocolTunnelJumpRetrievedDtoOutput
+        >(new RetrieveProtocolTunnelJumpByIdQuery(transactionId, tenantId, id));
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: ProtocolTunnelJumpRetrievedDtoOutput, isArray: true })

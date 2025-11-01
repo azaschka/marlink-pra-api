@@ -50,7 +50,7 @@ import {
     ShellJumpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { ShellJump } from '../models';
-import { RetrieveShellJumpsQuery } from '../queries';
+import { RetrieveShellJumpByIdQuery, RetrieveShellJumpsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -62,6 +62,22 @@ export class ShellJumpController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: ShellJumpRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveShellJump(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<ShellJumpRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveShellJumpByIdQuery, ShellJumpRetrievedDtoOutput>(
+            new RetrieveShellJumpByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: ShellJumpRetrievedDtoOutput, isArray: true })

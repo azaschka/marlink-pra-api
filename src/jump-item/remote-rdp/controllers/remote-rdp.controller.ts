@@ -50,7 +50,7 @@ import {
     RemoteRdpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { RemoteRdp } from '../models';
-import { RetrieveRemoteRdpsQuery } from '../queries';
+import { RetrieveRemoteRdpByIdQuery, RetrieveRemoteRdpsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -62,6 +62,22 @@ export class RemoteRdpController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: RemoteRdpRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveRemoteRdp(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<RemoteRdpRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveRemoteRdpByIdQuery, RemoteRdpRetrievedDtoOutput>(
+            new RetrieveRemoteRdpByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: RemoteRdpRetrievedDtoOutput, isArray: true })

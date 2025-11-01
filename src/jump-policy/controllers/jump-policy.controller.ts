@@ -29,7 +29,7 @@ import { CreateJumpPolicyCommand, DeleteJumpPolicyCommand, ModifyJumpPolicyComma
 import { CreateJumpPolicyDtoInput, ModifyJumpPolicyDtoInput, RetrieveJumpPoliciesDtoInput } from '../dtos/inputs';
 import { JumpPolicyCreatedDtoOutput, JumpPolicyModifiedDtoOutput, JumpPolicyRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpPolicy } from '../models';
-import { RetrieveJumpPoliciesQuery } from '../queries';
+import { RetrieveJumpPoliciesQuery, RetrieveJumpPolicyByIdQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -41,6 +41,22 @@ export class JumpPolicyController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: JumpPolicyRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpPolicy(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<JumpPolicyRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveJumpPolicyByIdQuery, JumpPolicy>(
+            new RetrieveJumpPolicyByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: JumpPolicyRetrievedDtoOutput, isArray: true })

@@ -8,7 +8,7 @@ import { QueryHandlers } from './queries/handlers';
 
 @Module({
     imports: [AppConfigModule, HttpModule],
-    controllers: [JumpClientController, JumpClientInstallerController],
+    controllers: [JumpClientInstallerController, JumpClientController], // Installer should be first since it's more specific and routes could overlap
     providers: [...QueryHandlers, ...CommandHandlers],
 })
 export class JumpClientModule {}

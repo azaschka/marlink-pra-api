@@ -2,7 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateTeamCommand, DeleteTeamCommand, ModifyTeamCommand } from '../commands';
 import { Team } from '../models';
-import { RetrieveTeamsQuery } from '../queries';
+import { RetrieveTeamByIdQuery, RetrieveTeamsQuery } from '../queries';
 import { TeamController } from './team.controller';
 
 describe('TeamController', () => {
@@ -17,6 +17,18 @@ describe('TeamController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveTeam', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as Team;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveTeam(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveTeamByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveTeams', () => {

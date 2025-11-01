@@ -3,7 +3,7 @@ import { UuidUtility } from '../../shared/utilities';
 import { CopyJumpClientCommand, DeleteJumpClientCommand, ModifyJumpClientCommand } from '../commands';
 import { JumpClientConnectionType, JumpClientEndpointAgreementPolicyType, JumpClientGroupType } from '../enums';
 import { JumpClient } from '../models';
-import { RetrieveJumpClientsQuery } from '../queries';
+import { RetrieveJumpClientByIdQuery, RetrieveJumpClientsQuery } from '../queries';
 import { JumpClientController } from './jump-client.controller';
 
 describe('JumpClientController', () => {
@@ -18,6 +18,18 @@ describe('JumpClientController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveJumpClient', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as JumpClient;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpClient('uuid-100', 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpClientByIdQuery('uuid-100', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveJumpClients', () => {

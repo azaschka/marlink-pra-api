@@ -50,7 +50,7 @@ import {
     RemoteVncRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { RemoteVnc } from '../models';
-import { RetrieveRemoteVncsQuery } from '../queries';
+import { RetrieveRemoteVncByIdQuery, RetrieveRemoteVncsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -62,6 +62,22 @@ export class RemoteVncController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: RemoteVncRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveRemoteVnc(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<RemoteVncRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveRemoteVncByIdQuery, RemoteVncRetrievedDtoOutput>(
+            new RetrieveRemoteVncByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: RemoteVncRetrievedDtoOutput, isArray: true })

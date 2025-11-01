@@ -8,7 +8,7 @@ import {
 } from '../commands';
 import { JumpGroupType } from '../enums';
 import { RemoteVnc } from '../models';
-import { RetrieveRemoteVncsQuery } from '../queries';
+import { RetrieveRemoteVncByIdQuery, RetrieveRemoteVncsQuery } from '../queries';
 import { RemoteVncController } from './remote-vnc.controller';
 
 describe('RemoteVncController', () => {
@@ -23,6 +23,18 @@ describe('RemoteVncController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveRemoteVnc', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as RemoteVnc;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveRemoteVnc(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveRemoteVncByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveRemoteVncs', () => {

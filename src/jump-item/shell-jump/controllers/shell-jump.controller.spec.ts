@@ -8,7 +8,7 @@ import {
 } from '../commands';
 import { JumpGroupType, ShellJumpProtocolType } from '../enums';
 import { ShellJump } from '../models';
-import { RetrieveShellJumpsQuery } from '../queries';
+import { RetrieveShellJumpByIdQuery, RetrieveShellJumpsQuery } from '../queries';
 import { ShellJumpController } from './shell-jump.controller';
 
 describe('ShellJumpController', () => {
@@ -23,6 +23,18 @@ describe('ShellJumpController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveShellJump', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as ShellJump;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveShellJump(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveShellJumpByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveShellJumps', () => {

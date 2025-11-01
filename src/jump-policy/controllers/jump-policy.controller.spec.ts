@@ -8,7 +8,7 @@ import {
     SimultaneousJumpsType,
 } from '../enums';
 import { JumpPolicy } from '../models';
-import { RetrieveJumpPoliciesQuery } from '../queries';
+import { RetrieveJumpPoliciesQuery, RetrieveJumpPolicyByIdQuery } from '../queries';
 import { JumpPolicyController } from './jump-policy.controller';
 
 describe('JumpPolicyController', () => {
@@ -23,6 +23,18 @@ describe('JumpPolicyController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveJumpPolicy', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as JumpPolicy;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpPolicy(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpPolicyByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveJumpPolicies', () => {

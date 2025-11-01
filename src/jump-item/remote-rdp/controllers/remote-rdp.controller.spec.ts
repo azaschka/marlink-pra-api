@@ -6,9 +6,10 @@ import {
     DeleteRemoteRdpCommand,
     ModifyRemoteRdpCommand,
 } from '../commands';
+import { RemoteRdpRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpGroupType } from '../enums';
 import { RemoteRdp } from '../models';
-import { RetrieveRemoteRdpsQuery } from '../queries';
+import { RetrieveRemoteRdpByIdQuery, RetrieveRemoteRdpsQuery } from '../queries';
 import { RemoteRdpController } from './remote-rdp.controller';
 
 describe('RemoteRdpController', () => {
@@ -23,6 +24,18 @@ describe('RemoteRdpController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveRemoteRdp', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as RemoteRdpRetrievedDtoOutput;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveRemoteRdp(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveRemoteRdpByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveRemoteRdps', () => {

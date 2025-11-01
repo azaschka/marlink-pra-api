@@ -5,7 +5,12 @@ import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
 import { JumpointPlatformType, JzpClientAddressRestrictionsType } from '../enums';
 import { Jumpoint, JumpointNode } from '../models';
-import { RetrieveJumpointInstallerQuery, RetrieveJumpointNodesQuery, RetrieveJumpointsQuery } from '../queries';
+import {
+    RetrieveJumpointByIdQuery,
+    RetrieveJumpointInstallerQuery,
+    RetrieveJumpointNodesQuery,
+    RetrieveJumpointsQuery,
+} from '../queries';
 import { JumpointController } from './jumpoint.controller';
 
 describe('JumpointController', () => {
@@ -20,6 +25,18 @@ describe('JumpointController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveJumpoint', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as Jumpoint;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpoint(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveJumpoints', () => {

@@ -3,7 +3,7 @@ import { UuidUtility } from '../../../shared/utilities';
 import { CopyWebJumpCommand, CreateWebJumpCommand, DeleteWebJumpCommand, ModifyWebJumpCommand } from '../commands';
 import { JumpGroupType } from '../enums';
 import { WebJump } from '../models';
-import { RetrieveWebJumpsQuery } from '../queries';
+import { RetrieveWebJumpByIdQuery, RetrieveWebJumpsQuery } from '../queries';
 import { WebJumpController } from './web-jump.controller';
 
 describe('WebJumpController', () => {
@@ -18,6 +18,18 @@ describe('WebJumpController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveWebJump', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as WebJump;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveWebJump(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveWebJumpByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveWebJumps', () => {

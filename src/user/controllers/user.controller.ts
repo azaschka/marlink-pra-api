@@ -29,7 +29,7 @@ import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../comm
 import { CreateUserDtoInput, ModifyUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } from '../dtos/outputs';
 import { User } from '../models';
-import { RetrieveUsersQuery } from '../queries';
+import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -41,6 +41,22 @@ export class UserController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: UserRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveUser(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<UserRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveUserByIdQuery, User>(
+            new RetrieveUserByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: UserRetrievedDtoOutput, isArray: true })

@@ -28,7 +28,7 @@ import { CopyJumpClientCommand, DeleteJumpClientCommand, ModifyJumpClientCommand
 import { CopyJumpClientDtoInput, ModifyJumpClientDtoInput, RetrieveJumpClientsDtoInput } from '../dtos/inputs';
 import { JumpClientCopiedDtoOutput, JumpClientModifiedDtoOutput, JumpClientRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpClient } from '../models';
-import { RetrieveJumpClientsQuery } from '../queries';
+import { RetrieveJumpClientByIdQuery, RetrieveJumpClientsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -40,6 +40,22 @@ export class JumpClientController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: JumpClientRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpClient(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<JumpClientRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveJumpClientByIdQuery, JumpClientRetrievedDtoOutput>(
+            new RetrieveJumpClientByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: JumpClientRetrievedDtoOutput, isArray: true })

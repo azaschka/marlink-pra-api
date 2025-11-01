@@ -29,7 +29,7 @@ import { CreateTeamCommand, DeleteTeamCommand, ModifyTeamCommand } from '../comm
 import { CreateTeamDtoInput, ModifyTeamDtoInput, RetrieveTeamsDtoInput } from '../dtos/inputs';
 import { TeamCreatedDtoOutput, TeamModifiedDtoOutput, TeamRetrievedDtoOutput } from '../dtos/outputs';
 import { Team } from '../models';
-import { RetrieveTeamsQuery } from '../queries';
+import { RetrieveTeamByIdQuery, RetrieveTeamsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -41,6 +41,22 @@ export class TeamController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: TeamRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveTeam(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<TeamRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveTeamByIdQuery, Team>(
+            new RetrieveTeamByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: TeamRetrievedDtoOutput, isArray: true })

@@ -2,7 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
 import { User } from '../models';
-import { RetrieveUsersQuery } from '../queries';
+import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 import { UserController } from './user.controller';
 
 describe('UserController', () => {
@@ -17,6 +17,18 @@ describe('UserController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveUser', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as User;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveUser('uuid-100', 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveUserByIdQuery('uuid-100', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveUsers', () => {

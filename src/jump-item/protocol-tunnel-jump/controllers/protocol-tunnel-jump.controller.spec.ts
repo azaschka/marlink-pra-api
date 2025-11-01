@@ -8,7 +8,7 @@ import {
 } from '../commands';
 import { JumpGroupType } from '../enums';
 import { ProtocolTunnelJump } from '../models';
-import { RetrieveProtocolTunnelJumpsQuery } from '../queries';
+import { RetrieveProtocolTunnelJumpByIdQuery, RetrieveProtocolTunnelJumpsQuery } from '../queries';
 import { ProtocolTunnelJumpController } from './protocol-tunnel-jump.controller';
 
 describe('ProtocolTunnelJumpController', () => {
@@ -23,6 +23,20 @@ describe('ProtocolTunnelJumpController', () => {
 
         // Mocking UuidUtility.generate to return a fixed UUID
         UuidUtility.generate = jest.fn(() => 'uuid-123');
+    });
+
+    describe('retrieveProtocolTunnelJump', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as ProtocolTunnelJump;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveProtocolTunnelJump(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
+                new RetrieveProtocolTunnelJumpByIdQuery('uuid-123', 123, 1),
+            );
+            expect(result).toBe(expectedResult);
+        });
     });
 
     describe('retrieveProtocolTunnelJumps', () => {

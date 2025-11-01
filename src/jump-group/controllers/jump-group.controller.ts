@@ -13,7 +13,7 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiCreatedResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
@@ -21,7 +21,7 @@ import { CreateJumpGroupCommand, DeleteJumpGroupCommand, ModifyJumpGroupCommand 
 import { CreateJumpGroupDtoInput, ModifyJumpGroupDtoInput, RetrieveJumpGroupsDtoInput } from '../dtos/inputs';
 import { JumpGroupCreatedDtoOutput, JumpGroupModifiedDtoOutput, JumpGroupRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpGroup } from '../models';
-import { RetrieveJumpGroupsQuery } from '../queries';
+import { RetrieveJumpGroupByIdQuery, RetrieveJumpGroupsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -33,6 +33,22 @@ export class JumpGroupController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: JumpGroupRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpGroup(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<JumpGroupRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveJumpGroupByIdQuery, JumpGroup>(
+            new RetrieveJumpGroupByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: JumpGroupRetrievedDtoOutput, isArray: true })

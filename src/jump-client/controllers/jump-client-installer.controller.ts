@@ -33,7 +33,11 @@ import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput
 import { JumpClientInstallerCreatedDtoOutput, JumpClientInstallerRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpClientInstallerPlatformType } from '../enums';
 import { JumpClientInstaller } from '../models';
-import { RetrieveJumpClientInstallerPlatformQuery, RetrieveJumpClientInstallersQuery } from '../queries';
+import {
+    RetrieveJumpClientInstallerByIdQuery,
+    RetrieveJumpClientInstallerPlatformQuery,
+    RetrieveJumpClientInstallersQuery,
+} from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -45,6 +49,23 @@ export class JumpClientInstallerController {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
+
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: JumpClientInstallerRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpClientInstaller(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<JumpClientInstallerRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<
+            RetrieveJumpClientInstallerByIdQuery,
+            JumpClientInstallerRetrievedDtoOutput
+        >(new RetrieveJumpClientInstallerByIdQuery(transactionId, tenantId, id));
+
+        return result;
+    }
 
     @Get()
     @ApiOkResponse({ type: JumpClientInstallerRetrievedDtoOutput, isArray: true })
