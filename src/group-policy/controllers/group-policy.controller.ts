@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -22,7 +24,15 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateGroupPolicyCommand, DeleteGroupPolicyCommand, ModifyGroupPolicyCommand } from '../commands';
@@ -33,12 +43,17 @@ import {
     GroupPolicyRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { GroupPolicy } from '../models';
+import { GroupPolicyRequestPipe } from '../pipes';
 import { RetrieveGroupPoliciesQuery, RetrieveGroupPolicyByIdQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Group Policies')
 @Controller('group-policies')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(GroupPolicyRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class GroupPolicyController {
     constructor(

@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
+import qs from 'qs';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
@@ -30,6 +31,7 @@ export class RetrieveUsersQueryHandler implements IQueryHandler<RetrieveUsersQue
                 this.httpService.get<User[]>(url, {
                     params: ObjectUtility.stripProperties(query, 'transactionId'),
                     headers: headers,
+                    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
                 }),
             );
 

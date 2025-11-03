@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -22,19 +24,32 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateTeamCommand, DeleteTeamCommand, ModifyTeamCommand } from '../commands';
 import { CreateTeamDtoInput, ModifyTeamDtoInput, RetrieveTeamsDtoInput } from '../dtos/inputs';
 import { TeamCreatedDtoOutput, TeamModifiedDtoOutput, TeamRetrievedDtoOutput } from '../dtos/outputs';
 import { Team } from '../models';
+import { TeamRequestPipe } from '../pipes';
 import { RetrieveTeamByIdQuery, RetrieveTeamsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiTags('Teams')
+@ApiAccessKeyHeader()
 @Controller('teams')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(TeamRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class TeamController {
     constructor(

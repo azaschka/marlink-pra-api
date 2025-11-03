@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -22,19 +24,32 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpPolicyCommand, DeleteJumpPolicyCommand, ModifyJumpPolicyCommand } from '../commands';
 import { CreateJumpPolicyDtoInput, ModifyJumpPolicyDtoInput, RetrieveJumpPoliciesDtoInput } from '../dtos/inputs';
 import { JumpPolicyCreatedDtoOutput, JumpPolicyModifiedDtoOutput, JumpPolicyRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpPolicy } from '../models';
+import { JumpPolicyRequestPipe } from '../pipes';
 import { RetrieveJumpPoliciesQuery, RetrieveJumpPolicyByIdQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jump Policies')
 @Controller('jump-policies')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(JumpPolicyRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpPolicyController {
     constructor(

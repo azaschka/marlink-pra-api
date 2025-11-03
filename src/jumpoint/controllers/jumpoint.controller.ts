@@ -11,6 +11,8 @@ import {
     Post,
     Query,
     Res,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -26,7 +28,15 @@ import {
 } from '@nestjs/swagger';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
-import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
@@ -43,6 +53,7 @@ import {
     JumpointRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { Jumpoint } from '../models';
+import { JumpointRequestPipe } from '../pipes';
 import {
     RetrieveJumpointByIdQuery,
     RetrieveJumpointInstallerQuery,
@@ -52,8 +63,12 @@ import {
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jumpoints')
 @Controller('jumpoints')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(JumpointRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointController {
     constructor(

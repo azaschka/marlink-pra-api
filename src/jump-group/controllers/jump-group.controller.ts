@@ -9,24 +9,39 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
-import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpGroupCommand, DeleteJumpGroupCommand, ModifyJumpGroupCommand } from '../commands';
 import { CreateJumpGroupDtoInput, ModifyJumpGroupDtoInput, RetrieveJumpGroupsDtoInput } from '../dtos/inputs';
 import { JumpGroupCreatedDtoOutput, JumpGroupModifiedDtoOutput, JumpGroupRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpGroup } from '../models';
+import { JumpGroupRequestPipe } from '../pipes';
 import { RetrieveJumpGroupByIdQuery, RetrieveJumpGroupsQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jump Groups')
 @Controller('jump-groups')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(JumpGroupRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpGroupController {
     constructor(

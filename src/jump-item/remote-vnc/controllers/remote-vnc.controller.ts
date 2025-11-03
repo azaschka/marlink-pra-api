@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -23,12 +25,15 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { AccessGuard } from '../../../access/guards';
 import {
+    ApiAccessKeyHeader,
     ApiTenantIdHeader,
     ApiTransactionIdHeader,
     TenantIdHeader,
     TransactionIdHeader,
 } from '../../../core/decorators';
+import { CustomersScopeInterceptor } from '../../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
@@ -54,8 +59,11 @@ import { RetrieveRemoteVncByIdQuery, RetrieveRemoteVncsQuery } from '../queries'
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jump Items')
 @Controller('jump-items/remote-vncs')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class RemoteVncController {
     constructor(

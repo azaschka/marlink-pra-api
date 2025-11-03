@@ -10,6 +10,8 @@ import {
     Post,
     Query,
     Res,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -26,7 +28,15 @@ import {
 } from '@nestjs/swagger';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
-import { ApiTenantIdHeader, ApiTransactionIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
 import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput } from '../dtos/inputs';
@@ -41,8 +51,11 @@ import {
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jump Clients')
 @Controller('jump-clients/installers')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpClientInstallerController {
     constructor(

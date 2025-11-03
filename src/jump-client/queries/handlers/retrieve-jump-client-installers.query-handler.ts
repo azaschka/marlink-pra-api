@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
+import qs from 'qs';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
@@ -31,6 +32,7 @@ export class RetrieveJumpClientInstallersQueryHandler implements IQueryHandler<R
                 this.httpService.get<JumpClientInstaller[]>(url, {
                     params: ObjectUtility.stripProperties(query, 'transactionId'),
                     headers: headers,
+                    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
                 }),
             );
 

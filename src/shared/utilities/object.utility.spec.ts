@@ -144,4 +144,62 @@ describe('ObjectUtility', () => {
             expect(result).toStrictEqual(expectedOutput);
         });
     });
+
+    describe('doesEveryTargetContainSourceSubstring', () => {
+        it.each([
+            {
+                arr1: ['USER_XYZ'],
+                arr2: ['XYZ'],
+                expectedResult: true,
+            },
+            {
+                arr1: ['abc', 'def'],
+                arr2: ['abc', 'def'],
+                expectedResult: true,
+            },
+            {
+                arr1: ['abc', 'def', 'ghi'],
+                arr2: ['abc', 'def'],
+                expectedResult: false,
+            },
+            {
+                arr1: ['abc', 'def'],
+                arr2: ['abc', 'def', 'ghi'],
+                expectedResult: true,
+            },
+            {
+                arr1: ['NIKU', 'KINO'],
+                arr2: ['NIKU_NEKO', 'KINOKUNIYA'],
+                expectedResult: false,
+            },
+            {
+                arr1: ['NIKU_NEKO', 'KINOKUNIYA'],
+                arr2: ['NIKU', 'KINO'],
+                expectedResult: true,
+            },
+            {
+                arr1: ['bc', 'ef'],
+                arr2: ['abcd', 'efgh', 'ijkl'],
+                expectedResult: false,
+            },
+            {
+                arr1: ['abcd', 'ef'],
+                arr2: ['abcd'],
+                expectedResult: false,
+            },
+            {
+                arr1: ['abc', 'abcdef'],
+                arr2: ['bc'],
+                expectedResult: true,
+            },
+            {
+                arr1: ['abc'],
+                arr2: ['acb'],
+                expectedResult: false,
+            },
+        ])('should return as expected', ({ arr1, arr2, expectedResult }) => {
+            const result = ObjectUtility.doesEveryTargetContainSourceSubstring(arr1, arr2);
+            expect(result).toBe(expectedResult);
+        });
+    });
 });
