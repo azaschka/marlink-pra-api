@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     HttpCode,
     HttpStatus,
@@ -17,6 +18,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     ApiConflictResponse,
     ApiCreatedResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiParam,
@@ -31,6 +33,7 @@ import { UuidUtility } from '../../shared/utilities';
 import {
     CreateCustomerCommand,
     DeactivateCustomerCommand,
+    DeleteCustomerCommand,
     ModifyCustomerCommand,
     ReactivateCustomerCommand,
 } from '../commands';
@@ -148,5 +151,18 @@ export class CustomerController {
         await this.commandBus.execute<ReactivateCustomerCommand, void>(
             new ReactivateCustomerCommand(transactionId, id),
         );
+    }
+
+    @Delete(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the customer was successfully deleted.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiConflictResponse({ description: 'Customer still have a site' })
+    public async deleteCustomer(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+    ): Promise<void> {
+        await this.commandBus.execute<DeleteCustomerCommand, void>(new DeleteCustomerCommand(transactionId, id));
     }
 }

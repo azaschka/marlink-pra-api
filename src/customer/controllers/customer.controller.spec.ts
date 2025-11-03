@@ -3,6 +3,7 @@ import { UuidUtility } from '../../shared/utilities';
 import {
     CreateCustomerCommand,
     DeactivateCustomerCommand,
+    DeleteCustomerCommand,
     ModifyCustomerCommand,
     ReactivateCustomerCommand,
 } from '../commands';
@@ -98,6 +99,16 @@ describe('CustomerController', () => {
             await controller.reactivateCustomer(undefined, 1);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(new ReactivateCustomerCommand('uuid-123', 1));
+        });
+    });
+
+    describe('deleteCustomer', () => {
+        it('should execute the command bus with the correct parameters', async () => {
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            await controller.deleteCustomer(undefined, 1);
+
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteCustomerCommand('uuid-123', 1));
         });
     });
 });
