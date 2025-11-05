@@ -34,6 +34,7 @@ import {
     TransactionIdHeader,
 } from '../../../core/decorators';
 import { CustomersScopeInterceptor } from '../../../customer/interceptors';
+import { JumpGroupsScopeInterceptor } from '../../../jump-group/interceptors';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
@@ -55,6 +56,7 @@ import {
     RemoteVncRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { RemoteVnc } from '../models';
+import { RemoteVncRequestPipe } from '../pipes';
 import { RetrieveRemoteVncByIdQuery, RetrieveRemoteVncsQuery } from '../queries';
 
 @ApiTenantIdHeader()
@@ -63,7 +65,8 @@ import { RetrieveRemoteVncByIdQuery, RetrieveRemoteVncsQuery } from '../queries'
 @ApiTags('Jump Items')
 @Controller('jump-items/remote-vncs')
 @UseGuards(AccessGuard)
-@UseInterceptors(CustomersScopeInterceptor)
+@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(RemoteVncRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class RemoteVncController {
     constructor(

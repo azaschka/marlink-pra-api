@@ -1,4 +1,11 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, UnauthorizedException } from '@nestjs/common';
+import {
+    CallHandler,
+    ExecutionContext,
+    ForbiddenException,
+    Injectable,
+    NestInterceptor,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { Access } from '../../access/models';
@@ -36,6 +43,11 @@ export class CustomersScopeInterceptor implements NestInterceptor {
                 ),
             ),
         );
+
+        // Prevent retrieving all data if no customers are found
+        if (customers.length === 0) {
+            throw new ForbiddenException('No customers found for the specified access.');
+        }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error

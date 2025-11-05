@@ -5,11 +5,12 @@ import { AppConfigModule } from '../../app-config/app-config.module';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { CommandHandlers } from './commands/handlers';
 import { RemoteVncController } from './controllers/remote-vnc.controller';
+import { RemoteVncRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
 
 @Module({
     imports: [AppConfigModule, HttpModule],
     controllers: [RemoteVncController],
-    providers: [AccessGuard, CustomersScopeInterceptor, ...QueryHandlers, ...CommandHandlers],
+    providers: [AccessGuard, CustomersScopeInterceptor, RemoteVncRequestPipe, ...QueryHandlers, ...CommandHandlers],
 })
 export class RemoteVncModule {}

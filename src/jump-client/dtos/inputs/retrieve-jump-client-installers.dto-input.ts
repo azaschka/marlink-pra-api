@@ -83,4 +83,13 @@ export class RetrieveJumpClientInstallersDtoInput {
     @IsEnum(JumpClientConnectionType)
     @IsOptional()
     public connectionType?: JumpClientConnectionType;
+
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'Filters Jump Clients installers by the installer id.',
+    })
+    @IsString()
+    @IsOptional()
+    public installerId?: string;
 }

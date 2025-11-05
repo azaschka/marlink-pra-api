@@ -34,6 +34,7 @@ import {
     TransactionIdHeader,
 } from '../../../core/decorators';
 import { CustomersScopeInterceptor } from '../../../customer/interceptors';
+import { JumpGroupsScopeInterceptor } from '../../../jump-group/interceptors';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import { CopyWebJumpCommand, CreateWebJumpCommand, DeleteWebJumpCommand, ModifyWebJumpCommand } from '../commands';
@@ -50,6 +51,7 @@ import {
     WebJumpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { WebJump } from '../models';
+import { WebJumpRequestPipe } from '../pipes';
 import { RetrieveWebJumpByIdQuery, RetrieveWebJumpsQuery } from '../queries';
 
 @ApiTenantIdHeader()
@@ -58,7 +60,8 @@ import { RetrieveWebJumpByIdQuery, RetrieveWebJumpsQuery } from '../queries';
 @ApiTags('Jump Items')
 @Controller('jump-items/web-jumps')
 @UseGuards(AccessGuard)
-@UseInterceptors(CustomersScopeInterceptor)
+@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(WebJumpRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class WebJumpController {
     constructor(

@@ -34,6 +34,7 @@ import {
     TransactionIdHeader,
 } from '../../../core/decorators';
 import { CustomersScopeInterceptor } from '../../../customer/interceptors';
+import { JumpGroupsScopeInterceptor } from '../../../jump-group/interceptors';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
@@ -55,6 +56,7 @@ import {
     ShellJumpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { ShellJump } from '../models';
+import { ShellJumpRequestPipe } from '../pipes';
 import { RetrieveShellJumpByIdQuery, RetrieveShellJumpsQuery } from '../queries';
 
 @ApiTenantIdHeader()
@@ -63,7 +65,8 @@ import { RetrieveShellJumpByIdQuery, RetrieveShellJumpsQuery } from '../queries'
 @ApiTags('Jump Items')
 @Controller('jump-items/shell-jumps')
 @UseGuards(AccessGuard)
-@UseInterceptors(CustomersScopeInterceptor)
+@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(ShellJumpRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class ShellJumpController {
     constructor(

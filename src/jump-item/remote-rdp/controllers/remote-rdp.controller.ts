@@ -34,6 +34,7 @@ import {
     TransactionIdHeader,
 } from '../../../core/decorators';
 import { CustomersScopeInterceptor } from '../../../customer/interceptors';
+import { JumpGroupsScopeInterceptor } from '../../../jump-group/interceptors';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
@@ -55,6 +56,7 @@ import {
     RemoteRdpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { RemoteRdp } from '../models';
+import { RemoteRdpRequestPipe } from '../pipes';
 import { RetrieveRemoteRdpByIdQuery, RetrieveRemoteRdpsQuery } from '../queries';
 
 @ApiTenantIdHeader()
@@ -63,7 +65,8 @@ import { RetrieveRemoteRdpByIdQuery, RetrieveRemoteRdpsQuery } from '../queries'
 @ApiTags('Jump Items')
 @Controller('jump-items/remote-rdps')
 @UseGuards(AccessGuard)
-@UseInterceptors(CustomersScopeInterceptor)
+@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(RemoteRdpRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class RemoteRdpController {
     constructor(

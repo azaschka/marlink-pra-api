@@ -15,5 +15,6 @@ export class RetrieveJumpClientInstallersQuery {
         public readonly jumpGroupIds?: number[],
         public readonly jumpGroupType?: JumpClientGroupType,
         public readonly connectionType?: JumpClientConnectionType,
+        public readonly installerId?: string,
     ) {}
 }

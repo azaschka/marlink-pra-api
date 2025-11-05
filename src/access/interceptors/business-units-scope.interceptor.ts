@@ -1,4 +1,11 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, UnauthorizedException } from '@nestjs/common';
+import {
+    CallHandler,
+    ExecutionContext,
+    ForbiddenException,
+    Injectable,
+    NestInterceptor,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { Access } from '../models';
 
@@ -12,6 +19,11 @@ export class BusinessUnitsScopeInterceptor implements NestInterceptor {
 
         if (!access) {
             throw new UnauthorizedException('Missing access info');
+        }
+
+        // Prevent retrieving all data if no business units are found
+        if (access.value.businessUnits.length === 0) {
+            throw new ForbiddenException('No business units found for the specified access.');
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

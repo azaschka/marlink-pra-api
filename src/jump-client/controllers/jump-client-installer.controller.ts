@@ -37,12 +37,14 @@ import {
     TransactionIdHeader,
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { JumpGroupsScopeInterceptor } from '../../jump-group/interceptors';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
 import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput } from '../dtos/inputs';
 import { JumpClientInstallerCreatedDtoOutput, JumpClientInstallerRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpClientInstallerPlatformType } from '../enums';
 import { JumpClientInstaller } from '../models';
+import { JumpClientInstallerRequestPipe } from '../pipes';
 import {
     RetrieveJumpClientInstallerByIdQuery,
     RetrieveJumpClientInstallerPlatformQuery,
@@ -55,7 +57,8 @@ import {
 @ApiTags('Jump Clients')
 @Controller('jump-clients/installers')
 @UseGuards(AccessGuard)
-@UseInterceptors(CustomersScopeInterceptor)
+@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(JumpClientInstallerRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpClientInstallerController {
     constructor(
@@ -100,6 +103,7 @@ export class JumpClientInstallerController {
                 dtoInput.jumpGroupIds,
                 dtoInput.jumpGroupType,
                 dtoInput.connectionType,
+                dtoInput.installerId,
             ),
         );
 
