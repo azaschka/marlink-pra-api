@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsInt, IsOptional } from 'class-validator';
 
 export class DeleteLogsDtoInput {
     @ApiProperty({
@@ -20,4 +20,14 @@ export class DeleteLogsDtoInput {
     @Type(() => Date)
     @IsOptional()
     public creationDateTo?: Date;
+
+    @ApiProperty({
+        required: false,
+        type: Number,
+        description: 'The tenant ID to filter logs for multi-tenant scenarios.',
+    })
+    @Type(() => Number)
+    @IsInt()
+    @IsOptional()
+    public tenantId?: number;
 }
