@@ -1,3 +1,5 @@
+import { BillingType } from '../enums';
+
 export interface BeyondtrustInstance {
     id: number;
     name: string;
@@ -5,7 +7,7 @@ export interface BeyondtrustInstance {
     authClientSecret: string;
     oauth2TokenUrl: string;
     apiBaseUrl: string;
-    backupApiUrl: string;
+    billingType: BillingType;
     creationDate: Date;
     lastModificationDate?: Date;
 }

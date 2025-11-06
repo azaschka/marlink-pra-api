@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { BillingType } from '../../enums';
 import { BeyondtrustInstance } from '../../models';
 
 export class BeyondtrustInstanceRetrievedDtoOutput implements BeyondtrustInstance {
@@ -42,10 +43,10 @@ export class BeyondtrustInstanceRetrievedDtoOutput implements BeyondtrustInstanc
 
     @ApiProperty({
         required: true,
-        type: String,
-        description: 'The url for the backup API of the BeyondTrust instance.',
+        enum: BillingType,
+        description: 'Billing type of the BeyondTrust instance.',
     })
-    public backupApiUrl!: string;
+    public billingType!: BillingType;
 
     @ApiProperty({
         required: true,

@@ -34,7 +34,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
 
     public async execute(command: CreateSiteCommand): Promise<Site> {
         await this.validateSiteKeyAndName(command.transactionId, command.key, command.name);
-        const customer = await this.validateCustomerExist(command.transactionId, command.customerKey);
+        const customer = await this.getCustomer(command.transactionId, command.customerKey);
         const partialSiteApprovers = command.siteApproverEmails.map((email) => ({
             email,
         }));
@@ -49,6 +49,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             partialSiteApprovers,
             customer.name,
             customer.businessUnit,
+            customer.beyondtrustInstanceId,
         );
 
         const createdSite = await this.createSite(
@@ -88,7 +89,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         }
     }
 
-    private async validateCustomerExist(transactionId: string, customerKey: string): Promise<Customer> {
+    private async getCustomer(transactionId: string, customerKey: string): Promise<Customer> {
         const customers = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
             new RetrieveCustomersQuery(transactionId, 1, 1, customerKey),
         );
@@ -110,6 +111,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         siteApprovers: PartialSiteApprover[],
         customerName: string,
         customerBusinessUnit: BusinessUnit,
+        customerBeyondTrustInstanceId: number,
     ): Promise<SiteWorkflowResult> {
         const siteWorkflow = new SiteWorkflow(
             this.appConfigService,
@@ -124,6 +126,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             siteApprovers,
             customerName,
             customerBusinessUnit,
+            customerBeyondTrustInstanceId,
         );
 
         return await siteWorkflow.getOrCreate();

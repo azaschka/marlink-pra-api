@@ -1,4 +1,4 @@
-import { BillingType, BusinessUnit } from '../enums';
+import { BusinessUnit } from '../enums';
 
 export interface Customer {
     id: number;
@@ -6,7 +6,7 @@ export interface Customer {
     name: string;
     businessUnit: BusinessUnit;
     isDeactivated: boolean;
-    billingType: BillingType;
+    beyondtrustInstanceId: number;
     creationDate: Date;
     lastModificationDate?: Date;
 }

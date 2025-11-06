@@ -53,6 +53,7 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                     this.queryBus.execute<RetrieveGroupPolicyJumpGroupsQuery, GroupPolicyJumpGroup[]>(
                         new RetrieveGroupPolicyJumpGroupsQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             associatedGroupPolicy.id,
@@ -65,11 +66,12 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                     this.queryBus.execute<RetrieveRemoteRdpsQuery, RemoteRdp[]>(
                         new RetrieveRemoteRdpsQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -78,11 +80,12 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                     this.queryBus.execute<RetrieveRemoteVncsQuery, RemoteVnc[]>(
                         new RetrieveRemoteVncsQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -91,11 +94,12 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                     this.queryBus.execute<RetrieveShellJumpsQuery, ShellJump[]>(
                         new RetrieveShellJumpsQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -105,11 +109,12 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                         this.queryBus.execute<RetrieveProtocolTunnelJumpsQuery, ProtocolTunnelJump[]>(
                             new RetrieveProtocolTunnelJumpsQuery(
                                 transactionId,
+                                customer.beyondtrustInstanceId,
                                 CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                                 pageNumber,
                                 undefined,
                                 undefined,
-                                associatedGroupPolicyJumpGroup.jumpGroupId,
+                                [associatedGroupPolicyJumpGroup.jumpGroupId],
                             ),
                         ),
                 );
@@ -118,11 +123,12 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                     this.queryBus.execute<RetrieveWebJumpsQuery, WebJump[]>(
                         new RetrieveWebJumpsQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -131,13 +137,14 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
                     this.queryBus.execute<RetrieveJumpClientsQuery, JumpClient[]>(
                         new RetrieveJumpClientsQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             undefined,
                             undefined,
                             undefined,
                             undefined,
-                            associatedGroupPolicyJumpGroup.jumpGroupId,
+                            [associatedGroupPolicyJumpGroup.jumpGroupId],
                         ),
                     ),
                 );
@@ -280,10 +287,11 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
             this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
                 new RetrieveGroupPoliciesQuery(
                     transactionId,
+                    customer.beyondtrustInstanceId,
                     CalculateAssetLicenseUsageCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,
-                    `%${customer.name.toUpperCase()}%`,
+                    [`%${customer.name.toUpperCase()}%`],
                 ),
             ),
         );

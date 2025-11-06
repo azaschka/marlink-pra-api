@@ -4,7 +4,7 @@ import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { TRANSACTION_ID_HEADER } from '../../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
 import { SendUserActivationEmailCommand } from '../../../email/commands';
 import { ErrorProcessorUtility, ObjectUtility, PasswordGeneratorUtility, UrlUtility } from '../../../shared/utilities';
 import { User } from '../../models';
@@ -27,6 +27,7 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
 
             const headers = new AxiosHeaders();
             headers.set(TRANSACTION_ID_HEADER, command.transactionId);
+            headers.set(TENANT_ID_HEADER, command.tenantId);
 
             // Always generate a password if not provided
             if (!command.password) {

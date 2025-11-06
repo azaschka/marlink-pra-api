@@ -1,3 +1,5 @@
+import { BusinessUnit } from '../enums';
+
 export class RetrieveCustomersQuery {
     public readonly queryType = 'retrieve-customers';
 
@@ -8,5 +10,6 @@ export class RetrieveCustomersQuery {
         public readonly key?: string,
         public readonly name?: string,
         public readonly namePattern?: string,
+        public readonly businessUnits?: BusinessUnit[],
     ) {}
 }

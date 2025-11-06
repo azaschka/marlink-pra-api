@@ -37,7 +37,12 @@ export class EnableUsersLoginAfterCustomerReactivationCommandHandler
             const customerExclusiveUserIds = await this.getExclusiveUserIds(command.transactionId, customer);
 
             for (const userId of customerExclusiveUserIds) {
-                await this.tryEnableUserLogin(command.transactionId, userId, command.customerId);
+                await this.tryEnableUserLogin(
+                    command.transactionId,
+                    userId,
+                    command.customerId,
+                    customer.beyondtrustInstanceId,
+                );
             }
         } catch (error) {
             this.eventBus.publish(
@@ -74,6 +79,7 @@ export class EnableUsersLoginAfterCustomerReactivationCommandHandler
                     this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
                         new RetrieveGroupPolicyMembersQuery(
                             transactionId,
+                            customer.beyondtrustInstanceId,
                             EnableUsersLoginAfterCustomerReactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                             pageNumber,
                             associatedGroupPolicy.id,
@@ -198,20 +204,27 @@ export class EnableUsersLoginAfterCustomerReactivationCommandHandler
             this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
                 new RetrieveGroupPoliciesQuery(
                     transactionId,
+                    customer.beyondtrustInstanceId,
                     EnableUsersLoginAfterCustomerReactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,
-                    `%${customer.name.toUpperCase()}%`,
+                    [`%${customer.name.toUpperCase()}%`],
                 ),
             ),
         );
     }
 
-    private async tryEnableUserLogin(transactionId: string, userId: number, customerId: number) {
+    private async tryEnableUserLogin(
+        transactionId: string,
+        userId: number,
+        customerId: number,
+        customerBeyondTrustInstanceId: number,
+    ) {
         try {
             await this.commandBus.execute<ModifyUserCommand>(
                 new ModifyUserCommand(
                     transactionId,
+                    customerBeyondTrustInstanceId,
                     userId,
                     undefined, // publicDisplayName
                     undefined, // username

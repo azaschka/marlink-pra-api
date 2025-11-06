@@ -3,6 +3,7 @@ export class ModifyUserGroupPoliciesCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly userId: number,
         public readonly groupPolicyIdsToAdd: number[],
         public readonly groupPolicyIdsToRemove: number[],

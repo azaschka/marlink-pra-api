@@ -5,6 +5,7 @@ export class CreateJumpClientInstallerCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly jumpGroupId: number,
         public readonly name?: string,
         public readonly jumpGroupType?: JumpClientGroupType,

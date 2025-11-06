@@ -3,6 +3,7 @@ export class SyncGroupPolicyJumpointsAfterGroupPoliciesSyncedCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly createdGroupPolicyIds: number[],
         public readonly updatedGroupPolicyIds: number[],
         public readonly deletedGroupPolicyIds: number[],

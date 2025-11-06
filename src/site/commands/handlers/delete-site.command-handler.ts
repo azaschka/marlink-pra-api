@@ -39,6 +39,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             site.siteApprovers as PartialSiteApprover[],
             customer.name,
             customer.businessUnit,
+            customer.beyondtrustInstanceId,
         );
         await this.siteRepositoryService.deleteById(command.id);
 
@@ -77,6 +78,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
         siteApprovers: PartialSiteApprover[],
         customerName: string,
         customerBusinessUnit: BusinessUnit,
+        customerBeyondTrustInstanceId: number,
     ): Promise<void> {
         const siteWorkflow = new SiteWorkflow(
             this.appConfigService,
@@ -91,6 +93,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             siteApprovers,
             customerName,
             customerBusinessUnit,
+            customerBeyondTrustInstanceId,
         );
 
         await siteWorkflow.delete();

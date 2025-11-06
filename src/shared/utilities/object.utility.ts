@@ -36,4 +36,18 @@ export abstract class ObjectUtility {
             return true;
         });
     }
+
+    public static convertToArray<T>(value: T | T[]): T[] {
+        return Array.isArray(value) ? value : [value];
+    }
+
+    public static doesEveryTargetContainSourceSubstring(target: string[], source: string[]): boolean {
+        const targetLower = target.map((s) => s.toLowerCase());
+        const sourceLower = source.map((s) => s.toLowerCase());
+
+        const everyTargetHasMatch = (targets: string[], sources: string[]) =>
+            targets.every((t) => sources.some((s) => t.includes(s)));
+
+        return everyTargetHasMatch(targetLower, sourceLower);
+    }
 }

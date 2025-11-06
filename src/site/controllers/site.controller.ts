@@ -8,6 +8,8 @@ import {
     Param,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,17 +23,24 @@ import {
     ApiParam,
     ApiTags,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateSiteCommand, DeleteSiteCommand } from '../commands';
 import { CreateSiteDtoInput, RetrieveSitesDtoInput } from '../dtos/inputs';
 import { SiteCreatedDtoOutput, SiteRetrievedDtoOutput } from '../dtos/outputs';
 import { Site } from '../models';
+import { SiteRequestPipe } from '../pipes';
 import { RetrieveSitesQuery } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Sites')
 @Controller('sites')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteController {
     constructor(
@@ -52,7 +61,7 @@ export class SiteController {
                 dtoInput.pageNumber,
                 dtoInput.key,
                 dtoInput.name,
-                dtoInput.customerKey,
+                dtoInput.customerKeys,
             ),
         );
 

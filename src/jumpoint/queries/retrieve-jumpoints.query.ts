@@ -3,6 +3,7 @@ export class RetrieveJumpointsQuery {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly pageSize: number,
         public readonly pageNumber: number,
         public readonly name?: string,
@@ -10,6 +11,6 @@ export class RetrieveJumpointsQuery {
         public readonly privateIp?: string,
         public readonly hostname?: string,
         public readonly codeName?: string,
-        public readonly namePattern?: string,
+        public readonly namePatterns?: string[],
     ) {}
 }

@@ -41,6 +41,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         private readonly transactionId: string,
         private readonly siteSupportTeamMember: PartialSiteSupportTeamMember,
         private readonly customerName: string,
+        private readonly customerBeyondtrustInstanceId: number,
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
         private readonly jumpointsWorkflow: JumpointsWorkflow,
@@ -50,6 +51,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             this.commandBus,
             this.transactionId,
             this.siteSupportTeamMember,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.supportTeamGroupPolicyWorkflow = new SupportTeamGroupPolicyWorkflow(
@@ -58,6 +60,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             this.transactionId,
             this.siteSupportTeamMember,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.supportTeamJumpGroupWorkflow = new SupportTeamJumpGroupWorkflow(
@@ -66,6 +69,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             this.transactionId,
             this.siteSupportTeamMember,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.limitedAccessGroupPolicyWorkflow = new LimitedAccessGroupPolicyWorkflow(
@@ -73,6 +77,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             this.queryBus,
             this.commandBus,
             this.transactionId,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.fullAccessGroupPolicyWorkflow = new FullAccessGroupPolicyWorkflow(
@@ -80,6 +85,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             this.queryBus,
             this.commandBus,
             this.transactionId,
+            this.customerBeyondtrustInstanceId,
         );
     }
 
@@ -98,6 +104,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 siteSupportTeamMemberUser.id,
                 [
                     supportTeamGroupPolicy.id,
@@ -119,7 +126,12 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             }
 
             await this.commandBus.execute<AddJumpointToGroupPolicyCommand, GroupPolicyJumpoint>(
-                new AddJumpointToGroupPolicyCommand(this.transactionId, supportTeamGroupPolicy.id, jumpoint.id),
+                new AddJumpointToGroupPolicyCommand(
+                    this.transactionId,
+                    this.customerBeyondtrustInstanceId,
+                    supportTeamGroupPolicy.id,
+                    jumpoint.id,
+                ),
             );
         }
 
@@ -137,7 +149,12 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             }
 
             await this.commandBus.execute<AddJumpGroupToGroupPolicyCommand, GroupPolicyJumpGroup>(
-                new AddJumpGroupToGroupPolicyCommand(this.transactionId, groupPolicy.id, supportTeamJumpGroup.id),
+                new AddJumpGroupToGroupPolicyCommand(
+                    this.transactionId,
+                    this.customerBeyondtrustInstanceId,
+                    groupPolicy.id,
+                    supportTeamJumpGroup.id,
+                ),
             );
         }
 
@@ -162,6 +179,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 siteSupportTeamMemberUser.id,
                 [],
                 isSiteSupportTeamMemberAssociatedWithMultipleSites
@@ -187,6 +205,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             this.queryBus.execute<RetrieveGroupPolicyJumpointsQuery, GroupPolicyJumpoint[]>(
                 new RetrieveGroupPolicyJumpointsQuery(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     SiteSupportTeamMemberWorkflow.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     groupPolicyId,
@@ -200,6 +219,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             this.queryBus.execute<RetrieveGroupPolicyJumpGroupsQuery, GroupPolicyJumpGroup[]>(
                 new RetrieveGroupPolicyJumpGroupsQuery(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     SiteSupportTeamMemberWorkflow.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     groupPolicyId,

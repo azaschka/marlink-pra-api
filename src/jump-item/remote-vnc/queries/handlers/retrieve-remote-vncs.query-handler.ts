@@ -1,9 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
+import qs from 'qs';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../../app-config/services/app-config.service';
-import { TRANSACTION_ID_HEADER } from '../../../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../../core/decorators';
 import { ErrorProcessorUtility, ObjectUtility, UrlUtility } from '../../../../shared/utilities';
 import { RemoteVnc } from '../../models';
 import { RetrieveRemoteVncsQuery } from '../retrieve-remote-vncs.query';
@@ -24,11 +25,13 @@ export class RetrieveRemoteVncsQueryHandler implements IQueryHandler<RetrieveRem
 
             const headers = new AxiosHeaders();
             headers.set(TRANSACTION_ID_HEADER, query.transactionId);
+            headers.set(TENANT_ID_HEADER, query.tenantId);
 
             const response = await firstValueFrom(
                 this.httpService.get<RemoteVnc[]>(url, {
                     params: ObjectUtility.stripProperties(query, 'transactionId'),
                     headers: headers,
+                    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
                 }),
             );
 

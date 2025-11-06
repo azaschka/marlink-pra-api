@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,18 +23,33 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { JumpGroupsScopeInterceptor } from '../../jump-group/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CopyJumpClientCommand, DeleteJumpClientCommand, ModifyJumpClientCommand } from '../commands';
 import { CopyJumpClientDtoInput, ModifyJumpClientDtoInput, RetrieveJumpClientsDtoInput } from '../dtos/inputs';
 import { JumpClientCopiedDtoOutput, JumpClientModifiedDtoOutput, JumpClientRetrievedDtoOutput } from '../dtos/outputs';
 import { JumpClient } from '../models';
-import { RetrieveJumpClientsQuery } from '../queries';
+import { JumpClientRequestPipe } from '../pipes';
+import { RetrieveJumpClientByIdQuery, RetrieveJumpClientsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jump Clients')
 @Controller('jump-clients')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(JumpClientRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpClientController {
     constructor(
@@ -40,22 +57,40 @@ export class JumpClientController {
         private readonly queryBus: QueryBus,
     ) {}
 
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: JumpClientRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpClient(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<JumpClientRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveJumpClientByIdQuery, JumpClientRetrievedDtoOutput>(
+            new RetrieveJumpClientByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
+
     @Get()
     @ApiOkResponse({ type: JumpClientRetrievedDtoOutput, isArray: true })
     public async retrieveJumpClients(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveJumpClientsDtoInput,
     ): Promise<JumpClientRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveJumpClientsQuery, JumpClientRetrievedDtoOutput[]>(
             new RetrieveJumpClientsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
                 dtoInput.hostname,
                 dtoInput.fqdn,
                 dtoInput.tag,
-                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupIds,
                 dtoInput.jumpGroupType,
                 dtoInput.consoleUser,
                 dtoInput.publicIp,
@@ -80,12 +115,14 @@ export class JumpClientController {
     })
     public async modifyJumpClient(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyJumpClientDtoInput,
     ): Promise<JumpClientModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyJumpClientCommand, JumpClient>(
             new ModifyJumpClientCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.jumpGroupId,
                 dtoInput.jumpGroupType,
@@ -113,9 +150,12 @@ export class JumpClientController {
     })
     public async deleteJumpClient(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteJumpClientCommand, void>(new DeleteJumpClientCommand(transactionId, id));
+        await this.commandBus.execute<DeleteJumpClientCommand, void>(
+            new DeleteJumpClientCommand(transactionId, tenantId, id),
+        );
     }
 
     @Post(':id/copy')
@@ -132,11 +172,19 @@ export class JumpClientController {
     })
     public async copyJumpClient(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: CopyJumpClientDtoInput,
     ): Promise<JumpClientCopiedDtoOutput> {
         const result = await this.commandBus.execute<CopyJumpClientCommand, JumpClient>(
-            new CopyJumpClientCommand(transactionId, id, dtoInput.jumpGroupId, dtoInput.jumpGroupType, dtoInput.name),
+            new CopyJumpClientCommand(
+                transactionId,
+                tenantId,
+                id,
+                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupType,
+                dtoInput.name,
+            ),
         );
 
         return result;

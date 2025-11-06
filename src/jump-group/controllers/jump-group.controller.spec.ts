@@ -2,7 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpGroupCommand, DeleteJumpGroupCommand, ModifyJumpGroupCommand } from '../commands';
 import { JumpGroup } from '../models';
-import { RetrieveJumpGroupsQuery } from '../queries';
+import { RetrieveJumpGroupByIdQuery, RetrieveJumpGroupsQuery } from '../queries';
 import { JumpGroupController } from './jump-group.controller';
 
 describe('JumpGroupController', () => {
@@ -19,20 +19,35 @@ describe('JumpGroupController', () => {
         UuidUtility.generate = jest.fn(() => 'uuid-123');
     });
 
+    describe('retrieveJumpGroup', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as JumpGroup;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpGroup(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpGroupByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
+    });
+
     describe('retrieveJumpGroups', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as JumpGroup[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveJumpGroups(undefined, {
+            const result = await controller.retrieveJumpGroups(undefined, 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'jump-group-1',
                 codeName: 'jump-group-code-1',
+                namePatterns: ['jump-group'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveJumpGroupsQuery('uuid-123', 10, 1, 'jump-group-1', 'jump-group-code-1'),
+                new RetrieveJumpGroupsQuery('uuid-123', 123, 10, 1, 'jump-group-1', 'jump-group-code-1', [
+                    'jump-group',
+                ]),
             );
             expect(result).toBe(expectedResult);
         });
@@ -43,14 +58,20 @@ describe('JumpGroupController', () => {
             const expectedResult = {} as JumpGroup;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createJumpGroup(undefined, {
+            const result = await controller.createJumpGroup(undefined, 123, {
                 name: 'jump-group-1',
                 codeName: 'jump-group-code-1',
                 comments: 'jump group comments 1',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateJumpGroupCommand('uuid-123', 'jump-group-1', 'jump-group-code-1', 'jump group comments 1'),
+                new CreateJumpGroupCommand(
+                    'uuid-123',
+                    123,
+                    'jump-group-1',
+                    'jump-group-code-1',
+                    'jump group comments 1',
+                ),
             );
             expect(result).toBe(expectedResult);
         });
@@ -61,14 +82,21 @@ describe('JumpGroupController', () => {
             const expectedResult = {} as JumpGroup;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyJumpGroup(undefined, 1, {
+            const result = await controller.modifyJumpGroup(undefined, 123, 1, {
                 name: 'jump-group-1',
                 codeName: 'jump-group-code-1',
                 comments: 'jump group comments 1',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ModifyJumpGroupCommand('uuid-123', 1, 'jump-group-1', 'jump-group-code-1', 'jump group comments 1'),
+                new ModifyJumpGroupCommand(
+                    'uuid-123',
+                    123,
+                    1,
+                    'jump-group-1',
+                    'jump-group-code-1',
+                    'jump group comments 1',
+                ),
             );
             expect(result).toBe(expectedResult);
         });
@@ -78,9 +106,9 @@ describe('JumpGroupController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteJumpGroup('uuid-100', 1);
+            await controller.deleteJumpGroup('uuid-100', 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpGroupCommand('uuid-100', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpGroupCommand('uuid-100', 123, 1));
         });
     });
 });

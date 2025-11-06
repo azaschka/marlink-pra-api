@@ -8,7 +8,7 @@ import {
 } from '../commands';
 import { JumpGroupType } from '../enums';
 import { ProtocolTunnelJump } from '../models';
-import { RetrieveProtocolTunnelJumpsQuery } from '../queries';
+import { RetrieveProtocolTunnelJumpByIdQuery, RetrieveProtocolTunnelJumpsQuery } from '../queries';
 import { ProtocolTunnelJumpController } from './protocol-tunnel-jump.controller';
 
 describe('ProtocolTunnelJumpController', () => {
@@ -25,18 +25,32 @@ describe('ProtocolTunnelJumpController', () => {
         UuidUtility.generate = jest.fn(() => 'uuid-123');
     });
 
+    describe('retrieveProtocolTunnelJump', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as ProtocolTunnelJump;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveProtocolTunnelJump(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
+                new RetrieveProtocolTunnelJumpByIdQuery('uuid-123', 123, 1),
+            );
+            expect(result).toBe(expectedResult);
+        });
+    });
+
     describe('retrieveProtocolTunnelJumps', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as ProtocolTunnelJump[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveProtocolTunnelJumps(undefined, {
+            const result = await controller.retrieveProtocolTunnelJumps(undefined, 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'protocol-tunnel-jump-1',
                 hostname: 'hostname-1',
                 jumpGroupType: JumpGroupType.Personal,
-                jumpGroupId: 2,
+                jumpGroupIds: [2],
                 jumpointId: 3,
                 tag: 'tag-1',
             });
@@ -44,11 +58,12 @@ describe('ProtocolTunnelJumpController', () => {
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
                 new RetrieveProtocolTunnelJumpsQuery(
                     'uuid-123',
+                    123,
                     10,
                     1,
                     'protocol-tunnel-jump-1',
                     'hostname-1',
-                    2,
+                    [2],
                     JumpGroupType.Personal,
                     3,
                     'tag-1',
@@ -63,7 +78,7 @@ describe('ProtocolTunnelJumpController', () => {
             const expectedResult = {} as ProtocolTunnelJump;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createProtocolTunnelJump(undefined, {
+            const result = await controller.createProtocolTunnelJump(undefined, 123, {
                 name: 'protocol-tunnel-jump-2',
                 jumpointId: 2,
                 hostname: 'hostname-2',
@@ -71,7 +86,7 @@ describe('ProtocolTunnelJumpController', () => {
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateProtocolTunnelJumpCommand('uuid-123', 'protocol-tunnel-jump-2', 2, 'hostname-2', 3),
+                new CreateProtocolTunnelJumpCommand('uuid-123', 123, 'protocol-tunnel-jump-2', 2, 'hostname-2', 3),
             );
             expect(result).toBe(expectedResult);
         });
@@ -82,7 +97,7 @@ describe('ProtocolTunnelJumpController', () => {
             const expectedResult = {} as ProtocolTunnelJump;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyProtocolTunnelJump(undefined, 1, {
+            const result = await controller.modifyProtocolTunnelJump(undefined, 123, 1, {
                 name: 'protocol-tunnel-jump-1',
                 jumpointId: 1,
                 hostname: 'hostname-1',
@@ -90,7 +105,7 @@ describe('ProtocolTunnelJumpController', () => {
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ModifyProtocolTunnelJumpCommand('uuid-123', 1, 'protocol-tunnel-jump-1', 1, 'hostname-1', 2),
+                new ModifyProtocolTunnelJumpCommand('uuid-123', 123, 1, 'protocol-tunnel-jump-1', 1, 'hostname-1', 2),
             );
             expect(result).toBe(expectedResult);
         });
@@ -100,9 +115,9 @@ describe('ProtocolTunnelJumpController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteProtocolTunnelJump(undefined, 1);
+            await controller.deleteProtocolTunnelJump(undefined, 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteProtocolTunnelJumpCommand('uuid-123', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteProtocolTunnelJumpCommand('uuid-123', 123, 1));
         });
     });
 
@@ -111,7 +126,7 @@ describe('ProtocolTunnelJumpController', () => {
             const expectedResult = {} as ProtocolTunnelJump;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.copyProtocolTunnelJump(undefined, 1, {
+            const result = await controller.copyProtocolTunnelJump(undefined, 123, 1, {
                 jumpGroupId: 2,
                 jumpGroupType: JumpGroupType.Personal,
                 name: 'copy-protocol-tunnel-jump-1',
@@ -120,6 +135,7 @@ describe('ProtocolTunnelJumpController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
                 new CopyProtocolTunnelJumpCommand(
                     'uuid-123',
+                    123,
                     1,
                     2,
                     JumpGroupType.Personal,

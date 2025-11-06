@@ -3,7 +3,7 @@ import { UuidUtility } from '../../../shared/utilities';
 import { CopyWebJumpCommand, CreateWebJumpCommand, DeleteWebJumpCommand, ModifyWebJumpCommand } from '../commands';
 import { JumpGroupType } from '../enums';
 import { WebJump } from '../models';
-import { RetrieveWebJumpsQuery } from '../queries';
+import { RetrieveWebJumpByIdQuery, RetrieveWebJumpsQuery } from '../queries';
 import { WebJumpController } from './web-jump.controller';
 
 describe('WebJumpController', () => {
@@ -20,18 +20,30 @@ describe('WebJumpController', () => {
         UuidUtility.generate = jest.fn(() => 'uuid-123');
     });
 
+    describe('retrieveWebJump', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as WebJump;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveWebJump(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveWebJumpByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
+    });
+
     describe('retrieveWebJumps', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as WebJump[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveWebJumps(undefined, {
+            const result = await controller.retrieveWebJumps(undefined, 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'web-jump-1',
                 url: 'url-1',
                 jumpGroupType: JumpGroupType.Personal,
-                jumpGroupId: 2,
+                jumpGroupIds: [2],
                 jumpointId: 3,
                 tag: 'tag-1',
             });
@@ -39,11 +51,12 @@ describe('WebJumpController', () => {
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
                 new RetrieveWebJumpsQuery(
                     'uuid-123',
+                    123,
                     10,
                     1,
                     'web-jump-1',
                     'url-1',
-                    2,
+                    [2],
                     JumpGroupType.Personal,
                     3,
                     'tag-1',
@@ -58,7 +71,7 @@ describe('WebJumpController', () => {
             const expectedResult = {} as WebJump;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createWebJump(undefined, {
+            const result = await controller.createWebJump(undefined, 123, {
                 name: 'web-jump-2',
                 jumpointId: 2,
                 url: 'url-2',
@@ -66,7 +79,7 @@ describe('WebJumpController', () => {
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateWebJumpCommand('uuid-123', 'web-jump-2', 2, 'url-2', 3),
+                new CreateWebJumpCommand('uuid-123', 123, 'web-jump-2', 2, 'url-2', 3),
             );
             expect(result).toBe(expectedResult);
         });
@@ -77,7 +90,7 @@ describe('WebJumpController', () => {
             const expectedResult = {} as WebJump;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyWebJump(undefined, 1, {
+            const result = await controller.modifyWebJump(undefined, 123, 1, {
                 name: 'web-jump-1',
                 jumpointId: 1,
                 url: 'url-1',
@@ -85,7 +98,7 @@ describe('WebJumpController', () => {
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ModifyWebJumpCommand('uuid-123', 1, 'web-jump-1', 1, 'url-1', 2),
+                new ModifyWebJumpCommand('uuid-123', 123, 1, 'web-jump-1', 1, 'url-1', 2),
             );
             expect(result).toBe(expectedResult);
         });
@@ -95,9 +108,9 @@ describe('WebJumpController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteWebJump(undefined, 1);
+            await controller.deleteWebJump(undefined, 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteWebJumpCommand('uuid-123', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteWebJumpCommand('uuid-123', 123, 1));
         });
     });
 
@@ -106,14 +119,14 @@ describe('WebJumpController', () => {
             const expectedResult = {} as WebJump;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.copyWebJump(undefined, 1, {
+            const result = await controller.copyWebJump(undefined, 123, 1, {
                 jumpGroupId: 2,
                 jumpGroupType: JumpGroupType.Personal,
                 name: 'copy-web-jump-1',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CopyWebJumpCommand('uuid-123', 1, 2, JumpGroupType.Personal, 'copy-web-jump-1'),
+                new CopyWebJumpCommand('uuid-123', 123, 1, 2, JumpGroupType.Personal, 'copy-web-jump-1'),
             );
             expect(result).toBe(expectedResult);
         });

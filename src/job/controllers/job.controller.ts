@@ -26,7 +26,7 @@ export class JobController implements OnModuleInit {
         const cronJobMap = [
             {
                 name: 'createBTInstancesBackups',
-                cronExpression: this.appConfigService.cronJob.expressions,
+                cronExpression: this.appConfigService.cronJob.btInstanceBackup,
                 func: this.createBTInstancesBackups.bind(this),
             },
         ];

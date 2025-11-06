@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { BusinessUnit } from '../../enums';
 
 export class RetrieveCustomersDtoInput {
     @ApiProperty({
@@ -38,4 +39,16 @@ export class RetrieveCustomersDtoInput {
     @IsString()
     @IsOptional()
     public name?: string;
+
+    @ApiProperty({
+        required: false,
+        isArray: true,
+        enum: BusinessUnit,
+        description: 'Filter customers by business units.',
+    })
+    @IsOptional()
+    @IsEnum(BusinessUnit, { each: true })
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public businessUnits?: BusinessUnit[];
 }

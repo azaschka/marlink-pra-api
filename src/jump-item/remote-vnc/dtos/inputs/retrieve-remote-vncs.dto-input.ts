@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { JumpGroupType } from '../../enums';
 
@@ -36,11 +36,13 @@ export class RetrieveRemoteVncsDtoInput {
     @IsOptional()
     public hostname?: string;
 
-    @ApiProperty({ required: false, type: Number })
+    @ApiProperty({ required: false, type: [Number] })
     @Type(() => Number)
-    @IsInt()
+    @IsInt({ each: true })
     @IsOptional()
-    public jumpGroupId?: number;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public jumpGroupIds?: number[];
 
     @ApiProperty({ required: false, enum: JumpGroupType })
     @IsEnum(JumpGroupType)

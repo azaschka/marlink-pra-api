@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     HttpCode,
     HttpStatus,
@@ -8,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -15,29 +18,38 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     ApiConflictResponse,
     ApiCreatedResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiParam,
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import { BusinessUnitsScopeInterceptor } from '../../access/interceptors';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import {
     CreateCustomerCommand,
     DeactivateCustomerCommand,
+    DeleteCustomerCommand,
     ModifyCustomerCommand,
     ReactivateCustomerCommand,
 } from '../commands';
 import { CreateCustomerDtoInput, ModifyCustomerDtoInput, RetrieveCustomersDtoInput } from '../dtos/inputs';
 import { CustomerCreatedDtoOutput, CustomerModifiedDtoOutput, CustomerRetrievedDtoOutput } from '../dtos/outputs';
 import { Customer } from '../models';
+import { CustomerRequestPipe } from '../pipes';
 import { RetrieveCustomersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Customers')
 @Controller('customers')
+@UseGuards(AccessGuard)
+@UseInterceptors(BusinessUnitsScopeInterceptor)
+@UsePipes(CustomerRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class CustomerController {
     constructor(
@@ -58,6 +70,8 @@ export class CustomerController {
                 dtoInput.pageNumber,
                 dtoInput.key,
                 dtoInput.name,
+                undefined,
+                dtoInput.businessUnits,
             ),
         );
 
@@ -85,7 +99,7 @@ export class CustomerController {
                 dtoInput.key,
                 dtoInput.name,
                 dtoInput.businessUnit,
-                dtoInput.billingType,
+                dtoInput.beyondtrustInstanceId,
             ),
         );
 
@@ -105,7 +119,7 @@ export class CustomerController {
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyCustomerDtoInput,
     ): Promise<CustomerModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyCustomerCommand, Customer>(
-            new ModifyCustomerCommand(transactionId, id, dtoInput.billingType),
+            new ModifyCustomerCommand(transactionId, id, dtoInput.beyondtrustInstanceId),
         );
 
         return result;
@@ -137,5 +151,18 @@ export class CustomerController {
         await this.commandBus.execute<ReactivateCustomerCommand, void>(
             new ReactivateCustomerCommand(transactionId, id),
         );
+    }
+
+    @Delete(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'Indicates the customer was successfully deleted.' })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    @ApiConflictResponse({ description: 'Customer still have a site' })
+    public async deleteCustomer(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Param('id') id: number,
+    ): Promise<void> {
+        await this.commandBus.execute<DeleteCustomerCommand, void>(new DeleteCustomerCommand(transactionId, id));
     }
 }

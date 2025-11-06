@@ -11,6 +11,8 @@ import {
     Post,
     Query,
     Res,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -26,14 +28,22 @@ import {
 } from '@nestjs/swagger';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
 import {
     CreateJumpointDtoInput,
     ModifyJumpointDtoInput,
-    RetrieveJumpointInstallerByCustomerAndSiteDtoInput,
+    RetrieveJumpointNodesDtoInput,
     RetrieveJumpointsDtoInput,
 } from '../dtos/inputs';
 import {
@@ -43,16 +53,22 @@ import {
     JumpointRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { Jumpoint } from '../models';
+import { JumpointRequestPipe } from '../pipes';
 import {
-    RetrieveJumpointInstallerByCustomerAndSiteQuery,
+    RetrieveJumpointByIdQuery,
     RetrieveJumpointInstallerQuery,
     RetrieveJumpointNodesQuery,
     RetrieveJumpointsQuery,
 } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jumpoints')
 @Controller('jumpoints')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(JumpointRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointController {
     constructor(
@@ -60,15 +76,33 @@ export class JumpointController {
         private readonly queryBus: QueryBus,
     ) {}
 
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: JumpointRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveJumpoint(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<JumpointRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveJumpointByIdQuery, Jumpoint>(
+            new RetrieveJumpointByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
+
     @Get()
     @ApiOkResponse({ type: JumpointRetrievedDtoOutput, isArray: true })
     public async retrieveJumpoints(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveJumpointsDtoInput,
     ): Promise<JumpointRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveJumpointsQuery, Jumpoint[]>(
             new RetrieveJumpointsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
@@ -76,7 +110,7 @@ export class JumpointController {
                 dtoInput.privateIp,
                 dtoInput.hostname,
                 dtoInput.codeName,
-                dtoInput.namePattern,
+                dtoInput.namePatterns,
             ),
         );
 
@@ -94,11 +128,13 @@ export class JumpointController {
     })
     public async createJumpoint(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateJumpointDtoInput,
     ): Promise<JumpointCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateJumpointCommand, Jumpoint>(
             new CreateJumpointCommand(
                 transactionId,
+                tenantId,
                 dtoInput.name,
                 dtoInput.platformType,
                 dtoInput.codeName,
@@ -135,12 +171,14 @@ export class JumpointController {
     })
     public async modifyJumpoint(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyJumpointDtoInput,
     ): Promise<JumpointModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyJumpointCommand, Jumpoint>(
             new ModifyJumpointCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.name,
                 dtoInput.codeName,
@@ -174,9 +212,12 @@ export class JumpointController {
     })
     public async deleteJumpoint(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteJumpointCommand, void>(new DeleteJumpointCommand(transactionId, id));
+        await this.commandBus.execute<DeleteJumpointCommand, void>(
+            new DeleteJumpointCommand(transactionId, tenantId, id),
+        );
     }
 
     @Get(':id/nodes')
@@ -188,10 +229,12 @@ export class JumpointController {
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async retrieveJumpointNodes(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
+        @Query() dtoInput: RetrieveJumpointNodesDtoInput,
     ): Promise<JumpointNodeRetrievedDtoOutput[]> {
         const result = this.queryBus.execute<RetrieveJumpointNodesQuery, JumpointNodeRetrievedDtoOutput[]>(
-            new RetrieveJumpointNodesQuery(transactionId, id),
+            new RetrieveJumpointNodesQuery(transactionId, tenantId, dtoInput.pageSize, dtoInput.pageNumber, id),
         );
 
         return result;
@@ -199,9 +242,9 @@ export class JumpointController {
 
     @Get(':id/installer')
     @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
-    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async retrieveJumpointInstaller(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Res() res: Response,
     ): Promise<void> {
@@ -209,56 +252,7 @@ export class JumpointController {
             const response = await this.queryBus.execute<
                 RetrieveJumpointInstallerQuery,
                 AxiosResponse<NodeJS.ReadableStream>
-            >(new RetrieveJumpointInstallerQuery(transactionId, id));
-
-            if (response.headers['content-type']) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                res.setHeader('Content-Type', response.headers['content-type']);
-            }
-            if (response.headers['content-disposition']) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                res.setHeader('Content-Disposition', response.headers['content-disposition']);
-            }
-            if (response.headers['content-length']) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                res.setHeader('Content-Length', response.headers['content-length']);
-            }
-
-            response.data.pipe(res);
-        } catch (error) {
-            if (error instanceof HttpException) {
-                res.status(error.getStatus()).json({
-                    statusCode: error.getStatus(),
-                    message: error.message,
-                });
-            } else {
-                res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-                    message: ErrorProcessorUtility.stringify(error),
-                });
-            }
-        }
-    }
-
-    @Get('installers')
-    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
-    public async retrieveJumpointInstallerByCustomerAndSite(
-        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
-        @Query() dtoInput: RetrieveJumpointInstallerByCustomerAndSiteDtoInput,
-        @Res() res: Response,
-    ): Promise<void> {
-        try {
-            const response = await this.queryBus.execute<
-                RetrieveJumpointInstallerByCustomerAndSiteQuery,
-                AxiosResponse<NodeJS.ReadableStream>
-            >(
-                new RetrieveJumpointInstallerByCustomerAndSiteQuery(
-                    transactionId,
-                    dtoInput.businessUnit,
-                    dtoInput.customerKey,
-                    dtoInput.siteKey,
-                ),
-            );
+            >(new RetrieveJumpointInstallerQuery(transactionId, tenantId, id));
 
             if (response.headers['content-type']) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

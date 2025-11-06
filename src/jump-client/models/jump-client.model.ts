@@ -1,3 +1,5 @@
+import { JumpGroup } from '../../jump-group/models';
+import { JumpPolicy } from '../../jump-policy/models';
 import {
     JumpClientConnectionType,
     JumpClientEndpointAgreementPolicyType,
@@ -34,4 +36,6 @@ export interface JumpClient {
     endpointAgreementPolicyType?: JumpClientEndpointAgreementPolicyType;
     jumpointProxy?: string | null;
     lastSyncDate: Date;
+    jumpGroup?: JumpGroup;
+    jumpPolicy?: JumpPolicy | null;
 }

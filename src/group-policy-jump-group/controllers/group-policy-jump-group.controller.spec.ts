@@ -24,13 +24,13 @@ describe('GroupPolicyJumpGroupController', () => {
             const expectedResult = [] as GroupPolicyJumpGroup[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveGroupPolicyJumpGroups(undefined, 123, {
+            const result = await controller.retrieveGroupPolicyJumpGroups(undefined, 100, 123, {
                 pageSize: 10,
                 pageNumber: 1,
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveGroupPolicyJumpGroupsQuery('uuid-123', 10, 1, 123),
+                new RetrieveGroupPolicyJumpGroupsQuery('uuid-123', 100, 10, 1, 123),
             );
             expect(result).toBe(expectedResult);
         });
@@ -41,14 +41,14 @@ describe('GroupPolicyJumpGroupController', () => {
             const expectedResult = {} as GroupPolicyJumpGroup;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.addJumpGroupToGroupPolicy(undefined, 1, {
+            const result = await controller.addJumpGroupToGroupPolicy(undefined, 100, 1, {
                 jumpGroupId: 2,
                 jumpItemRoleId: 3,
                 jumpPolicyId: 4,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new AddJumpGroupToGroupPolicyCommand('uuid-123', 1, 2, 3, 4),
+                new AddJumpGroupToGroupPolicyCommand('uuid-123', 100, 1, 2, 3, 4),
             );
             expect(result).toBe(expectedResult);
         });
@@ -58,10 +58,10 @@ describe('GroupPolicyJumpGroupController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(undefined);
 
-            await controller.removeJumpGroupFromGroupPolicy(undefined, 1, 2);
+            await controller.removeJumpGroupFromGroupPolicy(undefined, 100, 1, 2);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new RemoveJumpGroupFromGroupPolicyCommand('uuid-123', 1, 2),
+                new RemoveJumpGroupFromGroupPolicyCommand('uuid-123', 100, 1, 2),
             );
         });
     });

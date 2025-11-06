@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { BillingType } from '../../enums';
 
 export class CreateBeyondtrustInstanceDtoInput {
     @ApiProperty({ required: true, type: String, description: 'The display name of the BeyondTrust instance.' })
@@ -45,10 +46,10 @@ export class CreateBeyondtrustInstanceDtoInput {
 
     @ApiProperty({
         required: true,
-        type: String,
-        description: 'The url for the backup API of the BeyondTrust instance.',
+        enum: BillingType,
+        description: 'Billing type of the BeyondTrust instance.',
     })
+    @IsEnum(BillingType)
     @IsNotEmpty()
-    @IsString()
-    public backupApiUrl!: string;
+    public billingType!: BillingType;
 }

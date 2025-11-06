@@ -24,13 +24,13 @@ describe('GroupPolicyJumpointController', () => {
             const expectedResult = [] as GroupPolicyJumpoint[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveGroupPolicyJumpoints(undefined, 123, {
+            const result = await controller.retrieveGroupPolicyJumpoints(undefined, 100, 123, {
                 pageSize: 10,
                 pageNumber: 1,
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveGroupPolicyJumpointsQuery('uuid-123', 10, 1, 123),
+                new RetrieveGroupPolicyJumpointsQuery('uuid-123', 100, 10, 1, 123),
             );
             expect(result).toBe(expectedResult);
         });
@@ -41,11 +41,13 @@ describe('GroupPolicyJumpointController', () => {
             const expectedResult = {} as GroupPolicyJumpoint;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.addJumpointToGroupPolicy(undefined, 1, {
+            const result = await controller.addJumpointToGroupPolicy(undefined, 123, 1, {
                 jumpointId: 2,
             });
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new AddJumpointToGroupPolicyCommand('uuid-123', 1, 2));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(
+                new AddJumpointToGroupPolicyCommand('uuid-123', 123, 1, 2),
+            );
             expect(result).toBe(expectedResult);
         });
     });
@@ -54,10 +56,10 @@ describe('GroupPolicyJumpointController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(undefined);
 
-            await controller.removeJumpointFromGroupPolicy(undefined, 1, 2);
+            await controller.removeJumpointFromGroupPolicy(undefined, 123, 1, 2);
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new RemoveJumpointFromGroupPolicyCommand('uuid-123', 1, 2),
+                new RemoveJumpointFromGroupPolicyCommand('uuid-123', 123, 1, 2),
             );
         });
     });

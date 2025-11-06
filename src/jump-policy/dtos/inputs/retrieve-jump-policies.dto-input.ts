@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class RetrieveJumpPoliciesDtoInput {
@@ -33,4 +33,15 @@ export class RetrieveJumpPoliciesDtoInput {
     @IsString()
     @IsOptional()
     public codeName?: string;
+
+    @ApiProperty({
+        required: false,
+        type: [String],
+        description: 'Filters results to include only jump policies that match the given name patterns.',
+    })
+    @IsString({ each: true })
+    @IsOptional()
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public displayNamePatterns?: string[];
 }

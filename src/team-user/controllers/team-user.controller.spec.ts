@@ -25,12 +25,12 @@ describe('TeamUserController', () => {
             const expectedResult = [] as TeamUser[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveTeamUsers(undefined, 123, {
+            const result = await controller.retrieveTeamUsers(undefined, 100, 123, {
                 pageSize: 10,
                 pageNumber: 1,
             });
 
-            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveTeamUsersQuery('uuid-123', 10, 1, 123));
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveTeamUsersQuery('uuid-123', 100, 10, 1, 123));
             expect(result).toBe(expectedResult);
         });
     });
@@ -40,13 +40,13 @@ describe('TeamUserController', () => {
             const expectedResult = {} as TeamUser;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.addUserToTeam(undefined, 1, {
+            const result = await controller.addUserToTeam(undefined, 123, 1, {
                 userId: 2,
                 roleType: UserTeamRoleType.Member,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new AddUserToTeamCommand('uuid-123', 1, 2, UserTeamRoleType.Member),
+                new AddUserToTeamCommand('uuid-123', 123, 1, 2, UserTeamRoleType.Member),
             );
             expect(result).toBe(expectedResult);
         });
@@ -56,9 +56,9 @@ describe('TeamUserController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(undefined);
 
-            await controller.removeUserFromTeam('uuid-100', 1, 2);
+            await controller.removeUserFromTeam('uuid-100', 123, 1, 2);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new RemoveUserFromTeamCommand('uuid-100', 1, 2));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new RemoveUserFromTeamCommand('uuid-100', 123, 1, 2));
         });
     });
 });

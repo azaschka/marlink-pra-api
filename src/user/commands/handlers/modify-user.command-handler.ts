@@ -2,12 +2,12 @@ import { HttpService } from '@nestjs/axios';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
 import { firstValueFrom } from 'rxjs';
+import { SendUserNewPasswordEmailCommand } from 'src/email/commands';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { TRANSACTION_ID_HEADER } from '../../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
 import { ErrorProcessorUtility, ObjectUtility, PasswordGeneratorUtility, UrlUtility } from '../../../shared/utilities';
 import { User } from '../../models';
 import { ModifyUserCommand } from '../modify-user.command';
-import { SendUserNewPasswordEmailCommand } from 'src/email/commands';
 
 @CommandHandler(ModifyUserCommand)
 export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserCommand> {
@@ -25,13 +25,13 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
                 command.id.toString(),
             );
 
-            if (command.regeneratePassword) {
+            if (command.mustResetPasswordOnNextLogin) {
                 (command.password as string) = PasswordGeneratorUtility.generate();
-                (command.mustResetPasswordOnNextLogin as boolean) = true;
             }
 
             const headers = new AxiosHeaders();
             headers.set(TRANSACTION_ID_HEADER, command.transactionId);
+            headers.set(TENANT_ID_HEADER, command.tenantId);
 
             const response = await firstValueFrom(
                 this.httpService.patch<User>(url, ObjectUtility.stripProperties(command, 'transactionId', 'id'), {
@@ -39,7 +39,7 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
                 }),
             );
 
-            if (command.regeneratePassword) {
+            if (command.mustResetPasswordOnNextLogin) {
                 this.trySendUserNewPasswordEmailAsync(command.transactionId, response.data, command.password!);
             }
 

@@ -3,10 +3,12 @@ export class RetrieveUsersQuery {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly pageSize: number,
         public readonly pageNumber: number,
         public readonly securityProviderId?: number,
         public readonly username?: string,
         public readonly email?: string,
+        public readonly publicDisplayNamePatterns?: string[],
     ) {}
 }

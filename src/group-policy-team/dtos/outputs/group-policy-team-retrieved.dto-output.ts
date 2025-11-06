@@ -27,4 +27,12 @@ export class GroupPolicyTeamRetrievedDtoOutput implements GroupPolicyTeam {
         description: 'The team associated with the group policy.',
     })
     public team!: TeamRetrievedDtoOutput;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the group policy team was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

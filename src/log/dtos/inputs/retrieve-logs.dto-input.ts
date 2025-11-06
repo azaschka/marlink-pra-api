@@ -59,4 +59,14 @@ export class RetrieveLogsDtoInput {
         description: 'The order in which to sort the logs.',
     })
     public sortOrderType?: SortOrderType = SortOrderType.Descending;
+
+    @ApiProperty({
+        required: false,
+        type: Number,
+        description: 'The tenant ID to filter logs for multi-tenant scenarios.',
+    })
+    @Type(() => Number)
+    @IsInt()
+    @IsOptional()
+    public tenantId?: number;
 }

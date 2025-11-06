@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { FindOptionsWhere, Like } from 'typeorm';
+import { FindOptionsWhere, In, Like } from 'typeorm';
 import { Site } from '../../models';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { RetrieveSitesQuery } from '../retrieve-sites.query';
@@ -19,8 +19,8 @@ export class RetrieveSitesQueryHandler implements IQueryHandler<RetrieveSitesQue
             siteFindByQuery.name = query.name;
         }
 
-        if (query.customerKey) {
-            siteFindByQuery.customerKey = query.customerKey;
+        if (query.customerKeys && query.customerKeys.length > 0) {
+            siteFindByQuery.customerKey = In(query.customerKeys);
         }
 
         if (query.namePattern) {

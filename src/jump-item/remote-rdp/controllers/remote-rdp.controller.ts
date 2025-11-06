@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -23,7 +25,16 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
+import { AccessGuard } from '../../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../../core/decorators';
+import { CustomersScopeInterceptor } from '../../../customer/interceptors';
+import { JumpGroupsScopeInterceptor } from '../../../jump-group/interceptors';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
@@ -45,11 +56,17 @@ import {
     RemoteRdpRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { RemoteRdp } from '../models';
-import { RetrieveRemoteRdpsQuery } from '../queries';
+import { RemoteRdpRequestPipe } from '../pipes';
+import { RetrieveRemoteRdpByIdQuery, RetrieveRemoteRdpsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Jump Items')
 @Controller('jump-items/remote-rdps')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(RemoteRdpRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class RemoteRdpController {
     constructor(
@@ -57,20 +74,38 @@ export class RemoteRdpController {
         private readonly queryBus: QueryBus,
     ) {}
 
+    @Get(':id')
+    @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
+    @ApiOkResponse({ type: RemoteRdpRetrievedDtoOutput })
+    @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
+    public async retrieveRemoteRdp(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('id') id: number,
+    ): Promise<RemoteRdpRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveRemoteRdpByIdQuery, RemoteRdpRetrievedDtoOutput>(
+            new RetrieveRemoteRdpByIdQuery(transactionId, tenantId, id),
+        );
+
+        return result;
+    }
+
     @Get()
     @ApiOkResponse({ type: RemoteRdpRetrievedDtoOutput, isArray: true })
     public async retrieveRemoteRdps(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveRemoteRdpsDtoInput,
     ): Promise<RemoteRdpRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveRemoteRdpsQuery, RemoteRdpRetrievedDtoOutput[]>(
             new RetrieveRemoteRdpsQuery(
                 transactionId,
+                tenantId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.name,
                 dtoInput.hostname,
-                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupIds,
                 dtoInput.jumpGroupType,
                 dtoInput.jumpointId,
                 dtoInput.endpointId,
@@ -96,11 +131,13 @@ export class RemoteRdpController {
     })
     public async createRemoteRdp(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Body() dtoInput: CreateRemoteRdpDtoInput,
     ): Promise<RemoteRdpCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateRemoteRdpCommand, RemoteRdp>(
             new CreateRemoteRdpCommand(
                 transactionId,
+                tenantId,
                 dtoInput.name,
                 dtoInput.jumpointId,
                 dtoInput.hostname,
@@ -142,12 +179,14 @@ export class RemoteRdpController {
     })
     public async modifyRemoteRdp(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyRemoteRdpDtoInput,
     ): Promise<RemoteRdpModifiedDtoOutput> {
         const result = await this.commandBus.execute<ModifyRemoteRdpCommand, RemoteRdp>(
             new ModifyRemoteRdpCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.name,
                 dtoInput.jumpointId,
@@ -188,9 +227,12 @@ export class RemoteRdpController {
     })
     public async deleteRemoteRdp(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        await this.commandBus.execute<DeleteRemoteRdpCommand, void>(new DeleteRemoteRdpCommand(transactionId, id));
+        await this.commandBus.execute<DeleteRemoteRdpCommand, void>(
+            new DeleteRemoteRdpCommand(transactionId, tenantId, id),
+        );
     }
 
     @Post(':id/copy')
@@ -207,11 +249,19 @@ export class RemoteRdpController {
     })
     public async copyRemoteRdp(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: CopyRemoteRdpDtoInput,
     ): Promise<RemoteRdpCopiedDtoOutput> {
         const result = await this.commandBus.execute<CopyRemoteRdpCommand, RemoteRdp>(
-            new CopyRemoteRdpCommand(transactionId, id, dtoInput.jumpGroupId, dtoInput.jumpGroupType, dtoInput.name),
+            new CopyRemoteRdpCommand(
+                transactionId,
+                tenantId,
+                id,
+                dtoInput.jumpGroupId,
+                dtoInput.jumpGroupType,
+                dtoInput.name,
+            ),
         );
 
         return result;

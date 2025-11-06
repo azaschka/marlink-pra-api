@@ -13,7 +13,10 @@ export abstract class DefaultAppConfig {
     private static readonly DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
     private static readonly DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
-    private static readonly CRON_JOB_EXPRESSION = '0 0 * * *'; // Every day at midnight
+    private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '0 0 * * *'; // Every day at midnight
+    private static readonly THROTTLE_TTL_IN_MS = 60000; // 1 minute
+    private static readonly THROTTLE_LIMIT = 500; // 500 requests per TTL
+    private static readonly THROTTLE_IS_ENABLED = true;
 
     public static get port(): number {
         return DefaultAppConfig.PORT_NUMBER;
@@ -122,6 +125,16 @@ export abstract class DefaultAppConfig {
                     copy: 'copy',
                 },
             },
+            discrepancy: {
+                path: '/discrepancies',
+                scan: {
+                    path: '/scan',
+                    all: '/all',
+                },
+                sync: {
+                    path: '/sync',
+                },
+            },
         };
     }
 
@@ -181,9 +194,17 @@ export abstract class DefaultAppConfig {
     public static get cronJob() {
         return {
             timezone: DefaultAppConfig.CRON_JOB_TIMEZONE,
-            expressions: DefaultAppConfig.CRON_JOB_EXPRESSION,
             retryAttempts: 5,
             retryDelayInMs: 10000,
+            btInstanceBackup: DefaultAppConfig.CRON_JOB_BT_INSTANCE_BACKUP,
+        };
+    }
+
+    public static get throttle() {
+        return {
+            isEnabled: DefaultAppConfig.THROTTLE_IS_ENABLED,
+            ttlInMs: DefaultAppConfig.THROTTLE_TTL_IN_MS,
+            limit: DefaultAppConfig.THROTTLE_LIMIT,
         };
     }
 }

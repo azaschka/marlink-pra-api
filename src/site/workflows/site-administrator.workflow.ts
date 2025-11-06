@@ -25,6 +25,7 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
         private readonly transactionId: string,
         private readonly siteAdministrator: PartialSiteAdministrator,
         private readonly customerName: string,
+        private readonly customerBeyondtrustInstanceId: number,
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
     ) {
         this.siteAdministratorUserWorkflow = new SiteAdministratorUserWorkflow(
@@ -34,6 +35,7 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
             this.transactionId,
             this.siteAdministrator,
             this.customerName,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.administratorAccessGroupPolicyWorkflow = new AdministratorAccessGroupPolicyWorkflow(
@@ -41,6 +43,7 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
             this.queryBus,
             this.commandBus,
             this.transactionId,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.adminOperatorAccessGroupPolicyWorkflow = new AdminOperatorAccessGroupPolicyWorkflow(
@@ -48,6 +51,7 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
             this.queryBus,
             this.commandBus,
             this.transactionId,
+            this.customerBeyondtrustInstanceId,
         );
     }
 
@@ -62,6 +66,7 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 siteAdministratorUser.id,
                 [
                     administratorGroupPolicy.id,
@@ -93,6 +98,7 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
             await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
                 new ModifyUserGroupPoliciesCommand(
                     this.transactionId,
+                    this.customerBeyondtrustInstanceId,
                     siteAdministratorUser.id,
                     [],
                     [

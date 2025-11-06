@@ -1,4 +1,5 @@
-import { Like } from 'typeorm';
+import { In, Like } from 'typeorm';
+import { BusinessUnit } from '../../enums';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
 import { RetrieveCustomersQuery } from '../retrieve-customers.query';
@@ -28,8 +29,14 @@ describe('RetrieveCustomersQueryHandler', () => {
                 expectedFindByQuery: { name: 'customer-name-1' },
             },
             {
-                query: new RetrieveCustomersQuery('transaction-2', 10, 1, undefined, undefined, 'customer-name%'),
-                expectedFindByQuery: { name: Like('customer-name%') },
+                query: new RetrieveCustomersQuery('transaction-2', 10, 1, undefined, undefined, 'customer-name%', [
+                    BusinessUnit.MC,
+                    BusinessUnit.EG,
+                ]),
+                expectedFindByQuery: {
+                    name: Like('customer-name%'),
+                    businessUnit: In([BusinessUnit.MC, BusinessUnit.EG]),
+                },
             },
         ])(
             'should call the repo with correct parameter and return value from the repo',

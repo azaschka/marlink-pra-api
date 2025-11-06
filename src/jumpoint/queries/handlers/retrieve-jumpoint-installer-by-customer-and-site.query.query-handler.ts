@@ -25,7 +25,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
     ): Promise<AxiosResponse<NodeJS.ReadableStream>> {
         const customer = await this.getCustomer(query.transactionId, query.customerKey, query.businessUnit);
         const site = await this.getSite(query.transactionId, query.siteKey, query.customerKey);
-        const jumpoints = await this.getJumpoints(query.transactionId, customer, site);
+        const jumpoints = await this.getJumpoints(query.transactionId, query.tenantId, customer, site);
         const jumpointsWithKeyInfo = this.filterJumpointWithKeyInfo(
             jumpoints,
             query.businessUnit,
@@ -38,7 +38,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
                 return await this.queryBus.execute<
                     RetrieveJumpointInstallerQuery,
                     AxiosResponse<NodeJS.ReadableStream>
-                >(new RetrieveJumpointInstallerQuery(query.transactionId, jumpoint.id));
+                >(new RetrieveJumpointInstallerQuery(query.transactionId, query.tenantId, jumpoint.id));
             } catch (error) {
                 console.error(
                     `Failed to retrieve jumpoint installer for jumpoint with id ${jumpoint.id}.`,
@@ -74,7 +74,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
 
     private async getSite(transactionId: string, siteKey: string, customerKey: string) {
         const sites = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
-            new RetrieveSitesQuery(transactionId, 1, 1, siteKey, undefined, customerKey),
+            new RetrieveSitesQuery(transactionId, 1, 1, siteKey, undefined, [customerKey]),
         );
 
         if (sites.length === 0 || !sites[0]) {
@@ -84,11 +84,12 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
         return sites[0];
     }
 
-    private async getJumpoints(transactionId: string, customer: Customer, site: Site) {
+    private async getJumpoints(transactionId: string, tenantId: number, customer: Customer, site: Site) {
         const jumpoints = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
             this.queryBus.execute<RetrieveJumpointsQuery, Jumpoint[]>(
                 new RetrieveJumpointsQuery(
                     transactionId,
+                    tenantId,
                     RetrieveJumpointInstallerByCustomerAndSiteQueryHandler.MAX_PAGE_RETRIEVAL_SIZE,
                     pageNumber,
                     undefined,
@@ -96,7 +97,9 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
                     undefined,
                     undefined,
                     undefined,
-                    `${customer.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
+                    [
+                        `${customer.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
+                    ],
                 ),
             ),
         );

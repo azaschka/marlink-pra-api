@@ -1,7 +1,22 @@
+import { GroupPolicyJumpGroup } from '../../group-policy-jump-group/models';
+import { JumpClient } from '../../jump-client/models';
+import { ProtocolTunnelJump } from '../../jump-item/protocol-tunnel-jump/models';
+import { RemoteRdp } from '../../jump-item/remote-rdp/models';
+import { RemoteVnc } from '../../jump-item/remote-vnc/models';
+import { ShellJump } from '../../jump-item/shell-jump/models';
+import { WebJump } from '../../jump-item/web-jump/models';
+
 export interface JumpGroup {
     id: number;
     name: string;
     codeName?: string;
     comments?: string | null;
     lastSyncDate: Date;
+    groupPolicyJumpGroups?: GroupPolicyJumpGroup[];
+    protocolTunnelJumps?: ProtocolTunnelJump[];
+    remoteRdps?: RemoteRdp[];
+    remoteVncs?: RemoteVnc[];
+    shellJumps?: ShellJump[];
+    webJumps?: WebJump[];
+    jumpClients?: JumpClient[];
 }

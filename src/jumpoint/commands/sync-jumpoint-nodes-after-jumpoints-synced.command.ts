@@ -3,6 +3,7 @@ export class SyncJumpointNodesAfterJumpointsSyncedCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly createdJumpointIds: number[],
         public readonly updatedJumpointIds: number[],
         public readonly deletedJumpointIds: number[],

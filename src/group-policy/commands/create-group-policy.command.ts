@@ -5,6 +5,7 @@ export class CreateGroupPolicyCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly name: string,
         public readonly hasEndpointsAccessPermission?: boolean,
         public readonly accessPermissionStatusType?: AccessPermissionStatusType,

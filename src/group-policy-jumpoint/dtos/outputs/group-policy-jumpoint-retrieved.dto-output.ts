@@ -15,4 +15,12 @@ export class GroupPolicyJumpointRetrievedDtoOutput implements GroupPolicyJumpoin
         description: 'The jumpoint associated with the group policy.',
     })
     public jumpoint!: JumpointRetrievedDtoOutput;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the group policy jumpoint was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

@@ -51,9 +51,15 @@ export class LogController {
             dto.creationDateFrom,
             dto.creationDateTo,
             dto.sortOrderType,
+            dto.tenantId,
         );
 
-        const totalCount = await this.logService.countLogs(dto.searchString, dto.creationDateFrom, dto.creationDateTo);
+        const totalCount = await this.logService.countLogs(
+            dto.searchString,
+            dto.creationDateFrom,
+            dto.creationDateTo,
+            dto.tenantId,
+        );
 
         return {
             logs: logs,
@@ -65,6 +71,10 @@ export class LogController {
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiNoContentResponse({ description: 'Indicates the site manager was successfully removed.' })
     public async clearLogs(@Query() dto: DeleteLogsDtoInput): Promise<void> {
-        await this.logService.clearLogs(dto.creationDateFrom, dto.creationDateTo ?? DateUtility.getCurrentUtcDate());
+        await this.logService.clearLogs(
+            dto.creationDateFrom,
+            dto.creationDateTo ?? DateUtility.getCurrentUtcDate(),
+            dto.tenantId,
+        );
     }
 }

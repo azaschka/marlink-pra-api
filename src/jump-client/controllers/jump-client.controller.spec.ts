@@ -3,7 +3,7 @@ import { UuidUtility } from '../../shared/utilities';
 import { CopyJumpClientCommand, DeleteJumpClientCommand, ModifyJumpClientCommand } from '../commands';
 import { JumpClientConnectionType, JumpClientEndpointAgreementPolicyType, JumpClientGroupType } from '../enums';
 import { JumpClient } from '../models';
-import { RetrieveJumpClientsQuery } from '../queries';
+import { RetrieveJumpClientByIdQuery, RetrieveJumpClientsQuery } from '../queries';
 import { JumpClientController } from './jump-client.controller';
 
 describe('JumpClientController', () => {
@@ -20,19 +20,31 @@ describe('JumpClientController', () => {
         UuidUtility.generate = jest.fn(() => 'uuid-123');
     });
 
+    describe('retrieveJumpClient', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as JumpClient;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpClient('uuid-100', 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpClientByIdQuery('uuid-100', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
+    });
+
     describe('retrieveJumpClients', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as JumpClient[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveJumpClients('uuid-100', {
+            const result = await controller.retrieveJumpClients('uuid-100', 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'jump-client-1',
                 hostname: 'hostname-1',
                 fqdn: 'fqdn-1',
                 tag: 'tag-1',
-                jumpGroupId: 123,
+                jumpGroupIds: [123],
                 jumpGroupType: JumpClientGroupType.Personal,
                 connectionType: JumpClientConnectionType.Passive,
             });
@@ -40,13 +52,14 @@ describe('JumpClientController', () => {
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
                 new RetrieveJumpClientsQuery(
                     'uuid-100',
+                    123,
                     10,
                     1,
                     'jump-client-1',
                     'hostname-1',
                     'fqdn-1',
                     'tag-1',
-                    123,
+                    [123],
                     JumpClientGroupType.Personal,
                     undefined,
                     undefined,
@@ -63,7 +76,7 @@ describe('JumpClientController', () => {
             const expectedResult = {} as JumpClient;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyJumpClient('uuid-100', 1, {
+            const result = await controller.modifyJumpClient('uuid-100', 100, 1, {
                 jumpGroupId: 123,
                 jumpGroupType: JumpClientGroupType.Personal,
                 name: 'name-1',
@@ -78,6 +91,7 @@ describe('JumpClientController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
                 new ModifyJumpClientCommand(
                     'uuid-100',
+                    100,
                     1,
                     123,
                     JumpClientGroupType.Personal,
@@ -99,9 +113,9 @@ describe('JumpClientController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteJumpClient(undefined, 1);
+            await controller.deleteJumpClient(undefined, 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpClientCommand('uuid-123', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpClientCommand('uuid-123', 123, 1));
         });
     });
 
@@ -110,14 +124,14 @@ describe('JumpClientController', () => {
             const expectedResult = {} as JumpClient;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.copyJumpClient(undefined, 1, {
+            const result = await controller.copyJumpClient(undefined, 100, 1, {
                 jumpGroupId: 123,
                 jumpGroupType: JumpClientGroupType.Personal,
                 name: 'jump-client-1',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CopyJumpClientCommand('uuid-123', 1, 123, JumpClientGroupType.Personal, 'jump-client-1'),
+                new CopyJumpClientCommand('uuid-123', 100, 1, 123, JumpClientGroupType.Personal, 'jump-client-1'),
             );
             expect(result).toBe(expectedResult);
         });

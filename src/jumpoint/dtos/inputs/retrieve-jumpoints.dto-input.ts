@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class RetrieveJumpointsDtoInput {
@@ -75,10 +75,12 @@ export class RetrieveJumpointsDtoInput {
 
     @ApiProperty({
         required: false,
-        type: String,
-        description: 'Filters results to include only Jumpoints with a name that matches the specified pattern.',
+        type: [String],
+        description: 'Filters results to include only jumpoints that match the given name patterns.',
     })
-    @IsString()
+    @IsString({ each: true })
     @IsOptional()
-    public namePattern?: string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public namePatterns?: string[];
 }

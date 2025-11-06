@@ -19,4 +19,12 @@ export class TeamUserAddedDtoOutput implements TeamUser {
 
     @ApiProperty({ required: true, enum: UserTeamRoleType })
     public roleType!: UserTeamRoleType;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the team user was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

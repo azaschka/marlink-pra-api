@@ -3,7 +3,7 @@ import { UuidUtility } from '../../shared/utilities';
 import { CreateGroupPolicyCommand, DeleteGroupPolicyCommand, ModifyGroupPolicyCommand } from '../commands';
 import { AccessPermissionStatusType } from '../enums';
 import { GroupPolicy } from '../models';
-import { RetrieveGroupPoliciesQuery } from '../queries';
+import { RetrieveGroupPoliciesQuery, RetrieveGroupPolicyByIdQuery } from '../queries';
 import { GroupPolicyController } from './group-policy.controller';
 
 describe('GroupPolicyController', () => {
@@ -20,20 +20,32 @@ describe('GroupPolicyController', () => {
         UuidUtility.generate = jest.fn(() => 'uuid-123');
     });
 
+    describe('retrieveGroupPolicy', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as GroupPolicy;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveGroupPolicy('uuid-111', 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveGroupPolicyByIdQuery('uuid-111', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
+    });
+
     describe('retrieveGroupPolicies', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as GroupPolicy[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveGroupPolicies('uuid-111', {
+            const result = await controller.retrieveGroupPolicies('uuid-111', 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'group-policy-1',
-                namePattern: 'group-policy',
+                namePatterns: ['group-policy'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveGroupPoliciesQuery('uuid-111', 10, 1, 'group-policy-1', 'group-policy'),
+                new RetrieveGroupPoliciesQuery('uuid-111', 123, 10, 1, 'group-policy-1', ['group-policy']),
             );
             expect(result).toBe(expectedResult);
         });
@@ -44,7 +56,7 @@ describe('GroupPolicyController', () => {
             const expectedResult = {} as GroupPolicy;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createGroupPolicy(undefined, {
+            const result = await controller.createGroupPolicy(undefined, 123, {
                 name: 'group-policy-1',
                 hasEndpointsAccessPermission: true,
                 accessPermissionStatusType: AccessPermissionStatusType.Defined,
@@ -73,6 +85,7 @@ describe('GroupPolicyController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
                 new CreateGroupPolicyCommand(
                     'uuid-123',
+                    123,
                     'group-policy-1',
                     true,
                     AccessPermissionStatusType.Defined,
@@ -107,7 +120,7 @@ describe('GroupPolicyController', () => {
             const expectedResult = {} as GroupPolicy;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyGroupPolicy('uuid-1234', 1, {
+            const result = await controller.modifyGroupPolicy('uuid-1234', 123, 1, {
                 name: 'group-policy-1',
                 hasEndpointsAccessPermission: true,
                 accessPermissionStatusType: AccessPermissionStatusType.Defined,
@@ -136,6 +149,7 @@ describe('GroupPolicyController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
                 new ModifyGroupPolicyCommand(
                     'uuid-1234',
+                    123,
                     1,
                     'group-policy-1',
                     true,
@@ -170,9 +184,9 @@ describe('GroupPolicyController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteGroupPolicy(undefined, 1);
+            await controller.deleteGroupPolicy(undefined, 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteGroupPolicyCommand('uuid-123', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteGroupPolicyCommand('uuid-123', 123, 1));
         });
     });
 });

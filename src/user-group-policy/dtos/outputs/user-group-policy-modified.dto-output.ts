@@ -11,4 +11,12 @@ export class UserGroupPolicyModifiedDtoOutput implements UserGroupPolicy {
         description: 'The unique identifier for the group policy.',
     })
     public groupPolicyId!: number;
+
+    @ApiProperty({
+        required: true,
+        type: Date,
+        description:
+            'The date which the user group policy was last synchronized with BeyondTrust Privileged Remote Access system.',
+    })
+    public lastSyncDate!: Date;
 }

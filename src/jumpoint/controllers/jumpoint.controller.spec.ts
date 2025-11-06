@@ -1,13 +1,12 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
-import { BusinessUnit } from '../../customer/enums';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
 import { JumpointPlatformType, JzpClientAddressRestrictionsType } from '../enums';
 import { Jumpoint, JumpointNode } from '../models';
 import {
-    RetrieveJumpointInstallerByCustomerAndSiteQuery,
+    RetrieveJumpointByIdQuery,
     RetrieveJumpointInstallerQuery,
     RetrieveJumpointNodesQuery,
     RetrieveJumpointsQuery,
@@ -28,22 +27,35 @@ describe('JumpointController', () => {
         UuidUtility.generate = jest.fn(() => 'uuid-123');
     });
 
+    describe('retrieveJumpoint', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as Jumpoint;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveJumpoint(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
+    });
+
     describe('retrieveJumpoints', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as Jumpoint[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveJumpoints(undefined, {
+            const result = await controller.retrieveJumpoints(undefined, 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'jumpoint-1',
                 codeName: 'code-1',
-                namePattern: 'jumpoint%',
+                namePatterns: ['jumpoint%'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
                 new RetrieveJumpointsQuery(
                     'uuid-123',
+                    123,
                     10,
                     1,
                     'jumpoint-1',
@@ -51,7 +63,7 @@ describe('JumpointController', () => {
                     undefined,
                     undefined,
                     'code-1',
-                    'jumpoint%',
+                    ['jumpoint%'],
                 ),
             );
             expect(result).toBe(expectedResult);
@@ -63,7 +75,7 @@ describe('JumpointController', () => {
             const expectedResult = {} as Jumpoint;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createJumpoint(undefined, {
+            const result = await controller.createJumpoint(undefined, 123, {
                 name: 'Jumpoint 1',
                 platformType: JumpointPlatformType.LinuxX86,
                 codeName: 'J1',
@@ -86,6 +98,7 @@ describe('JumpointController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
                 new CreateJumpointCommand(
                     'uuid-123',
+                    123,
                     'Jumpoint 1',
                     JumpointPlatformType.LinuxX86,
                     'J1',
@@ -114,7 +127,7 @@ describe('JumpointController', () => {
             const expectedResult = {} as Jumpoint;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyJumpoint(undefined, 1, {
+            const result = await controller.modifyJumpoint(undefined, 123, 1, {
                 name: 'Jumpoint 1',
                 codeName: 'J1',
                 comments: 'Test Jumpoint 1',
@@ -135,6 +148,7 @@ describe('JumpointController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
                 new ModifyJumpointCommand(
                     'uuid-123',
+                    123,
                     1,
                     'Jumpoint 1',
                     'J1',
@@ -161,9 +175,9 @@ describe('JumpointController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteJumpoint(undefined, 1);
+            await controller.deleteJumpoint(undefined, 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpointCommand('uuid-123', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteJumpointCommand('uuid-123', 123, 1));
         });
     });
 
@@ -172,9 +186,12 @@ describe('JumpointController', () => {
             const expectedResult = [{}] as JumpointNode[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveJumpointNodes(undefined, 1);
+            const result = await controller.retrieveJumpointNodes(undefined, 123, 1, {
+                pageNumber: 5,
+                pageSize: 100,
+            });
 
-            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointNodesQuery('uuid-123', 1));
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointNodesQuery('uuid-123', 123, 100, 5, 1));
             expect(result).toBe(expectedResult);
         });
     });
@@ -198,46 +215,9 @@ describe('JumpointController', () => {
             const res = mockResponse();
             const setHeaderMethod = jest.spyOn(res, 'setHeader');
 
-            await controller.retrieveJumpointInstaller('uuid-100', 123, res);
+            await controller.retrieveJumpointInstaller('uuid-100', 100, 123, res);
 
-            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointInstallerQuery('uuid-100', 123));
-            expect(setHeaderMethod).toHaveBeenCalledWith('Content-Type', expectedResult.headers['content-type']);
-            expect(setHeaderMethod).toHaveBeenCalledWith(
-                'Content-Disposition',
-                expectedResult.headers['content-disposition'],
-            );
-            expect(setHeaderMethod).toHaveBeenCalledWith('Content-Length', expectedResult.headers['content-length']);
-        });
-    });
-
-    describe('retrieveJumpointInstallerByCustomerAndSite', () => {
-        it('should execute the query bus with the correct parameters and return the result', async () => {
-            const expectedResult = {
-                headers: {
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    'content-type': 'application/octet-stream',
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    'content-disposition': 'attachment; filename=installer.exe',
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    'content-length': '12345',
-                },
-                data: {
-                    pipe: jest.fn(), // Mocking the pipe method
-                } as unknown as NodeJS.ReadableStream,
-            } as unknown as AxiosResponse<NodeJS.ReadableStream>;
-            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
-            const res = mockResponse();
-            const setHeaderMethod = jest.spyOn(res, 'setHeader');
-
-            await controller.retrieveJumpointInstallerByCustomerAndSite(
-                'uuid-100',
-                { businessUnit: BusinessUnit.EG, customerKey: 'cust-1', siteKey: 'site-1' },
-                res,
-            );
-
-            expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveJumpointInstallerByCustomerAndSiteQuery('uuid-100', BusinessUnit.EG, 'cust-1', 'site-1'),
-            );
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveJumpointInstallerQuery('uuid-100', 100, 123));
             expect(setHeaderMethod).toHaveBeenCalledWith('Content-Type', expectedResult.headers['content-type']);
             expect(setHeaderMethod).toHaveBeenCalledWith(
                 'Content-Disposition',

@@ -24,7 +24,7 @@ describe('LogRepositoryService', () => {
 
             await service.findByDateBetween(page, size, undefined, from, to, SortOrderType.Descending);
 
-            expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) }, page, size, {
+            expect(spy).toHaveBeenCalledWith([{ creationDate: Between(from, to) }], page, size, {
                 creationDate: SortOrderType.Descending,
             });
         });
@@ -35,7 +35,7 @@ describe('LogRepositoryService', () => {
 
             await service.findByDateBetween(1, 10, undefined, from, undefined);
 
-            expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) }, 1, 10, undefined);
+            expect(spy).toHaveBeenCalledWith([{ creationDate: MoreThan(from) }], 1, 10, undefined);
         });
 
         it('should call findBy with the correct parameters (less than)', async () => {
@@ -44,7 +44,7 @@ describe('LogRepositoryService', () => {
 
             await service.findByDateBetween(1, 10, undefined, undefined, to);
 
-            expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) }, 1, 10, undefined);
+            expect(spy).toHaveBeenCalledWith([{ creationDate: LessThan(to) }], 1, 10, undefined);
         });
     });
 
@@ -57,7 +57,7 @@ describe('LogRepositoryService', () => {
 
             await service.countByDateBetween(undefined, from, to);
 
-            expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) });
+            expect(spy).toHaveBeenCalledWith([{ creationDate: Between(from, to) }]);
         });
 
         it('should call countBy with the correct parameters (more than)', async () => {
@@ -66,7 +66,7 @@ describe('LogRepositoryService', () => {
 
             await service.countByDateBetween(undefined, from, undefined);
 
-            expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) });
+            expect(spy).toHaveBeenCalledWith([{ creationDate: MoreThan(from) }]);
         });
 
         it('should call countBy with the correct parameters (less than)', async () => {
@@ -75,7 +75,7 @@ describe('LogRepositoryService', () => {
 
             await service.countByDateBetween(undefined, undefined, to);
 
-            expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) });
+            expect(spy).toHaveBeenCalledWith([{ creationDate: LessThan(to) }]);
         });
     });
 

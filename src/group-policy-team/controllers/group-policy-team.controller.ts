@@ -8,6 +8,8 @@ import {
     Param,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,7 +23,16 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { GroupPolicyRequestPipe } from '../../group-policy/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { AddTeamToGroupPolicyCommand, RemoveTeamFromGroupPolicyCommand } from '../commands';
 import { AddTeamToGroupPolicyDtoInput, RetrieveGroupPolicyTeamsDtoInput } from '../dtos/inputs';
@@ -29,9 +40,14 @@ import { GroupPolicyTeamAddedDtoOutput, GroupPolicyTeamRetrievedDtoOutput } from
 import { GroupPolicyTeam } from '../models';
 import { RetrieveGroupPolicyTeamsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Group Policies')
 @Controller('group-policies')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(GroupPolicyRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class GroupPolicyTeamController {
     constructor(
@@ -48,11 +64,12 @@ export class GroupPolicyTeamController {
     })
     public async retrieveGroupPolicyTeams(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Query() dtoInput: RetrieveGroupPolicyTeamsDtoInput,
     ): Promise<GroupPolicyTeamRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveGroupPolicyTeamsQuery, GroupPolicyTeamRetrievedDtoOutput[]>(
-            new RetrieveGroupPolicyTeamsQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id),
+            new RetrieveGroupPolicyTeamsQuery(transactionId, tenantId, dtoInput.pageSize, dtoInput.pageNumber, id),
         );
 
         return result;
@@ -71,11 +88,12 @@ export class GroupPolicyTeamController {
     })
     public async addTeamToGroupPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: AddTeamToGroupPolicyDtoInput,
     ): Promise<GroupPolicyTeamAddedDtoOutput> {
         const result = await this.commandBus.execute<AddTeamToGroupPolicyCommand, GroupPolicyTeam>(
-            new AddTeamToGroupPolicyCommand(transactionId, id, dtoInput.teamId, dtoInput.roleType),
+            new AddTeamToGroupPolicyCommand(transactionId, tenantId, id, dtoInput.teamId, dtoInput.roleType),
         );
 
         return result;
@@ -94,9 +112,10 @@ export class GroupPolicyTeamController {
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async removeTeamFromGroupPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Param('teamId') teamId: number,
     ): Promise<void> {
-        await this.commandBus.execute(new RemoveTeamFromGroupPolicyCommand(transactionId, id, teamId));
+        await this.commandBus.execute(new RemoveTeamFromGroupPolicyCommand(transactionId, tenantId, id, teamId));
     }
 }

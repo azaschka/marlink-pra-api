@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessGuard } from '../access/guards';
 import { AppConfigModule } from '../app-config/app-config.module';
+import { CustomersScopeInterceptor } from '../customer/interceptors';
 import { CommandHandlers } from './commands/handlers';
 import { SiteAdministratorController } from './controllers/site-administrator.controller';
 import { SiteJumpointController } from './controllers/site-jumpoint.controller';
 import { SiteManagerController } from './controllers/site-manager.controller';
 import { SiteSupportTeamMemberController } from './controllers/site-support-team-member.controller';
 import { SiteController } from './controllers/site.controller';
+import { SiteRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
 import {
     SiteAdministratorEntity,
@@ -40,6 +43,9 @@ import { SiteSupportTeamMemberRepositoryService } from './repositories/services/
         SiteJumpointController,
     ],
     providers: [
+        AccessGuard,
+        CustomersScopeInterceptor,
+        SiteRequestPipe,
         ...QueryHandlers,
         ...CommandHandlers,
         SiteRepositoryService,

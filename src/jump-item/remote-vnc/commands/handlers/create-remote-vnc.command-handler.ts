@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../../app-config/services/app-config.service';
-import { TRANSACTION_ID_HEADER } from '../../../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../../core/decorators';
 import { ErrorProcessorUtility, ObjectUtility, UrlUtility } from '../../../../shared/utilities';
 import { RemoteVnc } from '../../models';
 import { CreateRemoteVncCommand } from '../create-remote-vnc.command';
@@ -24,6 +24,7 @@ export class CreateRemoteVncCommandHandler implements ICommandHandler<CreateRemo
 
             const headers = new AxiosHeaders();
             headers.set(TRANSACTION_ID_HEADER, command.transactionId);
+            headers.set(TENANT_ID_HEADER, command.tenantId);
 
             const response = await firstValueFrom(
                 this.httpService.post<RemoteVnc>(url, ObjectUtility.stripProperties(command, 'transactionId'), {

@@ -5,6 +5,7 @@ export class AddTeamToGroupPolicyCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly id: number,
         public readonly teamId: number,
         public readonly roleType?: GroupPolicyTeamRoleType,

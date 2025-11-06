@@ -1,7 +1,10 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessModule } from './access/access.module';
 import { AppConfigModule } from './app-config/app-config.module';
 import { AppConfigService } from './app-config/services/app-config.service';
 import { AppController } from './app.controller';
@@ -9,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { BeyondtrustInstanceBackupModule } from './beyondtrust-instance-backup/beyondtrust-instance-backup.module';
 import { BeyondtrustInstanceModule } from './beyondtrust-instance/beyondtrust-instance.module';
 import { CustomerModule } from './customer/customer.module';
+import { DiscrepancyModule } from './discrepancy/discrepancy.module';
 import { EmailModule } from './email/email.module';
 import { GroupPolicyJumpGroupModule } from './group-policy-jump-group/group-policy-jump-group.module';
 import { GroupPolicyJumpointModule } from './group-policy-jumpoint/group-policy-jumpoint.module';
@@ -38,9 +42,21 @@ import { UserModule } from './user/user.module';
             inject: [AppConfigService],
         }),
         CqrsModule.forRoot(),
+        ThrottlerModule.forRootAsync({
+            imports: [AppConfigModule],
+            useFactory: (config: AppConfigService) => [
+                {
+                    ttl: config.throttle.ttlInMs,
+                    limit: config.throttle.limit,
+                    skipIf: () => !config.throttle.isEnabled,
+                },
+            ],
+            inject: [AppConfigService],
+        }),
         HttpModule,
         AuthModule,
         HealthModule,
+        AccessModule,
         LicenseUsageModule,
         CustomerModule,
         SiteModule,
@@ -60,10 +76,17 @@ import { UserModule } from './user/user.module';
         JumpGroupModule,
         JumpPolicyModule,
         JumpItemModule,
-        LogModule,
+        DiscrepancyModule,
         EmailModule,
         JobModule,
+        LogModule,
     ],
     controllers: [AppController],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard, // global rate limiting
+        },
+    ],
 })
 export class AppModule {}

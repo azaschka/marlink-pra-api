@@ -8,6 +8,8 @@ import {
     Param,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,17 +23,31 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { UuidUtility } from '../../shared/utilities';
+import { TeamRequestPipe } from '../../team/pipes';
 import { AddUserToTeamCommand, RemoveUserFromTeamCommand } from '../commands';
 import { AddUserToTeamDtoInput, RetrieveTeamUsersDtoInput } from '../dtos/inputs';
 import { TeamUserAddedDtoOutput, TeamUserRetrievedDtoOutput } from '../dtos/outputs';
 import { TeamUser } from '../models';
 import { RetrieveTeamUsersQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Teams')
 @Controller('teams')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(TeamRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class TeamUserController {
     constructor(
@@ -48,11 +64,12 @@ export class TeamUserController {
     })
     public async retrieveTeamUsers(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Query() dtoInput: RetrieveTeamUsersDtoInput,
     ): Promise<TeamUserRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<RetrieveTeamUsersQuery, TeamUserRetrievedDtoOutput[]>(
-            new RetrieveTeamUsersQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id),
+            new RetrieveTeamUsersQuery(transactionId, tenantId, dtoInput.pageSize, dtoInput.pageNumber, id),
         );
 
         return result;
@@ -70,11 +87,12 @@ export class TeamUserController {
     })
     public async addUserToTeam(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: AddUserToTeamDtoInput,
     ): Promise<TeamUserAddedDtoOutput> {
         const result = await this.commandBus.execute<AddUserToTeamCommand, TeamUser>(
-            new AddUserToTeamCommand(transactionId, id, dtoInput.userId, dtoInput.roleType),
+            new AddUserToTeamCommand(transactionId, tenantId, id, dtoInput.userId, dtoInput.roleType),
         );
 
         return result;
@@ -92,9 +110,10 @@ export class TeamUserController {
     })
     public async removeUserFromTeam(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Param('userId') userId: number,
     ): Promise<void> {
-        await this.commandBus.execute(new RemoveUserFromTeamCommand(transactionId, id, userId));
+        await this.commandBus.execute(new RemoveUserFromTeamCommand(transactionId, tenantId, id, userId));
     }
 }

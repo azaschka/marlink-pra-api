@@ -197,6 +197,24 @@ export class AppConfigService {
                         DefaultAppConfig.praSyncApi.jumpItem.protocolTunnelJump.copy,
                 },
             },
+            discrepancy: {
+                path:
+                    this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_PATH') ??
+                    DefaultAppConfig.praSyncApi.discrepancy.path,
+                scan: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_SCAN_PATH') ??
+                        DefaultAppConfig.praSyncApi.discrepancy.scan.path,
+                    all:
+                        this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_SCAN_ALL') ??
+                        DefaultAppConfig.praSyncApi.discrepancy.scan.all,
+                },
+                sync: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_SYNC_PATH') ??
+                        DefaultAppConfig.praSyncApi.discrepancy.sync.path,
+                },
+            },
         };
     }
 
@@ -323,11 +341,29 @@ export class AppConfigService {
     public get cronJob() {
         return {
             timezone: this.configService.get<string>('CRON_JOB_TIMEZONE') ?? DefaultAppConfig.cronJob.timezone,
-            expressions: this.configService.get<string>('CRON_JOB_EXPRESSIONS') ?? DefaultAppConfig.cronJob.expressions,
             retryAttempts:
                 this.configService.get<number>('CRON_JOB_RETRY_ATTEMPTS') ?? DefaultAppConfig.cronJob.retryAttempts,
             retryDelayInMs:
                 this.configService.get<number>('CRON_JOB_RETRY_DELAY_IN_MS') ?? DefaultAppConfig.cronJob.retryDelayInMs,
+            btInstanceBackup:
+                this.configService.get<string>('CRON_JOB_BT_INSTANCE_BACKUP') ??
+                DefaultAppConfig.cronJob.btInstanceBackup,
+        };
+    }
+
+    public get throttle() {
+        let isEnabled = DefaultAppConfig.throttle.isEnabled;
+
+        const isEnabledString = this.configService.get<string>('THROTTLE_IS_ENABLED');
+
+        if (isEnabledString !== undefined) {
+            isEnabled = JSON.parse(isEnabledString) as boolean;
+        }
+
+        return {
+            isEnabled: isEnabled,
+            ttlInMs: this.configService.get<number>('THROTTLE_TTL_IN_MS') ?? DefaultAppConfig.throttle.ttlInMs,
+            limit: this.configService.get<number>('THROTTLE_LIMIT') ?? DefaultAppConfig.throttle.limit,
         };
     }
 }

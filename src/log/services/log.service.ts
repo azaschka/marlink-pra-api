@@ -93,6 +93,7 @@ export class LogService {
         creationDateFrom?: Date,
         creationDateTo?: Date,
         sortOrderType?: SortOrderType,
+        tenantId?: number,
     ): Promise<Log[]> {
         return await this.logRepositoryService.findByDateBetween(
             pageNumber,
@@ -101,14 +102,20 @@ export class LogService {
             creationDateFrom,
             creationDateTo,
             sortOrderType,
+            tenantId,
         );
     }
 
-    public async countLogs(searchString?: string, creationDateFrom?: Date, creationDateTo?: Date): Promise<number> {
-        return this.logRepositoryService.countByDateBetween(searchString, creationDateFrom, creationDateTo);
+    public async countLogs(
+        searchString?: string,
+        creationDateFrom?: Date,
+        creationDateTo?: Date,
+        tenantId?: number,
+    ): Promise<number> {
+        return this.logRepositoryService.countByDateBetween(searchString, creationDateFrom, creationDateTo, tenantId);
     }
 
-    public async clearLogs(creationDateFrom?: Date, creationDateTo?: Date): Promise<void> {
-        await this.logRepositoryService.deleteByDateBetween(creationDateFrom, creationDateTo);
+    public async clearLogs(creationDateFrom?: Date, creationDateTo?: Date, tenantId?: number): Promise<void> {
+        await this.logRepositoryService.deleteByDateBetween(creationDateFrom, creationDateTo, tenantId);
     }
 }

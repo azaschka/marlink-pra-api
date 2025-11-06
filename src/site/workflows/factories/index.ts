@@ -42,6 +42,7 @@ export class WorkflowFactory {
             this.transactionId,
             this.site.name,
             siteManager,
+            this.customer.beyondtrustInstanceId,
             this.createManagerGroupPolicyWorkflow(),
             this.createAuthJumpPolicyWorkflow(),
             this.createNotifyJumpPolicyWorkflow(),
@@ -56,6 +57,7 @@ export class WorkflowFactory {
             this.transactionId,
             siteAdministrator,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
             this.createAdministratorGroupPolicyWorkflow(),
         );
     }
@@ -70,6 +72,7 @@ export class WorkflowFactory {
             this.transactionId,
             siteSupportTeamMember,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
             this.createAdministratorGroupPolicyWorkflow(),
             this.createOperatorGroupPolicyWorkflow(),
             this.createJumpointsWorkflow(),
@@ -83,6 +86,7 @@ export class WorkflowFactory {
             this.commandBus,
             this.transactionId,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
         );
     }
 
@@ -95,6 +99,7 @@ export class WorkflowFactory {
             this.site.name,
             this.site.key,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
         );
     }
 
@@ -109,6 +114,7 @@ export class WorkflowFactory {
             this.site.siteManagers,
             this.site.siteApprovers,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
         );
     }
 
@@ -122,6 +128,7 @@ export class WorkflowFactory {
             this.site.key,
             this.site.siteManagers,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
         );
     }
 
@@ -134,6 +141,7 @@ export class WorkflowFactory {
             this.site.name,
             this.site.key,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
         );
     }
 
@@ -147,6 +155,7 @@ export class WorkflowFactory {
             this.site.key,
             this.customer.name,
             this.customer.businessUnit,
+            this.customer.beyondtrustInstanceId,
         );
     }
 }

@@ -14,8 +14,8 @@ describe('LogFilterService', () => {
 
     describe('filterCommand', () => {
         it.each([
-            new CreateUserCommand('transaction-1', 'display-name', 'username', 'password123'),
-            new ModifyUserCommand('transaction-3', 123, 'display-name', 'username', 'password123'),
+            new CreateUserCommand('transaction-1', 1, 'display-name', 'username', 'password123'),
+            new ModifyUserCommand('transaction-3', 1, 123, 'display-name', 'username', 'password123'),
             new CreateBeyondtrustInstanceBackupCommand('transaction-5', 123, 'password123'),
             new SendUserForgotPasswordEmailCommand('transaction-6', 'user@mail.com', 'user-1', 'password123'),
         ])('should return as expected', (command) => {

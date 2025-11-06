@@ -8,6 +8,8 @@ import {
     Param,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,18 +23,25 @@ import {
     ApiParam,
     ApiTags,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { UuidUtility } from '../../shared/utilities';
 import { AddSiteSupportTeamMemberCommand, RemoveSiteSupportTeamMemberCommand } from '../commands';
 import { RetrieveSiteSupportTeamMembersDtoInput, SiteSupportTeamMemberDtoInput } from '../dtos/inputs';
 import { SiteSupportTeamMemberDtoOutput } from '../dtos/outputs';
 import { SiteSupportTeamMember } from '../models';
+import { SiteRequestPipe } from '../pipes';
 import { RetrieveSiteSupportTeamMembersQuery } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Sites')
 @Controller('sites/:id/support-team-members')
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteSupportTeamMemberController {
     constructor(

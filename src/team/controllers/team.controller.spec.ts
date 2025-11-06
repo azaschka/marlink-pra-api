@@ -2,7 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateTeamCommand, DeleteTeamCommand, ModifyTeamCommand } from '../commands';
 import { Team } from '../models';
-import { RetrieveTeamsQuery } from '../queries';
+import { RetrieveTeamByIdQuery, RetrieveTeamsQuery } from '../queries';
 import { TeamController } from './team.controller';
 
 describe('TeamController', () => {
@@ -19,20 +19,33 @@ describe('TeamController', () => {
         UuidUtility.generate = jest.fn(() => 'uuid-123');
     });
 
+    describe('retrieveTeam', () => {
+        it('should execute the query bus with the correct parameters and return the result', async () => {
+            const expectedResult = {} as Team;
+            const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
+
+            const result = await controller.retrieveTeam(undefined, 123, 1);
+
+            expect(queryBusExecuteSpy).toHaveBeenCalledWith(new RetrieveTeamByIdQuery('uuid-123', 123, 1));
+            expect(result).toBe(expectedResult);
+        });
+    });
+
     describe('retrieveTeams', () => {
         it('should execute the query bus with the correct parameters and return the result', async () => {
             const expectedResult = [] as Team[];
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.retrieveTeams(undefined, {
+            const result = await controller.retrieveTeams(undefined, 123, {
                 pageSize: 10,
                 pageNumber: 1,
                 name: 'team-1',
                 codeName: 'team-code-1',
+                namePatterns: ['team%'],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveTeamsQuery('uuid-123', 10, 1, 'team-1', 'team-code-1'),
+                new RetrieveTeamsQuery('uuid-123', 123, 10, 1, 'team-1', 'team-code-1', ['team%']),
             );
             expect(result).toBe(expectedResult);
         });
@@ -43,14 +56,14 @@ describe('TeamController', () => {
             const expectedResult = {} as Team;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.createTeam(undefined, {
+            const result = await controller.createTeam(undefined, 123, {
                 name: 'team-1',
                 codeName: 'team-code-1',
                 comments: 'team comments 1',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateTeamCommand('uuid-123', 'team-1', 'team-code-1', 'team comments 1'),
+                new CreateTeamCommand('uuid-123', 123, 'team-1', 'team-code-1', 'team comments 1'),
             );
             expect(result).toBe(expectedResult);
         });
@@ -61,14 +74,14 @@ describe('TeamController', () => {
             const expectedResult = {} as Team;
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
 
-            const result = await controller.modifyTeam(undefined, 1, {
+            const result = await controller.modifyTeam(undefined, 123, 1, {
                 name: 'team-1',
                 codeName: 'team-code-1',
                 comments: 'team comments 1',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new ModifyTeamCommand('uuid-123', 1, 'team-1', 'team-code-1', 'team comments 1'),
+                new ModifyTeamCommand('uuid-123', 123, 1, 'team-1', 'team-code-1', 'team comments 1'),
             );
             expect(result).toBe(expectedResult);
         });
@@ -78,9 +91,9 @@ describe('TeamController', () => {
         it('should execute the command bus with the correct parameters', async () => {
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await controller.deleteTeam(undefined, 1);
+            await controller.deleteTeam(undefined, 123, 1);
 
-            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteTeamCommand('uuid-123', 1));
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteTeamCommand('uuid-123', 123, 1));
         });
     });
 });

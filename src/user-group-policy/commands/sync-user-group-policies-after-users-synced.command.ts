@@ -3,6 +3,7 @@ export class SyncUserGroupPoliciesAfterUsersSyncedCommand {
 
     constructor(
         public readonly transactionId: string,
+        public readonly tenantId: number,
         public readonly createdUserIds: number[],
         public readonly updatedUserIds: number[],
         public readonly deletedUserIds: number[],

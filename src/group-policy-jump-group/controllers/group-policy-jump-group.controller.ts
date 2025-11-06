@@ -8,6 +8,8 @@ import {
     Param,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,7 +23,16 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import {
+    ApiAccessKeyHeader,
+    ApiTenantIdHeader,
+    ApiTransactionIdHeader,
+    TenantIdHeader,
+    TransactionIdHeader,
+} from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { GroupPolicyRequestPipe } from '../../group-policy/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { AddJumpGroupToGroupPolicyCommand, RemoveJumpGroupFromGroupPolicyCommand } from '../commands';
 import { AddJumpGroupToGroupPolicyDtoInput, RetrieveGroupPolicyJumpGroupsDtoInput } from '../dtos/inputs';
@@ -29,9 +40,14 @@ import { GroupPolicyJumpGroupAddedDtoOutput, GroupPolicyJumpGroupRetrievedDtoOut
 import { GroupPolicyJumpGroup } from '../models';
 import { RetrieveGroupPolicyJumpGroupsQuery } from '../queries';
 
+@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Group Policies')
 @Controller('group-policies')
+@UseGuards(AccessGuard)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(GroupPolicyRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class GroupPolicyJumpGroupController {
     constructor(
@@ -48,13 +64,14 @@ export class GroupPolicyJumpGroupController {
     })
     public async retrieveGroupPolicyJumpGroups(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Query() dtoInput: RetrieveGroupPolicyJumpGroupsDtoInput,
     ): Promise<GroupPolicyJumpGroupRetrievedDtoOutput[]> {
         const result = await this.queryBus.execute<
             RetrieveGroupPolicyJumpGroupsQuery,
             GroupPolicyJumpGroupRetrievedDtoOutput[]
-        >(new RetrieveGroupPolicyJumpGroupsQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id));
+        >(new RetrieveGroupPolicyJumpGroupsQuery(transactionId, tenantId, dtoInput.pageSize, dtoInput.pageNumber, id));
 
         return result;
     }
@@ -72,12 +89,14 @@ export class GroupPolicyJumpGroupController {
     })
     public async addJumpGroupToGroupPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Body() dtoInput: AddJumpGroupToGroupPolicyDtoInput,
     ): Promise<GroupPolicyJumpGroupAddedDtoOutput> {
         const result = await this.commandBus.execute<AddJumpGroupToGroupPolicyCommand, GroupPolicyJumpGroup>(
             new AddJumpGroupToGroupPolicyCommand(
                 transactionId,
+                tenantId,
                 id,
                 dtoInput.jumpGroupId,
                 dtoInput.jumpItemRoleId,
@@ -101,9 +120,12 @@ export class GroupPolicyJumpGroupController {
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async removeJumpGroupFromGroupPolicy(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
         @Param('jumpGroupId') jumpGroupId: number,
     ): Promise<void> {
-        await this.commandBus.execute(new RemoveJumpGroupFromGroupPolicyCommand(transactionId, id, jumpGroupId));
+        await this.commandBus.execute(
+            new RemoveJumpGroupFromGroupPolicyCommand(transactionId, tenantId, id, jumpGroupId),
+        );
     }
 }

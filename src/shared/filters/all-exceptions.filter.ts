@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { QueryFailedError } from 'typeorm';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
 import { LogService } from '../../log/services/log.service';
 
@@ -17,9 +18,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const req = ctx.getRequest<Request>();
         const res = ctx.getResponse<Response>();
 
-        const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-        const message =
-            exception instanceof HttpException ? exception.getResponse() : AllExceptionsFilter.DEFAULT_ERROR_MESSAGE;
+        const status = this.determineStatusCode(exception);
+        const message = this.determineMessage(exception);
 
         /* ---- Datenbank-Logging ---- */
         await this.logService.log(
@@ -40,5 +40,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
             path: req.originalUrl,
             message,
         });
+    }
+
+    private determineStatusCode(exception: unknown) {
+        if (exception instanceof QueryFailedError && exception.message.includes('a foreign key constraint fails')) {
+            return HttpStatus.CONFLICT;
+        }
+
+        return exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    private determineMessage(exception: unknown) {
+        if (exception instanceof QueryFailedError) {
+            return exception.message;
+        }
+
+        return exception instanceof HttpException ? exception.getResponse() : AllExceptionsFilter.DEFAULT_ERROR_MESSAGE;
     }
 }

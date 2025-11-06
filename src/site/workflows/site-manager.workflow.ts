@@ -24,6 +24,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         private readonly transactionId: string,
         private readonly siteName: string,
         private readonly siteManager: PartialSiteManager,
+        private readonly customerBeyondtrustInstanceId: number,
         private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow,
         private readonly authJumpPolicyWorkflow: AuthJumpPolicyWorkflow,
         private readonly notifyJumpPolicyWorkflow: NotifyJumpPolicyWorkflow,
@@ -35,6 +36,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             this.transactionId,
             this.siteName,
             this.siteManager,
+            this.customerBeyondtrustInstanceId,
         );
 
         this.managerAccessGroupPolicyWorkflow = new ManagerAccessGroupPolicyWorkflow(
@@ -42,6 +44,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             this.queryBus,
             this.commandBus,
             this.transactionId,
+            this.customerBeyondtrustInstanceId,
         );
     }
 
@@ -56,6 +59,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 siteManagerUser.id,
                 [managerGroupPolicy.id, managerAccessGroupPolicy.id],
                 [],
@@ -89,6 +93,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 siteManagerUser.id,
                 [],
                 isSiteManagerAssociatedWithMultipleSites
@@ -137,6 +142,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.commandBus.execute<ModifyJumpPolicyCommand, JumpPolicy>(
             new ModifyJumpPolicyCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 authJumpPolicy.id,
                 undefined, // displayName
                 undefined, // codeName
@@ -193,6 +199,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.commandBus.execute<ModifyJumpPolicyCommand, JumpPolicy>(
             new ModifyJumpPolicyCommand(
                 this.transactionId,
+                this.customerBeyondtrustInstanceId,
                 notifyJumpPolicy.id,
                 undefined, // displayName
                 undefined, // codeName
