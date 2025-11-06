@@ -143,6 +143,7 @@ describe('LogService', () => {
             new Date('2024-01-01'),
             new Date('2024-01-02'),
             SortOrderType.Ascending,
+            1,
         );
         expect(logRepositoryServiceFindByDateBetweenMethod).toHaveBeenCalledWith(
             1,
@@ -151,6 +152,7 @@ describe('LogService', () => {
             new Date('2024-01-01'),
             new Date('2024-01-02'),
             SortOrderType.Ascending,
+            1,
         );
         expect(result).toBe(expectedResults);
     });
@@ -161,11 +163,12 @@ describe('LogService', () => {
             .spyOn(logRepositoryService, 'countByDateBetween')
             .mockResolvedValue(expectedCount);
 
-        const result = await logService.countLogs(undefined, new Date('2024-01-01'), new Date('2024-01-02'));
+        const result = await logService.countLogs(undefined, new Date('2024-01-01'), new Date('2024-01-02'), 1);
         expect(logRepositoryServiceCountByDateBetweenMethod).toHaveBeenCalledWith(
             undefined,
             new Date('2024-01-01'),
             new Date('2024-01-02'),
+            1,
         );
         expect(result).toBe(expectedCount);
     });
@@ -175,10 +178,11 @@ describe('LogService', () => {
             .spyOn(logRepositoryService, 'deleteByDateBetween')
             .mockResolvedValue();
 
-        await logService.clearLogs(new Date('2024-01-01'), new Date('2024-01-02'));
+        await logService.clearLogs(new Date('2024-01-01'), new Date('2024-01-02'), 1);
         expect(logRepositoryServiceDeleteByDateBetweenMethod).toHaveBeenCalledWith(
             new Date('2024-01-01'),
             new Date('2024-01-02'),
+            1,
         );
     });
 });
