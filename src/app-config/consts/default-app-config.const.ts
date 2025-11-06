@@ -4,7 +4,7 @@ export abstract class DefaultAppConfig {
     private static readonly PORT_NUMBER = 9000;
 
     private static readonly HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT = 80;
-    private static readonly HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 256;
+    private static readonly HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 512;
     private static readonly HEALTH_PING_CHECK_PRA_SYNC_API_URL = 'http://pra-sync-api:9001/health';
     private static readonly PRA_ADMIN_CONSOLE_URL = 'https://pra-admin.cdn-vas.net';
     private static readonly BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra.beyondtrustcloud.com/login';
@@ -13,9 +13,9 @@ export abstract class DefaultAppConfig {
     private static readonly DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
     private static readonly DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
-    private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '0 0 * * *'; // Every day at midnight
+    private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '35 2 * * *'; // At 02:35 AM every day
     private static readonly THROTTLE_TTL_IN_MS = 60000; // 1 minute
-    private static readonly THROTTLE_LIMIT = 500; // 500 requests per TTL
+    private static readonly THROTTLE_LIMIT = 1500; // 1500 requests per TTL
     private static readonly THROTTLE_IS_ENABLED = true;
 
     public static get port(): number {
