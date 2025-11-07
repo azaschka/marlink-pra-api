@@ -1,3 +1,7 @@
+export * from './pra-user-activation-email-sent.event';
+export * from './pra-user-new-password-email-sent.event';
+export * from './send-pra-user-activation-email-failed.event';
+export * from './send-pra-user-new-password-email-failed.event';
 export * from './send-user-activation-email-failed.event';
 export * from './send-user-forgot-password-email-failed.event';
 export * from './send-user-new-password-email-failed.event';

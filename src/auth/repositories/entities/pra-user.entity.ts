@@ -22,8 +22,11 @@ export class PraUserEntity implements PraUser {
     @Column({ name: 'display_name', type: 'varchar', length: 100 })
     public displayName!: string;
 
-    @Column({ name: 'business_unit', type: 'varchar', length: 50, nullable: true })
+    @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit, nullable: true })
     public businessUnit?: BusinessUnit;
+
+    @Column({ name: 'can_manage_pra_users', type: 'boolean', nullable: true })
+    public canManagePraUsers?: boolean;
 
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
@@ -39,6 +42,7 @@ export class PraUserEntity implements PraUser {
         role: UserRole,
         displayName: string,
         businessUnit?: BusinessUnit,
+        canManagePraUsers?: boolean,
     ): PraUserEntity {
         const entity = new PraUserEntity();
         entity.id = id;
@@ -48,6 +52,7 @@ export class PraUserEntity implements PraUser {
         entity.role = role;
         entity.displayName = displayName;
         entity.businessUnit = businessUnit;
+        entity.canManagePraUsers = canManagePraUsers;
 
         return entity;
     }
@@ -59,6 +64,7 @@ export class PraUserEntity implements PraUser {
         role: UserRole,
         displayName: string,
         businessUnit?: BusinessUnit,
+        canManagePraUsers?: boolean,
     ): PraUserEntity {
         const entity = new PraUserEntity();
         entity.username = username;
@@ -67,6 +73,7 @@ export class PraUserEntity implements PraUser {
         entity.role = role;
         entity.displayName = displayName;
         entity.businessUnit = businessUnit;
+        entity.canManagePraUsers = canManagePraUsers;
 
         return entity;
     }

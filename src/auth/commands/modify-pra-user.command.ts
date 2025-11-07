@@ -12,5 +12,7 @@ export class ModifyPraUserCommand {
         public readonly role?: UserRole,
         public readonly displayName?: string,
         public readonly businessUnit?: BusinessUnit,
+        public readonly canManagePraUsers?: boolean,
+        public readonly regeneratePassword?: boolean,
     ) {}
 }

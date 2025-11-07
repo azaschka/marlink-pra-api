@@ -41,6 +41,7 @@ describe('LogController', () => {
                 creationDateFrom: new Date('2023-01-01T00:00:00Z'),
                 creationDateTo: new Date('2023-01-31T23:59:59Z'),
                 sortOrderType: SortOrderType.Descending,
+                tenantId: 1,
             });
 
             expect(logServiceRetrieveLogsMethod).toHaveBeenCalledWith(
@@ -50,11 +51,13 @@ describe('LogController', () => {
                 new Date('2023-01-01T00:00:00Z'),
                 new Date('2023-01-31T23:59:59Z'),
                 SortOrderType.Descending,
+                1,
             );
             expect(logServiceCountLogsMethod).toHaveBeenCalledWith(
                 undefined,
                 new Date('2023-01-01T00:00:00Z'),
                 new Date('2023-01-31T23:59:59Z'),
+                1,
             );
             expect(result).toStrictEqual({
                 logs: expectedLogs,
@@ -69,25 +72,30 @@ describe('LogController', () => {
                 input: {
                     creationDateFrom: new Date('2025-01-01T00:00:00Z'),
                     creationDateTo: new Date('2025-01-31T23:59:59Z'),
+                    tenantId: 1,
                 },
                 expectedFrom: new Date('2025-01-01T00:00:00Z'),
                 expectedTo: new Date('2025-01-31T23:59:59Z'),
+                tenantId: 1,
             },
             {
                 input: {
                     creationDateFrom: new Date('2025-01-01T00:00:00Z'),
+                    creationDateTo: undefined,
+                    tenantId: 1,
                 },
                 expectedFrom: new Date('2025-01-01T00:00:00Z'),
                 expectedTo: DEFAULT_DATE_TIME,
+                tenantId: 1,
             },
         ])(
             'should call log service clear logs with the correct parameters',
-            async ({ input, expectedFrom, expectedTo }) => {
+            async ({ input, expectedFrom, expectedTo, tenantId }) => {
                 const logServiceClearLogsMethod = jest.spyOn(logService, 'clearLogs').mockResolvedValue();
 
                 await controller.clearLogs(input);
 
-                expect(logServiceClearLogsMethod).toHaveBeenCalledWith(expectedFrom, expectedTo);
+                expect(logServiceClearLogsMethod).toHaveBeenCalledWith(expectedFrom, expectedTo, tenantId);
             },
         );
     });

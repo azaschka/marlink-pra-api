@@ -4,4 +4,6 @@ export enum BusinessUnit {
     MC = 'MC',
     EG = 'EG',
     TE = 'TE',
+    // deprecated
+    DI = 'DI',
 }

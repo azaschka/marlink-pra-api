@@ -28,6 +28,7 @@ export class AuthService {
                 role: praUser.role,
                 displayName: praUser.displayName,
                 businessUnit: praUser.businessUnit,
+                canManagePraUsers: praUser.canManagePraUsers,
             } as JWTUser;
         }
 
@@ -40,6 +41,7 @@ export class AuthService {
             role: user.role,
             displayName: user.displayName,
             businessUnit: user.businessUnit,
+            canManagePraUsers: user.canManagePraUsers,
         };
 
         return Promise.resolve({
@@ -57,6 +59,7 @@ export class AuthService {
             role: 'Super Admin',
             displayName: 'Odin Admin',
             businessUnit: undefined,
+            canManagePraUsers: undefined,
         };
     }
 }

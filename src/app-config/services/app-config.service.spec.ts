@@ -86,7 +86,7 @@ describe('AppConfigService', () => {
                 input: {},
                 expected: {
                     diskStorageUsageThresholdInPercent: 80,
-                    memoryHeapUsageThresholdInMB: 256,
+                    memoryHeapUsageThresholdInMB: 512,
                     pingCheckPraSyncApiUrl: 'http://pra-sync-api:9001/health',
                 },
             },
@@ -1002,7 +1002,7 @@ describe('AppConfigService', () => {
                     timezone: 'Europe/Berlin',
                     retryAttempts: 5,
                     retryDelayInMs: 10000,
-                    btInstanceBackup: '0 0 * * *',
+                    btInstanceBackup: '35 2 * * *',
                 },
             },
         ])('should return the sync configuration as expected', ({ input, expected }) => {
@@ -1051,7 +1051,7 @@ describe('AppConfigService', () => {
                 expected: {
                     isEnabled: true,
                     ttlInMs: 60000,
-                    limit: 500,
+                    limit: 1500,
                 },
             },
         ])('should return the throttle configuration as expected', ({ input, expected }) => {

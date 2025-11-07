@@ -44,8 +44,12 @@ async function bootstrap() {
             optionsSuccessStatus: 204,
         });
         // Enable global prefix for API routes
-        // TODO: Enable global prefix and versioning with API version 1.0.0+
-        // app.setGlobalPrefix('api/v1');
+        // const defaultApiVersion = version.split('.')[0] ?? '1';
+        // app.setGlobalPrefix('api', { exclude: ['open-api'] });
+        // app.enableVersioning({
+        //     type: VersioningType.URI,
+        //     defaultVersion: defaultApiVersion,
+        // });
 
         configureOpenApi(app);
 
