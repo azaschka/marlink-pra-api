@@ -987,13 +987,14 @@ describe('AppConfigService', () => {
                     retryAttempts: 5,
                     retryDelayInMs: 10000,
                     btInstanceBackup: '0 10 * * *',
-                    discrepancyScan: '*/30 * * * *',
+                    btDataPopulationIfEmpty: '*/45 * * * *',
                 },
                 expected: {
                     timezone: 'Europe/Berlin',
                     retryAttempts: 5,
                     retryDelayInMs: 10000,
                     btInstanceBackup: '0 10 * * *',
+                    btDataPopulationIfEmpty: '*/45 * * * *',
                 },
             },
             {
@@ -1003,6 +1004,7 @@ describe('AppConfigService', () => {
                     retryAttempts: 5,
                     retryDelayInMs: 10000,
                     btInstanceBackup: '35 2 * * *',
+                    btDataPopulationIfEmpty: '0 */3 * * *',
                 },
             },
         ])('should return the sync configuration as expected', ({ input, expected }) => {
@@ -1019,6 +1021,9 @@ describe('AppConfigService', () => {
                 if (key === 'CRON_JOB_BT_INSTANCE_BACKUP') {
                     return input.btInstanceBackup;
                 }
+                if (key === 'CRON_JOB_BT_DATA_POPULATION_IF_EMPTY') {
+                    return input.btDataPopulationIfEmpty;
+                }
 
                 return undefined;
             });
@@ -1028,6 +1033,7 @@ describe('AppConfigService', () => {
                 retryAttempts: expected.retryAttempts,
                 retryDelayInMs: expected.retryDelayInMs,
                 btInstanceBackup: expected.btInstanceBackup,
+                btDataPopulationIfEmpty: expected.btDataPopulationIfEmpty,
             });
         });
     });

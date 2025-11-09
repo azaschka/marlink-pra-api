@@ -348,6 +348,9 @@ export class AppConfigService {
             btInstanceBackup:
                 this.configService.get<string>('CRON_JOB_BT_INSTANCE_BACKUP') ??
                 DefaultAppConfig.cronJob.btInstanceBackup,
+            btDataPopulationIfEmpty:
+                this.configService.get<string>('CRON_JOB_BT_DATA_POPULATION_IF_EMPTY') ??
+                DefaultAppConfig.cronJob.btDataPopulationIfEmpty,
         };
     }
 

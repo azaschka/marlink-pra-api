@@ -14,6 +14,7 @@ export abstract class DefaultAppConfig {
     private static readonly DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
     private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '35 2 * * *'; // At 02:35 AM every day
+    private static readonly CRON_JOB_BT_DATA_POPULATION_IF_EMPTY = '0 */3 * * *'; // Every 3 hours
     private static readonly THROTTLE_TTL_IN_MS = 60000; // 1 minute
     private static readonly THROTTLE_LIMIT = 1500; // 1500 requests per TTL
     private static readonly THROTTLE_IS_ENABLED = true;
@@ -197,6 +198,7 @@ export abstract class DefaultAppConfig {
             retryAttempts: 5,
             retryDelayInMs: 10000,
             btInstanceBackup: DefaultAppConfig.CRON_JOB_BT_INSTANCE_BACKUP,
+            btDataPopulationIfEmpty: DefaultAppConfig.CRON_JOB_BT_DATA_POPULATION_IF_EMPTY,
         };
     }
 
