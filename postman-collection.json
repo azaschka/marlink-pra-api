@@ -2,7 +2,7 @@
     "info": {
         "_postman_id": "pra-api-collection",
         "name": "Marlink PRA API v2.0.1",
-        "description": "Comprehensive API collection for Marlink PRA API. This collection includes all available endpoints except those excluded from Swagger documentation (auth endpoints).\n\nHealth Module Features:\n- Comprehensive health check (/health) - monitors database, disk, memory, and external APIs\n- Kubernetes readiness probe (/health/readiness) - checks if service can handle requests\n- Kubernetes liveness probe (/health/liveness) - minimal check for container restart decisions\n\nAll health endpoints return JSON responses compatible with monitoring systems like Prometheus.",
+        "description": "This Postman collection provides a comprehensive set of API endpoints for managing and interacting with the PRA (Privileged Remote Access) Portal. It includes endpoints for health monitoring, customer management, site management, user management, jumpoint management, and more. Each endpoint is documented with request methods, headers, parameters, and example responses to facilitate easy integration and testing.\n\nBase URL: `https://pra-api-pp.cdn-vas.net`\n\nMake sure to replace placeholder variables (e.g., `{{accessKey}}`, `{{customerId}}`) with actual values before making requests.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "auth": {},
@@ -4707,18 +4707,6 @@
         }
     ],
     "event": [
-        {
-            "listen": "prerequest",
-            "script": {
-                "type": "text/javascript",
-                "exec": [
-                    "// Auto-generate transaction ID if not set",
-                    "if (!pm.variables.get('transactionId')) {",
-                    "    pm.variables.set('transactionId', pm.variables.replaceIn('{{$guid}}'));",
-                    "}"
-                ]
-            }
-        },
         {
             "listen": "test",
             "script": {
