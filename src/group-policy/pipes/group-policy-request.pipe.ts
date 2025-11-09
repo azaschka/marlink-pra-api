@@ -9,6 +9,7 @@ import {
 import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
+import { AppConfigService } from '../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
 import { Customer } from '../../customer/models';
 import { ObjectUtility, UuidUtility } from '../../shared/utilities';
@@ -21,9 +22,20 @@ export class GroupPolicyRequestPipe implements PipeTransform {
     constructor(
         @Inject(REQUEST) private readonly request: Request,
         private readonly queryBus: QueryBus,
+        private readonly appConfigService: AppConfigService,
     ) {}
 
     public async transform(value: unknown, metadata: ArgumentMetadata) {
+        const universalGroupPolicies = [
+            this.appConfigService.site.groupPolicy.adminOperatorAccess,
+            this.appConfigService.site.groupPolicy.administratorAccess,
+            this.appConfigService.site.groupPolicy.fullAccess,
+            this.appConfigService.site.groupPolicy.limitedAccess,
+            this.appConfigService.site.groupPolicy.managerAccess,
+            this.appConfigService.site.groupPolicy.marlink.operator,
+            this.appConfigService.site.groupPolicy.marlink.superuser,
+        ];
+
         // Skip if this isn't an HTTP request body, query, param.
         if (metadata.type !== 'query' && metadata.type !== 'body' && metadata.type !== 'param') {
             return value;
@@ -36,7 +48,7 @@ export class GroupPolicyRequestPipe implements PipeTransform {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         const customerScopes = this.request['customers'] as Customer[];
-        const customerScopeNames = customerScopes.map((c) => c.name);
+        const groupPolicyScopeNames = customerScopes.map((c) => c.name).concat(universalGroupPolicies);
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
         const tenantId = this.request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number;
 
@@ -53,17 +65,17 @@ export class GroupPolicyRequestPipe implements PipeTransform {
             if (namePatternsQuery.length === 0 && !nameQuery) {
                 const dto = value as RetrieveGroupPoliciesDtoInput;
 
-                // If no name patterns are queried, set to scoped customer names
-                dto.namePatterns = customerScopes.map((c) => `%${c.name}%`);
+                // If no name patterns are queried, set to scoped group policy names
+                dto.namePatterns = groupPolicyScopeNames.map((name) => `%${name}%`);
             }
 
-            if (nameQuery && !ObjectUtility.doesEveryTargetContainSourceSubstring([nameQuery], customerScopeNames)) {
+            if (nameQuery && !ObjectUtility.doesEveryTargetContainSourceSubstring([nameQuery], groupPolicyScopeNames)) {
                 throw new ForbiddenException('Forbidden customer access');
             }
 
             if (
                 namePatternsQuery.length > 0 &&
-                !ObjectUtility.doesEveryTargetContainSourceSubstring(namePatternsQuery, customerScopeNames)
+                !ObjectUtility.doesEveryTargetContainSourceSubstring(namePatternsQuery, groupPolicyScopeNames)
             ) {
                 throw new ForbiddenException('Forbidden customer access');
             }
@@ -71,7 +83,7 @@ export class GroupPolicyRequestPipe implements PipeTransform {
             const dto = value as CreateGroupPolicyDtoInput;
 
             // Validate group policy name in the body explicitly exists in customer scopes
-            if (!ObjectUtility.doesEveryTargetContainSourceSubstring([dto.name], customerScopeNames)) {
+            if (!ObjectUtility.doesEveryTargetContainSourceSubstring([dto.name], groupPolicyScopeNames)) {
                 throw new ForbiddenException('Forbidden customer access');
             }
         } else {
@@ -85,7 +97,7 @@ export class GroupPolicyRequestPipe implements PipeTransform {
                 new RetrieveGroupPolicyByIdQuery(transactionId, tenantId, requestParamId),
             );
 
-            if (!ObjectUtility.doesEveryTargetContainSourceSubstring([groupPolicy.name], customerScopeNames)) {
+            if (!ObjectUtility.doesEveryTargetContainSourceSubstring([groupPolicy.name], groupPolicyScopeNames)) {
                 throw new ForbiddenException('Forbidden customer access');
             }
         }
