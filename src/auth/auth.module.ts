@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { CommandHandlers } from './commands/handlers';
@@ -19,11 +19,12 @@ import { PraUserEntity } from './repositories/entities';
         PassportModule,
         JwtModule.registerAsync({
             imports: [AppConfigModule, TypeOrmModule.forFeature([PraUserEntity])],
-            // eslint-disable-next-line @typescript-eslint/require-await
-            useFactory: async (appConfigService: AppConfigService) => ({
+            useFactory: (appConfigService: AppConfigService): JwtModuleOptions => ({
                 secret: appConfigService.auth.jwtSecret,
                 signOptions: {
-                    expiresIn: appConfigService.auth.jwtExpiry,
+                    // Type assertion needed due to strict typing in @nestjs/jwt@11.0.1
+                    // The expiresIn value from config is a valid time string (e.g., "1h", "7d")
+                    expiresIn: appConfigService.auth.jwtExpiry as never,
                 },
             }),
             inject: [AppConfigService],
