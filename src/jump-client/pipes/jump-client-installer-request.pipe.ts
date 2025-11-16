@@ -11,7 +11,6 @@ import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { JumpGroup } from '../../jump-group/models';
 import { ObjectUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput } from '../dtos/inputs';
 import { JumpClientInstaller } from '../models';
@@ -34,9 +33,7 @@ export class JumpClientInstallerRequestPipe implements PipeTransform {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const jumpGroupScopes = this.request['jumpGroups'] as JumpGroup[];
+        const jumpGroupScopes = this.request.jumpGroups!;
         const jumpGroupScopeIds = jumpGroupScopes.map((c) => c.id);
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
         const tenantId = this.request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number;

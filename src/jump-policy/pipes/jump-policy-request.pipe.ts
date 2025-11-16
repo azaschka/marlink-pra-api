@@ -10,7 +10,6 @@ import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { Customer } from '../../customer/models';
 import { ObjectUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpPolicyDtoInput, RetrieveJumpPoliciesDtoInput } from '../dtos/inputs';
 import { JumpPolicy } from '../models';
@@ -33,9 +32,7 @@ export class JumpPolicyRequestPipe implements PipeTransform {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const customerScopes = this.request['customers'] as Customer[];
+        const customerScopes = this.request.customers!;
         const customerScopeNames = customerScopes.map((c) => c.name);
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
         const tenantId = this.request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number;

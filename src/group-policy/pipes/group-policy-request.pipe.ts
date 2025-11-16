@@ -11,7 +11,6 @@ import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { Customer } from '../../customer/models';
 import { ObjectUtility, UuidUtility } from '../../shared/utilities';
 import { CreateGroupPolicyDtoInput, RetrieveGroupPoliciesDtoInput } from '../dtos/inputs';
 import { GroupPolicy } from '../models';
@@ -45,9 +44,7 @@ export class GroupPolicyRequestPipe implements PipeTransform {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const customerScopes = this.request['customers'] as Customer[];
+        const customerScopes = this.request.customers!;
         const groupPolicyScopeNames = customerScopes.map((c) => c.name).concat(universalGroupPolicies);
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
         const tenantId = this.request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number;

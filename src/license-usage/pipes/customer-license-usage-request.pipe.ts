@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { Customer } from '../../customer/models';
 
 @Injectable()
 export class CustomerLicenseUsageRequestPipe implements PipeTransform {
@@ -20,9 +19,7 @@ export class CustomerLicenseUsageRequestPipe implements PipeTransform {
             return value;
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const customerScopes = this.request['customers'] as Customer[];
+        const customerScopes = this.request.customers!;
 
         const requestParamId = Number(this.request.params['id']);
 

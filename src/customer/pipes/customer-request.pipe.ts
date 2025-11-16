@@ -33,10 +33,13 @@ export class CustomerRequestPipe implements PipeTransform {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const businessUnitScopes = this.request['businessUnits'] as BusinessUnit[];
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
+        const businessUnitScopes = this.request.businessUnits;
+
+        if (!businessUnitScopes || businessUnitScopes.length === 0) {
+            console.error(`[${transactionId}] CustomerRequestPipe: No business unit scopes found in request`);
+            throw new ForbiddenException('No business unit scopes available for validation');
+        }
 
         if (metadata.metatype?.name === RetrieveCustomersDtoInput.name) {
             // Validate business unit scopes with queried business units

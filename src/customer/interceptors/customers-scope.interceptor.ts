@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
-import { Access } from '../../access/models';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
 import { PaginationUtility } from '../../shared/utilities';
 import { Customer } from '../models';
@@ -22,37 +21,51 @@ export class CustomersScopeInterceptor implements NestInterceptor {
 
     public async intercept(context: ExecutionContext, next: CallHandler) {
         const request = context.switchToHttp().getRequest<Request>();
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const access = request.authInfo?.access as Access | undefined;
+        const transactionId = request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
+        const access = request.authInfo?.access;
 
         if (!access) {
+            console.error(`[${transactionId}] CustomersScopeInterceptor: Missing access info in request.authInfo`);
             throw new UnauthorizedException('Missing access info');
         }
 
-        const customers = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-            this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
-                new RetrieveCustomersQuery(
-                    request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string,
-                    CustomersScopeInterceptor.PAGE_SIZE,
-                    pageNumber,
-                    undefined,
-                    undefined,
-                    undefined,
-                    access.value.businessUnits,
-                ),
-            ),
-        );
-
-        // Prevent retrieving all data if no customers are found
-        if (customers.length === 0) {
-            throw new ForbiddenException('No customers found for the specified access.');
+        // Validate that business units are defined and not empty
+        if (!access.value?.businessUnits || access.value.businessUnits.length === 0) {
+            console.error(
+                `[${transactionId}] CustomersScopeInterceptor: No business units defined for access key: ${access.key}`,
+            );
+            throw new ForbiddenException('No business units defined for the specified access key.');
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        request['customers'] = customers;
+        try {
+            const customers = await PaginationUtility.queryUntilLastPage((pageNumber) =>
+                this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
+                    new RetrieveCustomersQuery(
+                        transactionId,
+                        CustomersScopeInterceptor.PAGE_SIZE,
+                        pageNumber,
+                        undefined,
+                        undefined,
+                        undefined,
+                        access.value.businessUnits,
+                    ),
+                ),
+            );
 
-        return next.handle();
+            // Prevent retrieving all data if no customers are found
+            if (customers.length === 0) {
+                console.warn(
+                    `[${transactionId}] CustomersScopeInterceptor: No customers found for business units: ${access.value.businessUnits.join(', ')}`,
+                );
+                throw new ForbiddenException('No customers found for the specified business units.');
+            }
+
+            request['customers'] = customers;
+
+            return next.handle();
+        } catch (error) {
+            console.error(`[${transactionId}] CustomersScopeInterceptor: Error querying customers:`, error);
+            throw error;
+        }
     }
 }

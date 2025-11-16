@@ -10,7 +10,6 @@ import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { Customer } from '../../customer/models';
 import { UuidUtility } from '../../shared/utilities';
 import { Site } from '../../site/models';
 import { RetrieveSiteByIdQuery } from '../../site/queries';
@@ -32,9 +31,7 @@ export class SiteLicenseUsageRequestPipe implements PipeTransform {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const customerScopes = this.request['customers'] as Customer[];
+        const customerScopes = this.request.customers!;
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
 
         const requestParamId = Number(this.request.params['id']);
