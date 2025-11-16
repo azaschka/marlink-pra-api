@@ -1,4 +1,4 @@
-import { CallHandler, ExecutionContext, ForbiddenException, Injectable, NestInterceptor } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
@@ -15,11 +15,11 @@ export class JumpGroupsScopeInterceptor implements NestInterceptor {
     public async intercept(context: ExecutionContext, next: CallHandler) {
         const request = context.switchToHttp().getRequest<Request>();
         const customerScopes = request.customers!;
-        const customerScopeNames = customerScopes.map((c) => c.name);
         const transactionId = request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
         const tenantId = request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number;
 
-        const jumpGroups = await PaginationUtility.queryUntilLastPage((pageNumber) =>
+        // Query ALL jump groups first
+        const allJumpGroups = await PaginationUtility.queryUntilLastPage((pageNumber) =>
             this.queryBus.execute<RetrieveJumpGroupsQuery, JumpGroup[]>(
                 new RetrieveJumpGroupsQuery(
                     transactionId,
@@ -28,17 +28,23 @@ export class JumpGroupsScopeInterceptor implements NestInterceptor {
                     pageNumber,
                     undefined,
                     undefined,
-                    customerScopeNames.map((name) => `%${name}%`),
+                    undefined,
                 ),
             ),
         );
 
-        // Prevent retrieving all data if no jump groups are found
-        if (jumpGroups.length === 0) {
-            throw new ForbiddenException('No jump groups found for the specified customer scopes.');
-        }
+        // Filter jump groups: only include those whose name contains an allowed customer name
+        // This ensures jump groups belong to customers in the allowed business units
+        const allowedJumpGroups = allJumpGroups.filter((jumpGroup) => {
+            // Check if jump group name contains any of the allowed customer names
+            return customerScopes.some((customer) => {
+                const jumpGroupNameLower = jumpGroup.name.toLowerCase();
+                const customerNameLower = customer.name.toLowerCase();
+                return jumpGroupNameLower.includes(customerNameLower);
+            });
+        });
 
-        request.jumpGroups = jumpGroups;
+        request.jumpGroups = allowedJumpGroups;
 
         return next.handle();
     }
