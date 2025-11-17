@@ -1,0 +1,16 @@
+{
+  "workspace": {
+    "id": "1d69719d-3d44-4647-91ff-f913df1ee553"
+  },
+  "entities": {
+    "collections": [
+      "../postman/collections/Marlink PRA API v2.0.1.postman_collection.json",
+      "../postman/collections/BeyondTrust Privileged Remote Access Configuration APIs.postman_collection.json",
+      "../postman/collections/marlink-pra-api.postman_collection.json"
+    ],
+    "environments": [],
+    "specs": [],
+    "flows": [],
+    "globals": []
+  }
+}
