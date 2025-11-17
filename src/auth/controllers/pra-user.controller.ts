@@ -16,6 +16,7 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { TransactionIdHeader } from '../../core/decorators';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import {
     CreatePraUserCommand,
@@ -30,12 +31,13 @@ import {
     RetrievePraUsersDtoInput,
 } from '../dtos/inputs';
 import { ApiKeyAuthGuard, JwtAuthGuard } from '../guards';
+import { PraUser } from '../models';
 import { RetrievePraUsersQuery } from '../queries';
 import { PraUserEntity } from '../repositories/entities';
-import { PraUser } from '../models';
 
 @Controller('pra-users')
 @UseGuards(ApiKeyAuthGuard, JwtAuthGuard)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 @ApiExcludeController()
 export class PraUserController {

@@ -26,6 +26,7 @@ import {
 import { AccessGuard } from '../../access/guards';
 import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateSiteCommand, DeleteSiteCommand } from '../commands';
 import { CreateSiteDtoInput, RetrieveSitesDtoInput } from '../dtos/inputs';
@@ -40,6 +41,7 @@ import { RetrieveSitesQuery } from '../queries';
 @Controller('sites')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteController {

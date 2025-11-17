@@ -33,6 +33,7 @@ import {
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { GroupPolicyRequestPipe } from '../../group-policy/pipes';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { AddTeamToGroupPolicyCommand, RemoveTeamFromGroupPolicyCommand } from '../commands';
 import { AddTeamToGroupPolicyDtoInput, RetrieveGroupPolicyTeamsDtoInput } from '../dtos/inputs';
@@ -47,6 +48,7 @@ import { RetrieveGroupPolicyTeamsQuery } from '../queries';
 @Controller('group-policies')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(GroupPolicyRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class GroupPolicyTeamController {

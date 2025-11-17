@@ -23,6 +23,7 @@ import {
     TransactionIdHeader,
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { RetrieveJumpointInstallerByCustomerAndSiteDtoInput } from '../dtos/inputs';
 import { JumpointRequestPipe } from '../pipes';
@@ -35,6 +36,7 @@ import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
 @Controller('jumpoints')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(JumpointRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointExtensionController {

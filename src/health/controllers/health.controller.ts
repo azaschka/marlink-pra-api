@@ -10,9 +10,11 @@ import {
     TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { AppConfigService } from '../../app-config/services/app-config.service';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 
 @ApiTags('Health')
 @Controller('health')
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class HealthController {
     constructor(

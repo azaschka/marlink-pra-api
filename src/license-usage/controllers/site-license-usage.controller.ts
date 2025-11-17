@@ -14,6 +14,7 @@ import { ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/s
 import { AccessGuard } from '../../access/guards';
 import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CalculateSiteLicenseUsageCommand } from '../commands';
 import { SiteLicenseUsageDtoOutput } from '../dtos/outputs';
@@ -26,6 +27,7 @@ import { SiteLicenseUsageRequestPipe } from '../pipes';
 @Controller('license-usages')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(SiteLicenseUsageRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteLicenseUsageController {

@@ -3,6 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateBeyondtrustInstanceBackupCommand } from '../commands';
 import { CreateBeyondtrustInstanceBackupDtoInput, RetrieveBeyondtrustInstanceBackupsDtoInput } from '../dtos/inputs';
@@ -20,6 +21,7 @@ import {
 @ApiTransactionIdHeader()
 @ApiTags('Beyondtrust Instances')
 @Controller('beyondtrust-instances')
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class BeyondtrustInstanceBackupController {
     constructor(

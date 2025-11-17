@@ -33,6 +33,7 @@ import {
     TransactionIdHeader,
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateTeamCommand, DeleteTeamCommand, ModifyTeamCommand } from '../commands';
@@ -49,6 +50,7 @@ import { RetrieveTeamByIdQuery, RetrieveTeamsQuery } from '../queries';
 @Controller('teams')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(TeamRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class TeamController {

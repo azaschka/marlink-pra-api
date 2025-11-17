@@ -33,6 +33,7 @@ import {
     TransactionIdHeader,
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateGroupPolicyCommand, DeleteGroupPolicyCommand, ModifyGroupPolicyCommand } from '../commands';
@@ -53,6 +54,7 @@ import { RetrieveGroupPoliciesQuery, RetrieveGroupPolicyByIdQuery } from '../que
 @Controller('group-policies')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(GroupPolicyRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class GroupPolicyController {

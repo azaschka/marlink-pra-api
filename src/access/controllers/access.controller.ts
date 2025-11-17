@@ -23,6 +23,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateAccessCommand, DeleteAccessCommand, ModifyAccessCommand } from '../commands';
@@ -34,6 +35,7 @@ import { RetrieveAccessQuery } from '../queries';
 @ApiTransactionIdHeader()
 @ApiTags('Access')
 @Controller('access')
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class AccessController {
     constructor(

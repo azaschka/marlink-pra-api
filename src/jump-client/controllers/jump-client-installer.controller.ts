@@ -38,6 +38,7 @@ import {
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { JumpGroupsScopeInterceptor } from '../../jump-group/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
 import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput } from '../dtos/inputs';
@@ -58,6 +59,7 @@ import {
 @Controller('jump-clients/installers')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(JumpClientInstallerRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpClientInstallerController {

@@ -37,6 +37,7 @@ import {
     TransactionIdHeader,
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
@@ -68,6 +69,7 @@ import {
 @Controller('jumpoints')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(JumpointRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointController {

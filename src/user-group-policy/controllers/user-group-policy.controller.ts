@@ -21,6 +21,7 @@ import {
     TransactionIdHeader,
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { UserRequestPipe } from '../../user/pipes';
@@ -37,6 +38,7 @@ import { RetrieveUserGroupPoliciesQuery } from '../queries';
 @Controller('users')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(UserRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class UserGroupPolicyController {

@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Param, Post, UsePipes } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiTenantIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { MonitoringRequestPipe } from '../../monitoring/pipes/monitoring-request.pipe';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { SyncDiscrepancyCommand } from '../commands';
@@ -10,6 +11,7 @@ import { SyncDiscrepancyDtoInput } from '../dtos/inputs';
 @ApiTenantIdHeader()
 @ApiTags('Discrepancies')
 @Controller('discrepancies')
+@UsePipes(MonitoringRequestPipe)
 export class DiscrepancySyncController {
     constructor(private readonly commandBus: CommandBus) {}
 

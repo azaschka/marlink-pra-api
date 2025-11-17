@@ -26,6 +26,7 @@ import {
 import { AccessGuard } from '../../access/guards';
 import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { AddSiteSupportTeamMemberCommand, RemoveSiteSupportTeamMemberCommand } from '../commands';
 import { RetrieveSiteSupportTeamMembersDtoInput, SiteSupportTeamMemberDtoInput } from '../dtos/inputs';
@@ -41,6 +42,7 @@ import { RetrieveSiteSupportTeamMembersQuery } from '../queries';
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class SiteSupportTeamMemberController {
