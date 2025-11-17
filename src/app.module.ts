@@ -28,6 +28,7 @@ import { JumpPolicyModule } from './jump-policy/jump-policy.module';
 import { JumpointModule } from './jumpoint/jumpoint.module';
 import { LicenseUsageModule } from './license-usage/license-usage.module';
 import { LogModule } from './log/log.module';
+import { MigrationModule } from './migration/migration.module';
 import { SiteModule } from './site/site.module';
 import { TeamUserModule } from './team-user/team-user.module';
 import { TeamModule } from './team/team.module';
@@ -54,6 +55,7 @@ import { UserModule } from './user/user.module';
             inject: [AppConfigService],
         }),
         HttpModule,
+        MigrationModule, // Must be loaded early to run migrations before other modules
         AuthModule,
         HealthModule,
         AccessModule,
