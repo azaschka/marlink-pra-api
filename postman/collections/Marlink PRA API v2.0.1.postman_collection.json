@@ -98,6 +98,231 @@
       "description": "Health monitoring endpoint for the PRA API."
     },
     {
+      "name": "beyondtrust-instances - v2.0.1",
+      "item": [
+        {
+          "name": "{id}",
+          "item": [
+            {
+              "name": "backups",
+              "item": [
+                {
+                  "name": "{backupId}",
+                  "item": [
+                    {
+                      "name": "content",
+                      "item": [
+                        {
+                          "name": "Get Backup Content",
+                          "id": "edc429c6-fc19-4a97-99b5-afe4a7db2804",
+                          "request": {
+                            "method": "GET",
+                            "header": [],
+                            "url": {
+                              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups/{{backupId}}/content",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "beyondtrust-instances",
+                                "{{instanceId}}",
+                                "backups",
+                                "{{backupId}}",
+                                "content"
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ],
+                      "id": "169210a7-8fc4-4896-9fa0-48052ce24077"
+                    },
+                    {
+                      "name": "Get Backup by ID",
+                      "id": "e482f1cd-9930-4668-8eb9-3e72f3847ac6",
+                      "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups/{{backupId}}",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "beyondtrust-instances",
+                            "{{instanceId}}",
+                            "backups",
+                            "{{backupId}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ],
+                  "id": "b2a6022c-50f4-47ca-b27b-ecda205dca7b"
+                },
+                {
+                  "name": "Get Instance Backups",
+                  "id": "1d2c9bf1-2253-4112-8f05-a653e17c3e0b",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "beyondtrust-instances",
+                        "{{instanceId}}",
+                        "backups"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Instance Backup",
+                  "id": "8df26dac-26b4-45f6-a42d-83e9da2b0997",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "beyondtrust-instances",
+                        "{{instanceId}}",
+                        "backups"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ],
+              "id": "13d1da12-4d95-494a-8b4e-2304ec8e18c4"
+            },
+            {
+              "name": "Retrieve BeyondTrust Instance by ID",
+              "id": "550627bd-92cc-47f8-ab13-9b39b45392c5",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "beyondtrust-instances",
+                    "{{instanceId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update BeyondTrust Instance",
+              "id": "d5d0cb61-f022-41de-9cf4-e715e23407b6",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"string\",\n    \"authClientId\": \"string\",\n    \"authClientSecret\": \"string\",\n    \"oauth2TokenUrl\": \"string\",\n    \"apiBaseUrl\": \"string\",\n    \"billingType\": \"asset\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "beyondtrust-instances",
+                    "{{instanceId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete BeyondTrust Instance",
+              "id": "0d622627-0b60-4942-9902-a22478b8d8a6",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "beyondtrust-instances",
+                    "{{instanceId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "a12d881e-9f26-467c-92b2-6e9c366a7004"
+        },
+        {
+          "name": "Retrieve BeyondTrust Instances",
+          "id": "43efbdc1-edf3-44c5-8018-c8ceec32d0df",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beyondtrust-instances",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beyondtrust-instances"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create BeyondTrust Instance",
+          "id": "4aadb41d-f3dd-4410-b8fa-cf9e2402c7fb",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"string\",\n    \"authClientId\": \"string\",\n    \"authClientSecret\": \"string\",\n    \"oauth2TokenUrl\": \"string\",\n    \"apiBaseUrl\": \"string\",\n    \"billingType\": \"asset\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/beyondtrust-instances",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beyondtrust-instances"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "2c567e3d-a7f0-4dfd-9584-2800e1e7817c",
+      "description": "Endpoints for managing BeyondTrust instances (tenants) within the PRA Portal."
+    },
+    {
       "name": "license-usages- v2.0.1",
       "item": [
         {
@@ -3488,207 +3713,6 @@
       "description": "Endpoints for managing jumpoints within the PRA Portal."
     },
     {
-      "name": "BeyondTrust Instances",
-      "item": [
-        {
-          "name": "Retrieve BeyondTrust Instances",
-          "id": "43efbdc1-edf3-44c5-8018-c8ceec32d0df",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Retrieve BeyondTrust Instance by ID",
-          "id": "550627bd-92cc-47f8-ab13-9b39b45392c5",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances",
-                "{{instanceId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create BeyondTrust Instance",
-          "id": "4aadb41d-f3dd-4410-b8fa-cf9e2402c7fb",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Example BeyondTrust Instance\",\n  \"hostname\": \"beyondtrust.example.com\",\n  \"port\": 443,\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update BeyondTrust Instance",
-          "id": "d5d0cb61-f022-41de-9cf4-e715e23407b6",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Shared BeyondTrust Instance\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances",
-                "{{instanceId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete BeyondTrust Instance",
-          "id": "0d622627-0b60-4942-9902-a22478b8d8a6",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances",
-                "{{instanceId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Instance Backups",
-          "id": "1d2c9bf1-2253-4112-8f05-a653e17c3e0b",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances",
-                "{{instanceId}}",
-                "backups"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Instance Backup",
-          "id": "8df26dac-26b4-45f6-a42d-83e9da2b0997",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances",
-                "{{instanceId}}",
-                "backups"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Backup by ID",
-          "id": "e482f1cd-9930-4668-8eb9-3e72f3847ac6",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups/{{backupId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances",
-                "{{instanceId}}",
-                "backups",
-                "{{backupId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Backup Content",
-          "id": "edc429c6-fc19-4a97-99b5-afe4a7db2804",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups/{{backupId}}/content",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beyondtrust-instances",
-                "{{instanceId}}",
-                "backups",
-                "{{backupId}}",
-                "content"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "2c567e3d-a7f0-4dfd-9584-2800e1e7817c",
-      "description": "Endpoints for managing BeyondTrust instances (tenants) within the PRA Portal."
-    },
-    {
       "name": "Jump Policies",
       "item": [
         {
@@ -6096,101 +6120,101 @@
   ],
   "variable": [
     {
-      "id": "be9feb15-ae60-4753-ac88-bc4af4b4e249",
+      "id": "bfe9e0ec-c878-4c8c-ba06-0c93b240fc1f",
       "key": "baseUrl",
       "value": "https://pra-api-pp.cdn-vas.net"
     },
     {
-      "id": "ddd597d8-5d2e-4ff5-84ae-eac1f40c5986",
+      "id": "a091df53-2476-478d-9172-8fcc46de7ea0",
       "key": "tenantId",
       "value": "1"
     },
     {
-      "id": "498b4610-0811-4233-bc6e-8e1089e21e40",
+      "id": "215179ce-838b-4290-b781-a727279de7ff",
       "key": "accessKey",
       "value": ""
     },
     {
-      "id": "3f227662-2558-4082-8ce1-33882bab3021",
+      "id": "e19c0afe-dce3-4dc1-9e39-155e292f9d14",
       "key": "customerId",
       "value": "1"
     },
     {
-      "id": "9236f5a5-a01e-4065-aa51-c10f3f99cf8e",
+      "id": "787e2bb2-dc0b-4497-940a-902f9b49f545",
       "key": "siteId",
       "value": "1"
     },
     {
-      "id": "2293b21c-cf4d-4184-8033-794763d3898f",
+      "id": "bc1da0cd-8d09-4e6a-b432-4a945f46317f",
       "key": "userId",
       "value": "1"
     },
     {
-      "id": "c16dd4ec-f113-4af3-8037-829d93cf18fc",
+      "id": "81690b08-5aef-46cc-b661-d7a08bccb498",
       "key": "teamId",
       "value": "1"
     },
     {
-      "id": "ee5ab189-79f1-436f-94de-44fde01f8262",
+      "id": "b53d474c-7947-45f9-bf11-5cddcc1d8918",
       "key": "groupPolicyId",
       "value": "1"
     },
     {
-      "id": "866440d7-8b21-4d7f-b28e-0c9557cbb537",
+      "id": "c0ab5585-0f49-4628-91b4-4fb2dbc955ec",
       "key": "jumpointId",
       "value": "1"
     },
     {
-      "id": "6a27d8cb-8113-4deb-8b42-66c197c3158a",
+      "id": "cf61bd78-cd3c-4887-b747-a9300b9aa15d",
       "key": "jumpGroupId",
       "value": "1"
     },
     {
-      "id": "a6c5dbeb-e6bb-493c-b24f-deca859842b3",
+      "id": "e13558b6-5054-4d8c-a02f-20aef93f782f",
       "key": "jumpClientId",
       "value": "1"
     },
     {
-      "id": "eb9733f1-6e40-4397-8ffa-1f18bf0a7cf7",
+      "id": "296cb8b3-c6a2-4509-acca-6eff100a17d6",
       "key": "instanceId",
       "value": "1"
     },
     {
-      "id": "88007735-76af-4869-ad53-8ff4d32f50f3",
+      "id": "59062884-0404-419a-925b-44e26bcda8a2",
       "key": "backupId",
       "value": "1"
     },
     {
-      "id": "0e707fc2-bfd0-45e9-9501-f859f1812b71",
+      "id": "ea971c83-ad2c-44ce-97f7-fb4d8b1dcc59",
       "key": "policyId",
       "value": "1"
     },
     {
-      "id": "872fc76c-4659-4e55-91b7-d301c309c30c",
+      "id": "7f098b0d-1fde-428d-888c-3eefe3f7cde8",
       "key": "managerId",
       "value": "1",
       "description": "Unique identifier for a site manager"
     },
     {
-      "id": "aa6e3c16-ed7d-42bb-8ffb-299bae199b6c",
+      "id": "f19c5f62-8e8e-41e4-9119-79d9974344f2",
       "key": "administratorId",
       "value": "1",
       "description": "Unique identifier for a site administrator"
     },
     {
-      "id": "616b27f0-fac2-4bc5-ab53-7edc8ef0025d",
+      "id": "23004163-093c-433e-ae47-2e566c62a1ac",
       "key": "supportTeamMemberId",
       "value": "1",
       "description": "Unique identifier for a site support team member"
     },
     {
-      "id": "e2a74de1-bb87-4f4e-9869-11ad8d2079e9",
+      "id": "a7033bc8-16f1-4f70-9098-10aec9d98a1a",
       "key": "healthCheckTimeout",
       "value": "5000",
       "description": "Maximum time to wait for health checks (in milliseconds)"
     },
     {
-      "id": "1f1bea30-2b1c-4722-b8d1-b56355f6e674",
+      "id": "937293e6-ca6f-4e27-b41c-861c148d2889",
       "key": "monitoringInterval",
       "value": "30000",
       "description": "Interval between health checks for monitoring (in milliseconds)"
