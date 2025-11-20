@@ -9,6 +9,7 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     ApiConflictResponse,
     ApiCreatedResponse,
+    ApiExcludeController,
     ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -30,11 +32,14 @@ import { CreateAccessDtoInput, ModifyAccessDtoInput, RetrieveAccessDtoInput } fr
 import { AccessCreatedDtoOutput, AccessModifiedDtoOutput, AccessRetrievedDtoOutput } from '../dtos/outputs';
 import { Access } from '../models';
 import { RetrieveAccessQuery } from '../queries';
+import { ApiKeyAuthGuard } from '../../auth/guards';
 
 @ApiTransactionIdHeader()
 @ApiTags('Access')
 @Controller('access')
+@UseGuards(ApiKeyAuthGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
+@ApiExcludeController()
 export class AccessController {
     constructor(
         private readonly commandBus: CommandBus,
