@@ -6,7 +6,7 @@ import {
     Patch,
     Query,
     UseGuards,
-    UseInterceptors,
+    // UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -20,10 +20,10 @@ import {
     TenantIdHeader,
     TransactionIdHeader,
 } from '../../core/decorators';
-import { CustomersScopeInterceptor } from '../../customer/interceptors';
+//import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
-import { UserRequestPipe } from '../../user/pipes';
+//import { UserRequestPipe } from '../../user/pipes';
 import { ModifyUserGroupPoliciesCommand } from '../commands';
 import { ModifyUserGroupPoliciesDtoInput, RetrieveUserGroupPoliciesDtoInput } from '../dtos/inputs';
 import { UserGroupPolicyModifiedDtoOutput, UserGroupPolicyRetrievedDtoOutput } from '../dtos/outputs';
@@ -36,8 +36,8 @@ import { RetrieveUserGroupPoliciesQuery } from '../queries';
 @ApiTags('Users')
 @Controller('users')
 @UseGuards(AccessGuard)
-@UseInterceptors(CustomersScopeInterceptor)
-@UsePipes(UserRequestPipe)
+//@UseInterceptors(CustomersScopeInterceptor)
+//@UsePipes(UserRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class UserGroupPolicyController {
     constructor(
