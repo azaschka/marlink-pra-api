@@ -21,19 +21,39 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const status = this.determineStatusCode(exception);
         const message = this.determineMessage(exception);
 
-        /* ---- Datenbank-Logging ---- */
-        await this.logService.log(
-            `${AllExceptionsFilter.ACTION_NAME_PREFIX} ${req.method} ${req.originalUrl}`,
-            (req.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string) ?? AllExceptionsFilter.DEFAULT_TRANSACTION_ID,
-            (req.user as { username?: string })?.username ?? AllExceptionsFilter.DEFAULT_INITIATED_BY,
-            JSON.stringify({
-                status,
-                message,
-                stack: exception instanceof Error ? exception.stack : undefined,
-            }),
-        );
+        // Log to console for immediate visibility (important for debugging pod restarts)
+        console.error(`❌ [${new Date().toISOString()}] Exception caught:`, {
+            method: req.method,
+            url: req.originalUrl,
+            status,
+            message,
+            transactionId: req.headers[TRANSACTION_ID_HEADER.toLowerCase()],
+            user: (req.user as { username?: string })?.username,
+        });
 
-        /* ---- Antwort an den Client ---- */
+        if (exception instanceof Error && exception.stack) {
+            console.error('Stack trace:', exception.stack);
+        }
+
+        /* ---- Database Logging (non-blocking) ---- */
+        try {
+            await this.logService.log(
+                `${AllExceptionsFilter.ACTION_NAME_PREFIX} ${req.method} ${req.originalUrl}`,
+                (req.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string) ??
+                    AllExceptionsFilter.DEFAULT_TRANSACTION_ID,
+                (req.user as { username?: string })?.username ?? AllExceptionsFilter.DEFAULT_INITIATED_BY,
+                JSON.stringify({
+                    status,
+                    message,
+                    stack: exception instanceof Error ? exception.stack : undefined,
+                }),
+            );
+        } catch (logError) {
+            // Don't fail the request if logging fails
+            console.error('⚠️  Failed to log exception to database:', logError);
+        }
+
+        /* ---- Response to Client ---- */
         res.status(status).json({
             statusCode: status,
             timestamp: new Date().toISOString(),
