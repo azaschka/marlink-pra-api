@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { description, name, version } from '../package.json';
 import { AppModule } from './app.module';
 import { LogService } from './log/services/log.service';
+import { runMigrationsBeforeStartup } from './migration/run-migrations-before-startup';
 import { AllExceptionsFilter } from './shared/filters';
 // import { TimeoutInterceptor } from './shared/interceptors';
 
@@ -24,6 +25,9 @@ function configureOpenApi(app: INestApplication<unknown>) {
 
 async function bootstrap() {
     try {
+        // Run critical migrations BEFORE NestJS/TypeORM initializes
+        await runMigrationsBeforeStartup();
+
         const app = await NestFactory.create(AppModule, {
             logger: ['error', 'warn', 'log'],
             abortOnError: false, // Don't crash on startup errors
