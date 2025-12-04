@@ -6,7 +6,7 @@ import {
     Query,
     Res,
     UseGuards,
-    UseInterceptors,
+    // UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -22,10 +22,10 @@ import {
     TenantIdHeader,
     TransactionIdHeader,
 } from '../../core/decorators';
-import { CustomersScopeInterceptor } from '../../customer/interceptors';
+// import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { RetrieveJumpointInstallerByCustomerAndSiteDtoInput } from '../dtos/inputs';
-import { JumpointRequestPipe } from '../pipes';
+// import { JumpointRequestPipe } from '../pipes';
 import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
 
 @ApiTenantIdHeader()
@@ -34,8 +34,8 @@ import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
 @ApiTags('Jumpoints')
 @Controller('jumpoints')
 @UseGuards(AccessGuard)
-@UseInterceptors(CustomersScopeInterceptor)
-@UsePipes(JumpointRequestPipe)
+// @UseInterceptors(CustomersScopeInterceptor)
+// @UsePipes(JumpointRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointExtensionController {
     constructor(private readonly queryBus: QueryBus) {}
