@@ -4,12 +4,14 @@
   },
   "entities": {
     "collections": [
-      "../postman/collections/Marlink PRA API v2.0.1.postman_collection.json",
-      "../postman/collections/BeyondTrust Privileged Remote Access Configuration APIs.postman_collection.json",
-      "../postman/collections/marlink-pra-api.postman_collection.json"
+      "../postman/collections/marlink-pra-api.postman_collection.json",
+      "../postman/collections/Marlink PRA API v2.0.2.postman_collection.json",
+      "../postman/collections/BeyondTrust Privileged Remote Access Configuration APIs.postman_collection.json"
     ],
     "environments": [],
-    "specs": [],
+    "specs": [
+      "../postman/specs/marlink-pra-api.json"
+    ],
     "flows": [],
     "globals": []
   }
