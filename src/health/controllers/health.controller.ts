@@ -29,20 +29,73 @@ export class HealthController {
     @Get()
     @HealthCheck()
     public async checkHealth(): Promise<HealthCheckResult> {
-        return await this.healthCheckService.check([
-            async () => this.typeOrmHealthIndicator.pingCheck('database'),
-            async () =>
-                this.diskHealthIndicator.checkStorage('storage', {
-                    thresholdPercent: this.appConfigService.health.diskStorageUsageThresholdInPercent / 100,
-                    path: '/',
-                }),
-            async () =>
-                this.memoryHealthIndicator.checkHeap(
-                    'memoryHeap',
-                    this.appConfigService.health.memoryHeapUsageThresholdInMB * 1024 * 1024, // Convert MB to bytes
-                ),
-            async () =>
-                this.httpHealthIndicator.pingCheck('praSyncApi', this.appConfigService.health.pingCheckPraSyncApiUrl),
-        ]);
+        try {
+            return await this.healthCheckService.check([
+                // Database check - critical for operation
+                async () => this.typeOrmHealthIndicator.pingCheck('database', { timeout: 5000 }),
+
+                // Disk storage check - warn if usage is high
+                async () =>
+                    this.diskHealthIndicator.checkStorage('storage', {
+                        thresholdPercent: this.appConfigService.health.diskStorageUsageThresholdInPercent / 100,
+                        path: '/',
+                    }),
+
+                // Memory heap check - warn if memory usage is high
+                async () =>
+                    this.memoryHealthIndicator.checkHeap(
+                        'memoryHeap',
+                        this.appConfigService.health.memoryHeapUsageThresholdInMB * 1024 * 1024,
+                    ),
+
+                // External API check - graceful degradation if unavailable
+                async () => {
+                    try {
+                        return await this.httpHealthIndicator.pingCheck(
+                            'praSyncApi',
+                            this.appConfigService.health.pingCheckPraSyncApiUrl,
+                            { timeout: 3000 },
+                        );
+                    } catch (error) {
+                        // Don't fail health check if external API is down
+                        console.warn('⚠️  PRA Sync API health check failed (non-critical):', error);
+                        return {
+                            praSyncApi: {
+                                status: 'down',
+                                message: 'External API unavailable',
+                            },
+                        };
+                    }
+                },
+            ]);
+        } catch (error) {
+            console.error('❌ Health check failed:', error);
+            throw error;
+        }
+    }
+
+    @Get('ready')
+    public async checkReadiness(): Promise<{ status: string }> {
+        // Readiness probe - checks if app can handle traffic
+        try {
+            await this.typeOrmHealthIndicator.pingCheck('database', { timeout: 3000 });
+            return { status: 'ready' };
+        } catch (error) {
+            console.error('❌ Readiness check failed:', error);
+            throw error;
+        }
+    }
+
+    @Get('live')
+    public checkLiveness(): { status: string; uptime: number; memory: { used: number; total: number } } {
+        // Liveness probe - checks if app is alive (lightweight)
+        return {
+            status: 'alive',
+            uptime: process.uptime(),
+            memory: {
+                used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+                total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+            },
+        };
     }
 }
