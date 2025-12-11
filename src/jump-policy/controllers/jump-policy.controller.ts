@@ -33,6 +33,7 @@ import {
     TransactionIdHeader,
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateJumpPolicyCommand, DeleteJumpPolicyCommand, ModifyJumpPolicyCommand } from '../commands';
@@ -49,6 +50,7 @@ import { RetrieveJumpPoliciesQuery, RetrieveJumpPolicyByIdQuery } from '../queri
 @Controller('jump-policies')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(JumpPolicyRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpPolicyController {

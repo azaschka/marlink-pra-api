@@ -1,7 +1,18 @@
-import { BadRequestException, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import {
+    BadRequestException,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Post,
+    Query,
+    UsePipes,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiTenantIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { ScanDiscrepancyCommand } from '../commands';
 import { RetrieveDiscrepanciesDtoInput } from '../dtos/inputs';
@@ -13,6 +24,7 @@ import { RetrieveDiscrepanciesQuery } from '../queries';
 @ApiTenantIdHeader()
 @ApiTags('Discrepancies')
 @Controller('discrepancies')
+@UsePipes(MonitoringRequestPipe)
 export class DiscrepancyScannerController {
     constructor(
         private readonly queryBus: QueryBus,

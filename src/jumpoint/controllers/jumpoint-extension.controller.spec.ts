@@ -39,19 +39,12 @@ describe('JumpointExtensionController', () => {
 
             await controller.retrieveJumpointInstallerByCustomerAndSite(
                 'uuid-100',
-                123,
-                { businessUnit: BusinessUnit.EG, customerKey: 'cust-1', siteKey: 'site-1' },
+                { businessUnits: [BusinessUnit.EG], customerKey: 'cust-1', siteKey: 'site-1' },
                 res,
             );
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveJumpointInstallerByCustomerAndSiteQuery(
-                    'uuid-100',
-                    123,
-                    BusinessUnit.EG,
-                    'cust-1',
-                    'site-1',
-                ),
+                new RetrieveJumpointInstallerByCustomerAndSiteQuery('uuid-100', [BusinessUnit.EG], 'cust-1', 'site-1'),
             );
             expect(setHeaderMethod).toHaveBeenCalledWith('Content-Type', expectedResult.headers['content-type']);
             expect(setHeaderMethod).toHaveBeenCalledWith(

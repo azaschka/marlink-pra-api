@@ -28,6 +28,7 @@ import {
 import { AccessGuard } from '../../access/guards';
 import { BusinessUnitsScopeInterceptor } from '../../access/interceptors';
 import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import {
@@ -49,6 +50,7 @@ import { RetrieveCustomersQuery } from '../queries';
 @Controller('customers')
 @UseGuards(AccessGuard)
 @UseInterceptors(BusinessUnitsScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(CustomerRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class CustomerController {

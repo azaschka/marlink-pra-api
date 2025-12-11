@@ -24,6 +24,7 @@ import {
     ApiParam,
     ApiTags,
 } from '@nestjs/swagger';
+import { ApiKeyAuthGuard } from '../../auth/guards';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
@@ -32,7 +33,6 @@ import { CreateAccessDtoInput, ModifyAccessDtoInput, RetrieveAccessDtoInput } fr
 import { AccessCreatedDtoOutput, AccessModifiedDtoOutput, AccessRetrievedDtoOutput } from '../dtos/outputs';
 import { Access } from '../models';
 import { RetrieveAccessQuery } from '../queries';
-import { ApiKeyAuthGuard } from '../../auth/guards';
 
 @ApiTransactionIdHeader()
 @ApiTags('Access')

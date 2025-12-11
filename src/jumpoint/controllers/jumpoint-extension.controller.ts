@@ -6,7 +6,7 @@ import {
     Query,
     Res,
     UseGuards,
-    // UseInterceptors,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -15,27 +15,22 @@ import { ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
 import { AccessGuard } from '../../access/guards';
-import {
-    ApiAccessKeyHeader,
-    ApiTenantIdHeader,
-    ApiTransactionIdHeader,
-    TenantIdHeader,
-    TransactionIdHeader,
-} from '../../core/decorators';
-// import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
 import { RetrieveJumpointInstallerByCustomerAndSiteDtoInput } from '../dtos/inputs';
-// import { JumpointRequestPipe } from '../pipes';
+import { JumpointExtensionRequestPipe } from '../pipes';
 import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
 
-@ApiTenantIdHeader()
 @ApiTransactionIdHeader()
 @ApiAccessKeyHeader()
 @ApiTags('Jumpoints')
 @Controller('jumpoints')
 @UseGuards(AccessGuard)
-// @UseInterceptors(CustomersScopeInterceptor)
-// @UsePipes(JumpointRequestPipe)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
+@UsePipes(JumpointExtensionRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointExtensionController {
     constructor(private readonly queryBus: QueryBus) {}
@@ -44,7 +39,6 @@ export class JumpointExtensionController {
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async retrieveJumpointInstallerByCustomerAndSite(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
-        @TenantIdHeader() tenantId: number,
         @Query() dtoInput: RetrieveJumpointInstallerByCustomerAndSiteDtoInput,
         @Res() res: Response,
     ): Promise<void> {
@@ -55,8 +49,7 @@ export class JumpointExtensionController {
             >(
                 new RetrieveJumpointInstallerByCustomerAndSiteQuery(
                     transactionId,
-                    tenantId,
-                    dtoInput.businessUnit,
+                    dtoInput.businessUnits ?? [],
                     dtoInput.customerKey,
                     dtoInput.siteKey,
                 ),

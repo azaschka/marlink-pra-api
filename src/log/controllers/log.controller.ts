@@ -2,6 +2,7 @@ import { Controller, Delete, Get, HttpCode, HttpStatus, Query, UsePipes, Validat
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AppConfigService } from '../../app-config/services/app-config.service';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { DateUtility } from '../../shared/utilities';
 import { DeleteLogsDtoInput, RetrieveLogsDtoInput } from '../dtos/inputs';
 import { LogsRetrievedDtoOutput } from '../dtos/outputs';
@@ -9,6 +10,7 @@ import { LogService } from '../services/log.service';
 
 @ApiTags('Logs')
 @Controller('logs')
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class LogController {
     constructor(

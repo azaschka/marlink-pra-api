@@ -35,6 +35,7 @@ import {
 } from '../../../core/decorators';
 import { CustomersScopeInterceptor } from '../../../customer/interceptors';
 import { JumpGroupsScopeInterceptor } from '../../../jump-group/interceptors';
+import { MonitoringRequestPipe } from '../../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../../shared/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
@@ -66,6 +67,7 @@ import { RetrieveShellJumpByIdQuery, RetrieveShellJumpsQuery } from '../queries'
 @Controller('jump-items/shell-jumps')
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(ShellJumpRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class ShellJumpController {

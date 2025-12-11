@@ -29,6 +29,7 @@ import { JumpointModule } from './jumpoint/jumpoint.module';
 import { LicenseUsageModule } from './license-usage/license-usage.module';
 import { LogModule } from './log/log.module';
 import { MigrationModule } from './migration/migration.module';
+import { MonitoringModule } from './monitoring/monitoring.module';
 import { SiteModule } from './site/site.module';
 import { TeamUserModule } from './team-user/team-user.module';
 import { TeamModule } from './team/team.module';
@@ -82,6 +83,7 @@ import { UserModule } from './user/user.module';
         EmailModule,
         JobModule,
         LogModule,
+        MonitoringModule,
     ],
     controllers: [AppController],
     providers: [

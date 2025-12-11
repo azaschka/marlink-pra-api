@@ -22,6 +22,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import {
@@ -45,6 +46,7 @@ import { RetrieveBeyondtrustInstanceByIdQuery, RetrieveBeyondtrustInstancesQuery
 @ApiTransactionIdHeader()
 @ApiTags('Beyondtrust Instances')
 @Controller('beyondtrust-instances')
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class BeyondtrustInstanceController {
     constructor(

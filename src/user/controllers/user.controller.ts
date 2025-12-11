@@ -40,6 +40,7 @@ import { CreateUserDtoInput, ModifyUserDtoInput, RetrieveUsersDtoInput } from '.
 import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } from '../dtos/outputs';
 import { User } from '../models';
 // import { UserRequestPipe } from '../pipes';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 
 @ApiTenantIdHeader()
@@ -50,6 +51,7 @@ import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 @UseGuards(AccessGuard)
 //@UseInterceptors(CustomersScopeInterceptor)
 //@UsePipes(UserRequestPipe)
+@UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class UserController {
     constructor(
