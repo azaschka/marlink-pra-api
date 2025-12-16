@@ -721,8 +721,8 @@ describe('AppConfigService', () => {
                         siteManager: {
                             publicDisplayNamePrefix: 'SITE_MANAGER',
                         },
-                        siteAdministrator: {
-                            publicDisplayNamePrefix: 'SITE_ADMINISTRATOR',
+                        siteAuditor: {
+                            publicDisplayNamePrefix: 'SITE_AUDITOR',
                         },
                     },
                     jumpPolicy: {
@@ -755,8 +755,8 @@ describe('AppConfigService', () => {
                         siteManager: {
                             publicDisplayNamePrefix: 'SITE_MANAGER',
                         },
-                        siteAdministrator: {
-                            publicDisplayNamePrefix: 'SITE_ADMINISTRATOR',
+                        siteAuditor: {
+                            publicDisplayNamePrefix: 'SITE_AUDITOR',
                         },
                     },
                     jumpPolicy: {
@@ -792,8 +792,8 @@ describe('AppConfigService', () => {
                         siteManager: {
                             publicDisplayNamePrefix: 'SITE MANAGER',
                         },
-                        siteAdministrator: {
-                            publicDisplayNamePrefix: 'ADMINISTRATOR',
+                        siteAuditor: {
+                            publicDisplayNamePrefix: 'AUDITOR',
                         },
                     },
                     jumpPolicy: {
@@ -833,8 +833,8 @@ describe('AppConfigService', () => {
                         return input.groupPolicy?.fullAccess;
                     case 'SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME_PREFIX':
                         return input.user?.siteManager?.publicDisplayNamePrefix;
-                    case 'SITE_USER_SITE_ADMINISTRATOR_PUBLIC_DISPLAY_NAME_PREFIX':
-                        return input.user?.siteAdministrator?.publicDisplayNamePrefix;
+                    case 'SITE_USER_SITE_AUDITOR_PUBLIC_DISPLAY_NAME_PREFIX':
+                        return input.user?.siteAuditor?.publicDisplayNamePrefix;
                     case 'SITE_JUMP_POLICY_AUTH_SUFFIX':
                         return input.jumpPolicy?.authSuffix;
                     case 'SITE_JUMP_POLICY_NO_AUTH_SUFFIX':
@@ -871,8 +871,8 @@ describe('AppConfigService', () => {
                     siteManager: {
                         publicDisplayNamePrefix: expected.user.siteManager.publicDisplayNamePrefix,
                     },
-                    siteAdministrator: {
-                        publicDisplayNamePrefix: expected.user.siteAdministrator.publicDisplayNamePrefix,
+                    siteAuditor: {
+                        publicDisplayNamePrefix: expected.user.siteAuditor.publicDisplayNamePrefix,
                     },
                 },
                 jumpPolicy: {

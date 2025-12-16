@@ -1,5 +1,5 @@
-export class AddSiteAdministratorCommand {
-    public readonly commandType = 'add-site-administrator';
+export class AddSiteAuditorCommand {
+    public readonly commandType = 'add-site-auditor';
 
     constructor(
         public readonly transactionId: string,

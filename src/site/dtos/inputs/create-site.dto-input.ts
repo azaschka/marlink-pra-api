@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ArrayNotEmpty, ArrayUnique, IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { SiteAdministratorDtoInput } from './site-administrator.dto-input';
+import { SiteAuditorDtoInput } from './site-auditor.dto-input';
 import { SiteManagerDtoInput } from './site-manager.dto-input';
 import { SiteSupportTeamMemberDtoInput } from './site-support-team-member.dto-input';
 
@@ -41,14 +41,14 @@ export class CreateSiteDtoInput {
 
     @ApiProperty({
         required: false,
-        type: [SiteAdministratorDtoInput],
-        description: 'The list of site administrators.',
+        type: [SiteAuditorDtoInput],
+        description: 'The list of site auditors.',
     })
     @IsArray()
     @IsOptional()
     @ValidateNested({ each: true })
-    @Type(() => SiteAdministratorDtoInput)
-    public siteAdministrators?: SiteAdministratorDtoInput[];
+    @Type(() => SiteAuditorDtoInput)
+    public siteAuditors?: SiteAuditorDtoInput[];
 
     @ApiProperty({
         required: false,

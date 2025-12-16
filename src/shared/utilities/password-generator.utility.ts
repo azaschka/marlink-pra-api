@@ -8,15 +8,15 @@ export class PasswordGeneratorUtility {
      * Generate a secure password with at least one character from each category:
      * lowercase, uppercase, numbers, and specials.
      * @param length The desired length of the password (minimum 8 characters).
-     * @throws Error if the length is less than 8.
+     * @throws Error if the length is less than 14.
      * @returns A randomly generated password string.
      * @example
      * PasswordGenerator.generate(16); // Generates a 16-character password
-     * PasswordGenerator.generate(); // Generates a default 12-character password
+     * PasswordGenerator.generate(); // Generates a default 14-character password
      */
-    public static generate(length: number = 12): string {
-        if (length < 8) {
-            throw new Error('Password length must be at least 8 characters');
+    public static generate(length: number = 14): string {
+        if (length < 14) {
+            throw new Error('Password length must be at least 14 characters');
         }
 
         const getRandom = (charset: string) => charset[Math.floor(Math.random() * charset.length)];

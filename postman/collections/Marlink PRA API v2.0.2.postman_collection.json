@@ -1,7 +1,11 @@
 {
   "info": {
     "_postman_id": "ed8ef1d3-324b-4b3e-810a-e2e0070732e6",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
     "name": "Marlink PRA API v2.0.2",
+========
+    "name": "Marlink PRA API v2.0.4",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
     "description": "This Postman collection provides a comprehensive set of API endpoints for managing and interacting with the PRA (Privileged Remote Access) Portal. It includes endpoints for health monitoring, customer management, site management, user management, jumpoint management, and more. Each endpoint is documented with request methods, headers, parameters, and example responses to facilitate easy integration and testing.\n\nBase URL: `https://pra-api-pp.cdn-vas.net`\n\nMake sure to replace placeholder variables (e.g., `{{accessKey}}`, `{{customerId}}`) with actual values before making requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -1873,13 +1877,13 @@
           "name": "{id}",
           "item": [
             {
-              "name": "administrators",
+              "name": "auditors",
               "item": [
                 {
                   "name": "{id}",
                   "item": [
                     {
-                      "name": "Remove Site Administrator",
+                      "name": "Remove Site Auditor",
                       "id": "4b834663-d57f-4b61-9763-702e5e7bb18e",
                       "request": {
                         "method": "DELETE",
@@ -1891,23 +1895,23 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{baseUrl}}/sites/{{siteId}}/administrators/{{administratorId}}",
+                          "raw": "{{baseUrl}}/sites/{{siteId}}/auditors/{{auditorId}}",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "{{siteId}}",
-                            "administrators",
-                            "{{administratorId}}"
+                            "auditors",
+                            "{{auditorId}}"
                           ]
                         },
-                        "description": "Removes a user from the site administrator role for the specified site. The user will no longer have site administration privileges."
+                        "description": "Removes a user from the site auditor role for the specified site. The user will no longer have site administration privileges."
                       },
                       "response": [
                         {
                           "id": "467dcc45-8002-429e-852d-87834fdb8e08",
-                          "name": "204 No Content - Administrator Removed",
+                          "name": "204 No Content - Auditor Removed",
                           "originalRequest": {
                             "method": "DELETE",
                             "header": [
@@ -1917,14 +1921,14 @@
                               }
                             ],
                             "url": {
-                              "raw": "{{baseUrl}}/sites/1/administrators/2",
+                              "raw": "{{baseUrl}}/sites/1/auditors/2",
                               "host": [
                                 "{{baseUrl}}"
                               ],
                               "path": [
                                 "sites",
                                 "1",
-                                "administrators",
+                                "auditors",
                                 "2"
                               ]
                             }
@@ -1947,7 +1951,7 @@
                   "id": "f64cd6b1-e110-4600-a716-9826a3b7e89c"
                 },
                 {
-                  "name": "Get Site Administrators",
+                  "name": "Get Site Auditors",
                   "id": "ff265302-ad3c-419c-9e74-0d141b3116f9",
                   "request": {
                     "method": "GET",
@@ -1959,14 +1963,18 @@
                       }
                     ],
                     "url": {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "raw": "{{baseUrl}}/sites/{{siteId}}/administrators?pageSize=100&pageNumber=1",
+========
+                      "raw": "{{baseUrl}}/sites/{{siteId}}/auditors?pageSize=100&pageNumber=1",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "host": [
                         "{{baseUrl}}"
                       ],
                       "path": [
                         "sites",
                         "{{siteId}}",
-                        "administrators"
+                        "auditors"
                       ],
                       "query": [
                         {
@@ -1981,12 +1989,12 @@
                         }
                       ]
                     },
-                    "description": "Retrieves site administrators for the specified site. Site administrators have administrative privileges for site configuration and management."
+                    "description": "Retrieves site auditors for the specified site. Site auditors have administrative privileges for site configuration and management."
                   },
                   "response": [
                     {
                       "id": "92e3f493-f7a3-4b78-95a8-3b0c11cd9a68",
-                      "name": "200 OK - Site Administrators List",
+                      "name": "200 OK - Site Auditors List",
                       "originalRequest": {
                         "method": "GET",
                         "header": [
@@ -1996,14 +2004,14 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{baseUrl}}/sites/1/administrators",
+                          "raw": "{{baseUrl}}/sites/1/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "1",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2031,14 +2039,14 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{baseUrl}}/sites/999/administrators",
+                          "raw": "{{baseUrl}}/sites/999/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "999",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2052,12 +2060,17 @@
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "body": "{\n  \"statusCode\": 404,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/999/administrators\",\n  \"message\": \"The specified resource was not found.\"\n}"
+========
+                      "cookie": [],
+                      "body": "{\n  \"statusCode\": 404,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/999/auditors\",\n  \"message\": \"The specified resource was not found.\"\n}"
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ]
                 },
                 {
-                  "name": "Add Site Administrator",
+                  "name": "Add Site Auditor",
                   "id": "333a2839-01f3-44cc-b0c3-4c9184d3effa",
                   "request": {
                     "method": "POST",
@@ -2082,22 +2095,22 @@
                       }
                     },
                     "url": {
-                      "raw": "{{baseUrl}}/sites/{{siteId}}/administrators",
+                      "raw": "{{baseUrl}}/sites/{{siteId}}/auditors",
                       "host": [
                         "{{baseUrl}}"
                       ],
                       "path": [
                         "sites",
                         "{{siteId}}",
-                        "administrators"
+                        "auditors"
                       ]
                     },
-                    "description": "Assigns a user as a site administrator for the specified site. The user must exist and have appropriate permissions."
+                    "description": "Assigns a user as a site auditor for the specified site. The user must exist and have appropriate permissions."
                   },
                   "response": [
                     {
                       "id": "fc444af7-79aa-4c51-8ea5-205bc64b882f",
-                      "name": "201 Created - Site Administrator Added",
+                      "name": "201 Created - Site Auditor Added",
                       "originalRequest": {
                         "method": "POST",
                         "header": [
@@ -2120,14 +2133,14 @@
                           }
                         },
                         "url": {
-                          "raw": "{{baseUrl}}/sites/1/administrators",
+                          "raw": "{{baseUrl}}/sites/1/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "1",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2145,7 +2158,7 @@
                     },
                     {
                       "id": "04b2c97c-8496-4fb5-8141-d81371ed0b87",
-                      "name": "409 Conflict - Administrator Already Exists",
+                      "name": "409 Conflict - Auditor Already Exists",
                       "originalRequest": {
                         "method": "POST",
                         "header": [
@@ -2168,14 +2181,14 @@
                           }
                         },
                         "url": {
-                          "raw": "{{baseUrl}}/sites/1/administrators",
+                          "raw": "{{baseUrl}}/sites/1/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "1",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2189,7 +2202,12 @@
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "body": "{\n  \"statusCode\": 409,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/1/administrators\",\n  \"message\": \"The specified site administrator already exists.\"\n}"
+========
+                      "cookie": [],
+                      "body": "{\n  \"statusCode\": 409,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/1/auditors\",\n  \"message\": \"The specified site auditor already exists.\"\n}"
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ]
                 }
@@ -2255,13 +2273,20 @@
                           "status": "No Content",
                           "code": 204,
                           "_postman_previewlanguage": "text",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                           "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                           "header": [
                             {
                               "key": "Content-Type",
                               "value": "text/plain"
                             }
                           ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                          "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                           "body": ""
                         }
                       ]
@@ -2332,13 +2357,20 @@
                       "status": "OK",
                       "code": 200,
                       "_postman_previewlanguage": "json",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "header": [
                         {
                           "key": "Content-Type",
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                      "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "body": "[\n  {\n    \"id\": 1,\n    \"siteId\": 1,\n    \"userId\": 1,\n    \"username\": \"manager1\",\n    \"email\": \"manager1@example.com\",\n    \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n  }\n]"
                     }
                   ]
@@ -2416,13 +2448,20 @@
                       "status": "Created",
                       "code": 201,
                       "_postman_previewlanguage": "json",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "header": [
                         {
                           "key": "Content-Type",
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                      "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "body": "{\n  \"id\": 1,\n  \"siteId\": 1,\n  \"userId\": 1,\n  \"username\": \"manager1\",\n  \"email\": \"manager1@example.com\",\n  \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n}"
                     },
                     {
@@ -2464,13 +2503,20 @@
                       "status": "Conflict",
                       "code": 409,
                       "_postman_previewlanguage": "json",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "header": [
                         {
                           "key": "Content-Type",
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                      "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "body": "{\n  \"statusCode\": 409,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/1/managers\",\n  \"message\": \"The specified site manager already exists.\"\n}"
                     }
                   ]
@@ -2537,13 +2583,20 @@
                           "status": "No Content",
                           "code": 204,
                           "_postman_previewlanguage": "text",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                           "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                           "header": [
                             {
                               "key": "Content-Type",
                               "value": "text/plain"
                             }
                           ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                          "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                           "body": ""
                         }
                       ]
@@ -2612,13 +2665,20 @@
                       "status": "OK",
                       "code": 200,
                       "_postman_previewlanguage": "json",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "header": [
                         {
                           "key": "Content-Type",
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                      "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "body": "[\n  {\n    \"id\": 1,\n    \"siteId\": 1,\n    \"userId\": 3,\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"email\": \"support1@example.com\",\n    \"supportTeamName\": \"Technical Support\",\n    \"supportTeamAccessLevel\": \"full\",\n    \"supportTeamTrustLevel\": \"require-auth\",\n    \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n  }\n]"
                     }
                   ]
@@ -2696,13 +2756,20 @@
                       "status": "Created",
                       "code": 201,
                       "_postman_previewlanguage": "json",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "header": [
                         {
                           "key": "Content-Type",
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                      "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "body": "{\n  \"id\": 1,\n  \"siteId\": 1,\n  \"userId\": 3,\n  \"firstname\": \"John\",\n  \"lastname\": \"Doe\",\n  \"email\": \"support1@example.com\",\n  \"supportTeamName\": \"Technical Support\",\n  \"supportTeamAccessLevel\": \"full\",\n  \"supportTeamTrustLevel\": \"require-auth\",\n  \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n}"
                     }
                   ]
@@ -2774,13 +2841,20 @@
                       "status": "OK",
                       "code": 200,
                       "_postman_previewlanguage": "json",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "header": [
                         {
                           "key": "Content-Type",
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                      "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Main Office Jumpoint\",\n    \"platformType\": \"Windows\",\n    \"codeName\": \"main-office-jp\",\n    \"comments\": \"Primary jumpoint for main office location\",\n    \"isEnabled\": true,\n    \"creationDate\": \"2024-01-01T09:00:00.000Z\",\n    \"lastModificationDate\": \"2024-01-01T10:00:00.000Z\"\n  }\n]"
                     },
                     {
@@ -2809,13 +2883,20 @@
                       "status": "Not Found",
                       "code": 404,
                       "_postman_previewlanguage": "json",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "_postman_previewtype": "html",
+========
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "header": [
                         {
                           "key": "Content-Type",
                           "value": "application/json"
                         }
                       ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                      "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "body": "{\n  \"statusCode\": 404,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/999/jumpoints\",\n  \"message\": \"The specified resource was not found.\"\n}"
                     }
                   ]
@@ -3022,7 +3103,12 @@
                   "value": "application/json"
                 }
               ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               "body": "[\n  {\n    \"id\": 1,\n    \"key\": \"SITE001\",\n    \"name\": \"Main Office\",\n    \"customerKey\": \"CUST001\",\n    \"siteManagers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 1,\n        \"username\": \"manager1\",\n        \"email\": \"manager1@example.com\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteAdministrators\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 2,\n        \"username\": \"admin1\",\n        \"email\": \"admin1@example.com\",\n        \"isAdminOperator\": true,\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteSupportTeamMembers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 3,\n        \"firstname\": \"John\",\n        \"lastname\": \"Doe\",\n        \"email\": \"support1@example.com\",\n        \"supportTeamName\": \"Technical Support\",\n        \"supportTeamAccessLevel\": \"full\",\n        \"supportTeamTrustLevel\": \"require-auth\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteApprovers\": [\n      {\n        \"email\": \"approver1@example.com\"\n      }\n    ],\n    \"creationDate\": \"2024-01-01T10:00:00.000Z\",\n    \"lastModificationDate\": \"2024-01-01T10:00:00.000Z\"\n  }\n]"
+========
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 1,\n    \"key\": \"SITE001\",\n    \"name\": \"Main Office\",\n    \"customerKey\": \"CUST001\",\n    \"siteManagers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 1,\n        \"username\": \"manager1\",\n        \"email\": \"manager1@example.com\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteAuditors\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 2,\n        \"username\": \"admin1\",\n        \"email\": \"admin1@example.com\",\n        \"isAdminOperator\": true,\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteSupportTeamMembers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 3,\n        \"firstname\": \"John\",\n        \"lastname\": \"Doe\",\n        \"email\": \"support1@example.com\",\n        \"supportTeamName\": \"Technical Support\",\n        \"supportTeamAccessLevel\": \"full\",\n        \"supportTeamTrustLevel\": \"require-auth\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteApprovers\": [\n      {\n        \"email\": \"approver1@example.com\"\n      }\n    ],\n    \"creationDate\": \"2024-01-01T10:00:00.000Z\",\n    \"lastModificationDate\": \"2024-01-01T10:00:00.000Z\"\n  }\n]"
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "id": "ad5f4bfa-f5f3-4e4e-beaa-7c0d00dd1e4e",
@@ -3166,7 +3252,11 @@
             ],
             "body": {
               "mode": "raw",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               "raw": "{\n    \"key\": \"string\", // required\n    \"name\": \"string\", // required\n    \"customerKey\": \"string\", // required\n    \"siteManagers\": [ // required\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\" // required\n        }\n    ],\n    \"siteAdministrators\": [\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\", // required\n            \"isAdminOperator\": false // required, boolean\n        }\n    ],\n    \"siteSupportTeamMembers\": [\n        {\n            \"firstname\": \"string\", // required\n            \"lastname\": \"string\", // required\n            \"email\": \"string\", // required\n            \"supportTeamName\": \"string\", // required\n            \"supportTeamAccessLevel\": \"full\", // required - full, limited\n            \"supportTeamTrustLevel\": \"require-auth\" // required - require-auth, notify-only, no-restrictions\n        }\n    ],\n    \"siteApprovers\": [\n        \"string\"\n    ]\n}",
+========
+              "raw": "{\n    \"key\": \"string\", // required\n    \"name\": \"string\", // required\n    \"customerKey\": \"string\", // required\n    \"siteManagers\": [ // required\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\" // required\n        }\n    ],\n    \"siteAuditors\": [\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\", // required\n            \"isAdminOperator\": false // required, boolean\n        }\n    ],\n    \"siteSupportTeamMembers\": [\n        {\n            \"firstname\": \"string\", // required\n            \"lastname\": \"string\", // required\n            \"email\": \"string\", // required\n            \"supportTeamName\": \"string\", // required\n            \"supportTeamAccessLevel\": \"full\", // required - full, limited\n            \"supportTeamTrustLevel\": \"require-auth\" // required - require-auth, notify-only, no-restrictions\n        }\n    ],\n    \"siteApprovers\": [\n        \"string\"\n    ]\n}",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
               "options": {
                 "raw": {
                   "language": "json"
@@ -3182,7 +3272,7 @@
                 "sites"
               ]
             },
-            "description": "Creates a new site and assigns initial management roles. The site key must be unique and the customer must exist. Site managers, administrators, and support team members can be assigned during creation."
+            "description": "Creates a new site and assigns initial management roles. The site key must be unique and the customer must exist. Site managers, auditors, and support team members can be assigned during creation."
           },
           "response": [
             {
@@ -3229,7 +3319,12 @@
                   "value": "application/json"
                 }
               ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               "body": "{\n  \"id\": 1,\n  \"key\": \"SITE001\",\n  \"name\": \"Main Office\",\n  \"customerKey\": \"CUST001\",\n  \"siteManagers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 1,\n      \"username\": \"manager1\",\n      \"email\": \"manager1@example.com\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteAdministrators\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 2,\n      \"username\": \"admin1\",\n      \"email\": \"admin1@example.com\",\n      \"isAdminOperator\": true,\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteSupportTeamMembers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 3,\n      \"firstname\": \"John\",\n      \"lastname\": \"Doe\",\n      \"email\": \"support1@example.com\",\n      \"supportTeamName\": \"Technical Support\",\n      \"supportTeamAccessLevel\": \"full\",\n      \"supportTeamTrustLevel\": \"require-auth\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteApprovers\": [\n    {\n      \"email\": \"approver1@example.com\"\n    },\n    {\n      \"email\": \"approver2@example.com\"\n    }\n  ],\n  \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n}"
+========
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"key\": \"SITE001\",\n  \"name\": \"Main Office\",\n  \"customerKey\": \"CUST001\",\n  \"siteManagers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 1,\n      \"username\": \"manager1\",\n      \"email\": \"manager1@example.com\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteAuditors\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 2,\n      \"username\": \"admin1\",\n      \"email\": \"admin1@example.com\",\n      \"isAdminOperator\": true,\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteSupportTeamMembers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 3,\n      \"firstname\": \"John\",\n      \"lastname\": \"Doe\",\n      \"email\": \"support1@example.com\",\n      \"supportTeamName\": \"Technical Support\",\n      \"supportTeamAccessLevel\": \"full\",\n      \"supportTeamTrustLevel\": \"require-auth\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteApprovers\": [\n    {\n      \"email\": \"approver1@example.com\"\n    },\n    {\n      \"email\": \"approver2@example.com\"\n    }\n  ],\n  \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n}"
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "id": "f6fed972-7d0a-4f05-98ff-09153f6485d9",
@@ -3525,6 +3620,7 @@
                     "key": "X-Access-Key",
                     "value": "{{accessKey}}",
                     "description": "Access key for authenticating and authorizing requests."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   },
                   {
                     "key": "X-Tenant-Id",
@@ -3534,6 +3630,12 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/jumpoints/installers?businessUnit=MT,OA,MC,EG,TE&customerKey=string&siteKey=string",
+========
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/jumpoints/installers?siteKey=8542",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -3543,6 +3645,7 @@
                   ],
                   "query": [
                     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       "key": "businessUnit",
                       "value": "MT,OA,MC,EG,TE",
                       "description": "Business unit of the customer."
@@ -3555,6 +3658,10 @@
                     {
                       "key": "siteKey",
                       "value": "string",
+========
+                      "key": "siteKey",
+                      "value": "8542",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                       "description": "Unique key for the site."
                     }
                   ]
@@ -3614,7 +3721,12 @@
                   "status": "Not Found",
                   "code": 404,
                   "_postman_previewlanguage": "text",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   "_postman_previewtype": "html",
+========
+                  "header": [],
+                  "cookie": [],
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                   "body": null
                 }
               ]
@@ -3666,7 +3778,12 @@
                       ]
                     },
                     "description": "Retrieves the list of nodes associated with the specified jumpoint."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "c3695cfb-d3c4-4d26-8f19-15276acf87b1"
@@ -3712,7 +3829,12 @@
                       ]
                     },
                     "description": "Downloads the installer package for a specific jumpoint, enabling deployment on target systems."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "f96a1757-f291-41be-becf-93161a69752c"
@@ -3744,7 +3866,12 @@
                   ]
                 },
                 "description": "Retrieves detailed information about a specific jumpoint by its unique identifier."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Update Jumpoint",
@@ -3782,7 +3909,12 @@
                   ]
                 },
                 "description": "Updates the configuration of an existing jumpoint. Only the specified fields will be modified."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete Jumpoint",
@@ -3811,7 +3943,12 @@
                   ]
                 },
                 "description": "Permanently deletes a jumpoint from the system. This action cannot be undone."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "becafabd-4dd9-42e1-9c1f-b1e08a362f67"
@@ -3852,7 +3989,12 @@
               ]
             },
             "description": "Retrieves a paginated list of all jumpoints configured in the system. Jumpoints are remote access endpoints that facilitate secure connections."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         },
         {
           "name": "Create Jumpoint",
@@ -3889,7 +4031,12 @@
               ]
             },
             "description": "Creates a new jumpoint with the specified configuration. The jumpoint must be associated with an existing site."
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "a37ef96d-a517-4adf-a856-0592c6741b19",
@@ -3926,7 +4073,12 @@
                     "{{policyId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Update Jump Policy",
@@ -3957,7 +4109,12 @@
                     "{{policyId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete Jump Policy",
@@ -3984,7 +4141,12 @@
                     "{{policyId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "9685efea-b23d-4ca7-a9fb-435224a965de"
@@ -4073,7 +4235,12 @@
                 "jump-policies"
               ]
             }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "c074d969-824f-484b-804a-14a8f895e912",
@@ -4126,7 +4293,12 @@
                         }
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 },
                 {
                   "name": "Update User Group Polcies",
@@ -4163,7 +4335,12 @@
                         "group-policies"
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "1e8e81bb-c49d-45c7-b363-5fa7da480566"
@@ -4193,7 +4370,12 @@
                     "{{userId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Update User",
@@ -4229,7 +4411,12 @@
                     "{{userId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete User",
@@ -4256,7 +4443,12 @@
                     "{{userId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "75e0f83d-6ae6-4473-9189-e986b115bd2c"
@@ -4350,7 +4542,12 @@
                 "users"
               ]
             }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "f3cc9c07-9664-4ab6-b91a-c1a75aaa4e66",
@@ -4395,7 +4592,12 @@
                             "{{userId}}"
                           ]
                         }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       }
+========
+                      },
+                      "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ],
                   "id": "5742a723-bec8-4063-8328-baca64745b63"
@@ -4436,7 +4638,12 @@
                         }
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 },
                 {
                   "name": "Add Team User",
@@ -4473,7 +4680,12 @@
                         "users"
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "8816e8e3-b62b-494d-99d3-d3fa7710b4a3"
@@ -4503,7 +4715,12 @@
                     "{{teamId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Update Team",
@@ -4538,7 +4755,12 @@
                     "{{teamId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete Team",
@@ -4565,7 +4787,12 @@
                     "{{teamId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "3a8117ef-a776-4dda-8dc4-ceaf8a570ba7"
@@ -4659,7 +4886,12 @@
                 "teams"
               ]
             }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "ef715ae9-8f5d-4f2c-aa9a-23cf155a01b7",
@@ -4704,7 +4936,12 @@
                             "{{jumpointId}}"
                           ]
                         }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       }
+========
+                      },
+                      "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ],
                   "id": "6547641f-93d2-43be-9b7c-ea60529b7714"
@@ -4745,7 +4982,12 @@
                         }
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 },
                 {
                   "name": "Add Group Policy Jumpoint",
@@ -4782,7 +5024,12 @@
                         "jumpoints"
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "d3892706-e46a-4f42-a6eb-c3557a699ca5"
@@ -4820,7 +5067,12 @@
                             "{{jumpGroupId}}"
                           ]
                         }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       }
+========
+                      },
+                      "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ],
                   "id": "40545394-bb99-4f0c-aa72-8ad2e942078b"
@@ -4861,7 +5113,12 @@
                         }
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 },
                 {
                   "name": "Add Group Policy Jump Group",
@@ -4898,7 +5155,12 @@
                         "jump-groups"
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "a431cd76-c94d-4c4d-a38a-4dffbcabac80"
@@ -4936,7 +5198,12 @@
                             "{{memberId}}"
                           ]
                         }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       }
+========
+                      },
+                      "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ],
                   "id": "1c53236a-7a5d-49b8-a06e-f13554802f9c"
@@ -4977,7 +5244,12 @@
                         }
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 },
                 {
                   "name": "Add Group Policy Member",
@@ -5014,7 +5286,12 @@
                         "members"
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "bc64d8d1-b063-4fb2-aaa0-496119732c31"
@@ -5052,7 +5329,12 @@
                             "{{teamId}}"
                           ]
                         }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       }
+========
+                      },
+                      "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ],
                   "id": "d6d61ef1-a5d1-4165-8ab5-0d839aac1eb3"
@@ -5093,7 +5375,12 @@
                         }
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 },
                 {
                   "name": "Add Group Policy Team",
@@ -5130,7 +5417,12 @@
                         "teams"
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "105e8ac6-64cd-4dee-8be7-695fe7cda117"
@@ -5160,7 +5452,12 @@
                     "{{groupPolicyId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Update Group Policy",
@@ -5196,7 +5493,12 @@
                     "{{groupPolicyId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete Group Policy",
@@ -5223,7 +5525,12 @@
                     "{{groupPolicyId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "56dcea27-96d0-4f0e-af5e-2cf6e2f85aa9"
@@ -5312,7 +5619,12 @@
                 "group-policies"
               ]
             }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "0351cec6-2407-41c0-bfec-78b325e5a1d7",
@@ -5362,7 +5674,12 @@
                         "copy"
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "3c701d98-86a0-4326-820a-249273650043"
@@ -5392,7 +5709,12 @@
                     "{{jumpClientId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Update Jump Client",
@@ -5428,7 +5750,12 @@
                     "{{jumpClientId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete Jump Client",
@@ -5455,7 +5782,12 @@
                     "{{jumpClientId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "a31205cc-e7ec-42d9-9fdc-3189ad4a47bd"
@@ -5549,7 +5881,12 @@
                 }
               ]
             }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "f9ebec8a-078a-49dd-9469-e407a17e3d7f",
@@ -5587,7 +5924,12 @@
                     "{{installerId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete Jump Client Installer",
@@ -5615,7 +5957,12 @@
                     "{{installerId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "f713cc39-76d8-4fa1-bea7-20ef938f35ec"
@@ -5657,7 +6004,12 @@
                             "{{platformType}}"
                           ]
                         }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                       }
+========
+                      },
+                      "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                     }
                   ],
                   "id": "d354b7b3-bb4a-4e63-bdb6-5b0d963df5a5"
@@ -5779,7 +6131,12 @@
                 "installers"
               ]
             }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "79533b45-d67b-4579-8d05-447ca860f6e4",
@@ -5816,7 +6173,12 @@
                     "{{jumpGroupId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Update Jump Group",
@@ -5852,7 +6214,12 @@
                     "{{jumpGroupId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             },
             {
               "name": "Delete Jump Group",
@@ -5879,7 +6246,12 @@
                     "{{jumpGroupId}}"
                   ]
                 }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
               }
+========
+              },
+              "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
             }
           ],
           "id": "498115a8-0875-44dc-8a27-e4e5f7e7024a"
@@ -5973,7 +6345,12 @@
                 "jump-groups"
               ]
             }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
           }
+========
+          },
+          "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
         }
       ],
       "id": "64ce481e-4b2c-4761-b367-8caec48810d2",
@@ -6441,11 +6818,20 @@
                         {
                           "key": "id",
                           "value": "36",
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
+========
+                          "type": "string",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                           "description": "The id of the discrepancy."
                         }
                       ]
                     }
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
                   }
+========
+                  },
+                  "response": []
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
                 }
               ],
               "id": "7d3973a9-a0c9-4775-b248-bdfcae1bb19c"
@@ -6602,108 +6988,215 @@
       "description": "Endpoints for managing logs within the PRA Portal."
     }
   ],
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
   "variable": [
     {
       "id": "73e93f17-1bf1-4c16-9cb4-0e80a0839005",
+========
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "12d1d28b-8519-495d-a4ca-3769ef4a7b69",
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "61a437d2-29fc-4d89-b8a1-877869c126cb",
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "564a3913-4d7f-406e-8a5c-5489a2ba1ccf",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "baseUrl",
       "value": "https://pra-api-pp.cdn-vas.net"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "aa7a8f74-cd1b-4dd6-b7d2-33ee70f09961",
+========
+      "id": "2885d9d8-184c-42ab-b291-e786753c6f46",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "apiKey",
       "value": ""
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "b643da30-d7ac-4110-84d6-b8ab45aa8f08",
+========
+      "id": "79dbe9a7-60f2-42b1-ad45-0f09a14b1d8a",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "accessKey",
       "value": ""
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "04aa6c85-76b0-4c10-9e83-3ca74396ca9c",
+========
+      "id": "0acc2237-a5a6-491e-a05d-f2fba37db0ec",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "tenantId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "9c0542f8-4cf7-4882-b561-aa46951e66d4",
+========
+      "id": "20c7624e-03a5-46b3-932f-d3f302146309",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "customerId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "20905e87-2942-45f2-8a4f-7616b4b4a3f1",
+========
+      "id": "4650bb18-55e9-4622-8ecb-c64ff48029e6",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "siteId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "39273fcc-b6d7-4be7-b00a-b7c52ba8ae59",
+========
+      "id": "df025689-1c78-416f-8a87-a461e00a51ba",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "userId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "766d26d1-cc5a-4c6a-8388-12ca257cc0bb",
+========
+      "id": "17456ba0-3df5-4b49-99fd-df29d4bc369d",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "teamId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "8e8dc0f0-06bc-47e3-af78-fa7ae1dfcf63",
+========
+      "id": "7587c98c-c02a-4912-8cda-7a388f695f05",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "groupPolicyId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "86bfcce0-5b45-46a9-84de-bf1ed503dc42",
+========
+      "id": "882a425f-df8c-45f9-8d87-4516d29416fe",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "jumpointId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "a80f9b03-beed-4638-8cd7-33979fb0c469",
+========
+      "id": "1fdcc0c1-e15c-4aeb-852a-cafa015e6986",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "jumpGroupId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "8f381bdf-6eeb-453a-96f0-ecd03d099cc3",
+========
+      "id": "845f2118-ca8a-49fa-98a7-5bd5cdf5c77f",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "jumpClientId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "f7095b3e-b1f7-49f6-9cf7-6e57a6c0acc5",
+========
+      "id": "d9cdc475-84f3-47df-9afa-0dd96e6cdd93",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "instanceId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "57a3c397-7166-4c80-8a9a-18e4ecbcaa9b",
+========
+      "id": "6a385daf-234a-4407-a7cc-905177d3d142",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "backupId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "ff88ee1a-9a2e-4fcc-8d3e-9ad1b44a2338",
+========
+      "id": "4f2e1322-cb1d-4ec4-a254-7ffb191a56b9",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "policyId",
       "value": "1"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "f4b041f3-174a-491b-be1b-179160336a2d",
+========
+      "id": "b0f1d6ef-c547-46dc-8eb2-c1c64ecf1960",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "managerId",
       "value": "1",
       "description": "Unique identifier for a site manager"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "4585539e-4aef-4af7-a475-e2d3cb4210c0",
       "key": "administratorId",
+========
+      "id": "f8c458c4-a8df-472f-a739-83d7ca7e3533",
+      "key": "auditorId",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "value": "1",
-      "description": "Unique identifier for a site administrator"
+      "description": "Unique identifier for a site auditor"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "8faf4e3b-1afd-4919-8935-b2be926c0c9a",
+========
+      "id": "c1cf90fb-3a30-4085-baca-74ba9fbe5fea",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "supportTeamMemberId",
       "value": "1",
       "description": "Unique identifier for a site support team member"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "ed72c3c9-73ac-464c-ab3a-c59958b898e0",
+========
+      "id": "6c95eeb8-fc3f-4078-a5e7-9994878e187a",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "healthCheckTimeout",
       "value": "5000",
       "description": "Maximum time to wait for health checks (in milliseconds)"
     },
     {
+<<<<<<<< HEAD:postman/collections/Marlink PRA API v2.0.2.postman_collection.json
       "id": "5c81f969-d882-4248-b372-e6ee83842933",
+========
+      "id": "d0f7746f-e82a-4f7f-bbb1-7cf0715d9120",
+>>>>>>>> develop:postman/collections/Marlink PRA API v2.0.4.postman_collection.json
       "key": "monitoringInterval",
       "value": "30000",
       "description": "Interval between health checks for monitoring (in milliseconds)"

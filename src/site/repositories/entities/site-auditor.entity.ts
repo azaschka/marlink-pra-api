@@ -9,12 +9,12 @@ import {
     Unique,
     UpdateDateColumn,
 } from 'typeorm';
-import { SiteAdministrator } from '../../models';
+import { SiteAuditor } from '../../models';
 import { SiteEntity } from './site.entity';
 
 @Unique(['siteId', 'userId'])
-@Entity({ name: 'pra_site_administrators' })
-export class SiteAdministratorEntity implements SiteAdministrator {
+@Entity({ name: 'pra_site_auditors' })
+export class SiteAuditorEntity implements SiteAuditor {
     @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
     public id!: number;
 
@@ -39,7 +39,7 @@ export class SiteAdministratorEntity implements SiteAdministrator {
     @UpdateDateColumn({ name: 'last_modification_date', type: 'timestamp', nullable: true })
     public lastModificationDate?: Date;
 
-    @ManyToOne(() => SiteEntity, (site) => site.siteAdministrators, {
+    @ManyToOne(() => SiteEntity, (site) => site.siteAuditors, {
         onDelete: 'CASCADE',
     })
     @JoinColumn({ name: 'site_id' })
@@ -51,8 +51,8 @@ export class SiteAdministratorEntity implements SiteAdministrator {
         username: string,
         email: string,
         isAdminOperator: boolean,
-    ): SiteAdministratorEntity {
-        const entity = new SiteAdministratorEntity();
+    ): SiteAuditorEntity {
+        const entity = new SiteAuditorEntity();
         entity.siteId = siteId;
         entity.userId = userId;
         entity.username = username;

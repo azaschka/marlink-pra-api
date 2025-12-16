@@ -5,9 +5,9 @@ import { RetrieveGroupPolicyMembersQuery } from '../../../group-policy-member/qu
 import { GroupPolicy } from '../../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
 import { ErrorProcessorUtility, PaginationUtility } from '../../../shared/utilities';
-import { Site, SiteAdministrator, SiteManager, SiteSupportTeamMember } from '../../../site/models';
+import { Site, SiteAuditor, SiteManager, SiteSupportTeamMember } from '../../../site/models';
 import {
-    RetrieveSiteAdministratorsByUserIdQuery,
+    RetrieveSiteAuditorsByUserIdQuery,
     RetrieveSiteByIdQuery,
     RetrieveSiteManagersByUserIdQuery,
     RetrieveSiteSupportTeamMembersByUserIdQuery,
@@ -19,9 +19,7 @@ import { CustomerRepositoryService } from '../../repositories/services/customer-
 import { DisableUsersLoginAfterCustomerDeactivationCommand } from '../disable-users-login-after-customer-deactivation.command';
 
 @CommandHandler(DisableUsersLoginAfterCustomerDeactivationCommand)
-export class DisableUsersLoginAfterCustomerDeactivationCommandHandler
-    implements ICommandHandler<DisableUsersLoginAfterCustomerDeactivationCommand>
-{
+export class DisableUsersLoginAfterCustomerDeactivationCommandHandler implements ICommandHandler<DisableUsersLoginAfterCustomerDeactivationCommand> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     constructor(
@@ -93,10 +91,10 @@ export class DisableUsersLoginAfterCustomerDeactivationCommandHandler
         }
 
         for (const associatedUserId of allAssociatedUserIds) {
-            // Site administrator
-            const siteAdministrators = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
-                this.queryBus.execute<RetrieveSiteAdministratorsByUserIdQuery, SiteAdministrator[]>(
-                    new RetrieveSiteAdministratorsByUserIdQuery(
+            // Site auditor
+            const siteAuditors = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
+                this.queryBus.execute<RetrieveSiteAuditorsByUserIdQuery, SiteAuditor[]>(
+                    new RetrieveSiteAuditorsByUserIdQuery(
                         transactionId,
                         DisableUsersLoginAfterCustomerDeactivationCommandHandler.MAX_PAGE_RETRIEVAL_SIZE,
                         pageNumber,
@@ -104,12 +102,12 @@ export class DisableUsersLoginAfterCustomerDeactivationCommandHandler
                     ),
                 ),
             );
-            const siteAdministratorCustomerKeys = (
+            const siteAuditorCustomerKeys = (
                 await Promise.all(
-                    siteAdministrators.map(async (siteAdministrator) => {
+                    siteAuditors.map(async (siteAuditor) => {
                         try {
                             const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
-                                new RetrieveSiteByIdQuery(transactionId, siteAdministrator.siteId),
+                                new RetrieveSiteByIdQuery(transactionId, siteAuditor.siteId),
                             );
 
                             return site.customerKey;
@@ -175,11 +173,8 @@ export class DisableUsersLoginAfterCustomerDeactivationCommandHandler
             ).filter((value) => value !== undefined);
 
             // TODO handle case where user is associated with other customer but other customer is also being deactivated
-            if (
-                siteAdministratorCustomerKeys.length > 0 &&
-                siteAdministratorCustomerKeys.some((key) => key !== customer.key)
-            ) {
-                continue; // Skip if site administrator is associated with different customers
+            if (siteAuditorCustomerKeys.length > 0 && siteAuditorCustomerKeys.some((key) => key !== customer.key)) {
+                continue; // Skip if site auditor is associated with different customers
             }
 
             if (siteManagerCustomerKeys.length > 0 && siteManagerCustomerKeys.some((key) => key !== customer.key)) {

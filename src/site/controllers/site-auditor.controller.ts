@@ -28,38 +28,38 @@ import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from 
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
-import { AddSiteAdministratorCommand, RemoveSiteAdministratorCommand } from '../commands';
-import { RetrieveSiteAdministratorsDtoInput, SiteAdministratorDtoInput } from '../dtos/inputs';
-import { SiteAdministratorDtoOutput } from '../dtos/outputs';
-import { SiteAdministrator } from '../models';
+import { AddSiteAuditorCommand, RemoveSiteAuditorCommand } from '../commands';
+import { RetrieveSiteAuditorsDtoInput, SiteAuditorDtoInput } from '../dtos/inputs';
+import { SiteAuditorDtoOutput } from '../dtos/outputs';
+import { SiteAuditor } from '../models';
 import { SiteRequestPipe } from '../pipes';
-import { RetrieveSiteAdministratorsQuery } from '../queries';
+import { RetrieveSiteAuditorsQuery } from '../queries';
 
 @ApiTransactionIdHeader()
 @ApiAccessKeyHeader()
 @ApiTags('Sites')
-@Controller('sites/:id/administrators')
+@Controller('sites/:id/auditors')
 @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the site.' })
 @UseGuards(AccessGuard)
 @UseInterceptors(CustomersScopeInterceptor)
 @UsePipes(MonitoringRequestPipe)
 @UsePipes(SiteRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
-export class SiteAdministratorController {
+export class SiteAuditorController {
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
 
     @Get()
-    @ApiOkResponse({ type: SiteAdministratorDtoOutput, isArray: true })
-    public async retrieveSiteAdministrators(
+    @ApiOkResponse({ type: SiteAuditorDtoOutput, isArray: true })
+    public async retrieveSiteAuditors(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
-        @Query() dtoInput: RetrieveSiteAdministratorsDtoInput,
-    ): Promise<SiteAdministratorDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveSiteAdministratorsQuery, SiteAdministrator[]>(
-            new RetrieveSiteAdministratorsQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id),
+        @Query() dtoInput: RetrieveSiteAuditorsDtoInput,
+    ): Promise<SiteAuditorDtoOutput[]> {
+        const result = await this.queryBus.execute<RetrieveSiteAuditorsQuery, SiteAuditor[]>(
+            new RetrieveSiteAuditorsQuery(transactionId, dtoInput.pageSize, dtoInput.pageNumber, id),
         );
 
         return result;
@@ -67,48 +67,42 @@ export class SiteAdministratorController {
 
     @Post()
     @ApiCreatedResponse({
-        type: SiteAdministratorDtoOutput,
-        description: 'Indicates the site administrator was added successfully.',
+        type: SiteAuditorDtoOutput,
+        description: 'Indicates the site auditor was added successfully.',
     })
     @ApiConflictResponse({
-        description: 'The specified site administrator already exists.',
+        description: 'The specified site auditor already exists.',
     })
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
-    public async addSiteAdministrator(
+    public async addSiteAuditor(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
-        @Body() dtoInput: SiteAdministratorDtoInput,
-    ): Promise<SiteAdministratorDtoOutput> {
-        const result = await this.commandBus.execute<AddSiteAdministratorCommand, SiteAdministrator>(
-            new AddSiteAdministratorCommand(
-                transactionId,
-                id,
-                dtoInput.username,
-                dtoInput.email,
-                dtoInput.isAdminOperator,
-            ),
+        @Body() dtoInput: SiteAuditorDtoInput,
+    ): Promise<SiteAuditorDtoOutput> {
+        const result = await this.commandBus.execute<AddSiteAuditorCommand, SiteAuditor>(
+            new AddSiteAuditorCommand(transactionId, id, dtoInput.username, dtoInput.email, dtoInput.isAdminOperator),
         );
 
         return result;
     }
 
-    @Delete(':administratorId')
+    @Delete(':auditorId')
     @ApiParam({
-        name: 'administratorId',
+        name: 'auditorId',
         type: Number,
         required: true,
-        description: 'Unique identifier for the site administrator.',
+        description: 'Unique identifier for the site auditor.',
     })
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiNoContentResponse({ description: 'Indicates the site administrator was successfully removed.' })
+    @ApiNoContentResponse({ description: 'Indicates the site auditor was successfully removed.' })
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
-    public async removeSiteAdministrator(
+    public async removeSiteAuditor(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
-        @Param('administratorId') administratorId: number,
+        @Param('auditorId') auditorId: number,
     ): Promise<void> {
-        await this.commandBus.execute<RemoveSiteAdministratorCommand, void>(
-            new RemoveSiteAdministratorCommand(transactionId, id, administratorId),
+        await this.commandBus.execute<RemoveSiteAuditorCommand, void>(
+            new RemoveSiteAuditorCommand(transactionId, id, auditorId),
         );
     }
 }

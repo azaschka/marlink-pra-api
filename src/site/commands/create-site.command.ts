@@ -1,4 +1,4 @@
-import { PartialSiteAdministrator, PartialSiteManager, PartialSiteSupportTeamMember } from '../models';
+import { PartialSiteAuditor, PartialSiteManager, PartialSiteSupportTeamMember } from '../models';
 
 export class CreateSiteCommand {
     public readonly commandType = 'create-site';
@@ -9,7 +9,7 @@ export class CreateSiteCommand {
         public readonly name: string,
         public readonly customerKey: string,
         public readonly siteManagers: PartialSiteManager[],
-        public readonly siteAdministrators: PartialSiteAdministrator[],
+        public readonly siteAuditors: PartialSiteAuditor[],
         public readonly siteSupportTeamMembers: PartialSiteSupportTeamMember[],
         public readonly siteApproverEmails: string[],
     ) {}

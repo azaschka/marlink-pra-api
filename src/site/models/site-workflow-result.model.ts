@@ -1,9 +1,9 @@
-import { PartialSiteAdministratorWithUserId } from './site-administrator.model';
+import { PartialSiteAuditorWithUserId } from './site-auditor.model';
 import { PartialSiteManagerWithUserId } from './site-manager.model';
 import { PartialSiteSupportTeamMemberWithUserId } from './site-support-team-member.model';
 
 export interface SiteWorkflowResult {
     siteManagers: PartialSiteManagerWithUserId[];
-    siteAdministrators: PartialSiteAdministratorWithUserId[];
+    siteAuditors: PartialSiteAuditorWithUserId[];
     siteSupportTeamMembers: PartialSiteSupportTeamMemberWithUserId[];
 }

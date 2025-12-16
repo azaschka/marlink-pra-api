@@ -1,4 +1,4 @@
-export * from './site-administrator.dto-output';
+export * from './site-auditor.dto-output';
 export * from './site-approver.dto-output';
 export * from './site-created.dto-output';
 export * from './site-manager.dto-output';

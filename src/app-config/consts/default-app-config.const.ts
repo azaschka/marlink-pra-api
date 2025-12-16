@@ -167,8 +167,8 @@ export abstract class DefaultAppConfig {
                 siteManager: {
                     publicDisplayNamePrefix: 'SITE MANAGER',
                 },
-                siteAdministrator: {
-                    publicDisplayNamePrefix: 'ADMINISTRATOR',
+                siteAuditor: {
+                    publicDisplayNamePrefix: 'AUDITOR',
                 },
             },
             jumpPolicy: {

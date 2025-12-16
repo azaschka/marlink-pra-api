@@ -1,16 +1,16 @@
 import { DataSource } from 'typeorm';
 import { BaseRepositoryService } from '../../../core/services/base-repository.service';
-import { SiteAdministratorRepositoryService } from './site-administrator.service';
+import { SiteAuditorRepositoryService } from './site-auditor.service';
 
-describe('SiteAdministratorRepositoryService', () => {
-    let service: SiteAdministratorRepositoryService;
+describe('SiteAuditorRepositoryService', () => {
+    let service: SiteAuditorRepositoryService;
     let dataSource: DataSource;
 
     beforeEach(() => {
         jest.clearAllMocks();
 
         dataSource = {} as DataSource;
-        service = new SiteAdministratorRepositoryService(dataSource);
+        service = new SiteAuditorRepositoryService(dataSource);
     });
 
     describe('createOrUpdateById', () => {

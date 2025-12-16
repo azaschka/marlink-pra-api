@@ -1,7 +1,7 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { Customer } from '../../../customer/models';
-import { PartialSiteAdministrator, PartialSiteManager, PartialSiteSupportTeamMember, Site } from '../../models';
+import { PartialSiteAuditor, PartialSiteManager, PartialSiteSupportTeamMember, Site } from '../../models';
 import {
     AdministratorGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
@@ -9,7 +9,7 @@ import {
 } from '../group-policies';
 import { AuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from '../jump-policies';
 import { JumpointsWorkflow } from '../jumpoints';
-import { SiteAdministratorWorkflow } from '../site-administrator.workflow';
+import { SiteAuditorWorkflow } from '../site-auditor.workflow';
 import { SiteManagerWorkflow } from '../site-manager.workflow';
 import { SiteSupportTeamMemberWorkflow } from '../site-support-team-member.workflow';
 
@@ -49,13 +49,13 @@ export class WorkflowFactory {
         );
     }
 
-    public createSiteAdministratorWorkflow(siteAdministrator: PartialSiteAdministrator): SiteAdministratorWorkflow {
-        return new SiteAdministratorWorkflow(
+    public createSiteAuditorWorkflow(siteAuditor: PartialSiteAuditor): SiteAuditorWorkflow {
+        return new SiteAuditorWorkflow(
             this.appConfigService,
             this.queryBus,
             this.commandBus,
             this.transactionId,
-            siteAdministrator,
+            siteAuditor,
             this.customer.name,
             this.customer.beyondtrustInstanceId,
             this.createAdministratorGroupPolicyWorkflow(),
