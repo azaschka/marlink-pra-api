@@ -1,15 +1,15 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import {
-    PartialSiteAdministratorWithUserId,
+    PartialSiteAuditorWithUserId,
     PartialSiteApprover,
     PartialSiteManagerWithUserId,
     PartialSiteSupportTeamMemberWithUserId,
     Site,
-    SiteAdministrator,
+    SiteAuditor,
     SiteManager,
     SiteSupportTeamMember,
 } from '../../models';
-import { SiteAdministratorEntity } from './site-administrator.entity';
+import { SiteAuditorEntity } from './site-auditor.entity';
 import { SiteApproverEntity } from './site-approver.entity';
 import { SiteManagerEntity } from './site-manager.entity';
 import { SiteSupportTeamMemberEntity } from './site-support-team-member.entity';
@@ -34,11 +34,11 @@ export class SiteEntity implements Site {
     })
     public siteManagers!: SiteManager[];
 
-    @OneToMany(() => SiteAdministratorEntity, (siteAdministratorEntity) => siteAdministratorEntity.site, {
+    @OneToMany(() => SiteAuditorEntity, (siteAuditorEntity) => siteAuditorEntity.site, {
         eager: true,
         cascade: true,
     })
-    public siteAdministrators!: SiteAdministrator[];
+    public siteAuditors!: SiteAuditor[];
 
     @OneToMany(() => SiteSupportTeamMemberEntity, (siteSupportTeamMemberEntity) => siteSupportTeamMemberEntity.site, {
         eager: true,
@@ -63,7 +63,7 @@ export class SiteEntity implements Site {
         name: string,
         customerKey: string,
         siteManagers: (SiteManagerEntity | PartialSiteManagerWithUserId)[],
-        siteAdministrators: (SiteAdministratorEntity | PartialSiteAdministratorWithUserId)[],
+        siteAuditors: (SiteAuditorEntity | PartialSiteAuditorWithUserId)[],
         siteSupportTeamMembers: (SiteSupportTeamMemberEntity | PartialSiteSupportTeamMemberWithUserId)[],
         siteApprovers: (SiteApproverEntity | PartialSiteApprover)[],
     ): SiteEntity {
@@ -72,7 +72,7 @@ export class SiteEntity implements Site {
         entity.name = name;
         entity.customerKey = customerKey;
         entity.siteManagers = siteManagers as SiteManagerEntity[];
-        entity.siteAdministrators = siteAdministrators as SiteAdministratorEntity[];
+        entity.siteAuditors = siteAuditors as SiteAuditorEntity[];
         entity.siteSupportTeamMembers = siteSupportTeamMembers as SiteSupportTeamMemberEntity[];
         entity.siteApprovers = siteApprovers as SiteApproverEntity[];
 

@@ -4,7 +4,7 @@ import { AccessGuard } from '../access/guards';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { CustomersScopeInterceptor } from '../customer/interceptors';
 import { CommandHandlers } from './commands/handlers';
-import { SiteAdministratorController } from './controllers/site-administrator.controller';
+import { SiteAuditorController } from './controllers/site-auditor.controller';
 import { SiteJumpointController } from './controllers/site-jumpoint.controller';
 import { SiteManagerController } from './controllers/site-manager.controller';
 import { SiteSupportTeamMemberController } from './controllers/site-support-team-member.controller';
@@ -12,13 +12,13 @@ import { SiteController } from './controllers/site.controller';
 import { SiteRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
 import {
-    SiteAdministratorEntity,
+    SiteAuditorEntity,
     SiteApproverEntity,
     SiteEntity,
     SiteManagerEntity,
     SiteSupportTeamMemberEntity,
 } from './repositories/entities';
-import { SiteAdministratorRepositoryService } from './repositories/services/site-administrator.service';
+import { SiteAuditorRepositoryService } from './repositories/services/site-auditor.service';
 import { SiteApproverRepositoryService } from './repositories/services/site-approver.service';
 import { SiteManagerRepositoryService } from './repositories/services/site-manager.service';
 import { SiteRepositoryService } from './repositories/services/site-repository.service';
@@ -29,7 +29,7 @@ import { SiteSupportTeamMemberRepositoryService } from './repositories/services/
         TypeOrmModule.forFeature([
             SiteEntity,
             SiteManagerEntity,
-            SiteAdministratorEntity,
+            SiteAuditorEntity,
             SiteSupportTeamMemberEntity,
             SiteApproverEntity,
         ]),
@@ -37,7 +37,7 @@ import { SiteSupportTeamMemberRepositoryService } from './repositories/services/
     ],
     controllers: [
         SiteController,
-        SiteAdministratorController,
+        SiteAuditorController,
         SiteManagerController,
         SiteSupportTeamMemberController,
         SiteJumpointController,
@@ -49,7 +49,7 @@ import { SiteSupportTeamMemberRepositoryService } from './repositories/services/
         ...QueryHandlers,
         ...CommandHandlers,
         SiteRepositoryService,
-        SiteAdministratorRepositoryService,
+        SiteAuditorRepositoryService,
         SiteManagerRepositoryService,
         SiteSupportTeamMemberRepositoryService,
         SiteApproverRepositoryService,

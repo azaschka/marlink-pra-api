@@ -6,8 +6,8 @@ import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteCreatedEvent } from '../../events';
 import {
-    PartialSiteAdministrator,
-    PartialSiteAdministratorWithUserId,
+    PartialSiteAuditor,
+    PartialSiteAuditorWithUserId,
     PartialSiteApprover,
     PartialSiteManager,
     PartialSiteManagerWithUserId,
@@ -44,7 +44,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             command.name,
             command.key,
             command.siteManagers,
-            command.siteAdministrators,
+            command.siteAuditors,
             command.siteSupportTeamMembers,
             partialSiteApprovers,
             customer.name,
@@ -57,7 +57,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             command.name,
             command.customerKey,
             siteWorkflowResult.siteManagers,
-            siteWorkflowResult.siteAdministrators,
+            siteWorkflowResult.siteAuditors,
             siteWorkflowResult.siteSupportTeamMembers,
             partialSiteApprovers,
         );
@@ -106,7 +106,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         siteName: string,
         siteKey: string,
         siteManagers: PartialSiteManager[],
-        siteAdministrators: PartialSiteAdministrator[],
+        siteAuditors: PartialSiteAuditor[],
         siteSupportTeamMembers: PartialSiteSupportTeamMember[],
         siteApprovers: PartialSiteApprover[],
         customerName: string,
@@ -121,7 +121,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             siteName,
             siteKey,
             siteManagers,
-            siteAdministrators,
+            siteAuditors,
             siteSupportTeamMembers,
             siteApprovers,
             customerName,
@@ -137,7 +137,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         name: string,
         customerKey: string,
         managers: PartialSiteManagerWithUserId[],
-        administrators: PartialSiteAdministratorWithUserId[],
+        auditors: PartialSiteAuditorWithUserId[],
         supportTeamMembers: PartialSiteSupportTeamMemberWithUserId[],
         approvers: PartialSiteApprover[],
     ) {
@@ -146,7 +146,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             name,
             customerKey,
             managers,
-            administrators,
+            auditors,
             supportTeamMembers,
             approvers,
         );

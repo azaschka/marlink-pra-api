@@ -4,31 +4,31 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteModifiedEvent } from '../../events';
-import { PartialSiteAdministrator, Site } from '../../models';
+import { PartialSiteAuditor, Site } from '../../models';
 import { SiteEntity } from '../../repositories/entities';
-import { SiteAdministratorRepositoryService } from '../../repositories/services/site-administrator.service';
+import { SiteAuditorRepositoryService } from '../../repositories/services/site-auditor.service';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { WorkflowFactory } from '../../workflows/factories';
-import { RemoveSiteAdministratorCommand } from '../remove-site-administrator.command';
+import { RemoveSiteAuditorCommand } from '../remove-site-auditor.command';
 
-@CommandHandler(RemoveSiteAdministratorCommand)
-export class RemoveSiteAdministratorCommandHandler implements ICommandHandler<RemoveSiteAdministratorCommand> {
+@CommandHandler(RemoveSiteAuditorCommand)
+export class RemoveSiteAuditorCommandHandler implements ICommandHandler<RemoveSiteAuditorCommand> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
         private readonly siteRepositoryService: SiteRepositoryService,
-        private readonly siteAdministratorRepositoryService: SiteAdministratorRepositoryService,
+        private readonly siteAuditorRepositoryService: SiteAuditorRepositoryService,
     ) {}
 
-    public async execute(command: RemoveSiteAdministratorCommand): Promise<void> {
+    public async execute(command: RemoveSiteAuditorCommand): Promise<void> {
         const site = await this.getSite(command.siteId);
         const customer = await this.getCustomer(command.transactionId, site.customerKey);
-        const siteAdministrator = this.removeSiteAdministratorFromSite(site, command.siteAdministratorId);
+        const siteAuditor = this.removeSiteAuditorFromSite(site, command.siteAuditorId);
 
-        await this.runWorkflow(command.transactionId, customer, site, siteAdministrator);
-        await this.siteAdministratorRepositoryService.deleteById(siteAdministrator.id);
+        await this.runWorkflow(command.transactionId, customer, site, siteAuditor);
+        await this.siteAuditorRepositoryService.deleteById(siteAuditor.id);
 
         const updatedSite = await this.getSite(command.siteId);
         this.eventBus.publish(new SiteModifiedEvent(command.transactionId, { site: updatedSite }));
@@ -56,28 +56,19 @@ export class RemoveSiteAdministratorCommandHandler implements ICommandHandler<Re
         return customers[0];
     }
 
-    private removeSiteAdministratorFromSite(site: SiteEntity, siteAdministratorId: number) {
-        const siteAdministrator = site.siteAdministrators.find(
-            (administrator) => administrator.id === siteAdministratorId,
-        );
+    private removeSiteAuditorFromSite(site: SiteEntity, siteAuditorId: number) {
+        const siteAuditor = site.siteAuditors.find((auditor) => auditor.id === siteAuditorId);
 
-        if (!siteAdministrator) {
-            throw new NotFoundException(`Site administrator with ID "${siteAdministratorId}" does not exist.`);
+        if (!siteAuditor) {
+            throw new NotFoundException(`Site auditor with ID "${siteAuditorId}" does not exist.`);
         }
 
-        site.siteAdministrators = site.siteAdministrators.filter(
-            (administrator) => administrator.id !== siteAdministrator.id,
-        );
+        site.siteAuditors = site.siteAuditors.filter((auditor) => auditor.id !== siteAuditor.id);
 
-        return siteAdministrator;
+        return siteAuditor;
     }
 
-    private async runWorkflow(
-        transactionId: string,
-        customer: Customer,
-        site: Site,
-        siteAdministrator: PartialSiteAdministrator,
-    ) {
+    private async runWorkflow(transactionId: string, customer: Customer, site: Site, siteAuditor: PartialSiteAuditor) {
         const workflow = WorkflowFactory.create(
             this.appConfigService,
             this.queryBus,
@@ -85,7 +76,7 @@ export class RemoveSiteAdministratorCommandHandler implements ICommandHandler<Re
             transactionId,
             customer,
             site,
-        ).createSiteAdministratorWorkflow(siteAdministrator);
+        ).createSiteAuditorWorkflow(siteAuditor);
 
         await workflow.delete();
     }

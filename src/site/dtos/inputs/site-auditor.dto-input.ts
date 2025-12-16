@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
-export class SiteAdministratorDtoInput {
+export class SiteAuditorDtoInput {
     @ApiProperty({
         required: true,
         type: String,
-        description: 'The username of the site administrator.',
+        description: 'The username of the site auditor.',
     })
     @IsNotEmpty()
     @IsString()
     public username!: string;
 
-    @ApiProperty({ required: true, type: String, description: 'The email of the site administrator.' })
+    @ApiProperty({ required: true, type: String, description: 'The email of the site auditor.' })
     @IsNotEmpty()
     @IsString()
     public email!: string;

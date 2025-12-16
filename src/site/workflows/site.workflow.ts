@@ -14,7 +14,7 @@ import { RetrieveGroupPolicyTeamsQuery } from '../../group-policy-team/queries';
 import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
 import {
-    PartialSiteAdministrator,
+    PartialSiteAuditor,
     PartialSiteApprover,
     PartialSiteManager,
     PartialSiteSupportTeamMember,
@@ -29,7 +29,7 @@ import {
 } from './group-policies';
 import { AuthJumpPolicyWorkflow, NoAuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from './jump-policies';
 import { JumpointsWorkflow } from './jumpoints';
-import { SiteAdministratorWorkflow } from './site-administrator.workflow';
+import { SiteAuditorWorkflow } from './site-auditor.workflow';
 import { SiteManagerWorkflow } from './site-manager.workflow';
 import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workflow';
 import { TeamWorkflow } from './teams';
@@ -40,7 +40,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
     private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow;
     private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow;
     private readonly siteManagerWorkflows: SiteManagerWorkflow[];
-    private readonly siteAdministratorWorkflows: SiteAdministratorWorkflow[];
+    private readonly siteAuditorWorkflows: SiteAuditorWorkflow[];
     private readonly siteSupportTeamMemberWorkflows: SiteSupportTeamMemberWorkflow[];
     private readonly teamWorkflow: TeamWorkflow;
     private readonly authJumpPolicyWorkflow: AuthJumpPolicyWorkflow;
@@ -59,7 +59,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         private readonly siteName: string,
         private readonly siteKey: string,
         private readonly siteManagers: PartialSiteManager[],
-        private readonly siteAdministrators: PartialSiteAdministrator[],
+        private readonly siteAuditors: PartialSiteAuditor[],
         private readonly siteSupportTeamMembers: PartialSiteSupportTeamMember[],
         private readonly siteApprovers: PartialSiteApprover[],
         private readonly customerName: string,
@@ -187,14 +187,14 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                 ),
         );
 
-        this.siteAdministratorWorkflows = this.siteAdministrators.map(
-            (siteAdministrator) =>
-                new SiteAdministratorWorkflow(
+        this.siteAuditorWorkflows = this.siteAuditors.map(
+            (siteAuditor) =>
+                new SiteAuditorWorkflow(
                     this.appConfigService,
                     this.queryBus,
                     this.commandBus,
                     this.transactionId,
-                    siteAdministrator,
+                    siteAuditor,
                     this.customerName,
                     this.customerBeyondtrustInstanceId,
                     this.administratorGroupPolicyWorkflow,
@@ -221,7 +221,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
     public async getOrCreate(): Promise<SiteWorkflowResult> {
         const siteWorkflowResult: SiteWorkflowResult = {
             siteManagers: [],
-            siteAdministrators: [],
+            siteAuditors: [],
             siteSupportTeamMembers: [],
         };
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
@@ -240,9 +240,9 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             siteWorkflowResult.siteManagers.push(siteManager);
         }
 
-        for (const siteAdministratorWorkflow of this.siteAdministratorWorkflows) {
-            const siteAdministrator = await siteAdministratorWorkflow.getOrCreate();
-            siteWorkflowResult.siteAdministrators.push(siteAdministrator);
+        for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
+            const siteAuditor = await siteAuditorWorkflow.getOrCreate();
+            siteWorkflowResult.siteAuditors.push(siteAuditor);
         }
 
         for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
@@ -327,8 +327,8 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             await siteManagerWorkflow.delete();
         }
 
-        for (const siteAdministratorWorkflow of this.siteAdministratorWorkflows) {
-            await siteAdministratorWorkflow.delete();
+        for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
+            await siteAuditorWorkflow.delete();
         }
 
         for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {

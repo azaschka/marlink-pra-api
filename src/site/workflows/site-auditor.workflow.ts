@@ -4,17 +4,17 @@ import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
-import { PartialSiteAdministrator, PartialSiteAdministratorWithUserId, SiteAdministrator } from '../models';
-import { RetrieveSiteAdministratorsByUserIdQuery } from '../queries';
+import { PartialSiteAuditor, PartialSiteAuditorWithUserId, SiteAuditor } from '../models';
+import { RetrieveSiteAuditorsByUserIdQuery } from '../queries';
 import {
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
     AdminOperatorAccessGroupPolicyWorkflow,
 } from './group-policies';
-import { SiteAdministratorUserWorkflow } from './users';
+import { SiteAuditorUserWorkflow } from './users';
 
-export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdministratorWithUserId> {
-    private readonly siteAdministratorUserWorkflow: SiteAdministratorUserWorkflow;
+export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithUserId> {
+    private readonly siteAuditorUserWorkflow: SiteAuditorUserWorkflow;
     private readonly administratorAccessGroupPolicyWorkflow: AdministratorAccessGroupPolicyWorkflow;
     private readonly adminOperatorAccessGroupPolicyWorkflow: AdminOperatorAccessGroupPolicyWorkflow;
 
@@ -23,17 +23,17 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
         private readonly transactionId: string,
-        private readonly siteAdministrator: PartialSiteAdministrator,
+        private readonly siteAuditor: PartialSiteAuditor,
         private readonly customerName: string,
         private readonly customerBeyondtrustInstanceId: number,
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
     ) {
-        this.siteAdministratorUserWorkflow = new SiteAdministratorUserWorkflow(
+        this.siteAuditorUserWorkflow = new SiteAuditorUserWorkflow(
             this.appConfigService,
             this.queryBus,
             this.commandBus,
             this.transactionId,
-            this.siteAdministrator,
+            this.siteAuditor,
             this.customerName,
             this.customerBeyondtrustInstanceId,
         );
@@ -55,31 +55,31 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
         );
     }
 
-    public async getOrCreate(): Promise<PartialSiteAdministratorWithUserId> {
+    public async getOrCreate(): Promise<PartialSiteAuditorWithUserId> {
         const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
         const administratorAccessGroupPolicy = await this.administratorAccessGroupPolicyWorkflow.getOrCreate();
         const adminOperatorAccessGroupPolicy = await this.adminOperatorAccessGroupPolicyWorkflow.getOrCreate();
-        const siteAdministratorUser = await this.siteAdministratorUserWorkflow.getOrCreate();
+        const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
 
-        // Add the site administrator user to the administrator group policy and administrator access group policy
-        // and optionally to the admin operator access group policy if the site administrator is an admin operator
+        // Add the site auditor user to the administrator group policy and administrator access group policy
+        // and optionally to the admin operator access group policy if the site auditor is an admin operator
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
                 this.customerBeyondtrustInstanceId,
-                siteAdministratorUser.id,
+                siteAuditorUser.id,
                 [
                     administratorGroupPolicy.id,
                     administratorAccessGroupPolicy.id,
-                    this.siteAdministrator.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
+                    this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
                 ].filter((id) => id !== undefined),
                 [],
             ),
         );
 
         return {
-            ...this.siteAdministrator,
-            userId: siteAdministratorUser.id,
+            ...this.siteAuditor,
+            userId: siteAuditorUser.id,
         };
     }
 
@@ -87,36 +87,35 @@ export class SiteAdministratorWorkflow implements BaseWorkflow<PartialSiteAdmini
         const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
         const administratorAccessGroupPolicy = await this.administratorAccessGroupPolicyWorkflow.getOrCreate();
         const adminOperatorAccessGroupPolicy = await this.adminOperatorAccessGroupPolicyWorkflow.getOrCreate();
-        const siteAdministratorUser = await this.siteAdministratorUserWorkflow.getOrCreate();
-        const isSiteAdministratorAssociatedWithMultipleSites =
-            await this.isSiteAdministratorAssociatedWithMultipleSites(siteAdministratorUser);
+        const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
+        const isSiteAuditorAssociatedWithMultipleSites =
+            await this.isSiteAuditorAssociatedWithMultipleSites(siteAuditorUser);
 
-        // When site administrator is associated to only one site, we can remove the user from the group policies
-        // Remove the site administrator user from the administrator group policy and administrator access group policy
-        // and optionally from the admin operator access group policy if the site administrator is an admin operator
-        if (!isSiteAdministratorAssociatedWithMultipleSites) {
+        // When site auditor is associated to only one site, we can remove the user from the group policies
+        // Remove the site auditor user from the administrator group policy and administrator access group policy
+        // and optionally from the admin operator access group policy if the site auditor is an admin operator
+        if (!isSiteAuditorAssociatedWithMultipleSites) {
             await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
                 new ModifyUserGroupPoliciesCommand(
                     this.transactionId,
                     this.customerBeyondtrustInstanceId,
-                    siteAdministratorUser.id,
+                    siteAuditorUser.id,
                     [],
                     [
                         administratorGroupPolicy.id,
                         administratorAccessGroupPolicy.id,
-                        this.siteAdministrator.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
+                        this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
                     ].filter((id) => id !== undefined),
                 ),
             );
         }
     }
 
-    private async isSiteAdministratorAssociatedWithMultipleSites(siteAdministratorUser: User) {
-        const siteAdministrators = await this.queryBus.execute<
-            RetrieveSiteAdministratorsByUserIdQuery,
-            SiteAdministrator[]
-        >(new RetrieveSiteAdministratorsByUserIdQuery(this.transactionId, 2, 1, siteAdministratorUser.id));
+    private async isSiteAuditorAssociatedWithMultipleSites(siteAuditorUser: User) {
+        const siteAuditors = await this.queryBus.execute<RetrieveSiteAuditorsByUserIdQuery, SiteAuditor[]>(
+            new RetrieveSiteAuditorsByUserIdQuery(this.transactionId, 2, 1, siteAuditorUser.id),
+        );
 
-        return siteAdministrators.length > 1;
+        return siteAuditors.length > 1;
     }
 }

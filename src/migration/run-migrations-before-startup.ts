@@ -6,6 +6,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { DataSource } from 'typeorm';
+import { migrateSiteAdministratorsToAuditors } from './scripts/rename-site-administrators-to-auditors.migration';
 
 /**
  * Run critical data migrations BEFORE NestJS/TypeORM initializes
@@ -37,9 +38,8 @@ export async function runMigrationsBeforeStartup(): Promise<void> {
         await tempDataSource.initialize();
         console.log('✅ Connected to database for pre-startup migrations');
 
-        // Add future migrations here as needed
-        // Example:
-        // await migrateSomethingNew(tempDataSource);
+        // Run table rename migration
+        await migrateSiteAdministratorsToAuditors(tempDataSource);
 
         console.log('✅ Pre-startup migrations completed successfully');
     } catch (error) {

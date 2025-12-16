@@ -5,49 +5,49 @@ import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { ObjectUtility } from '../../../shared/utilities';
 import { SiteModifiedEvent } from '../../events';
-import { PartialSiteAdministrator, PartialSiteAdministratorWithUserId, Site, SiteAdministrator } from '../../models';
-import { SiteAdministratorEntity } from '../../repositories/entities';
-import { SiteAdministratorRepositoryService } from '../../repositories/services/site-administrator.service';
+import { PartialSiteAuditor, PartialSiteAuditorWithUserId, Site, SiteAuditor } from '../../models';
+import { SiteAuditorEntity } from '../../repositories/entities';
+import { SiteAuditorRepositoryService } from '../../repositories/services/site-auditor.service';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { WorkflowFactory } from '../../workflows/factories';
-import { AddSiteAdministratorCommand } from '../add-site-administrator.command';
+import { AddSiteAuditorCommand } from '../add-site-auditor.command';
 
-@CommandHandler(AddSiteAdministratorCommand)
-export class AddSiteAdministratorCommandHandler implements ICommandHandler<AddSiteAdministratorCommand> {
+@CommandHandler(AddSiteAuditorCommand)
+export class AddSiteAuditorCommandHandler implements ICommandHandler<AddSiteAuditorCommand> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
         private readonly siteRepositoryService: SiteRepositoryService,
-        private readonly siteAdministratorRepositoryService: SiteAdministratorRepositoryService,
+        private readonly siteAuditorRepositoryService: SiteAuditorRepositoryService,
     ) {}
 
-    public async execute(command: AddSiteAdministratorCommand): Promise<SiteAdministrator> {
+    public async execute(command: AddSiteAuditorCommand): Promise<SiteAuditor> {
         const site = await this.getSite(command.siteId);
         const customer = await this.getCustomer(command.transactionId, site.customerKey);
-        const siteAdministrator = await this.runWorkflow(command.transactionId, customer, site, {
+        const siteAuditor = await this.runWorkflow(command.transactionId, customer, site, {
             username: command.username,
             email: command.email,
             isAdminOperator: command.isAdminOperator,
         });
 
-        this.validateSiteAdministratorHasNotAddedToSite(site, siteAdministrator);
+        this.validateSiteAuditorHasNotAddedToSite(site, siteAuditor);
 
-        const createdSiteAdministrator = await this.siteAdministratorRepositoryService.create(
-            SiteAdministratorEntity.createWithoutId(
+        const createdSiteAuditor = await this.siteAuditorRepositoryService.create(
+            SiteAuditorEntity.createWithoutId(
                 site.id,
-                siteAdministrator.userId,
-                siteAdministrator.username,
-                siteAdministrator.email,
-                siteAdministrator.isAdminOperator,
+                siteAuditor.userId,
+                siteAuditor.username,
+                siteAuditor.email,
+                siteAuditor.isAdminOperator,
             ),
         );
 
         const updatedSite = await this.getSite(command.siteId);
         this.eventBus.publish(new SiteModifiedEvent(command.transactionId, { site: updatedSite }));
 
-        return createdSiteAdministrator;
+        return createdSiteAuditor;
     }
 
     private async getSite(siteId: number) {
@@ -72,12 +72,7 @@ export class AddSiteAdministratorCommandHandler implements ICommandHandler<AddSi
         return customers[0];
     }
 
-    private async runWorkflow(
-        transactionId: string,
-        customer: Customer,
-        site: Site,
-        siteAdministrator: PartialSiteAdministrator,
-    ) {
+    private async runWorkflow(transactionId: string, customer: Customer, site: Site, siteAuditor: PartialSiteAuditor) {
         const workflow = WorkflowFactory.create(
             this.appConfigService,
             this.queryBus,
@@ -85,23 +80,20 @@ export class AddSiteAdministratorCommandHandler implements ICommandHandler<AddSi
             transactionId,
             customer,
             site,
-        ).createSiteAdministratorWorkflow(siteAdministrator);
+        ).createSiteAuditorWorkflow(siteAuditor);
 
         return await workflow.getOrCreate();
     }
 
-    private validateSiteAdministratorHasNotAddedToSite(
-        site: Site,
-        siteAdministrator: PartialSiteAdministratorWithUserId,
-    ) {
+    private validateSiteAuditorHasNotAddedToSite(site: Site, siteAuditor: PartialSiteAuditorWithUserId) {
         if (
             ObjectUtility.contain(
-                site.siteAdministrators.map(({ userId }) => userId),
-                [siteAdministrator.userId],
+                site.siteAuditors.map(({ userId }) => userId),
+                [siteAuditor.userId],
             )
         ) {
             throw new ConflictException(
-                `Site administrator with userId "${siteAdministrator.userId}" already exists for site with ID "${site.id}".`,
+                `Site auditor with userId "${siteAuditor.userId}" already exists for site with ID "${site.id}".`,
             );
         }
     }

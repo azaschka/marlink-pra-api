@@ -90,7 +90,7 @@ export class SiteController {
                 dtoInput.name,
                 dtoInput.customerKey,
                 dtoInput.siteManagers,
-                dtoInput.siteAdministrators ?? [],
+                dtoInput.siteAuditors ?? [],
                 dtoInput.siteSupportTeamMembers ?? [],
                 dtoInput.siteApprovers ?? [],
             ),

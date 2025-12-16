@@ -290,10 +290,10 @@ export class AppConfigService {
                         this.configService.get<string>('SITE_USER_SITE_MANAGER_PUBLIC_DISPLAY_NAME_PREFIX') ??
                         DefaultAppConfig.site.user.siteManager.publicDisplayNamePrefix,
                 },
-                siteAdministrator: {
+                siteAuditor: {
                     publicDisplayNamePrefix:
-                        this.configService.get<string>('SITE_USER_SITE_ADMINISTRATOR_PUBLIC_DISPLAY_NAME_PREFIX') ??
-                        DefaultAppConfig.site.user.siteAdministrator.publicDisplayNamePrefix,
+                        this.configService.get<string>('SITE_USER_SITE_AUDITOR_PUBLIC_DISPLAY_NAME_PREFIX') ??
+                        DefaultAppConfig.site.user.siteAuditor.publicDisplayNamePrefix,
                 },
             },
             jumpPolicy: {

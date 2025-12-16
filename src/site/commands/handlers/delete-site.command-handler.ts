@@ -6,7 +6,7 @@ import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteDeletedEvent } from '../../events';
 import {
-    PartialSiteAdministrator,
+    PartialSiteAuditor,
     PartialSiteApprover,
     PartialSiteManager,
     PartialSiteSupportTeamMember,
@@ -34,7 +34,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             site.name,
             site.key,
             site.siteManagers as PartialSiteManager[],
-            site.siteAdministrators as PartialSiteAdministrator[],
+            site.siteAuditors as PartialSiteAuditor[],
             site.siteSupportTeamMembers as PartialSiteSupportTeamMember[],
             site.siteApprovers as PartialSiteApprover[],
             customer.name,
@@ -73,7 +73,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
         siteName: string,
         siteKey: string,
         siteManagers: PartialSiteManager[],
-        siteAdministrators: PartialSiteAdministrator[],
+        siteAuditors: PartialSiteAuditor[],
         siteSupportTeamMembers: PartialSiteSupportTeamMember[],
         siteApprovers: PartialSiteApprover[],
         customerName: string,
@@ -88,7 +88,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             siteName,
             siteKey,
             siteManagers,
-            siteAdministrators,
+            siteAuditors,
             siteSupportTeamMembers,
             siteApprovers,
             customerName,

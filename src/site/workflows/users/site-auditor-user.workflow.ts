@@ -5,9 +5,9 @@ import { BaseWorkflow } from '../../../shared/workflows';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../../../user/commands';
 import { User } from '../../../user/models';
 import { RetrieveUsersQuery } from '../../../user/queries';
-import { PartialSiteAdministrator } from '../../models';
+import { PartialSiteAuditor } from '../../models';
 
-export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
+export class SiteAuditorUserWorkflow implements BaseWorkflow<User> {
     private static readonly PREFERRED_EMAIL_LANGUAGE = 'en-US';
     private static readonly IS_TWO_FACTOR_AUTH_REQUIRED = true;
     private static readonly IS_LOGIN_ALLOWED = true;
@@ -15,7 +15,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
     private static readonly MUST_RESET_PASSWORD_ON_NEXT_LOGIN = true;
 
     private get userPublicDisplayName(): string {
-        return `${this.appConfigService.site.user.siteAdministrator.publicDisplayNamePrefix} ${this.customerName.toUpperCase()}`;
+        return `${this.appConfigService.site.user.siteAuditor.publicDisplayNamePrefix} ${this.customerName.toUpperCase()}`;
     }
 
     constructor(
@@ -23,7 +23,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
         private readonly transactionId: string,
-        private readonly siteAdministrator: PartialSiteAdministrator,
+        private readonly siteAuditor: PartialSiteAuditor,
         private readonly customerName: string,
         private readonly customerBeyondtrustInstanceId: number,
     ) {}
@@ -40,15 +40,15 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
                 this.transactionId,
                 this.customerBeyondtrustInstanceId,
                 this.userPublicDisplayName,
-                this.siteAdministrator.username,
+                this.siteAuditor.username,
                 PasswordGeneratorUtility.generate(), // generate password according to Marlink's password policy
                 undefined, // passwordExpirationDate
-                this.siteAdministrator.email,
-                SiteAdministratorUserWorkflow.PREFERRED_EMAIL_LANGUAGE,
-                SiteAdministratorUserWorkflow.IS_TWO_FACTOR_AUTH_REQUIRED,
-                SiteAdministratorUserWorkflow.IS_LOGIN_ALLOWED,
-                SiteAdministratorUserWorkflow.FAILED_LOGIN_ATTEMPTS,
-                SiteAdministratorUserWorkflow.MUST_RESET_PASSWORD_ON_NEXT_LOGIN,
+                this.siteAuditor.email,
+                SiteAuditorUserWorkflow.PREFERRED_EMAIL_LANGUAGE,
+                SiteAuditorUserWorkflow.IS_TWO_FACTOR_AUTH_REQUIRED,
+                SiteAuditorUserWorkflow.IS_LOGIN_ALLOWED,
+                SiteAuditorUserWorkflow.FAILED_LOGIN_ATTEMPTS,
+                SiteAuditorUserWorkflow.MUST_RESET_PASSWORD_ON_NEXT_LOGIN,
             ),
         );
     }
@@ -72,7 +72,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
             return null;
         }
 
-        if (user.email !== this.siteAdministrator.email) {
+        if (user.email !== this.siteAuditor.email) {
             return await this.commandBus.execute<ModifyUserCommand, User>(
                 new ModifyUserCommand(
                     this.transactionId,
@@ -82,7 +82,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
                     undefined, // username
                     undefined, // password
                     undefined, // passwordExpirationDate
-                    this.siteAdministrator.email, // email
+                    this.siteAuditor.email, // email
                 ),
             );
         }
@@ -98,7 +98,7 @@ export class SiteAdministratorUserWorkflow implements BaseWorkflow<User> {
                 1,
                 1,
                 undefined,
-                this.siteAdministrator.username,
+                this.siteAuditor.username,
                 undefined,
             ),
         );

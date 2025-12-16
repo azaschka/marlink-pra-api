@@ -17,9 +17,7 @@ class TestHelper {
     public static get mockedSiteWorkflowResult(): SiteWorkflowResult {
         return {
             siteManagers: [{ userId: 1, username: 'manager-username', email: 'manager-email' }],
-            siteAdministrators: [
-                { userId: 2, username: 'admin-username', email: 'admin-email', isAdminOperator: true },
-            ],
+            siteAuditors: [{ userId: 2, username: 'admin-username', email: 'admin-email', isAdminOperator: true }],
             siteSupportTeamMembers: [
                 {
                     userId: 3,
@@ -179,7 +177,7 @@ describe('CreateSiteCommandHandler', () => {
                 'name-1',
                 'customer-key-1',
                 TestHelper.mockedSiteWorkflowResult.siteManagers,
-                TestHelper.mockedSiteWorkflowResult.siteAdministrators,
+                TestHelper.mockedSiteWorkflowResult.siteAuditors,
                 TestHelper.mockedSiteWorkflowResult.siteSupportTeamMembers,
                 [{ email: 'approver-1' } as PartialSiteApprover],
             );
