@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "ed8ef1d3-324b-4b3e-810a-e2e0070732e6",
-    "name": "Marlink PRA API v2.0.3",
+    "name": "Marlink PRA API v2.0.4",
     "description": "This Postman collection provides a comprehensive set of API endpoints for managing and interacting with the PRA (Privileged Remote Access) Portal. It includes endpoints for health monitoring, customer management, site management, user management, jumpoint management, and more. Each endpoint is documented with request methods, headers, parameters, and example responses to facilitate easy integration and testing.\n\nBase URL: `https://pra-api-pp.cdn-vas.net`\n\nMake sure to replace placeholder variables (e.g., `{{accessKey}}`, `{{customerId}}`) with actual values before making requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "11321463"
@@ -1896,13 +1896,13 @@
           "name": "{id}",
           "item": [
             {
-              "name": "administrators",
+              "name": "auditors",
               "item": [
                 {
                   "name": "{id}",
                   "item": [
                     {
-                      "name": "Remove Site Administrator",
+                      "name": "Remove Site Auditor",
                       "id": "4b834663-d57f-4b61-9763-702e5e7bb18e",
                       "request": {
                         "method": "DELETE",
@@ -1914,23 +1914,23 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{baseUrl}}/sites/{{siteId}}/administrators/{{administratorId}}",
+                          "raw": "{{baseUrl}}/sites/{{siteId}}/auditors/{{auditorId}}",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "{{siteId}}",
-                            "administrators",
-                            "{{administratorId}}"
+                            "auditors",
+                            "{{auditorId}}"
                           ]
                         },
-                        "description": "Removes a user from the site administrator role for the specified site. The user will no longer have site administration privileges."
+                        "description": "Removes a user from the site auditor role for the specified site. The user will no longer have site administration privileges."
                       },
                       "response": [
                         {
                           "id": "467dcc45-8002-429e-852d-87834fdb8e08",
-                          "name": "204 No Content - Administrator Removed",
+                          "name": "204 No Content - Auditor Removed",
                           "originalRequest": {
                             "method": "DELETE",
                             "header": [
@@ -1940,14 +1940,14 @@
                               }
                             ],
                             "url": {
-                              "raw": "{{baseUrl}}/sites/1/administrators/2",
+                              "raw": "{{baseUrl}}/sites/1/auditors/2",
                               "host": [
                                 "{{baseUrl}}"
                               ],
                               "path": [
                                 "sites",
                                 "1",
-                                "administrators",
+                                "auditors",
                                 "2"
                               ]
                             }
@@ -1970,7 +1970,7 @@
                   "id": "f64cd6b1-e110-4600-a716-9826a3b7e89c"
                 },
                 {
-                  "name": "Get Site Administrators",
+                  "name": "Get Site Auditors",
                   "id": "ff265302-ad3c-419c-9e74-0d141b3116f9",
                   "request": {
                     "method": "GET",
@@ -1982,14 +1982,14 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{baseUrl}}/sites/{{siteId}}/administrators?pageSize=100&pageNumber=1",
+                      "raw": "{{baseUrl}}/sites/{{siteId}}/auditors?pageSize=100&pageNumber=1",
                       "host": [
                         "{{baseUrl}}"
                       ],
                       "path": [
                         "sites",
                         "{{siteId}}",
-                        "administrators"
+                        "auditors"
                       ],
                       "query": [
                         {
@@ -2004,12 +2004,12 @@
                         }
                       ]
                     },
-                    "description": "Retrieves site administrators for the specified site. Site administrators have administrative privileges for site configuration and management."
+                    "description": "Retrieves site auditors for the specified site. Site auditors have administrative privileges for site configuration and management."
                   },
                   "response": [
                     {
                       "id": "92e3f493-f7a3-4b78-95a8-3b0c11cd9a68",
-                      "name": "200 OK - Site Administrators List",
+                      "name": "200 OK - Site Auditors List",
                       "originalRequest": {
                         "method": "GET",
                         "header": [
@@ -2019,14 +2019,14 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{baseUrl}}/sites/1/administrators",
+                          "raw": "{{baseUrl}}/sites/1/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "1",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2054,14 +2054,14 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{baseUrl}}/sites/999/administrators",
+                          "raw": "{{baseUrl}}/sites/999/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "999",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2075,12 +2075,12 @@
                         }
                       ],
                       "cookie": [],
-                      "body": "{\n  \"statusCode\": 404,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/999/administrators\",\n  \"message\": \"The specified resource was not found.\"\n}"
+                      "body": "{\n  \"statusCode\": 404,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/999/auditors\",\n  \"message\": \"The specified resource was not found.\"\n}"
                     }
                   ]
                 },
                 {
-                  "name": "Add Site Administrator",
+                  "name": "Add Site Auditor",
                   "id": "333a2839-01f3-44cc-b0c3-4c9184d3effa",
                   "request": {
                     "method": "POST",
@@ -2105,22 +2105,22 @@
                       }
                     },
                     "url": {
-                      "raw": "{{baseUrl}}/sites/{{siteId}}/administrators",
+                      "raw": "{{baseUrl}}/sites/{{siteId}}/auditors",
                       "host": [
                         "{{baseUrl}}"
                       ],
                       "path": [
                         "sites",
                         "{{siteId}}",
-                        "administrators"
+                        "auditors"
                       ]
                     },
-                    "description": "Assigns a user as a site administrator for the specified site. The user must exist and have appropriate permissions."
+                    "description": "Assigns a user as a site auditor for the specified site. The user must exist and have appropriate permissions."
                   },
                   "response": [
                     {
                       "id": "fc444af7-79aa-4c51-8ea5-205bc64b882f",
-                      "name": "201 Created - Site Administrator Added",
+                      "name": "201 Created - Site Auditor Added",
                       "originalRequest": {
                         "method": "POST",
                         "header": [
@@ -2143,14 +2143,14 @@
                           }
                         },
                         "url": {
-                          "raw": "{{baseUrl}}/sites/1/administrators",
+                          "raw": "{{baseUrl}}/sites/1/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "1",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2168,7 +2168,7 @@
                     },
                     {
                       "id": "04b2c97c-8496-4fb5-8141-d81371ed0b87",
-                      "name": "409 Conflict - Administrator Already Exists",
+                      "name": "409 Conflict - Auditor Already Exists",
                       "originalRequest": {
                         "method": "POST",
                         "header": [
@@ -2191,14 +2191,14 @@
                           }
                         },
                         "url": {
-                          "raw": "{{baseUrl}}/sites/1/administrators",
+                          "raw": "{{baseUrl}}/sites/1/auditors",
                           "host": [
                             "{{baseUrl}}"
                           ],
                           "path": [
                             "sites",
                             "1",
-                            "administrators"
+                            "auditors"
                           ]
                         }
                       },
@@ -2212,7 +2212,7 @@
                         }
                       ],
                       "cookie": [],
-                      "body": "{\n  \"statusCode\": 409,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/1/administrators\",\n  \"message\": \"The specified site administrator already exists.\"\n}"
+                      "body": "{\n  \"statusCode\": 409,\n  \"timestamp\": \"2024-01-01T10:00:00.000Z\",\n  \"path\": \"/sites/1/auditors\",\n  \"message\": \"The specified site auditor already exists.\"\n}"
                     }
                   ]
                 }
@@ -3045,7 +3045,7 @@
                 }
               ],
               "cookie": [],
-              "body": "[\n  {\n    \"id\": 1,\n    \"key\": \"SITE001\",\n    \"name\": \"Main Office\",\n    \"customerKey\": \"CUST001\",\n    \"siteManagers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 1,\n        \"username\": \"manager1\",\n        \"email\": \"manager1@example.com\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteAdministrators\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 2,\n        \"username\": \"admin1\",\n        \"email\": \"admin1@example.com\",\n        \"isAdminOperator\": true,\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteSupportTeamMembers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 3,\n        \"firstname\": \"John\",\n        \"lastname\": \"Doe\",\n        \"email\": \"support1@example.com\",\n        \"supportTeamName\": \"Technical Support\",\n        \"supportTeamAccessLevel\": \"full\",\n        \"supportTeamTrustLevel\": \"require-auth\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteApprovers\": [\n      {\n        \"email\": \"approver1@example.com\"\n      }\n    ],\n    \"creationDate\": \"2024-01-01T10:00:00.000Z\",\n    \"lastModificationDate\": \"2024-01-01T10:00:00.000Z\"\n  }\n]"
+              "body": "[\n  {\n    \"id\": 1,\n    \"key\": \"SITE001\",\n    \"name\": \"Main Office\",\n    \"customerKey\": \"CUST001\",\n    \"siteManagers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 1,\n        \"username\": \"manager1\",\n        \"email\": \"manager1@example.com\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteAuditors\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 2,\n        \"username\": \"admin1\",\n        \"email\": \"admin1@example.com\",\n        \"isAdminOperator\": true,\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteSupportTeamMembers\": [\n      {\n        \"id\": 1,\n        \"siteId\": 1,\n        \"userId\": 3,\n        \"firstname\": \"John\",\n        \"lastname\": \"Doe\",\n        \"email\": \"support1@example.com\",\n        \"supportTeamName\": \"Technical Support\",\n        \"supportTeamAccessLevel\": \"full\",\n        \"supportTeamTrustLevel\": \"require-auth\",\n        \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n      }\n    ],\n    \"siteApprovers\": [\n      {\n        \"email\": \"approver1@example.com\"\n      }\n    ],\n    \"creationDate\": \"2024-01-01T10:00:00.000Z\",\n    \"lastModificationDate\": \"2024-01-01T10:00:00.000Z\"\n  }\n]"
             },
             {
               "id": "ad5f4bfa-f5f3-4e4e-beaa-7c0d00dd1e4e",
@@ -3190,7 +3190,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"key\": \"string\", // required\n    \"name\": \"string\", // required\n    \"customerKey\": \"string\", // required\n    \"siteManagers\": [ // required\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\" // required\n        }\n    ],\n    \"siteAdministrators\": [\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\", // required\n            \"isAdminOperator\": false // required, boolean\n        }\n    ],\n    \"siteSupportTeamMembers\": [\n        {\n            \"firstname\": \"string\", // required\n            \"lastname\": \"string\", // required\n            \"email\": \"string\", // required\n            \"supportTeamName\": \"string\", // required\n            \"supportTeamAccessLevel\": \"full\", // required - full, limited\n            \"supportTeamTrustLevel\": \"require-auth\" // required - require-auth, notify-only, no-restrictions\n        }\n    ],\n    \"siteApprovers\": [\n        \"string\"\n    ]\n}",
+              "raw": "{\n    \"key\": \"string\", // required\n    \"name\": \"string\", // required\n    \"customerKey\": \"string\", // required\n    \"siteManagers\": [ // required\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\" // required\n        }\n    ],\n    \"siteAuditors\": [\n        {\n            \"username\": \"string\", // required\n            \"email\": \"string\", // required\n            \"isAdminOperator\": false // required, boolean\n        }\n    ],\n    \"siteSupportTeamMembers\": [\n        {\n            \"firstname\": \"string\", // required\n            \"lastname\": \"string\", // required\n            \"email\": \"string\", // required\n            \"supportTeamName\": \"string\", // required\n            \"supportTeamAccessLevel\": \"full\", // required - full, limited\n            \"supportTeamTrustLevel\": \"require-auth\" // required - require-auth, notify-only, no-restrictions\n        }\n    ],\n    \"siteApprovers\": [\n        \"string\"\n    ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3206,7 +3206,7 @@
                 "sites"
               ]
             },
-            "description": "Creates a new site and assigns initial management roles. The site key must be unique and the customer must exist. Site managers, administrators, and support team members can be assigned during creation."
+            "description": "Creates a new site and assigns initial management roles. The site key must be unique and the customer must exist. Site managers, auditors, and support team members can be assigned during creation."
           },
           "response": [
             {
@@ -3253,7 +3253,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"id\": 1,\n  \"key\": \"SITE001\",\n  \"name\": \"Main Office\",\n  \"customerKey\": \"CUST001\",\n  \"siteManagers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 1,\n      \"username\": \"manager1\",\n      \"email\": \"manager1@example.com\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteAdministrators\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 2,\n      \"username\": \"admin1\",\n      \"email\": \"admin1@example.com\",\n      \"isAdminOperator\": true,\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteSupportTeamMembers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 3,\n      \"firstname\": \"John\",\n      \"lastname\": \"Doe\",\n      \"email\": \"support1@example.com\",\n      \"supportTeamName\": \"Technical Support\",\n      \"supportTeamAccessLevel\": \"full\",\n      \"supportTeamTrustLevel\": \"require-auth\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteApprovers\": [\n    {\n      \"email\": \"approver1@example.com\"\n    },\n    {\n      \"email\": \"approver2@example.com\"\n    }\n  ],\n  \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 1,\n  \"key\": \"SITE001\",\n  \"name\": \"Main Office\",\n  \"customerKey\": \"CUST001\",\n  \"siteManagers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 1,\n      \"username\": \"manager1\",\n      \"email\": \"manager1@example.com\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteAuditors\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 2,\n      \"username\": \"admin1\",\n      \"email\": \"admin1@example.com\",\n      \"isAdminOperator\": true,\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteSupportTeamMembers\": [\n    {\n      \"id\": 1,\n      \"siteId\": 1,\n      \"userId\": 3,\n      \"firstname\": \"John\",\n      \"lastname\": \"Doe\",\n      \"email\": \"support1@example.com\",\n      \"supportTeamName\": \"Technical Support\",\n      \"supportTeamAccessLevel\": \"full\",\n      \"supportTeamTrustLevel\": \"require-auth\",\n      \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n    }\n  ],\n  \"siteApprovers\": [\n    {\n      \"email\": \"approver1@example.com\"\n    },\n    {\n      \"email\": \"approver2@example.com\"\n    }\n  ],\n  \"creationDate\": \"2024-01-01T10:00:00.000Z\"\n}"
             },
             {
               "id": "f6fed972-7d0a-4f05-98ff-09153f6485d9",
@@ -6800,9 +6800,9 @@
     },
     {
       "id": "f8c458c4-a8df-472f-a739-83d7ca7e3533",
-      "key": "administratorId",
+      "key": "auditorId",
       "value": "1",
-      "description": "Unique identifier for a site administrator"
+      "description": "Unique identifier for a site auditor"
     },
     {
       "id": "c1cf90fb-3a30-4085-baca-74ba9fbe5fea",
