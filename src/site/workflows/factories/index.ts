@@ -111,7 +111,6 @@ export class WorkflowFactory {
             this.transactionId,
             this.site.name,
             this.site.key,
-            this.site.siteManagers,
             this.site.siteApprovers,
             this.customer.name,
             this.customer.beyondtrustInstanceId,

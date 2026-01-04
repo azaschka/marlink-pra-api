@@ -9,7 +9,7 @@ import { JumpPolicy } from '../../../jump-policy/models';
 import { RetrieveJumpPoliciesQuery } from '../../../jump-policy/queries';
 import { ObjectUtility } from '../../../shared/utilities';
 import { BaseWorkflow } from '../../../shared/workflows';
-import { PartialSiteApprover, PartialSiteManager } from '../../models';
+import { PartialSiteApprover } from '../../models';
 
 export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     private static readonly HAS_SCHEDULED_ACCESS_RESTRICTION = false;
@@ -41,7 +41,6 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         private readonly transactionId: string,
         private readonly siteName: string,
         private readonly siteKey: string,
-        private readonly siteManagers: PartialSiteManager[],
         private readonly siteApprovers: PartialSiteApprover[],
         private readonly customerName: string,
         private readonly customerBeyondtrustInstanceId: number,
@@ -70,14 +69,14 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                 undefined, // isTwoFactorChallengeRequired
                 AuthJumpPolicyWorkflow.IS_SESSION_START_NOTIFICATION_ENABLED, // isSessionStartNotificationEnabled
                 AuthJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED, // isSessionEndNotificationEnabled
-                this.siteManagers.map((siteManager) => siteManager.email), // notificationEmailAddresses
+                [], // notificationEmailAddresses (will be populated by SiteManagerWorkflow)
                 this.jumpPolicyNotificationDisplayName, // notificationDisplayName
                 undefined, // notificationEmailLanguage
                 AuthJumpPolicyWorkflow.IS_APPROVAL_REQUIRED, // isApprovalRequired
                 AuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES, // approvalMaxDurationInMinutes
                 undefined, // approvalScopeType
-                this.generateApprovalEmailAddresses(), // approvalEmailAddresses
-                undefined, // approvalUserIds
+                this.generateApprovalEmailAddresses(), // approvalEmailAddresses (site approvers only)
+                [], // approvalUserIds (will be populated by SiteManagerWorkflow)
                 undefined, // approvalTeamIds
                 this.jumpPolicyApprovalDisplayName, // approvalDisplayName
                 undefined, // approvalEmailLanguage
@@ -112,8 +111,6 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
             jumpPolicy.isSessionStartNotificationEnabled !==
                 AuthJumpPolicyWorkflow.IS_SESSION_START_NOTIFICATION_ENABLED ||
             jumpPolicy.isSessionEndNotificationEnabled !== AuthJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED ||
-            JSON.stringify(jumpPolicy.notificationEmailAddresses ?? []) !==
-                JSON.stringify(this.siteManagers.map((siteManager) => siteManager.email)) ||
             jumpPolicy.notificationDisplayName !== this.jumpPolicyNotificationDisplayName ||
             jumpPolicy.isApprovalRequired !== AuthJumpPolicyWorkflow.IS_APPROVAL_REQUIRED ||
             jumpPolicy.approvalMaxDurationInMinutes !== AuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES ||
@@ -136,16 +133,16 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                     undefined, // shouldForceRemoveUsersWhenScheduleDisallows
                     undefined, // isTicketIdRequired
                     undefined, // isTwoFactorChallengeRequired
-                    AuthJumpPolicyWorkflow.IS_SESSION_START_NOTIFICATION_ENABLED, // isSessionStartNotificationEnabled
-                    AuthJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED, // isSessionEndNotificationEnabled
-                    this.siteManagers.map((siteManager) => siteManager.email), // notificationEmailAddresses
+                    undefined, // isSessionStartNotificationEnabled
+                    undefined, // isSessionEndNotificationEnabled
+                    undefined, // notificationEmailAddresses (managed by SiteManagerWorkflow)
                     this.jumpPolicyNotificationDisplayName, // notificationDisplayName
                     undefined, // notificationEmailLanguage
                     AuthJumpPolicyWorkflow.IS_APPROVAL_REQUIRED, // isApprovalRequired
                     AuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES, // approvalMaxDurationInMinutes
                     undefined, // approvalScopeType
-                    this.siteManagers.map((siteManager) => siteManager.email), // approvalEmailAddresses
-                    undefined, // approvalUserIds
+                    this.generateApprovalEmailAddresses(), // approvalEmailAddresses (site approvers only)
+                    undefined, // approvalUserIds (managed by SiteManagerWorkflow)
                     undefined, // approvalTeamIds
                     this.jumpPolicyApprovalDisplayName, // approvalDisplayName
                     undefined, // approvalEmailLanguage
@@ -174,7 +171,6 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
 
     private generateApprovalEmailAddresses(): string[] {
         return ObjectUtility.filterUnique<string>([
-            ...this.siteManagers.map((siteManager) => siteManager.email),
             ...this.siteApprovers.map((siteApprover) => siteApprover.email),
         ]);
     }

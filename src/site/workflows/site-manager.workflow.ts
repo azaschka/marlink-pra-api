@@ -66,11 +66,8 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             ),
         );
 
-        await this.modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses(
-            authJumpPolicy,
-            [this.siteManager.email],
-            [],
-        );
+        await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [this.siteManager.email], []);
+        await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [siteManagerUser.id.toString()], []);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [this.siteManager.email], []);
 
         return {
@@ -102,39 +99,30 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             ),
         );
 
-        await this.modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses(
-            authJumpPolicy,
-            [],
-            [this.siteManager.email],
-        );
+        await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [], [this.siteManager.email]);
+        await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [], [siteManagerUser.id.toString()]);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
     }
 
-    private async modifyAuthJumpPolicyNotificationAndApprovalEmailAddresses(
+    private async modifyAuthJumpPolicyNotificationEmailAddresses(
         authJumpPolicy: JumpPolicy,
         emailsToAdd: string[],
         emailsToRemove: string[],
     ): Promise<void> {
         const currentNotificationEmails = authJumpPolicy.notificationEmailAddresses ?? [];
-        const currentApprovalEmails = authJumpPolicy.approvalEmailAddresses ?? [];
 
         // Merge, deduplicate, and remove unwanted emails
         const newNotificationEmails = ObjectUtility.filterUnique(
             currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
         );
-        const newApprovalEmails = ObjectUtility.filterUnique(
-            currentApprovalEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
-        );
 
-        if (newNotificationEmails.length === 0 || newApprovalEmails.length === 0) {
-            return; // Site manager's auth jump policy must have at least one notification and approval email
+        if (newNotificationEmails.length === 0) {
+            return; // Site manager's auth jump policy must have at least one notification email
         }
 
         if (
             newNotificationEmails.length === currentNotificationEmails.length &&
-            newApprovalEmails.length === currentApprovalEmails.length &&
-            newNotificationEmails.every((email) => currentNotificationEmails.includes(email)) &&
-            newApprovalEmails.every((email) => currentApprovalEmails.includes(email))
+            newNotificationEmails.every((email) => currentNotificationEmails.includes(email))
         ) {
             return; // No changes needed
         }
@@ -162,8 +150,65 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
                 undefined, // isApprovalRequired
                 undefined, // approvalMaxDurationInMinutes
                 undefined, // approvalScopeType
-                newApprovalEmails, // approvalEmailAddresses
+                undefined, // approvalEmailAddresses (not modified here - only site approvers)
                 undefined, // approvalUserIds
+                undefined, // approvalTeamIds
+                undefined, // approvalDisplayName
+                undefined, // approvalEmailLanguage
+                undefined, // approvalApproverScopeType
+                undefined,
+            ),
+        );
+    }
+
+    private async modifyAuthJumpPolicyApprovalUserIds(
+        authJumpPolicy: JumpPolicy,
+        userIdsToAdd: string[],
+        userIdsToRemove: string[],
+    ): Promise<void> {
+        const currentApprovalUserIds = authJumpPolicy.approvalUserIds ?? [];
+
+        // Merge, deduplicate, and remove unwanted user IDs
+        const newApprovalUserIds = ObjectUtility.filterUnique(
+            currentApprovalUserIds.concat(userIdsToAdd).filter((userId) => !userIdsToRemove.includes(userId)),
+        );
+
+        if (newApprovalUserIds.length === 0) {
+            return; // Auth jump policy must have at least one approver (either user ID or email)
+        }
+
+        if (
+            newApprovalUserIds.length === currentApprovalUserIds.length &&
+            newApprovalUserIds.every((userId) => currentApprovalUserIds.includes(userId))
+        ) {
+            return; // No changes needed
+        }
+
+        await this.commandBus.execute<ModifyJumpPolicyCommand, JumpPolicy>(
+            new ModifyJumpPolicyCommand(
+                this.transactionId,
+                this.customerBeyondtrustInstanceId,
+                authJumpPolicy.id,
+                undefined, // displayName
+                undefined, // codeName
+                undefined, // description
+                undefined, // hasScheduledAccessRestriction
+                undefined, // simultaneousJumpsType
+                undefined, // doesSimultaneousJumpBehaviorApplyToCopies
+                undefined, // simultaneousJumpsRdpType
+                undefined, // shouldForceRemoveUsersWhenScheduleDisallows
+                undefined, // isTicketIdRequired
+                undefined, // isTwoFactorChallengeRequired
+                undefined, // isSessionStartNotificationEnabled
+                undefined, // isSessionEndNotificationEnabled
+                undefined, // notificationEmailAddresses (not modified here)
+                undefined, // notificationDisplayName
+                undefined, // notificationEmailLanguage
+                undefined, // isApprovalRequired
+                undefined, // approvalMaxDurationInMinutes
+                undefined, // approvalScopeType
+                undefined, // approvalEmailAddresses (only site approvers - not modified here)
+                newApprovalUserIds, // approvalUserIds
                 undefined, // approvalTeamIds
                 undefined, // approvalDisplayName
                 undefined, // approvalEmailLanguage
