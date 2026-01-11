@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { BusinessUnit } from '../../customer/enums';
@@ -314,75 +317,97 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
     }
 
     public async delete(): Promise<void> {
-        const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
-        const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
-        const team = await this.teamWorkflow.getOrCreate();
-        const jumpoints = await this.jumpointsWorkflow.getOrCreate();
-        const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
-        const marlinkOperatorGroupPolicy = await this.marlinkOperatorGroupPolicyWorkflow.getOrCreate();
-        const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
+        // Wrap in try-catch to handle cases where BeyondTrust instance no longer exists
+        // If tenant doesn't exist (404), there's nothing to delete, so we can safely ignore
+        try {
+            const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
+            const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
+            const team = await this.teamWorkflow.getOrCreate();
+            const jumpoints = await this.jumpointsWorkflow.getOrCreate();
+            const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
+            const marlinkOperatorGroupPolicy = await this.marlinkOperatorGroupPolicyWorkflow.getOrCreate();
+            const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
 
-        for (const siteManagerWorkflow of this.siteManagerWorkflows) {
-            await siteManagerWorkflow.delete();
-        }
-
-        for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
-            await siteAuditorWorkflow.delete();
-        }
-
-        for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
-            await siteSupportTeamMemberWorkflow.delete();
-        }
-
-        // remove team from manager group policy
-        // remove team from operator group policy
-        for (const groupPolicy of [managerGroupPolicy, operatorGroupPolicy]) {
-            const groupPolicyTeam = (await this.getAllGroupPolicyTeams(groupPolicy.id)).find(
-                (groupPolicyTeam) => groupPolicyTeam.teamId === team.id,
-            );
-
-            if (groupPolicyTeam) {
-                await this.commandBus.execute<RemoveTeamFromGroupPolicyCommand, GroupPolicyTeam>(
-                    new RemoveTeamFromGroupPolicyCommand(
-                        this.transactionId,
-                        this.customerBeyondtrustInstanceId,
-                        groupPolicy.id,
-                        team.id,
-                    ),
-                );
+            for (const siteManagerWorkflow of this.siteManagerWorkflows) {
+                await siteManagerWorkflow.delete();
             }
-        }
 
-        // remove jumpoints from administrator group policy, marlink operator group policy and marlink superuser group policy
-        for (const groupPolicy of [administratorGroupPolicy, marlinkOperatorGroupPolicy, marlinkSuperuserGroupPolicy]) {
-            const groupPolicyJumpoints = await this.getAllGroupPolicyJumpoints(groupPolicy.id);
+            for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
+                await siteAuditorWorkflow.delete();
+            }
 
-            for (const jumpoint of jumpoints) {
-                // Skip if the jumpoint is already removed from the group policy
-                if (
-                    !groupPolicyJumpoints.some((groupPolicyJumpoint) => groupPolicyJumpoint.jumpointId === jumpoint.id)
-                ) {
-                    continue;
+            for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
+                await siteSupportTeamMemberWorkflow.delete();
+            }
+
+            // remove team from manager group policy
+            // remove team from operator group policy
+            for (const groupPolicy of [managerGroupPolicy, operatorGroupPolicy]) {
+                const groupPolicyTeam = (await this.getAllGroupPolicyTeams(groupPolicy.id)).find(
+                    (groupPolicyTeam) => groupPolicyTeam.teamId === team.id,
+                );
+
+                if (groupPolicyTeam) {
+                    await this.commandBus.execute<RemoveTeamFromGroupPolicyCommand, GroupPolicyTeam>(
+                        new RemoveTeamFromGroupPolicyCommand(
+                            this.transactionId,
+                            this.customerBeyondtrustInstanceId,
+                            groupPolicy.id,
+                            team.id,
+                        ),
+                    );
                 }
-
-                await this.commandBus.execute<RemoveJumpointFromGroupPolicyCommand, GroupPolicyJumpoint>(
-                    new RemoveJumpointFromGroupPolicyCommand(
-                        this.transactionId,
-                        this.customerBeyondtrustInstanceId,
-                        groupPolicy.id,
-                        jumpoint.id,
-                    ),
-                );
             }
-        }
 
-        await this.managerGroupPolicyWorkflow.delete();
-        await this.operatorGroupPolicyWorkflow.delete();
-        await this.teamWorkflow.delete();
-        await this.jumpointsWorkflow.delete();
-        await this.authJumpPolicyWorkflow.delete();
-        await this.noAuthJumpPolicyWorkflow.delete();
-        await this.notifyJumpPolicyWorkflow.delete();
+            // remove jumpoints from administrator group policy, marlink operator group policy and marlink superuser group policy
+            for (const groupPolicy of [
+                administratorGroupPolicy,
+                marlinkOperatorGroupPolicy,
+                marlinkSuperuserGroupPolicy,
+            ]) {
+                const groupPolicyJumpoints = await this.getAllGroupPolicyJumpoints(groupPolicy.id);
+
+                for (const jumpoint of jumpoints) {
+                    // Skip if the jumpoint is already removed from the group policy
+                    if (
+                        !groupPolicyJumpoints.some(
+                            (groupPolicyJumpoint) => groupPolicyJumpoint.jumpointId === jumpoint.id,
+                        )
+                    ) {
+                        continue;
+                    }
+
+                    await this.commandBus.execute<RemoveJumpointFromGroupPolicyCommand, GroupPolicyJumpoint>(
+                        new RemoveJumpointFromGroupPolicyCommand(
+                            this.transactionId,
+                            this.customerBeyondtrustInstanceId,
+                            groupPolicy.id,
+                            jumpoint.id,
+                        ),
+                    );
+                }
+            }
+
+            await this.managerGroupPolicyWorkflow.delete();
+            await this.operatorGroupPolicyWorkflow.delete();
+            await this.teamWorkflow.delete();
+            await this.jumpointsWorkflow.delete();
+            await this.authJumpPolicyWorkflow.delete();
+            await this.noAuthJumpPolicyWorkflow.delete();
+            await this.notifyJumpPolicyWorkflow.delete();
+        } catch (error) {
+            const statusCode =
+                (error as any)?.status ??
+                (error as any)?.response?.statusCode ??
+                (error as any)?.response?.message?.statusCode;
+
+            if (statusCode === 404) {
+                console.log(`[${this.transactionId}] External resource not found (404) - skipping cleanup`);
+                return;
+            }
+
+            throw error;
+        }
     }
 
     private async getAllGroupPolicyTeams(groupPolicyId: number): Promise<GroupPolicyTeam[]> {

@@ -69,7 +69,7 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                 undefined, // isTwoFactorChallengeRequired
                 AuthJumpPolicyWorkflow.IS_SESSION_START_NOTIFICATION_ENABLED, // isSessionStartNotificationEnabled
                 AuthJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED, // isSessionEndNotificationEnabled
-                [], // notificationEmailAddresses (will be populated by SiteManagerWorkflow)
+                this.generateApprovalEmailAddresses(), // notificationEmailAddresses (use approver emails as fallback until managers add theirs)
                 this.jumpPolicyNotificationDisplayName, // notificationDisplayName
                 undefined, // notificationEmailLanguage
                 AuthJumpPolicyWorkflow.IS_APPROVAL_REQUIRED, // isApprovalRequired
@@ -170,8 +170,6 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     }
 
     private generateApprovalEmailAddresses(): string[] {
-        return ObjectUtility.filterUnique<string>([
-            ...this.siteApprovers.map((siteApprover) => siteApprover.email),
-        ]);
+        return ObjectUtility.filterUnique<string>([...this.siteApprovers.map((siteApprover) => siteApprover.email)]);
     }
 }

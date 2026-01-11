@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { CreateGroupPolicyCommand, DeleteGroupPolicyCommand } from '../../group-policy/commands';
@@ -32,15 +35,29 @@ export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolic
     }
 
     public async delete(): Promise<void> {
-        const groupPolicy = await this.get();
+        try {
+            const groupPolicy = await this.get();
 
-        if (!groupPolicy) {
-            return;
+            if (!groupPolicy) {
+                return;
+            }
+
+            await this.commandBus.execute<DeleteGroupPolicyCommand, void>(
+                new DeleteGroupPolicyCommand(this.transactionId, this.customerBeyondTrustInstanceId, groupPolicy.id),
+            );
+        } catch (error) {
+            const statusCode =
+                (error as any)?.status ??
+                (error as any)?.response?.statusCode ??
+                (error as any)?.response?.message?.statusCode;
+
+            if (statusCode === 404) {
+                console.log(`[${this.transactionId}] External resource not found (404) - skipping cleanup`);
+                return;
+            }
+
+            throw error;
         }
-
-        await this.commandBus.execute<DeleteGroupPolicyCommand, void>(
-            new DeleteGroupPolicyCommand(this.transactionId, this.customerBeyondTrustInstanceId, groupPolicy.id),
-        );
     }
 
     private async get(): Promise<GroupPolicy | null> {
