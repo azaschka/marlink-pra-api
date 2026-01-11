@@ -32,8 +32,13 @@ export class SiteRequestPipe implements PipeTransform {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
         }
 
-        const customerScopes = this.request.customers!;
+        const customerScopes = this.request.customers;
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
+
+        // If no customer scopes available, skip validation (interceptor not applied)
+        if (!customerScopes || customerScopes.length === 0) {
+            return value;
+        }
 
         if (metadata.metatype?.name === RetrieveSitesDtoInput.name) {
             const customerKeysQuery = ObjectUtility.convertToArray<string | undefined>(
