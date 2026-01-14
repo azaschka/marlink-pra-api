@@ -64,7 +64,10 @@ export class JumpClientInstallerRequestPipe implements PipeTransform {
                 throw new ForbiddenException('Forbidden customer access');
             }
         } else if (this.request.params['installerId']) {
-            const requestParamInstallerId = this.request.params['installerId'];
+            const rawInstallerId = this.request.params['installerId'];
+            const requestParamInstallerId = (
+                Array.isArray(rawInstallerId) ? rawInstallerId[0] : rawInstallerId
+            ) as string;
 
             const jumpClientInstaller = (
                 await this.queryBus.execute<RetrieveJumpClientInstallersQuery, JumpClientInstaller[]>(
