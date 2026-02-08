@@ -9,9 +9,7 @@ import { BeyondtrustInstanceBackup } from '../../models';
 import { CreateBeyondtrustInstanceBackupCommand } from '../create-beyondtrust-instance-backup.command';
 
 @CommandHandler(CreateBeyondtrustInstanceBackupCommand)
-export class CreateBeyondtrustInstanceBackupCommandHandler
-    implements ICommandHandler<CreateBeyondtrustInstanceBackupCommand>
-{
+export class CreateBeyondtrustInstanceBackupCommandHandler implements ICommandHandler<CreateBeyondtrustInstanceBackupCommand> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,
