@@ -197,6 +197,9 @@ describe('AppConfigService', () => {
                             copy: 'api-path-jump-item-protocol-tunnel-jump-copy-1',
                         },
                     },
+                    sessionPolicy: {
+                        path: 'api-path-session-policy-1',
+                    },
                     discrepancy: {
                         path: '/api-path-discrepancies-1',
                         scan: {
@@ -289,6 +292,9 @@ describe('AppConfigService', () => {
                             path: 'api-path-jump-item-protocol-tunnel-jump-1',
                             copy: 'api-path-jump-item-protocol-tunnel-jump-copy-1',
                         },
+                    },
+                    sessionPolicy: {
+                        path: 'api-path-session-policy-1',
                     },
                     discrepancy: {
                         path: '/api-path-discrepancies-1',
@@ -386,6 +392,9 @@ describe('AppConfigService', () => {
                             copy: 'copy',
                         },
                     },
+                    sessionPolicy: {
+                        path: '/session-policies',
+                    },
                     discrepancy: {
                         path: '/discrepancies',
                         scan: {
@@ -463,6 +472,8 @@ describe('AppConfigService', () => {
                         return input.jumpItem?.protocolTunnelJump?.path;
                     case 'PRA_SYNC_API_JUMP_ITEM_COPY_PROTOCOL_TUNNEL_JUMP':
                         return input.jumpItem?.protocolTunnelJump?.copy;
+                    case 'PRA_SYNC_API_SESSION_POLICY_PATH':
+                        return input.sessionPolicy?.path;
                     case 'PRA_SYNC_API_DISCREPANCY_PATH':
                         return input.discrepancy?.path;
                     case 'PRA_SYNC_API_DISCREPANCY_SCAN_PATH':
@@ -557,6 +568,9 @@ describe('AppConfigService', () => {
                         path: expected.jumpItem?.protocolTunnelJump?.path,
                         copy: expected.jumpItem?.protocolTunnelJump?.copy,
                     },
+                },
+                sessionPolicy: {
+                    path: expected.sessionPolicy?.path,
                 },
                 discrepancy: {
                     path: expected.discrepancy?.path,
