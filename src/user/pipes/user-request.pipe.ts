@@ -10,13 +10,20 @@ import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { ObjectUtility, UuidUtility } from '../../shared/utilities';
+import { Customer } from '../../customer/models';
+import { GroupPolicyMember } from '../../group-policy-member/models';
+import { RetrieveGroupPolicyMembersQuery } from '../../group-policy-member/queries';
+import { GroupPolicy } from '../../group-policy/models';
+import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
+import { ObjectUtility, PaginationUtility, UuidUtility } from '../../shared/utilities';
 import { CreateUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { User } from '../models';
 import { RetrieveUserByIdQuery } from '../queries';
 
 @Injectable()
 export class UserRequestPipe implements PipeTransform {
+    private static readonly MAX_RETRIEVAL_PAGE_SIZE = 100;
+
     constructor(
         @Inject(REQUEST) private readonly request: Request,
         private readonly queryBus: QueryBus,
@@ -33,6 +40,7 @@ export class UserRequestPipe implements PipeTransform {
         }
 
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
+        const tenantId = this.request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number;
         const customerScopes = this.request.customers;
 
         if (!customerScopes || customerScopes.length === 0) {
@@ -40,8 +48,11 @@ export class UserRequestPipe implements PipeTransform {
             throw new ForbiddenException('No customer scopes available for validation');
         }
 
-        const customerScopeNames = customerScopes.map((c) => c.name);
-        const tenantId = this.request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number;
+        const customerUserPublicDisplayNames = await this.getUserPublicDisplayNamesForCustomers(
+            transactionId,
+            tenantId,
+            customerScopes,
+        );
 
         if (metadata.metatype?.name === RetrieveUsersDtoInput.name) {
             const { publicDisplayNamePatterns } = this.request.query as {
@@ -58,20 +69,30 @@ export class UserRequestPipe implements PipeTransform {
                 const dto = value as RetrieveUsersDtoInput;
 
                 // If no name patterns are queried, set to scoped customer names
-                dto.publicDisplayNamePatterns = customerScopes.map((c) => `%${c.name}%`);
+                dto.publicDisplayNamePatterns = customerUserPublicDisplayNames.map(
+                    (publicDisplayName) => `%${publicDisplayName}%`,
+                );
             }
 
             if (
                 publicDisplayNamePatternsQuery.length > 0 &&
-                !ObjectUtility.doesEveryTargetContainSourceSubstring(publicDisplayNamePatternsQuery, customerScopeNames)
+                !ObjectUtility.doesEveryTargetContainSourceSubstring(
+                    publicDisplayNamePatternsQuery,
+                    customerUserPublicDisplayNames,
+                )
             ) {
                 throw new ForbiddenException('Forbidden customer access');
             }
         } else if (metadata.metatype?.name === CreateUserDtoInput.name) {
             const dto = value as CreateUserDtoInput;
 
-            // Validate user public display name in the body explicitly exists in customer scopes
-            if (!ObjectUtility.doesEveryTargetContainSourceSubstring([dto.publicDisplayName], customerScopeNames)) {
+            // Validate user public display name in the body explicitly exists by customer scopes
+            if (
+                !ObjectUtility.doesEveryTargetContainSourceSubstring(
+                    [dto.publicDisplayName],
+                    customerUserPublicDisplayNames,
+                )
+            ) {
                 throw new ForbiddenException('Forbidden customer access');
             }
         } else {
@@ -85,11 +106,58 @@ export class UserRequestPipe implements PipeTransform {
                 new RetrieveUserByIdQuery(transactionId, tenantId, requestParamId),
             );
 
-            if (!ObjectUtility.doesEveryTargetContainSourceSubstring([user.publicDisplayName], customerScopeNames)) {
+            if (
+                !ObjectUtility.doesEveryTargetContainSourceSubstring(
+                    [user.publicDisplayName],
+                    customerUserPublicDisplayNames,
+                )
+            ) {
                 throw new ForbiddenException('Forbidden customer access');
             }
         }
 
         return value;
+    }
+
+    // Relationship between BT user and business unit is implied by group policies
+    private async getUserPublicDisplayNamesForCustomers(
+        transactionId: string,
+        tenantId: number,
+        customers: Customer[],
+    ) {
+        const customersGroupPolicies = await PaginationUtility.queryUntilLastPage((pageNumber) =>
+            this.queryBus.execute<RetrieveGroupPoliciesQuery, GroupPolicy[]>(
+                new RetrieveGroupPoliciesQuery(
+                    transactionId,
+                    tenantId,
+                    UserRequestPipe.MAX_RETRIEVAL_PAGE_SIZE,
+                    pageNumber,
+                    undefined,
+                    customers.map((c) => `%${c.name}%`),
+                ),
+            ),
+        );
+
+        const groupPoliciesUsers: User[] = [];
+
+        for (const groupPolicy of ObjectUtility.filterUnique(customersGroupPolicies)) {
+            const groupPolicyMembers = await PaginationUtility.queryUntilLastPage((pageNumber) =>
+                this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
+                    new RetrieveGroupPolicyMembersQuery(
+                        transactionId,
+                        tenantId,
+                        UserRequestPipe.MAX_RETRIEVAL_PAGE_SIZE,
+                        pageNumber,
+                        groupPolicy.id,
+                    ),
+                ),
+            );
+
+            groupPoliciesUsers.push(
+                ...groupPolicyMembers.map((member) => member.user).filter((object) => object !== undefined),
+            );
+        }
+
+        return ObjectUtility.filterUnique(groupPoliciesUsers.map((user) => user.publicDisplayName));
     }
 }

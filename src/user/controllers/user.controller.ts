@@ -10,6 +10,7 @@ import {
     Post,
     Query,
     UseGuards,
+    UseInterceptors,
     // UseInterceptors,
     UsePipes,
     ValidationPipe,
@@ -32,15 +33,15 @@ import {
     TenantIdHeader,
     TransactionIdHeader,
 } from '../../core/decorators';
-// import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { CustomersScopeInterceptor } from '../../customer/interceptors';
+import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
 import { CreateUserDtoInput, ModifyUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } from '../dtos/outputs';
 import { User } from '../models';
-// import { UserRequestPipe } from '../pipes';
-import { MonitoringRequestPipe } from '../../monitoring/pipes';
+import { UserRequestPipe } from '../pipes';
 import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 
 @ApiTenantIdHeader()
@@ -49,8 +50,8 @@ import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 @ApiTags('Users')
 @Controller('users')
 @UseGuards(AccessGuard)
-//@UseInterceptors(CustomersScopeInterceptor)
-//@UsePipes(UserRequestPipe)
+@UseInterceptors(CustomersScopeInterceptor)
+@UsePipes(UserRequestPipe)
 @UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class UserController {
