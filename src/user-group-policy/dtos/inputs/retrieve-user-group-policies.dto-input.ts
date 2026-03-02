@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class RetrieveUserGroupPoliciesDtoInput {
     @ApiProperty({
@@ -24,4 +24,15 @@ export class RetrieveUserGroupPoliciesDtoInput {
     @IsInt()
     @IsOptional()
     public pageNumber: number = 1;
+
+    @ApiProperty({
+        required: false,
+        type: [String],
+        description: 'Filters results to include only policies that match the given name patterns.',
+    })
+    @IsString({ each: true })
+    @IsOptional()
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public groupPolicyNamePatterns?: string[];
 }
