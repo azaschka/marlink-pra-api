@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BillingType } from '../../enums';
+import { BillingType, BusinessUnit } from '../../enums';
 import { BeyondtrustInstance } from '../../models';
 
 export class BeyondtrustInstanceRetrievedDtoOutput implements BeyondtrustInstance {
@@ -47,6 +47,13 @@ export class BeyondtrustInstanceRetrievedDtoOutput implements BeyondtrustInstanc
         description: 'Billing type of the BeyondTrust instance.',
     })
     public billingType!: BillingType;
+
+    @ApiProperty({
+        required: true,
+        enum: BusinessUnit,
+        description: 'Business unit of the BeyondTrust instance.',
+    })
+    public businessUnit!: BusinessUnit;
 
     @ApiProperty({
         required: true,

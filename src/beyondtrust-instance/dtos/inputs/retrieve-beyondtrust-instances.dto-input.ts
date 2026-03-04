@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { BusinessUnit } from '../../enums';
 
 export class RetrieveBeyondtrustInstancesDtoInput {
     @ApiProperty({
@@ -47,4 +48,13 @@ export class RetrieveBeyondtrustInstancesDtoInput {
     @IsOptional()
     @IsString()
     public apiBaseUrl?: string;
+
+    @ApiProperty({
+        required: false,
+        enum: BusinessUnit,
+        description: 'Business unit of the BeyondTrust instance.',
+    })
+    @IsEnum(BusinessUnit)
+    @IsOptional()
+    public businessUnit?: BusinessUnit;
 }

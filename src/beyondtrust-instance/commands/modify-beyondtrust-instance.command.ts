@@ -1,4 +1,4 @@
-import { BillingType } from '../enums';
+import { BillingType, BusinessUnit } from '../enums';
 
 export class ModifyBeyondtrustInstanceCommand {
     public readonly commandType = 'modify-beyondtrust-instance';
@@ -12,5 +12,6 @@ export class ModifyBeyondtrustInstanceCommand {
         public readonly oauth2TokenUrl?: string,
         public readonly apiBaseUrl?: string,
         public readonly billingType?: BillingType,
+        public readonly businessUnit?: BusinessUnit,
     ) {}
 }

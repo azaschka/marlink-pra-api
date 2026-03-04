@@ -5,7 +5,7 @@ import {
     DeleteBeyondtrustInstanceCommand,
     ModifyBeyondtrustInstanceCommand,
 } from '../commands';
-import { BillingType } from '../enums';
+import { BillingType, BusinessUnit } from '../enums';
 import { BeyondtrustInstance } from '../models';
 import { RetrieveBeyondtrustInstanceByIdQuery, RetrieveBeyondtrustInstancesQuery } from '../queries';
 import { BeyondtrustInstanceController } from './beyondtrust-instance.controller';
@@ -75,6 +75,7 @@ describe('BeyondtrustInstanceController', () => {
                 oauth2TokenUrl: 'https://oauth2.example.com/token',
                 apiBaseUrl: 'https://api.example.com',
                 billingType: BillingType.Asset,
+                businessUnit: BusinessUnit.MC,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -86,6 +87,7 @@ describe('BeyondtrustInstanceController', () => {
                     'https://oauth2.example.com/token',
                     'https://api.example.com',
                     BillingType.Asset,
+                    BusinessUnit.MC,
                 ),
             );
             expect(result).toBe(expectedResult);
