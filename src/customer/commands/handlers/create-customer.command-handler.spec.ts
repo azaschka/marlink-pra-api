@@ -1,9 +1,9 @@
 import { ConflictException } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { RetrieveBeyondtrustInstanceByIdQuery } from '../../../beyondtrust-instance/queries';
 import { GroupPolicy } from '../../../group-policy/models';
-import { BusinessUnit } from '../../enums';
 import { CustomerCreatedEvent } from '../../events';
 import { RetrieveCustomersQuery } from '../../queries';
 import { CustomerEntity } from '../../repositories/entities';

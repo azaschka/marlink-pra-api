@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { AxiosResponse } from 'axios';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { BeyondtrustInstance } from '../../../beyondtrust-instance/models';
 import { RetrieveBeyondtrustInstancesQuery } from '../../../beyondtrust-instance/queries';
-import { BusinessUnit } from '../../../customer/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { ErrorProcessorUtility, PaginationUtility } from '../../../shared/utilities';

@@ -1,4 +1,4 @@
-import { BusinessUnit } from '../../customer/enums';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 
 export class RetrieveJumpointInstallerByCustomerAndSiteQuery {
     public readonly queryType = 'retrieve-jumpoint-installer-by-customer-and-site';

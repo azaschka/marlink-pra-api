@@ -1,5 +1,5 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { BusinessUnit } from '../../customer/enums';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateAccessCommand, DeleteAccessCommand, ModifyAccessCommand } from '../commands';
 import { Access } from '../models';

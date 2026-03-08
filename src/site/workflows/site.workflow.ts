@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
-import { BusinessUnit } from '../../customer/enums';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import {
     AddJumpointToGroupPolicyCommand,
     RemoveJumpointFromGroupPolicyCommand,
@@ -17,8 +17,8 @@ import { RetrieveGroupPolicyTeamsQuery } from '../../group-policy-team/queries';
 import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
 import {
-    PartialSiteAuditor,
     PartialSiteApprover,
+    PartialSiteAuditor,
     PartialSiteManager,
     PartialSiteSupportTeamMember,
     SiteWorkflowResult,

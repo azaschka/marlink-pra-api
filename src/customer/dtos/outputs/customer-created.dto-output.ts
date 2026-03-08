@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../models';
 
 export class CustomerCreatedDtoOutput implements Customer {

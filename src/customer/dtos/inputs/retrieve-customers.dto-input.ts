@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 
 export class RetrieveCustomersDtoInput {
     @ApiProperty({

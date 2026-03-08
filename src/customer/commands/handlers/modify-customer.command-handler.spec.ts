@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
-import { BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { CustomerModifiedEvent } from '../../events';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';

@@ -1,13 +1,13 @@
 import { NotFoundException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { BusinessUnit } from '../../../customer/enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteDeletedEvent } from '../../events';
 import {
-    PartialSiteAuditor,
     PartialSiteApprover,
+    PartialSiteAuditor,
     PartialSiteManager,
     PartialSiteSupportTeamMember,
 } from '../../models';

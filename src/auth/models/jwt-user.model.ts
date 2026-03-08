@@ -1,4 +1,4 @@
-import { BusinessUnit } from '../enums';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 
 export interface JWTUser {
     username: string;

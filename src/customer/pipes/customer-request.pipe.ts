@@ -9,10 +9,10 @@ import {
 import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
 import { ObjectUtility, UuidUtility } from '../../shared/utilities';
 import { CreateCustomerDtoInput, RetrieveCustomersDtoInput } from '../dtos/inputs';
-import { BusinessUnit } from '../enums';
 import { Customer } from '../models';
 import { RetrieveCustomerByIdQuery } from '../queries';
 

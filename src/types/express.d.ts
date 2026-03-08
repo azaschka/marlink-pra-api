@@ -1,5 +1,5 @@
 import { Access } from '../access/models';
-import { BusinessUnit } from '../customer/enums';
+import { BusinessUnit } from '../beyondtrust-instance/enums';
 import { Customer } from '../customer/models';
 import { JumpGroup } from '../jump-group/models';
 

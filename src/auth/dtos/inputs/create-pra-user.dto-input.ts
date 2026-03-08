@@ -1,5 +1,6 @@
 import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { BusinessUnit, UserRole } from 'src/auth/enums';
+import { UserRole } from 'src/auth/enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 
 export class CreatePraUserDtoInput {
     @IsNotEmpty()
