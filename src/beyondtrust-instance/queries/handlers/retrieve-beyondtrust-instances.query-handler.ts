@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
+import qs from 'qs';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { TRANSACTION_ID_HEADER } from '../../../core/decorators';
@@ -29,6 +30,7 @@ export class RetrieveBeyondtrustInstancesQueryHandler implements IQueryHandler<R
                 this.httpService.get<BeyondtrustInstance[]>(url, {
                     params: ObjectUtility.stripProperties(query, 'transactionId'),
                     headers: headers,
+                    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
                 }),
             );
 

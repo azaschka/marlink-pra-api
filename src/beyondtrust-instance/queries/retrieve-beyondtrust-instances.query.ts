@@ -10,6 +10,6 @@ export class RetrieveBeyondtrustInstancesQuery {
         public readonly name?: string,
         public readonly oauth2TokenUrl?: string,
         public readonly apiBaseUrl?: string,
-        public readonly businessUnit?: BusinessUnit,
+        public readonly businessUnits?: BusinessUnit[],
     ) {}
 }

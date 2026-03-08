@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { BusinessUnit } from '../../enums';
 
@@ -51,10 +51,13 @@ export class RetrieveBeyondtrustInstancesDtoInput {
 
     @ApiProperty({
         required: false,
+        isArray: true,
         enum: BusinessUnit,
-        description: 'Business unit of the BeyondTrust instance.',
+        description: 'Filter beyondtrust instances by business units.',
     })
-    @IsEnum(BusinessUnit)
     @IsOptional()
-    public businessUnit?: BusinessUnit;
+    @IsEnum(BusinessUnit, { each: true })
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public businessUnits?: BusinessUnit[];
 }
