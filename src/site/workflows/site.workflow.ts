@@ -200,6 +200,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     this.customerName,
                     this.customerBeyondtrustInstanceId,
                     this.administratorGroupPolicyWorkflow,
+                    this.operatorGroupPolicyWorkflow,
                 ),
         );
 
