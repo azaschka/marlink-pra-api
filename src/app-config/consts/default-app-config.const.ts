@@ -6,6 +6,10 @@ export abstract class DefaultAppConfig {
     private static readonly HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT = 80;
     private static readonly HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB = 512;
     private static readonly HEALTH_PING_CHECK_PRA_SYNC_API_URL = 'http://pra-sync-api:9001/health';
+    private static readonly AUTH_FALLBACK_ADMIN_ENABLED = true;
+    private static readonly AUTH_FALLBACK_ADMIN_USERNAME = 'odin';
+    private static readonly AUTH_FALLBACK_ADMIN_PASSWORD_HASH =
+        '$2b$10$rZVykVWWxkZMsp1spQKrNOdkZdFXb7H0BLao5Ue1N4WLqIHmjRIoK';
     private static readonly PRA_ADMIN_CONSOLE_URL = 'https://pra-admin.cdn-vas.net';
     private static readonly BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra.beyondtrustcloud.com/login';
     private static readonly PRA_SYNC_API_BASE_URL = 'http://pra-sync-api:9001';
@@ -28,6 +32,14 @@ export abstract class DefaultAppConfig {
             diskStorageUsageThresholdInPercent: DefaultAppConfig.HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT,
             memoryHeapUsageThresholdInMB: DefaultAppConfig.HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB,
             pingCheckPraSyncApiUrl: DefaultAppConfig.HEALTH_PING_CHECK_PRA_SYNC_API_URL,
+        };
+    }
+
+    public static get auth() {
+        return {
+            fallbackAdminEnabled: DefaultAppConfig.AUTH_FALLBACK_ADMIN_ENABLED,
+            fallbackAdminUsername: DefaultAppConfig.AUTH_FALLBACK_ADMIN_USERNAME,
+            fallbackAdminPasswordHash: DefaultAppConfig.AUTH_FALLBACK_ADMIN_PASSWORD_HASH,
         };
     }
 
