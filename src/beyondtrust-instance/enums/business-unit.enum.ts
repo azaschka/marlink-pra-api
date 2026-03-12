@@ -4,5 +4,4 @@ export enum BusinessUnit {
     MC = 'MC',
     EG = 'EG',
     TE = 'TE',
-    Unknown = 'Unknown',
 }

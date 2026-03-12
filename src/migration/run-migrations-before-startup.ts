@@ -6,6 +6,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { DataSource } from 'typeorm';
+import { migrateCustomerBUToBTInstanceBU } from './scripts/move-customer-bu-to-bt-instance-bu.migration';
 import { migrateSiteAdministratorsToAuditors } from './scripts/rename-site-administrators-to-auditors.migration';
 
 /**
@@ -40,6 +41,9 @@ export async function runMigrationsBeforeStartup(): Promise<void> {
 
         // Run table rename migration
         await migrateSiteAdministratorsToAuditors(tempDataSource);
+
+        // Run column move migration
+        await migrateCustomerBUToBTInstanceBU(tempDataSource);
 
         console.log('✅ Pre-startup migrations completed successfully');
     } catch (error) {
