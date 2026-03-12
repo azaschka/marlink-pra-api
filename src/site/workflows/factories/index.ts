@@ -59,6 +59,7 @@ export class WorkflowFactory {
             this.customer.name,
             this.customer.beyondtrustInstanceId,
             this.createAdministratorGroupPolicyWorkflow(),
+            this.createOperatorGroupPolicyWorkflow(),
         );
     }
 
