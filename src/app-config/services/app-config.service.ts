@@ -41,6 +41,11 @@ export class AppConfigService {
             apiKey: this.configService.get<string>('PRA_API_KEY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             jwtSecret: this.configService.get<string>('JWT_SECRET') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             jwtExpiry: this.configService.get<string>('JWT_EXPIRY') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
+            fallbackAdmin: {
+                enabled: DefaultAppConfig.auth.fallbackAdminEnabled,
+                username: DefaultAppConfig.auth.fallbackAdminUsername,
+                passwordHash: DefaultAppConfig.auth.fallbackAdminPasswordHash,
+            },
         };
     }
 
@@ -360,16 +365,8 @@ export class AppConfigService {
     }
 
     public get throttle() {
-        let isEnabled = DefaultAppConfig.throttle.isEnabled;
-
-        const isEnabledString = this.configService.get<string>('THROTTLE_IS_ENABLED');
-
-        if (isEnabledString !== undefined) {
-            isEnabled = JSON.parse(isEnabledString) as boolean;
-        }
-
         return {
-            isEnabled: isEnabled,
+            isEnabled: this.configService.get<boolean>('THROTTLE_IS_ENABLED') ?? DefaultAppConfig.throttle.isEnabled,
             ttlInMs: this.configService.get<number>('THROTTLE_TTL_IN_MS') ?? DefaultAppConfig.throttle.ttlInMs,
             limit: this.configService.get<number>('THROTTLE_LIMIT') ?? DefaultAppConfig.throttle.limit,
         };

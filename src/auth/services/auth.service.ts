@@ -18,7 +18,26 @@ export class AuthService {
     }
 
     public async validateUser(username: string, plainTextPassword: string): Promise<JWTUser | null> {
-        if (username === 'odin') return this.returnOdinUser();
+        // Check fallback admin first (emergency access when DB is down)
+        const fallbackConfig = this.appConfigService.auth.fallbackAdmin;
+        if (
+            fallbackConfig.enabled &&
+            fallbackConfig.username &&
+            fallbackConfig.passwordHash &&
+            username === fallbackConfig.username
+        ) {
+            const isValidPassword = await this.verifyPassword(plainTextPassword, fallbackConfig.passwordHash);
+            if (isValidPassword) {
+                return {
+                    username: fallbackConfig.username,
+                    role: 'Super Admin',
+                    displayName: 'System Administrator',
+                    businessUnit: undefined,
+                    canManagePraUsers: true,
+                } as JWTUser;
+            }
+            // If password doesn't match, fall through to database check
+        }
 
         const praUser = await this.praUserRepositoryService.findOneByUsername(username);
         if (praUser && (await this.verifyPassword(plainTextPassword, praUser.password))) {
@@ -51,15 +70,5 @@ export class AuthService {
 
     private async verifyPassword(plainTextPassword: string, hashedPassword: string): Promise<boolean> {
         return await bcrypt.compare(plainTextPassword, hashedPassword);
-    }
-
-    private returnOdinUser(): JWTUser {
-        return {
-            username: 'odin',
-            role: 'Super Admin',
-            displayName: 'Odin Admin',
-            businessUnit: undefined,
-            canManagePraUsers: undefined,
-        };
     }
 }

@@ -2,8 +2,7 @@
   "info": {
     "_postman_id": "8ef5f96f-cd90-4b0e-bc1f-d42d554228d0",
     "name": "marlink-pra-api",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "11321463"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
