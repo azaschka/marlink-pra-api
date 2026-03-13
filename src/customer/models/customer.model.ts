@@ -1,4 +1,5 @@
 import { BusinessUnit } from '../../beyondtrust-instance/enums';
+import { BeyondtrustInstance } from '../../beyondtrust-instance/models';
 
 export interface Customer {
     id: number;
@@ -9,4 +10,5 @@ export interface Customer {
     beyondtrustInstanceId: number;
     creationDate: Date;
     lastModificationDate?: Date;
+    beyondtrustInstance: BeyondtrustInstance;
 }

@@ -1,5 +1,14 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
+import { BeyondtrustInstanceEntity } from '../../../beyondtrust-instance/repositories/entities';
 import { Customer } from '../../models';
 
 @Entity({ name: 'pra_customers' })
@@ -28,6 +37,10 @@ export class CustomerEntity implements Customer {
 
     @UpdateDateColumn({ name: 'last_modification_date', type: 'timestamp', nullable: true })
     public lastModificationDate?: Date;
+
+    @ManyToOne(() => BeyondtrustInstanceEntity, { eager: true, onDelete: 'RESTRICT' })
+    @JoinColumn({ name: 'beyondtrust_instance_id' })
+    public beyondtrustInstance!: BeyondtrustInstanceEntity;
 
     public static create(
         id: number,
