@@ -75,7 +75,7 @@ export class CustomerRequestPipe implements PipeTransform {
                 new RetrieveCustomerByIdQuery(transactionId, requestParamId),
             );
 
-            if (!businessUnitScopes.includes(customer.businessUnit)) {
+            if (!businessUnitScopes.includes(customer.beyondtrustInstance.businessUnit)) {
                 throw new ForbiddenException('Forbidden business unit access');
             }
         }

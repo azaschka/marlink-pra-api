@@ -7,7 +7,6 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { BeyondtrustInstanceEntity } from '../../../beyondtrust-instance/repositories/entities';
 import { Customer } from '../../models';
 
@@ -21,9 +20,6 @@ export class CustomerEntity implements Customer {
 
     @Column({ name: 'name', type: 'varchar', unique: true })
     public name!: string;
-
-    @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit })
-    public businessUnit!: BusinessUnit;
 
     @Column({ name: 'is_deactivated', type: 'boolean' })
     public isDeactivated!: boolean;
@@ -46,7 +42,6 @@ export class CustomerEntity implements Customer {
         id: number,
         key: string,
         name: string,
-        businessUnit: BusinessUnit,
         isDeactivated: boolean,
         beyondtrustInstanceId: number,
     ): CustomerEntity {
@@ -54,7 +49,6 @@ export class CustomerEntity implements Customer {
         entity.id = id;
         entity.key = key;
         entity.name = name;
-        entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
         entity.beyondtrustInstanceId = beyondtrustInstanceId;
 
@@ -64,14 +58,12 @@ export class CustomerEntity implements Customer {
     public static createWithoutId(
         key: string,
         name: string,
-        businessUnit: BusinessUnit,
         isDeactivated: boolean,
         beyondtrustInstanceId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
         entity.key = key;
         entity.name = name;
-        entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
         entity.beyondtrustInstanceId = beyondtrustInstanceId;
 

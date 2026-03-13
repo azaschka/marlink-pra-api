@@ -20,7 +20,7 @@ export class SessionPolicyRequestPipe implements PipeTransform {
         }
 
         const customerScopes = this.request.customers!;
-        const customerScopeBusinessUnits = customerScopes.map((c) => c.businessUnit);
+        const customerScopeBusinessUnits = customerScopes.map((c) => c.beyondtrustInstance.businessUnit);
         const sessionPolicyCodeNameBusinessUnitPatterns = customerScopeBusinessUnits.map((bu) => `${bu}_`);
 
         if (metadata.metatype?.name === RetrieveSessionPoliciesDtoInput.name) {
@@ -37,7 +37,7 @@ export class SessionPolicyRequestPipe implements PipeTransform {
                 const dto = value as RetrieveSessionPoliciesDtoInput;
 
                 // If no code name patterns are queried, set to scoped customer's business units
-                dto.codeNamePatterns = customerScopes.map((c) => `${c.businessUnit}_%`);
+                dto.codeNamePatterns = customerScopes.map((c) => `${c.beyondtrustInstance.businessUnit}_%`);
             }
 
             if (

@@ -100,7 +100,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
         const btInstances = await this.getAllBTInstances(transactionId);
         const jumpointNamePatterns = customer
             ? [
-                  `${customer.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
+                  `${customer.beyondtrustInstance.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
               ]
             : businessUnits.map(
                   (businessUnit) => `${businessUnit}%_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
