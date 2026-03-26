@@ -63,10 +63,7 @@ export class LogController {
             dto.tenantId,
         );
 
-        return {
-            logs: logs,
-            totalCount: totalCount,
-        };
+        return { logs, totalCount };
     }
 
     @Delete()

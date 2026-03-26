@@ -10,6 +10,7 @@ import {
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
     AdminOperatorAccessGroupPolicyWorkflow,
+    FullAccessGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
 } from './group-policies';
 import { SiteAuditorUserWorkflow } from './users';
@@ -18,6 +19,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
     private readonly siteAuditorUserWorkflow: SiteAuditorUserWorkflow;
     private readonly administratorAccessGroupPolicyWorkflow: AdministratorAccessGroupPolicyWorkflow;
     private readonly adminOperatorAccessGroupPolicyWorkflow: AdminOperatorAccessGroupPolicyWorkflow;
+    private readonly fullAccessGroupPolicyWorkflow: FullAccessGroupPolicyWorkflow;
 
     constructor(
         private readonly appConfigService: AppConfigService,
@@ -55,6 +57,14 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
             this.transactionId,
             this.customerBeyondtrustInstanceId,
         );
+
+        this.fullAccessGroupPolicyWorkflow = new FullAccessGroupPolicyWorkflow(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        );
     }
 
     public async getOrCreate(): Promise<PartialSiteAuditorWithUserId> {
@@ -62,6 +72,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         const administratorAccessGroupPolicy = await this.administratorAccessGroupPolicyWorkflow.getOrCreate();
         const adminOperatorAccessGroupPolicy = await this.adminOperatorAccessGroupPolicyWorkflow.getOrCreate();
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
+        const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
 
         // Add the site auditor user to the administrator group policy and administrator access group policy
@@ -76,6 +87,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
                     administratorAccessGroupPolicy.id,
                     this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
                     operatorGroupPolicy.id,
+                    fullAccessGroupPolicy.id,
                 ].filter((id) => id !== undefined),
                 [],
             ),
