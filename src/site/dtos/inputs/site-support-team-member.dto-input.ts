@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { NameSanitizerUtility } from '../../../shared/utilities';
 import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
 
 export class SiteSupportTeamMemberDtoInput {
@@ -35,6 +37,7 @@ export class SiteSupportTeamMemberDtoInput {
         type: String,
         description: 'The support team name of the site support team member.',
     })
+    @Transform(({ value }) => NameSanitizerUtility.sanitizeName(value))
     @IsNotEmpty()
     @IsString()
     public supportTeamName!: string;

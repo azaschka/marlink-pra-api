@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ArrayNotEmpty, ArrayUnique, IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { NameSanitizerUtility } from '../../../shared/utilities';
 import { SiteAuditorDtoInput } from './site-auditor.dto-input';
 import { SiteManagerDtoInput } from './site-manager.dto-input';
 import { SiteSupportTeamMemberDtoInput } from './site-support-team-member.dto-input';
@@ -11,11 +12,13 @@ export class CreateSiteDtoInput {
         type: String,
         description: 'The unique key of the site.',
     })
+    @Transform(({ value }) => NameSanitizerUtility.sanitizeKey(value))
     @IsNotEmpty()
     @IsString()
     public key!: string;
 
     @ApiProperty({ required: true, type: String, description: 'The name of the site.' })
+    @Transform(({ value }) => NameSanitizerUtility.sanitizeName(value))
     @IsNotEmpty()
     @IsString()
     public name!: string;
