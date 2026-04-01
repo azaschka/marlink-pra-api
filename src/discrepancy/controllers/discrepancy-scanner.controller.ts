@@ -16,10 +16,11 @@ import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { ScanDiscrepancyCommand } from '../commands';
 import { RetrieveDiscrepanciesDtoInput } from '../dtos/inputs';
-import { DiscrepancyDtoOutput, DiscrepancyOverviewDtoOutput } from '../dtos/outputs';
+import { DiscrepancyDtoOutput, DiscrepancyOverviewDtoOutput, ScanStatusDtoOutput } from '../dtos/outputs';
 import { DiscrepancyEntityType } from '../enums';
 import { Discrepancy, DiscrepancyOverview } from '../models';
 import { RetrieveDiscrepanciesQuery } from '../queries';
+import { DiscrepancyScanStatusService } from '../services/discrepancy-scan-status.service';
 
 @ApiTenantIdHeader()
 @ApiTags('Discrepancies')
@@ -29,6 +30,7 @@ export class DiscrepancyScannerController {
     constructor(
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
+        private readonly scanStatusService: DiscrepancyScanStatusService,
     ) {}
 
     @Get()
@@ -53,12 +55,25 @@ export class DiscrepancyScannerController {
     }
 
     @Post('/scan/all')
-    @ApiOkResponse()
-    @HttpCode(HttpStatus.OK)
-    public async scanAllDiscrepancies(
+    @ApiOkResponse({ type: ScanStatusDtoOutput })
+    @HttpCode(HttpStatus.ACCEPTED)
+    public scanAllDiscrepancies(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @TenantIdHeader() tenantId: number,
-    ): Promise<DiscrepancyOverview[]> {
+    ): Pick<ScanStatusDtoOutput, 'scanId'> {
+        this.scanStatusService.start(transactionId);
+        void this.runAllScans(transactionId, tenantId);
+        return { scanId: transactionId };
+    }
+
+    @Get('/scan/status/:scanId')
+    @ApiParam({ name: 'scanId', type: String, required: true })
+    @ApiOkResponse({ type: ScanStatusDtoOutput })
+    public getScanStatus(@Param('scanId') scanId: string): ScanStatusDtoOutput {
+        return this.scanStatusService.get(scanId);
+    }
+
+    private async runAllScans(transactionId: string, tenantId: number): Promise<void> {
         const entityTypeOrder = [
             DiscrepancyEntityType.User,
             DiscrepancyEntityType.GroupPolicy,
@@ -75,20 +90,23 @@ export class DiscrepancyScannerController {
             DiscrepancyEntityType.JumpClientInstaller,
         ];
 
-        const scanResults = [];
+        try {
+            for (const entityType of entityTypeOrder) {
+                try {
+                    console.log(`[${transactionId}] Starting discrepancy scan for ${entityType}.`);
 
-        for (const entityType of entityTypeOrder) {
-            try {
-                console.log(`Starting discrepancy scan for ${entityType}.`);
-
-                const scanResult = await this.scanDiscrepancies(transactionId, tenantId, entityType);
-                scanResults.push(scanResult);
-            } catch (error) {
-                console.error(`Discrepancy scan failed for ${entityType}:`, error);
+                    await this.scanDiscrepancies(transactionId, tenantId, entityType);
+                } catch (error) {
+                    console.error(`[${transactionId}] Discrepancy scan failed for ${entityType}:`, error);
+                }
             }
-        }
 
-        return scanResults;
+            console.log(`[${transactionId}] All discrepancy scans completed.`);
+            this.scanStatusService.complete(transactionId);
+        } catch (error) {
+            console.error(`[${transactionId}] Unexpected error during discrepancy scan:`, error);
+            this.scanStatusService.fail(transactionId, error);
+        }
     }
 
     @Post('/scan/:entityType')

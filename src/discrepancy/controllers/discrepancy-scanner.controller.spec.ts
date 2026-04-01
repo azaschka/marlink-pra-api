@@ -1,6 +1,7 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { DiscrepancyDtoOutput, DiscrepancyOverviewDtoOutput } from '../dtos/outputs';
 import { DiscrepancyEntityType } from '../enums';
+import { DiscrepancyScanStatusService } from '../services/discrepancy-scan-status.service';
 import { DiscrepancyScannerController } from './discrepancy-scanner.controller';
 
 describe('DiscrepancyScannerController', () => {
@@ -13,16 +14,27 @@ describe('DiscrepancyScannerController', () => {
         jest.spyOn(console, 'log').mockImplementation(() => {});
         commandBus = mockCommandBus();
         queryBus = mockQueryBus();
-        controller = new DiscrepancyScannerController(queryBus, commandBus);
+        const scanStatusService = {
+            start: jest.fn(),
+            complete: jest.fn(),
+            fail: jest.fn(),
+            get: jest.fn(),
+        } as unknown as DiscrepancyScanStatusService;
+        controller = new DiscrepancyScannerController(queryBus, commandBus, scanStatusService);
     });
 
     describe('scanAllDiscrepancies', () => {
-        it('should attempt to scan discrepancies for all entity types', async () => {
+        it('should return a scanId and kick off scans for all entity types', async () => {
             const scanDiscrepanciesSpy = jest
                 .spyOn(controller, 'scanDiscrepancies')
                 .mockResolvedValue({} as DiscrepancyOverviewDtoOutput);
 
-            await controller.scanAllDiscrepancies('transaction-id-1', 123);
+            const result = controller.scanAllDiscrepancies('transaction-id-1', 123);
+
+            expect(result).toEqual({ scanId: 'transaction-id-1' });
+
+            // Flush the microtask queue so the fire-and-forget runAllScans completes
+            await new Promise<void>((resolve) => setImmediate(resolve));
 
             expect(scanDiscrepanciesSpy).toHaveBeenCalledTimes(13);
         });
