@@ -55,7 +55,12 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         const authJumpPolicy = await this.authJumpPolicyWorkflow.getOrCreate();
         const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
 
-        // Add the site manager user to the manager group policy and manager access group policy
+        // Assign the site manager user to their group policies:
+        //   - MANAGERS_{CUSTOMER}_{SITE}_{SITEKEY}  — site-specific manager group policy
+        //   - MANAGER_ACCESS                        — global BeyondTrust manager access policy
+        //
+        // Additionally, the manager's email is registered as a notification recipient and approver
+        // on the site's auth jump policy, and as a notification recipient on the notify jump policy.
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
@@ -85,8 +90,10 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         const isSiteManagerAssociatedWithMultipleSites =
             await this.isSiteManagerAssociatedWithMultipleSites(siteManagerUser);
 
-        // Remove the site manager user from the manager group policy and
-        // manager access group policy if they are not associated with multiple sites
+        // Remove the site manager user from their group policies.
+        // MANAGER_ACCESS is global and must only be removed when the user is no longer a manager on any site.
+        // If the user is still a manager on other sites, only the site-specific MANAGERS_{CUSTOMER}_{SITE}_{SITEKEY}
+        // policy is removed — MANAGER_ACCESS stays in place.
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,

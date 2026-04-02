@@ -75,8 +75,18 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
 
-        // Add the site auditor user to the administrator group policy and administrator access group policy
-        // and optionally to the admin operator access, operator, and full access group policies if the site auditor is an admin operator
+        // Assign the site auditor user to the appropriate group policies based on their role:
+        //
+        // Standard auditor (isAdminOperator: false):
+        //   - ADMINISTRATORS_{CUSTOMER}   — customer-specific admin group (read/audit access)
+        //   - ADMINISTRATOR_ACCESS        — global BeyondTrust admin access policy
+        //
+        // Admin operator (isAdminOperator: true):
+        //   - ADMINISTRATORS_{CUSTOMER}   — customer-specific admin group (read/audit access)
+        //   - ADMIN_OPERATOR_ACCESS       — global operator-level access policy (replaces ADMINISTRATOR_ACCESS)
+        //   - OPERATOR_{CUSTOMER}         — customer-specific operator group policy
+        //   - FULL_ACCESS                 — global full access policy
+
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
@@ -84,7 +94,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
                 siteAuditorUser.id,
                 [
                     administratorGroupPolicy.id,
-                    administratorAccessGroupPolicy.id,
+                    this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
                     this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
                     this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
                     this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
@@ -109,9 +119,9 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         const isSiteAuditorAssociatedWithMultipleSites =
             await this.isSiteAuditorAssociatedWithMultipleSites(siteAuditorUser);
 
-        // When site auditor is associated to only one site, we can remove the user from the group policies
-        // Remove the site auditor user from the administrator group policy and administrator access group policy
-        // and optionally from the admin operator access, operator, and full access group policies if the site auditor is an admin operator
+        // Only remove group policy memberships when the user is no longer associated with any other site.
+        // If the user is a site auditor on multiple sites, the group policies must remain in place.
+        // The same role-based policy split applies here as in getOrCreate() — see above for details.
         if (!isSiteAuditorAssociatedWithMultipleSites) {
             await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
                 new ModifyUserGroupPoliciesCommand(
@@ -121,7 +131,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
                     [],
                     [
                         administratorGroupPolicy.id,
-                        administratorAccessGroupPolicy.id,
+                        this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
                         this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
                         this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
                         this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,

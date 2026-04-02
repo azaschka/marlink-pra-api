@@ -99,8 +99,11 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         const siteSupportTeamMemberUser = await this.siteSupportTeamMemberUserWorkflow.getOrCreate();
         const jumpoints = await this.jumpointsWorkflow.getOrCreate();
 
-        // Add the user to the support team group policy and operator group policy
-        // and to the limited access or full access group policy based on the access level
+        // Assign the support team member to their group policies:
+        //   - {CUSTOMER}_{SUPPORT_TEAM_NAME}  — site/team-specific support group policy
+        //   - OPERATORS_{CUSTOMER}            — customer-specific operator group policy
+        //   - LIMITED_ACCESS                  — global limited access policy (accessLevel: limited)
+        //   - FULL_ACCESS                     — global full access policy   (accessLevel: full)
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
@@ -173,9 +176,10 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         const isSiteSupportTeamMemberAssociatedWithMultipleSites =
             await this.isSiteSupportTeamMemberAssociatedWithMultipleSites(siteSupportTeamMemberUser);
 
-        // Remove the user from the support team group policy and operator group policy
-        // and from the limited access or full access group policy based on the access level
-        // If the site support team member is associated with multiple sites, we only remove them from the operator group policy
+        // Remove the support team member from their group policies.
+        // If the user belongs to multiple sites, only OPERATORS_{CUSTOMER} is removed (site-specific data stays).
+        // If this is their only site, all three policies are removed: the support team group policy,
+        // OPERATORS_{CUSTOMER}, and whichever access policy (LIMITED_ACCESS or FULL_ACCESS) they held.
         await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
             new ModifyUserGroupPoliciesCommand(
                 this.transactionId,
