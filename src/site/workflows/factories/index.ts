@@ -154,7 +154,7 @@ export class WorkflowFactory {
             this.site.name,
             this.site.key,
             this.customer.name,
-            this.customer.businessUnit,
+            this.customer.beyondtrustInstance.businessUnit,
             this.customer.beyondtrustInstanceId,
         );
     }

@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
+import { UserRole } from '../../enums';
 import { PraUser } from '../../models';
-import { UserRole, BusinessUnit } from '../../enums';
 
 @Entity({ name: 'pra_user' })
 export class PraUserEntity implements PraUser {

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BusinessUnit } from '../../enums';
+import { BeyondtrustInstanceRetrievedDtoOutput } from '../../../beyondtrust-instance/dtos/outputs';
 import { Customer } from '../../models';
 
 export class CustomerModifiedDtoOutput implements Customer {
@@ -23,13 +23,6 @@ export class CustomerModifiedDtoOutput implements Customer {
         description: 'Unique name of the customer.',
     })
     public name!: string;
-
-    @ApiProperty({
-        required: true,
-        enum: BusinessUnit,
-        description: 'Business unit of the customer.',
-    })
-    public businessUnit!: BusinessUnit;
 
     @ApiProperty({
         required: true,
@@ -58,4 +51,11 @@ export class CustomerModifiedDtoOutput implements Customer {
         description: 'The date and time when this customer was last modified.',
     })
     public lastModificationDate?: Date;
+
+    @ApiProperty({
+        required: true,
+        type: BeyondtrustInstanceRetrievedDtoOutput,
+        description: 'The BeyondTrust instance associated with this customer.',
+    })
+    public beyondtrustInstance!: BeyondtrustInstanceRetrievedDtoOutput;
 }

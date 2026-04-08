@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { NameSanitizerUtility } from '../../../shared/utilities';
-import { BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 
 export class CreateCustomerDtoInput {
     @ApiProperty({
@@ -10,7 +8,6 @@ export class CreateCustomerDtoInput {
         type: String,
         description: 'Unique key for the customer.',
     })
-    @Transform(({ value }) => NameSanitizerUtility.sanitizeKey(value))
     @IsString()
     @IsNotEmpty()
     public key!: string;
@@ -20,7 +17,6 @@ export class CreateCustomerDtoInput {
         type: String,
         description: 'Unique name of the customer.',
     })
-    @Transform(({ value }) => NameSanitizerUtility.sanitizeName(value))
     @IsString()
     @IsNotEmpty()
     public name!: string;

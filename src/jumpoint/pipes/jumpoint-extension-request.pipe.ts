@@ -1,8 +1,8 @@
 import { ArgumentMetadata, ForbiddenException, Inject, Injectable, PipeTransform } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { BusinessUnit } from '../../customer/enums';
 import { ObjectUtility, UuidUtility } from '../../shared/utilities';
 import { RetrieveJumpointInstallerByCustomerAndSiteDtoInput } from '../dtos/inputs';
 
@@ -21,7 +21,7 @@ export class JumpointExtensionRequestPipe implements PipeTransform {
         }
 
         const customerScopes = this.request.customers!;
-        const customerScopeBusinessUnits = customerScopes.map((c) => c.businessUnit);
+        const customerScopeBusinessUnits = customerScopes.map((c) => c.beyondtrustInstance.businessUnit);
 
         if (metadata.metatype?.name === RetrieveJumpointInstallerByCustomerAndSiteDtoInput.name) {
             const { businessUnits } = this.request.query as {

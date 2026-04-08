@@ -1,7 +1,7 @@
 import { QueryBus } from '@nestjs/cqrs';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
-import { BusinessUnit } from '../../customer/enums';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { UuidUtility } from '../../shared/utilities';
 import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
 import { JumpointExtensionController } from './jumpoint-extension.controller';

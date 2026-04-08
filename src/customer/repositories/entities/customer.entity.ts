@@ -1,5 +1,13 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { BusinessUnit } from '../../enums';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
+import { BeyondtrustInstanceEntity } from '../../../beyondtrust-instance/repositories/entities';
 import { Customer } from '../../models';
 
 @Entity({ name: 'pra_customers' })
@@ -12,9 +20,6 @@ export class CustomerEntity implements Customer {
 
     @Column({ name: 'name', type: 'varchar', unique: true })
     public name!: string;
-
-    @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit })
-    public businessUnit!: BusinessUnit;
 
     @Column({ name: 'is_deactivated', type: 'boolean' })
     public isDeactivated!: boolean;
@@ -29,11 +34,14 @@ export class CustomerEntity implements Customer {
     @UpdateDateColumn({ name: 'last_modification_date', type: 'timestamp', nullable: true })
     public lastModificationDate?: Date;
 
+    @ManyToOne(() => BeyondtrustInstanceEntity, { eager: true, onDelete: 'RESTRICT' })
+    @JoinColumn({ name: 'beyondtrust_instance_id' })
+    public beyondtrustInstance!: BeyondtrustInstanceEntity;
+
     public static create(
         id: number,
         key: string,
         name: string,
-        businessUnit: BusinessUnit,
         isDeactivated: boolean,
         beyondtrustInstanceId: number,
     ): CustomerEntity {
@@ -41,7 +49,6 @@ export class CustomerEntity implements Customer {
         entity.id = id;
         entity.key = key;
         entity.name = name;
-        entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
         entity.beyondtrustInstanceId = beyondtrustInstanceId;
 
@@ -51,14 +58,12 @@ export class CustomerEntity implements Customer {
     public static createWithoutId(
         key: string,
         name: string,
-        businessUnit: BusinessUnit,
         isDeactivated: boolean,
         beyondtrustInstanceId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
         entity.key = key;
         entity.name = name;
-        entity.businessUnit = businessUnit;
         entity.isDeactivated = isDeactivated;
         entity.beyondtrustInstanceId = beyondtrustInstanceId;
 

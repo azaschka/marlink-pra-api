@@ -1,5 +1,5 @@
 import { In, Like } from 'typeorm';
-import { BusinessUnit } from '../../enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
 import { RetrieveCustomersQuery } from '../retrieve-customers.query';

@@ -138,6 +138,9 @@ export abstract class DefaultAppConfig {
                     copy: 'copy',
                 },
             },
+            sessionPolicy: {
+                path: '/session-policies',
+            },
             discrepancy: {
                 path: '/discrepancies',
                 scan: {

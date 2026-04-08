@@ -5,11 +5,18 @@ import { AppConfigModule } from '../app-config/app-config.module';
 import { CustomersScopeInterceptor } from '../customer/interceptors';
 import { CommandHandlers } from './commands/handlers';
 import { UserGroupPolicyController } from './controllers/user-group-policy.controller';
+import { UserGroupPolicyRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
 
 @Module({
     imports: [AppConfigModule, HttpModule],
     controllers: [UserGroupPolicyController],
-    providers: [AccessGuard, CustomersScopeInterceptor, ...QueryHandlers, ...CommandHandlers],
+    providers: [
+        AccessGuard,
+        CustomersScopeInterceptor,
+        UserGroupPolicyRequestPipe,
+        ...QueryHandlers,
+        ...CommandHandlers,
+    ],
 })
 export class UserGroupPolicyModule {}

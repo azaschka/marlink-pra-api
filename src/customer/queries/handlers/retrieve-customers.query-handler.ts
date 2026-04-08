@@ -24,7 +24,7 @@ export class RetrieveCustomersQueryHandler implements IQueryHandler<RetrieveCust
         }
 
         if (query.businessUnits && query.businessUnits.length > 0) {
-            customerFindByQuery.businessUnit = In(query.businessUnits);
+            customerFindByQuery.beyondtrustInstance = { businessUnit: In(query.businessUnits) };
         }
 
         const customers = await this.customerRepositoryService.findBy(

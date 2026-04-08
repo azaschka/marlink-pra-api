@@ -9,6 +9,8 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -21,7 +23,9 @@ import {
     ApiParam,
     ApiTags,
 } from '@nestjs/swagger';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import { BusinessUnitsScopeInterceptor } from '../../access/interceptors';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
@@ -41,12 +45,17 @@ import {
     BeyondtrustInstanceRetrievedDtoOutput,
 } from '../dtos/outputs';
 import { BeyondtrustInstance } from '../models';
+import { BeyondtrustInstanceRequestPipe } from '../pipes';
 import { RetrieveBeyondtrustInstanceByIdQuery, RetrieveBeyondtrustInstancesQuery } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Beyondtrust Instances')
 @Controller('beyondtrust-instances')
+@UseGuards(AccessGuard)
+@UseInterceptors(BusinessUnitsScopeInterceptor)
 @UsePipes(MonitoringRequestPipe)
+@UsePipes(BeyondtrustInstanceRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class BeyondtrustInstanceController {
     constructor(
@@ -83,6 +92,7 @@ export class BeyondtrustInstanceController {
                 dtoInput.name,
                 dtoInput.oauth2TokenUrl,
                 dtoInput.apiBaseUrl,
+                dtoInput.businessUnits,
             ),
         );
 
@@ -108,6 +118,7 @@ export class BeyondtrustInstanceController {
                 dtoInput.oauth2TokenUrl,
                 dtoInput.apiBaseUrl,
                 dtoInput.billingType,
+                dtoInput.businessUnit,
             ),
         );
 
@@ -137,6 +148,7 @@ export class BeyondtrustInstanceController {
                 dtoInput.oauth2TokenUrl,
                 dtoInput.apiBaseUrl,
                 dtoInput.billingType,
+                dtoInput.businessUnit,
             ),
         );
 

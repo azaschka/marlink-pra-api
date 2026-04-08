@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { BusinessUnit } from '../../../customer/enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 
 export class RetrieveJumpointInstallerByCustomerAndSiteDtoInput {
     @ApiProperty({

@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext, InternalServerErrorException } from '@nestjs/common';
 import { Request } from 'express';
-import { BusinessUnit } from '../../customer/enums';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 
 export const BusinessUnitsScope = createParamDecorator((_data: unknown, ctx: ExecutionContext): BusinessUnit[] => {
     const request = ctx.switchToHttp().getRequest<Request>();

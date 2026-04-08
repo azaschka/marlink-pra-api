@@ -29,7 +29,6 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
         const customerEntity = CustomerEntity.createWithoutId(
             command.key,
             command.name,
-            command.businessUnit,
             false, // by default new customers are active
             command.beyondtrustInstanceId,
         );

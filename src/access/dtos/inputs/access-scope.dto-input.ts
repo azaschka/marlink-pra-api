@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty } from 'class-validator';
-import { BusinessUnit } from '../../../customer/enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 
 export class AccessScopeDtoInput {
     @ApiProperty({

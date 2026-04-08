@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { AxiosResponse } from 'axios';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { BeyondtrustInstance } from '../../../beyondtrust-instance/models';
 import { RetrieveBeyondtrustInstancesQuery } from '../../../beyondtrust-instance/queries';
-import { BusinessUnit } from '../../../customer/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { ErrorProcessorUtility, PaginationUtility } from '../../../shared/utilities';
@@ -100,7 +100,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
         const btInstances = await this.getAllBTInstances(transactionId);
         const jumpointNamePatterns = customer
             ? [
-                  `${customer.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
+                  `${customer.beyondtrustInstance.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
               ]
             : businessUnits.map(
                   (businessUnit) => `${businessUnit}%_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,

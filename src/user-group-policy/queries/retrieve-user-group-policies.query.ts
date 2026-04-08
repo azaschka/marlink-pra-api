@@ -7,5 +7,6 @@ export class RetrieveUserGroupPoliciesQuery {
         public readonly pageSize: number,
         public readonly pageNumber: number,
         public readonly userId: number,
+        public readonly groupPolicyNamePatterns?: string[],
     ) {}
 }

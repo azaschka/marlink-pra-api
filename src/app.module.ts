@@ -30,6 +30,7 @@ import { LicenseUsageModule } from './license-usage/license-usage.module';
 import { LogModule } from './log/log.module';
 import { MigrationModule } from './migration/migration.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
+import { SessionPolicyModule } from './session-policy/session-policy.module';
 import { SiteModule } from './site/site.module';
 import { TeamUserModule } from './team-user/team-user.module';
 import { TeamModule } from './team/team.module';
@@ -79,6 +80,7 @@ import { UserModule } from './user/user.module';
         JumpGroupModule,
         JumpPolicyModule,
         JumpItemModule,
+        SessionPolicyModule,
         DiscrepancyModule,
         EmailModule,
         JobModule,

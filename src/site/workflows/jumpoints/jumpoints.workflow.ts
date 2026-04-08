@@ -1,6 +1,6 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { BusinessUnit } from '../../../customer/enums';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../../../jumpoint/commands';
 import { JumpointPlatformType } from '../../../jumpoint/enums';
 import { Jumpoint } from '../../../jumpoint/models';

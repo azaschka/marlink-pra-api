@@ -202,6 +202,11 @@ export class AppConfigService {
                         DefaultAppConfig.praSyncApi.jumpItem.protocolTunnelJump.copy,
                 },
             },
+            sessionPolicy: {
+                path:
+                    this.configService.get<string>('PRA_SYNC_API_SESSION_POLICY_PATH') ??
+                    DefaultAppConfig.praSyncApi.sessionPolicy.path,
+            },
             discrepancy: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_PATH') ??

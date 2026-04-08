@@ -1,4 +1,5 @@
-import { BusinessUnit, UserRole } from '../enums';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
+import { UserRole } from '../enums';
 
 export class ModifyPraUserCommand {
     public readonly commandType = 'modify-pra-user';

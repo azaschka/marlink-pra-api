@@ -1,4 +1,5 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { UuidUtility } from '../../shared/utilities';
 import {
     CreateCustomerCommand,
@@ -7,7 +8,6 @@ import {
     ModifyCustomerCommand,
     ReactivateCustomerCommand,
 } from '../commands';
-import { BusinessUnit } from '../enums';
 import { Customer } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
 import { CustomerController } from './customer.controller';
