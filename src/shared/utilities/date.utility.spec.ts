@@ -30,7 +30,7 @@ describe('DateUtility', () => {
 
     describe('getCurrentUtcDate', () => {
         it('should return as expected)', () => {
-            jest.useFakeTimers().setSystemTime(new Date('2025-10-01T07:00:00+07:00'));
+            jest.useFakeTimers().setSystemTime(new Date('2025-10-01T07:00:00+07:00').getTime());
 
             const result = DateUtility.getCurrentUtcDate();
 

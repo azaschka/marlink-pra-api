@@ -35,7 +35,7 @@ describe('RetrieveCustomersQueryHandler', () => {
                 ]),
                 expectedFindByQuery: {
                     name: Like('customer-name%'),
-                    businessUnit: In([BusinessUnit.MC, BusinessUnit.EG]),
+                    beyondtrustInstance: { businessUnit: In([BusinessUnit.MC, BusinessUnit.EG]) },
                 },
             },
         ])(

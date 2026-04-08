@@ -11,9 +11,7 @@ import { CalculateCustomerLicenseUsageCommand } from '../calculate-customer-lice
 import { CalculateUserLicenseUsageCommand } from '../calculate-user-license-usage.command';
 
 @CommandHandler(CalculateCustomerLicenseUsageCommand)
-export class CalculateCustomerLicenseUsageCommandHandler
-    implements ICommandHandler<CalculateCustomerLicenseUsageCommand>
-{
+export class CalculateCustomerLicenseUsageCommandHandler implements ICommandHandler<CalculateCustomerLicenseUsageCommand> {
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,

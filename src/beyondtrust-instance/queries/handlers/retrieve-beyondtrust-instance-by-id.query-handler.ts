@@ -9,9 +9,7 @@ import { BeyondtrustInstance } from '../../models';
 import { RetrieveBeyondtrustInstanceByIdQuery } from '../retrieve-beyondtrust-instance-by-id.query';
 
 @QueryHandler(RetrieveBeyondtrustInstanceByIdQuery)
-export class RetrieveBeyondtrustInstanceByIdQueryHandler
-    implements IQueryHandler<RetrieveBeyondtrustInstanceByIdQuery>
-{
+export class RetrieveBeyondtrustInstanceByIdQueryHandler implements IQueryHandler<RetrieveBeyondtrustInstanceByIdQuery> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,

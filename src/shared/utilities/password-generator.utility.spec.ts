@@ -2,9 +2,7 @@ import { PasswordGeneratorUtility } from './password-generator.utility';
 
 describe('PasswordGeneratorUtility', () => {
     it('should throw an error if password length is less than 8', () => {
-        expect(() => PasswordGeneratorUtility.generate(7)).toThrowError(
-            'Password length must be at least 14 characters',
-        );
+        expect(() => PasswordGeneratorUtility.generate(7)).toThrow('Password length must be at least 14 characters');
     });
 
     it('should generate a password with at least 14 characters', () => {

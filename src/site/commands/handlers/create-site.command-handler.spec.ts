@@ -1,6 +1,7 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
@@ -232,7 +233,13 @@ function mockQueryBus() {
         .fn()
         .mockResolvedValueOnce([]) // First call for site key check
         .mockResolvedValueOnce([]) // Second call for site name check
-        .mockResolvedValueOnce([{} as Customer]); // Third call for customer key check
+        .mockResolvedValueOnce([
+            {
+                name: 'customer-name-1',
+                beyondtrustInstance: { businessUnit: BusinessUnit.EG },
+                beyondtrustInstanceId: 1,
+            } as Customer,
+        ]); // Third call for customer key check
 
     return queryBus;
 }

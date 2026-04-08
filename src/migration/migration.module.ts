@@ -12,7 +12,7 @@ export class MigrationModule implements OnModuleInit {
 
     public async onModuleInit(): Promise<void> {
         // Run migrations on application startup
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
         await this.migrationService.runMigrations();
     }
 }

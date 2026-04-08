@@ -65,7 +65,7 @@ describe('ModifyCustomerCommandHandler', () => {
                     isDeactivated: false,
                     creationDate: new Date('2025-01-01'),
                     lastModificationDate: new Date('2025-01-01'),
-                } as CustomerEntity);
+                } as unknown as CustomerEntity);
             const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
             const customerEntityToBeCreated = { id: 123 } as CustomerEntity;
             const customerEntityCreateMethod = jest
@@ -81,14 +81,7 @@ describe('ModifyCustomerCommandHandler', () => {
 
             // Assert
             expect(customerRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
-            expect(customerEntityCreateMethod).toHaveBeenCalledWith(
-                123,
-                'customer-key-1',
-                'customer-name-1',
-                BusinessUnit.EG,
-                false,
-                1,
-            );
+            expect(customerEntityCreateMethod).toHaveBeenCalledWith(123, 'customer-key-1', 'customer-name-1', false, 1);
             expect(customerRepositoryServiceCreateOrUpdateByIdMethod).toHaveBeenCalledWith(customerEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
                 expect.objectContaining(<CustomerModifiedEvent>{

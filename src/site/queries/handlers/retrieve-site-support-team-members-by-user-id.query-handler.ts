@@ -5,9 +5,7 @@ import { SiteSupportTeamMemberRepositoryService } from '../../repositories/servi
 import { RetrieveSiteSupportTeamMembersByUserIdQuery } from '../retrieve-site-support-team-members-by-user-id.query';
 
 @QueryHandler(RetrieveSiteSupportTeamMembersByUserIdQuery)
-export class RetrieveSiteSupportTeamMembersByUserIdQueryHandler
-    implements IQueryHandler<RetrieveSiteSupportTeamMembersByUserIdQuery>
-{
+export class RetrieveSiteSupportTeamMembersByUserIdQueryHandler implements IQueryHandler<RetrieveSiteSupportTeamMembersByUserIdQuery> {
     constructor(private readonly siteSupportTeamMemberRepositoryService: SiteSupportTeamMemberRepositoryService) {}
 
     public async execute(query: RetrieveSiteSupportTeamMembersByUserIdQuery): Promise<SiteSupportTeamMember[]> {

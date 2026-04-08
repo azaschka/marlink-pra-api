@@ -45,7 +45,7 @@ describe('CreateCustomerCommandHandler', () => {
                 handler.execute(
                     new CreateCustomerCommand('transaction-1', 'customer-key-1', 'customer-name-1', BusinessUnit.EG, 1),
                 ),
-            ).rejects.toThrowError('BeyondTrust instance with ID "1" does not exist.');
+            ).rejects.toThrow('BeyondTrust instance with ID "1" does not exist.');
             expect(queryBusExecuteMethod).toHaveBeenCalledTimes(1);
             expect(queryBusExecuteMethod).toHaveBeenCalledWith(
                 new RetrieveBeyondtrustInstanceByIdQuery('transaction-1', 1),
@@ -124,7 +124,6 @@ describe('CreateCustomerCommandHandler', () => {
             expect(customerEntityCreateWithoutIdMethod).toHaveBeenCalledWith(
                 'customer-key-1',
                 'customer-name-1',
-                BusinessUnit.EG,
                 false,
                 1,
             );

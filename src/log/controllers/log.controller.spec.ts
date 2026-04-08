@@ -16,7 +16,7 @@ describe('LogController', () => {
     let logService: LogService;
 
     beforeEach(() => {
-        jest.useFakeTimers().setSystemTime(DEFAULT_DATE_TIME);
+        jest.useFakeTimers().setSystemTime(DEFAULT_DATE_TIME.getTime());
         appConfigService = mockAppConfigService();
         commandBus = mockCommandBus();
         queryBus = mockQueryBus();

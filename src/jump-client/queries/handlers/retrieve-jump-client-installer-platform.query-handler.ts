@@ -8,9 +8,7 @@ import { ErrorProcessorUtility, ObjectUtility, UrlUtility } from '../../../share
 import { RetrieveJumpClientInstallerPlatformQuery } from '../retrieve-jump-client-installer-platform.query';
 
 @QueryHandler(RetrieveJumpClientInstallerPlatformQuery)
-export class RetrieveJumpClientInstallerPlatformQueryHandler
-    implements IQueryHandler<RetrieveJumpClientInstallerPlatformQuery>
-{
+export class RetrieveJumpClientInstallerPlatformQueryHandler implements IQueryHandler<RetrieveJumpClientInstallerPlatformQuery> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,

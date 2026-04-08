@@ -8,9 +8,7 @@ import { ErrorProcessorUtility, UrlUtility } from '../../../shared/utilities';
 import { RemoveJumpointFromGroupPolicyCommand } from '../remove-jumpoint-from-group-policy.command';
 
 @CommandHandler(RemoveJumpointFromGroupPolicyCommand)
-export class RemoveJumpointFromGroupPolicyCommandHandler
-    implements ICommandHandler<RemoveJumpointFromGroupPolicyCommand>
-{
+export class RemoveJumpointFromGroupPolicyCommandHandler implements ICommandHandler<RemoveJumpointFromGroupPolicyCommand> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,

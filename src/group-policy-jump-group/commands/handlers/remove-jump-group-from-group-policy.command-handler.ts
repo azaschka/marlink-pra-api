@@ -8,9 +8,7 @@ import { ErrorProcessorUtility, UrlUtility } from '../../../shared/utilities';
 import { RemoveJumpGroupFromGroupPolicyCommand } from '../remove-jump-group-from-group-policy.command';
 
 @CommandHandler(RemoveJumpGroupFromGroupPolicyCommand)
-export class RemoveJumpGroupFromGroupPolicyCommandHandler
-    implements ICommandHandler<RemoveJumpGroupFromGroupPolicyCommand>
-{
+export class RemoveJumpGroupFromGroupPolicyCommandHandler implements ICommandHandler<RemoveJumpGroupFromGroupPolicyCommand> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,
