@@ -15,7 +15,7 @@
     <mj-body>
         <mj-section>
             <mj-column>
-                <mj-text>Dear&nbsp;{{ displayName }},</mj-text>
+                <mj-text>Dear&nbsp;{{displayName}},</mj-text>
 
                 <mj-text>Welcome to the Marlink PRA Admin Console.</mj-text>
 
@@ -25,13 +25,11 @@
 
                 <mj-text>
                     <strong>Console URL:</strong>
-                    <a href="{{praConsoleUrl}}">{{ praConsoleUrl }}</a
-                    ><br />
-                    <strong>Username:</strong> {{ username }}<br />
+                    <a href="{{praConsoleUrl}}">{{praConsoleUrl}}</a><br />
+                    <strong>Username:</strong> {{username}}<br />
                     <strong>Password:</strong>
-                    <span style="font-family: 'Courier New', Courier, monospace">{{ password }}</span
-                    ><br />
-                    <strong>Role:</strong> {{ role }}<br />
+                    <span style="font-family: 'Courier New', Courier, monospace">{{password}}</span><br />
+                    <strong>Role:</strong> {{role}}<br />
                 </mj-text>
 
                 <!-- <mj-text>
