@@ -20,8 +20,7 @@
                 <mj-text>Welcome to the Marlink PRA Admin Console.</mj-text>
 
                 <mj-text>
-                    You have been granted <strong>{{ role }}</strong> access to the PRA platform. Below are your login
-                    credentials:<br />
+                    You have been granted access to the PRA platform. Below are your login credentials:<br />
                 </mj-text>
 
                 <mj-text>
