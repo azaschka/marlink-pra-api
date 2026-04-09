@@ -18,4 +18,4 @@ ENV PORT=9000
 EXPOSE 9000
 
 # ---- 4. Start the NestJS server -----------------------------------
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "dist/main" ]
