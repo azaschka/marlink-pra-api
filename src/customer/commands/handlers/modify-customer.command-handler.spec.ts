@@ -81,7 +81,14 @@ describe('ModifyCustomerCommandHandler', () => {
 
             // Assert
             expect(customerRepositoryServiceFindOneByIdMethod).toHaveBeenCalledWith(123);
-            expect(customerEntityCreateMethod).toHaveBeenCalledWith(123, 'customer-key-1', 'customer-name-1', false, 1);
+            expect(customerEntityCreateMethod).toHaveBeenCalledWith(
+                123,
+                'customer-key-1',
+                'customer-name-1',
+                false,
+                BusinessUnit.EG,
+                1,
+            );
             expect(customerRepositoryServiceCreateOrUpdateByIdMethod).toHaveBeenCalledWith(customerEntityToBeCreated);
             expect(eventBusPublishMethod).toHaveBeenCalledWith(
                 expect.objectContaining(<CustomerModifiedEvent>{

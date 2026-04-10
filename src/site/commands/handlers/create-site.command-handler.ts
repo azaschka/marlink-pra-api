@@ -48,7 +48,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             command.siteSupportTeamMembers,
             partialSiteApprovers,
             customer.name,
-            customer.beyondtrustInstance.businessUnit,
+            customer.businessUnit,
             customer.beyondtrustInstanceId,
         );
 

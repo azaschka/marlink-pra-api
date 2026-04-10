@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { FindOptionsWhere, In, Like } from 'typeorm';
 import { Customer } from '../../models';
+import { CustomerEntity } from '../../repositories/entities';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
 import { RetrieveCustomersQuery } from '../retrieve-customers.query';
 
@@ -24,11 +25,11 @@ export class RetrieveCustomersQueryHandler implements IQueryHandler<RetrieveCust
         }
 
         if (query.businessUnits && query.businessUnits.length > 0) {
-            customerFindByQuery.beyondtrustInstance = { businessUnit: In(query.businessUnits) };
+            customerFindByQuery.businessUnit = In(query.businessUnits);
         }
 
         const customers = await this.customerRepositoryService.findBy(
-            customerFindByQuery,
+            customerFindByQuery as FindOptionsWhere<CustomerEntity>,
             query.pageNumber,
             query.pageSize,
         );

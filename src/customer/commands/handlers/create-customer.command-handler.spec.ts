@@ -125,6 +125,7 @@ describe('CreateCustomerCommandHandler', () => {
                 'customer-key-1',
                 'customer-name-1',
                 false,
+                BusinessUnit.EG,
                 1,
             );
             expect(administratorGroupPolicyWorkflowGetOrCreate).toHaveBeenCalledTimes(1);

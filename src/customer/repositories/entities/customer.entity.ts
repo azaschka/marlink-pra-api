@@ -7,6 +7,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { BeyondtrustInstanceEntity } from '../../../beyondtrust-instance/repositories/entities';
 import { Customer } from '../../models';
 
@@ -23,6 +24,9 @@ export class CustomerEntity implements Customer {
 
     @Column({ name: 'is_deactivated', type: 'boolean' })
     public isDeactivated!: boolean;
+
+    @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit })
+    public businessUnit!: BusinessUnit;
 
     // TODO remove default value. This is only for backward compatibility with existing databases that do not have this column yet.
     @Column({ name: 'beyondtrust_instance_id', type: 'int', default: 1 })
@@ -43,6 +47,7 @@ export class CustomerEntity implements Customer {
         key: string,
         name: string,
         isDeactivated: boolean,
+        businessUnit: BusinessUnit,
         beyondtrustInstanceId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
@@ -50,6 +55,7 @@ export class CustomerEntity implements Customer {
         entity.key = key;
         entity.name = name;
         entity.isDeactivated = isDeactivated;
+        entity.businessUnit = businessUnit;
         entity.beyondtrustInstanceId = beyondtrustInstanceId;
 
         return entity;
@@ -59,12 +65,14 @@ export class CustomerEntity implements Customer {
         key: string,
         name: string,
         isDeactivated: boolean,
+        businessUnit: BusinessUnit,
         beyondtrustInstanceId: number,
     ): CustomerEntity {
         const entity = new CustomerEntity();
         entity.key = key;
         entity.name = name;
         entity.isDeactivated = isDeactivated;
+        entity.businessUnit = businessUnit;
         entity.beyondtrustInstanceId = beyondtrustInstanceId;
 
         return entity;

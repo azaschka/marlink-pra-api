@@ -38,7 +38,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             site.siteSupportTeamMembers as PartialSiteSupportTeamMember[],
             site.siteApprovers as PartialSiteApprover[],
             customer.name,
-            customer.beyondtrustInstance.businessUnit,
+            customer.businessUnit,
             customer.beyondtrustInstanceId,
         );
         await this.siteRepositoryService.deleteById(command.id);

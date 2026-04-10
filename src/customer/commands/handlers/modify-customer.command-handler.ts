@@ -25,6 +25,7 @@ export class ModifyCustomerCommandHandler implements ICommandHandler<ModifyCusto
             customerEntity.key,
             customerEntity.name,
             customerEntity.isDeactivated,
+            customerEntity.businessUnit,
             command.beyondtrustInstanceId ?? customerEntity.beyondtrustInstanceId,
         );
 

@@ -26,7 +26,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
     public billingType!: BillingType;
 
     @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit, nullable: true })
-    public businessUnit!: BusinessUnit;
+    public businessUnit!: BusinessUnit | null;
 
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
@@ -42,7 +42,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         oauth2TokenUrl: string,
         apiBaseUrl: string,
         billingType: BillingType,
-        businessUnit: BusinessUnit,
+        businessUnit: BusinessUnit | undefined,
     ): BeyondtrustInstanceEntity {
         const entity = new BeyondtrustInstanceEntity();
         entity.id = id;
@@ -52,7 +52,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         entity.oauth2TokenUrl = oauth2TokenUrl;
         entity.apiBaseUrl = apiBaseUrl;
         entity.billingType = billingType;
-        entity.businessUnit = businessUnit;
+        entity.businessUnit = businessUnit ?? null;
 
         return entity;
     }
@@ -64,7 +64,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         oauth2TokenUrl: string,
         apiBaseUrl: string,
         billingType: BillingType,
-        businessUnit: BusinessUnit,
+        businessUnit: BusinessUnit | undefined,
     ): BeyondtrustInstanceEntity {
         const entity = new BeyondtrustInstanceEntity();
         entity.name = name;
@@ -73,7 +73,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         entity.oauth2TokenUrl = oauth2TokenUrl;
         entity.apiBaseUrl = apiBaseUrl;
         entity.billingType = billingType;
-        entity.businessUnit = businessUnit;
+        entity.businessUnit = businessUnit ?? null;
 
         return entity;
     }

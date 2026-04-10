@@ -30,6 +30,7 @@ export class CreateCustomerCommandHandler implements ICommandHandler<CreateCusto
             command.key,
             command.name,
             false, // by default new customers are active
+            command.businessUnit,
             command.beyondtrustInstanceId,
         );
         const createdCustomer = await this.customerRepositoryService.create(customerEntity);

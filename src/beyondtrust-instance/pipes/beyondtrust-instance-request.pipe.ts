@@ -59,8 +59,9 @@ export class BeyondtrustInstanceRequestPipe implements PipeTransform {
         } else if (metadata.metatype?.name === CreateBeyondtrustInstanceDtoInput.name) {
             const dto = value as CreateBeyondtrustInstanceDtoInput;
 
-            // Validate business unit scope with creating business unit
-            if (!businessUnitScopes.includes(dto.businessUnit)) {
+            // Validate business unit scope when creating with a specific business unit.
+            // If no business unit is set, the instance will be shared (accessible to all BUs).
+            if (dto.businessUnit && !businessUnitScopes.includes(dto.businessUnit)) {
                 throw new ForbiddenException('Forbidden business unit access');
             }
         } else if (metadata.metatype?.name === ModifyBeyondtrustInstanceDtoInput.name) {
@@ -82,7 +83,11 @@ export class BeyondtrustInstanceRequestPipe implements PipeTransform {
                 BeyondtrustInstance
             >(new RetrieveBeyondtrustInstanceByIdQuery(transactionId, requestParamId));
 
-            if (beyondtrustInstance && !businessUnitScopes.includes(beyondtrustInstance.businessUnit)) {
+            if (
+                beyondtrustInstance &&
+                beyondtrustInstance.businessUnit &&
+                !businessUnitScopes.includes(beyondtrustInstance.businessUnit)
+            ) {
                 throw new ForbiddenException('Forbidden business unit access');
             }
         }

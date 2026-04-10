@@ -21,7 +21,7 @@ export class JumpointExtensionRequestPipe implements PipeTransform {
         }
 
         const customerScopes = this.request.customers!;
-        const customerScopeBusinessUnits = customerScopes.map((c) => c.beyondtrustInstance.businessUnit);
+        const customerScopeBusinessUnits = customerScopes.map((c) => c.businessUnit);
 
         if (metadata.metatype?.name === RetrieveJumpointInstallerByCustomerAndSiteDtoInput.name) {
             const { businessUnits } = this.request.query as {

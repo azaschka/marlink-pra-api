@@ -13,52 +13,25 @@ export async function migrateCustomerBUToBTInstanceBU(dataSource: DataSource): P
     await queryRunner.startTransaction();
 
     try {
-        // Check if migration has already been applied by looking for the existence of the old column
-        const doesCustomerBUColumnExist = await queryRunner.hasColumn('pra_customers', 'business_unit');
+        // Check if migration has already been applied by looking for the existence of the new column
+        const doesBTInstanceBUColumnExist = await queryRunner.hasColumn('beyondtrust_instances', 'business_unit');
 
-        if (!doesCustomerBUColumnExist) {
-            console.log('✅ Migration already applied - business_unit (pra_customers) column does not exist');
+        if (doesBTInstanceBUColumnExist) {
+            console.log('✅ Migration already applied - business_unit (beyondtrust_instances) column already exists');
             await queryRunner.commitTransaction();
             return;
         }
 
-        // Check if the new column already exists in beyondtrust_instances
-        const doesBTInstanceBUColumnExist = await queryRunner.hasColumn('beyondtrust_instances', 'business_unit');
-
-        if (!doesBTInstanceBUColumnExist) {
-            console.error(
-                '❌ Migration failed - new column business_unit does not exist in beyondtrust_instances. Please ensure marlink-pra-sync-api is deployed with the latest version before running this API.',
-            );
-
-            await queryRunner.release();
-
-            // Prevent the application to run.
-            process.exit(1);
-        }
-
-        // Get table info to check for data
-        const dataCount = await queryRunner.query('SELECT COUNT(*) as count FROM pra_customers');
-        const recordCount = Number(dataCount[0]?.count ?? 0);
-        console.log(`📊 Found ${recordCount} customer's business unit records to migrate`);
-
-        // Copy BU from pra_customers.business_unit to beyondtrust_instances.business_unit
+        // Add the new column to beyondtrust_instances — defaults to NULL for all existing rows
+        console.log('➕ Adding business_unit column to beyondtrust_instances...');
         await queryRunner.query(`
-            UPDATE beyondtrust_instances bt
-            JOIN pra_customers c 
-            ON c.beyondtrust_instance_id = bt.id
-            SET bt.business_unit = c.business_unit;
+            ALTER TABLE beyondtrust_instances
+            ADD COLUMN business_unit ENUM('MT','OA','MC','EG','TE') NULL;
         `);
-
-        // Delete pra_customers.business_unit column after migration
-        await queryRunner.query(`
-            ALTER TABLE pra_customers
-            DROP COLUMN business_unit;
-        `);
+        console.log('✅ business_unit column added to beyondtrust_instances (all existing rows set to NULL)');
 
         console.log('✅ Migration completed successfully');
-        console.log(
-            'Customer business unit has been moved to BT instance business unit and customer business unit column has been removed',
-        );
+        console.log('BT instance business unit set to NULL for all existing instances (NULL = shared across all BUs)');
         await queryRunner.commitTransaction();
     } catch (error) {
         console.error('❌ Migration failed, rolling back...');

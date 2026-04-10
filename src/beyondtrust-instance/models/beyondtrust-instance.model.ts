@@ -8,7 +8,7 @@ export interface BeyondtrustInstance {
     oauth2TokenUrl: string;
     apiBaseUrl: string;
     billingType: BillingType;
-    businessUnit: BusinessUnit;
+    businessUnit: BusinessUnit | null;
     creationDate: Date;
     lastModificationDate?: Date;
 }
