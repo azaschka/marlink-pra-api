@@ -1,0 +1,36 @@
+$kind: http-request
+name: Get all Users.
+description: >
+  Gets a paginated list of user resources in the order they were created (local
+  users) or first authenticated (non-local users).
+
+
+  They can optionally be filtered using query string parameters documented
+  below. If more than one filter is specified, then AND logic is used to combine
+  the criteria. If no filter criteria are specified, then all users are
+  returned. String parameters are always matched case-insensitively and exactly;
+  no partial matches are allowed.
+url: "{{baseUrl}}/user?per_page=<integer>&current_page=<integer>&security_provi\
+  der_id=<integer>&username=<string>&email_address=<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: security_provider_id
+    value: <integer>
+    description: Filters results to include only users in the security provider with
+      the given id.
+  - key: username
+    value: <string>
+    description: Filters results to include only users with the given username.
+  - key: email_address
+    value: <string>
+    description: Filters results to include only the user with the given email address.
+examples: ./.resources/Get all Users-.resources/examples
+order: 3000

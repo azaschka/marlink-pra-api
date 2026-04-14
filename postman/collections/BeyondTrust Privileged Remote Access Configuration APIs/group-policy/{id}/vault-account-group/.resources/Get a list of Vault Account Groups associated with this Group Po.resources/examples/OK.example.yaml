@@ -1,0 +1,29 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/group-policy/:id/vault-account-group"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "account_group_id": "<integer>",
+          "group_policy_id": "<integer>",
+          "role": "inject"
+        },
+        {
+          "account_group_id": "<integer>",
+          "group_policy_id": "<integer>",
+          "role": "inject"
+        }
+      ]
+order: 1000

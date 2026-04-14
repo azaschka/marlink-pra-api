@@ -1,0 +1,27 @@
+$kind: http-request
+name: Update properties on a Vault Account resource.
+description: Modifies an existing vault account with the given `{id}` using the
+  given properties.
+url: "{{baseUrl}}/vault/account/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "type": "username_password",
+      "name": "<string>",
+      "username": "<string>",
+      "password": "<string>",
+      "description": "<string>",
+      "account_group_id": 1,
+      "account_policy": "<string>"
+    }
+examples: ./.resources/Update properties on a Vault Account resource-.resources/examples
+order: 8000

@@ -1,0 +1,17 @@
+$kind: http-request
+name: Remove a User from a Jump Group.
+description: Removes the user with the given `{user_id}` from the Jump Group
+  with the given `{id}`.
+url: "{{baseUrl}}/jump-group/:id/user/:user_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) The unique id of the user.
+examples: ./.resources/Remove a User from a Jump Group-.resources/examples
+order: 2000

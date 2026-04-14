@@ -1,0 +1,20 @@
+$kind: http-request
+name: Get a Team added to a Group Policy.
+description: Get a `GroupPolicyTeam` resource for the team with the given
+  `{team_id}` that has been added to the group policy with the given `{id}`.
+  This is useful for determining if a given team has been added to a certain
+  group policy and the role that members of this group policy will have on the
+  team.
+url: "{{baseUrl}}/group-policy/:id/team/:team_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: team_id
+    value: <integer>
+    description: (Required) Unique identifier for the team.
+examples: ./.resources/Get a Team added to a Group Policy-.resources/examples
+order: 1000

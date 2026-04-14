@@ -1,0 +1,30 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "SITE001",
+        "name": "Main Office",
+        "customerKey": "NONEXISTENT"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 404,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/sites",
+        "message": "The customer key is not found."
+      }
+order: 5000

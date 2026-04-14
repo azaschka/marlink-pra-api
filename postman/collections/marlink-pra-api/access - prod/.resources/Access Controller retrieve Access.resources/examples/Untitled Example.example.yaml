@@ -1,0 +1,61 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/access?pageSize=100&pageNumber=1&key=string&name=string"
+  method: GET
+  headers:
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: Accept
+      value: application/json
+  queryParams:
+    - key: pageSize
+      value: "100"
+      description: The number of items to include in a paginated response.
+    - key: pageNumber
+      value: "1"
+      description: The 1-based index of the desired page.
+    - key: key
+      value: string
+      description: The key of the access.
+    - key: name
+      value: string
+      description: The name of the access.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": 4352.059655350411,
+          "key": "string",
+          "name": "string",
+          "value": {
+            "businessUnits": [
+              "TE",
+              "OA"
+            ]
+          },
+          "creationDate": "1976-07-07T02:41:28.202Z",
+          "lastModificationDate": "1948-05-12T06:02:31.514Z"
+        },
+        {
+          "id": 4586.595056254255,
+          "key": "string",
+          "name": "string",
+          "value": {
+            "businessUnits": [
+              "TE",
+              "MC"
+            ]
+          },
+          "creationDate": "1982-02-17T15:34:53.233Z",
+          "lastModificationDate": "1979-07-26T22:05:02.204Z"
+        }
+      ]
+order: 1000

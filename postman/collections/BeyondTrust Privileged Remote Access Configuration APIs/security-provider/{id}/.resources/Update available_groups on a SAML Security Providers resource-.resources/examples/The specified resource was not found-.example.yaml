@@ -1,0 +1,31 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/security-provider/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "available_groups": [
+          "<string>",
+          "<string>"
+        ]
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 2000

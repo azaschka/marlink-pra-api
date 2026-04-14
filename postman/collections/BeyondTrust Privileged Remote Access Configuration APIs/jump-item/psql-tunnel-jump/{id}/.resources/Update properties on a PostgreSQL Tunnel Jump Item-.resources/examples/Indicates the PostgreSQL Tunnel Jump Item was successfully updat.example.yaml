@@ -1,0 +1,52 @@
+$kind: http-example
+name: Indicates the PostgreSQL Tunnel Jump Item was successfully updated and
+  contains an updated PostgreSQL Tunnel Jump Item instance.
+request:
+  url: "{{baseUrl}}/jump-item/psql-tunnel-jump/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>",
+        "tunnel_listen_address": "127.0.0.1",
+        "username": "<string>",
+        "database": "<string>"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "id": "<integer>",
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>",
+        "tunnel_listen_address": "127.0.0.1",
+        "username": "<string>",
+        "database": "<string>"
+      }
+order: 1000

@@ -1,0 +1,40 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/account/:id/user?per_page=<integer>&current_page=<integ\
+    er>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "user_id": "<integer>",
+          "role": "inject"
+        },
+        {
+          "user_id": "<integer>",
+          "role": "inject_and_checkout"
+        }
+      ]
+order: 1000

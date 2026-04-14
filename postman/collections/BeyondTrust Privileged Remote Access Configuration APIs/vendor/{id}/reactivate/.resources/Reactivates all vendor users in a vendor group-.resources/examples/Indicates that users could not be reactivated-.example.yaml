@@ -1,0 +1,14 @@
+$kind: http-example
+name: Indicates that users could not be reactivated.
+request:
+  url: "{{baseUrl}}/vendor/:id/reactivate"
+  method: POST
+  pathVariables:
+    id: ""
+response:
+  statusCode: 400
+  statusText: Bad Request
+  body:
+    type: text
+    content: ""
+order: 2000

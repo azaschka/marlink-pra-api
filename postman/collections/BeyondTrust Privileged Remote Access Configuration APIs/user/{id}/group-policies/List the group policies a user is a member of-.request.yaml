@@ -1,0 +1,13 @@
+$kind: http-request
+name: List the group policies a user is a member of.
+description: Gets a paginated list of group policy ids and names that a user is a member of.
+url: "{{baseUrl}}/user/:id/group-policies"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/List the group policies a user is a member of-.resources/examples
+order: 1000

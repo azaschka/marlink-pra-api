@@ -1,0 +1,24 @@
+$kind: http-request
+name: Adds a Team to a Group Policy.
+description: Adds a team with the `team_id` given in the request body to a group
+  policy with the `{id}` given in the path. Optionally the body can contain a
+  `role` in order to specify the role that members of this group policy will
+  have on the team; the role defaults to "member" if not provided.
+url: "{{baseUrl}}/group-policy/:id/team"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+body:
+  type: json
+  content: |-
+    {
+      "team_id": "<integer>",
+      "role": "member"
+    }
+examples: ./.resources/Adds a Team to a Group Policy-.resources/examples
+order: 3000

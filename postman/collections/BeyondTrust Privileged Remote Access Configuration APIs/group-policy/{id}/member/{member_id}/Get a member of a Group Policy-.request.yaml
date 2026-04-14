@@ -1,0 +1,20 @@
+$kind: http-request
+name: Get a member of a Group Policy.
+description: Get a `GroupPolicyMember` resource representing the member with the
+  given `{member_id}` in the group policy with the given `{id}`. This is useful
+  for determining if a given member exists in a specific group policy as well as
+  the member's security provider, distinguished name, and group name, where
+  applicable.
+url: "{{baseUrl}}/group-policy/:id/member/:member_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: member_id
+    value: <integer>
+    description: (Required) Unique identifier for the Member.
+examples: ./.resources/Get a member of a Group Policy-.resources/examples
+order: 1000

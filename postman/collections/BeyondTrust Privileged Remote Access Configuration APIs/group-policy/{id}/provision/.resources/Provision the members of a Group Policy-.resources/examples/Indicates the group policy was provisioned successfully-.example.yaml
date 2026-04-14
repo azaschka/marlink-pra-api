@@ -1,0 +1,14 @@
+$kind: http-example
+name: Indicates the group policy was provisioned successfully.
+request:
+  url: "{{baseUrl}}/group-policy/:id/provision"
+  method: POST
+  pathVariables:
+    id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

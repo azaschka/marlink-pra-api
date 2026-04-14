@@ -1,0 +1,14 @@
+$kind: http-example
+name: Indicates the PostgreSQL Tunnel Jump Item was successfully deleted.
+request:
+  url: "{{baseUrl}}/jump-item/psql-tunnel-jump/:id"
+  method: DELETE
+  pathVariables:
+    id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

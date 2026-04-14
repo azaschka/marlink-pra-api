@@ -1,0 +1,22 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/vault/account-group/:id/account/:account_id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+    account_id: ""
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 2000

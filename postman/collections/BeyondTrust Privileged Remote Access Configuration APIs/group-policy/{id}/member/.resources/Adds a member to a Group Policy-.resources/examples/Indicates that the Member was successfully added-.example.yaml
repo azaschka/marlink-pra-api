@@ -1,0 +1,25 @@
+$kind: http-example
+name: Indicates that the Member was successfully added.
+request:
+  url: "{{baseUrl}}/group-policy/:id/member"
+  method: POST
+  headers:
+    Content-Type: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "security_provider_id": "<integer>",
+        "distinguished_name": "<string>",
+        "group_name": "<string>",
+        "user_id": "<integer>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

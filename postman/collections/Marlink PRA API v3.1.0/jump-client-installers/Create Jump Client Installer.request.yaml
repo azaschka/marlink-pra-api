@@ -1,0 +1,30 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-clients/installers"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "jumpGroupId": 0, // required
+        "name": "string",
+        "jumpGroupType": "shared", // shared, personal
+        "jumpPolicyId": 0,
+        "tag": "string",
+        "connectionType": "active", // active, passive, uninstalled
+        "sessionPolicyId": 0,
+        "comments": "string",
+        "validDurationInMinutes": 0,
+        "shouldElevateInstall": true, // boolean
+        "shouldElevatePrompt": true, // boolean
+        "canOverrideJumpGroup": false, // boolean
+        "canOverrideJumpPolicy": false, // boolean
+        "canOverrideName": false, // boolean
+        "canOverrideTag": false, // boolean
+        "canOverrideComments": false, // boolean
+        "canOverrideSessionPolicy": false, // boolean
+        "jumpointProxy": "string"
+    }
+order: 4000

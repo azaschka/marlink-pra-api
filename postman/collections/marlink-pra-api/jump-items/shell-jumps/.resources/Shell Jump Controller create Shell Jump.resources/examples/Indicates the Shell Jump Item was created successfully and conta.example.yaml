@@ -1,0 +1,143 @@
+$kind: http-example
+name: Indicates the Shell Jump Item was created successfully and contains the
+  new Shell Jump Item instance.
+request:
+  url: "{{baseUrl}}/jump-items/shell-jumps"
+  method: POST
+  headers:
+    - key: X-Access-Key
+      value: string
+      description: Access key for authenticating and authorizing requests.
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: X-Tenant-Id
+      value: "15.767170974738676"
+      description: The identifier for the tenant making the request.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "jumpointId": 4626.140316561887,
+        "hostname": "string",
+        "protocolType": "telnet",
+        "jumpGroupId": 2782.125825701125,
+        "port": 6500.146989323199,
+        "jumpGroupType": "personal",
+        "terminalType": "xterm",
+        "keepAliveIdleSessionInSeconds": 4271.863790476688,
+        "tag": "string",
+        "comments": "string",
+        "jumpPolicyId": 8942.451346846032,
+        "username": "string",
+        "sessionPolicyId": 8490.525313480548
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 5808.977489459188,
+        "name": "string",
+        "jumpointId": 1527.8042795127233,
+        "hostname": "string",
+        "protocolType": "ssh",
+        "jumpGroupId": 9132.661934174206,
+        "lastSyncDate": "1953-09-19T02:26:03.546Z",
+        "port": 3617.2910815692585,
+        "jumpGroupType": "personal",
+        "terminalType": "xterm",
+        "keepAliveIdleSessionInSeconds": 6882.088669520965,
+        "tag": "string",
+        "comments": "string",
+        "jumpPolicyId": 1280.861641785287,
+        "username": "string",
+        "sessionPolicyId": 6538.285409123157
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "jumpointId": {
+            "type": "number"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "protocolType": {
+            "type": "string",
+            "enum": [
+              "ssh",
+              "telnet"
+            ]
+          },
+          "port": {
+            "type": "number"
+          },
+          "jumpGroupId": {
+            "type": "number"
+          },
+          "jumpGroupType": {
+            "type": "string",
+            "enum": [
+              "shared",
+              "personal"
+            ]
+          },
+          "terminalType": {
+            "type": "string",
+            "enum": [
+              "xterm",
+              "vt100"
+            ]
+          },
+          "keepAliveIdleSessionInSeconds": {
+            "type": "number"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "jumpPolicyId": {
+            "type": "number"
+          },
+          "username": {
+            "type": "string"
+          },
+          "sessionPolicyId": {
+            "type": "number"
+          },
+          "lastSyncDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "jumpointId",
+          "hostname",
+          "protocolType",
+          "jumpGroupId",
+          "lastSyncDate"
+        ]
+      }
+order: 1000

@@ -1,0 +1,31 @@
+$kind: http-request
+name: Update a Vendor User in a Vendor Group.
+description: Modifies the properties of an existing vendor user with the given
+  `{user_id}` in the vendor group with the given `{id}`.
+url: "{{baseUrl}}/vendor/:id/user/:user_id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) Unique identifier for the user.
+body:
+  type: json
+  content: |-
+    {
+      "username": "<string>",
+      "public_display_name": "<string>",
+      "password": "<string>",
+      "email_address": "<string>",
+      "password_expiration": "<dateTime>",
+      "password_reset_next_login": false,
+      "enabled": true,
+      "preferred_email_language": "en-us"
+    }
+examples: ./.resources/Update a Vendor User in a Vendor Group-.resources/examples
+order: 3000

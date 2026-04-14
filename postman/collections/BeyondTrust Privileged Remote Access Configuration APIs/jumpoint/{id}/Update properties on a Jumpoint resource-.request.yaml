@@ -1,0 +1,36 @@
+$kind: http-request
+name: Update properties on a Jumpoint resource.
+description: Modifies an existing Jumpoint resource with the given `{id}` using
+  the given properties. The clustered attribute cannot be modified with this
+  API.
+url: "{{baseUrl}}/jumpoint/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "platform": "windows-x86",
+      "code_name": "fDvL3mm",
+      "comments": "<string>",
+      "enabled": true,
+      "clustered": false,
+      "shell_jump_enabled": false,
+      "external_jump_item_network_id": "<string>",
+      "protocol_tunnel_enabled": true,
+      "rdp_service_account_id": null,
+      "jzp_enabled": false,
+      "jzp_proxy_hostname": "",
+      "jzp_proxy_port": 9555,
+      "jzp_allow_http_get": false,
+      "jzp_client_address_restrictions_type": "no_restriction"
+    }
+examples: ./.resources/Update properties on a Jumpoint resource-.resources/examples
+order: 5000

@@ -1,0 +1,56 @@
+$kind: http-example
+name: One or more request parameters are invalid. The body contains a general
+  error message as well as a validation error dictionary.
+request:
+  url: "{{baseUrl}}/vendor/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "default_policy": "<integer>",
+        "account_expiration": 30,
+        "deletion_days_after_expiration": null,
+        "user_added_notification_enabled": true,
+        "user_expired_notification_enabled": true,
+        "user_approval_enabled": false,
+        "user_reactivation_enabled": false,
+        "duration": 24,
+        "duration_enabled": false
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>",
+        "errors": {
+          "ad7e": [
+            "<string>",
+            "<string>"
+          ],
+          "est9": [
+            "<string>",
+            "<string>"
+          ],
+          "occaecat67": [
+            "<string>",
+            "<string>"
+          ],
+          "in_9_": [
+            "<string>",
+            "<string>"
+          ]
+        }
+      }
+order: 3000

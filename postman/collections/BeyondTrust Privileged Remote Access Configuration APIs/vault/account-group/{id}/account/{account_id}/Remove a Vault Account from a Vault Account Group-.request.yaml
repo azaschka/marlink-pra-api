@@ -1,0 +1,19 @@
+$kind: http-request
+name: Remove a Vault Account from a Vault Account Group.
+description: Removes the Vault account with the given `{account_id}` from the
+  Vault account group with the given `{id}` and add it to the default Vault
+  account group.
+url: "{{baseUrl}}/vault/account-group/:id/account/:account_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: account_id
+    value: <integer>
+    description: (Required) Unique identifier for the Account.
+examples: ./.resources/Remove a Vault Account from a Vault Account
+  Group-.resources/examples
+order: 2000

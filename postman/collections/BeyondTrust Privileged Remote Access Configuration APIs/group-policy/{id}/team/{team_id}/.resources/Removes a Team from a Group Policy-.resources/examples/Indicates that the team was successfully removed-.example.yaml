@@ -1,0 +1,15 @@
+$kind: http-example
+name: Indicates that the team was successfully removed.
+request:
+  url: "{{baseUrl}}/group-policy/:id/team/:team_id"
+  method: DELETE
+  pathVariables:
+    id: ""
+    team_id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

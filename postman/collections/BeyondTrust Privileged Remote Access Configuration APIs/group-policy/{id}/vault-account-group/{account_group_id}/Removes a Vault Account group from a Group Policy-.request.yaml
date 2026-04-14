@@ -1,0 +1,18 @@
+$kind: http-request
+name: Removes a Vault Account group from a Group Policy.
+description: Removes the Vault account group with the given `{account_group_id}`
+  from the group policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/vault-account-group/:account_group_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: account_group_id
+    value: <integer>
+    description: (Required) Unique identifier for the Vault Account group.
+examples: ./.resources/Removes a Vault Account group from a Group
+  Policy-.resources/examples
+order: 2000

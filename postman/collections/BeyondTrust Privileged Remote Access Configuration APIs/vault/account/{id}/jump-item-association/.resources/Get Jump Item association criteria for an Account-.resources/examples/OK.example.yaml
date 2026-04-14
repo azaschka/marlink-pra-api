@@ -1,0 +1,124 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/account/:id/jump-item-association"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "filter_type": "no_jump_items",
+        "criteria": {
+          "shared_jump_groups": [
+            "<integer>",
+            "<integer>"
+          ],
+          "host": [
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>"
+          ],
+          "name": [
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>"
+          ],
+          "tag": [
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>"
+          ],
+          "comment": [
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>",
+            "<string>"
+          ]
+        },
+        "jump_items": [
+          {
+            "id": "<integer>",
+            "type": "shell_jump"
+          },
+          {
+            "id": "<integer>",
+            "type": "web_jump"
+          }
+        ]
+      }
+order: 1000

@@ -1,0 +1,17 @@
+$kind: http-request
+name: Removes a member from a Group Policy.
+description: Removes the member with the given `{member_id}` from the group
+  policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/member/:member_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: member_id
+    value: <integer>
+    description: (Required) Unique identifier for the Member.
+examples: ./.resources/Removes a member from a Group Policy-.resources/examples
+order: 2000

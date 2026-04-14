@@ -1,0 +1,22 @@
+$kind: http-request
+name: Delete Jump Item association criteria for an Account.
+description: >
+  For an Account with the given `{id}` that has Jump Item associations defined,
+  this API removes those associations so that the Account begins inheriting
+  associations from its Account Group instead.
+
+
+  This API cannot be used if the given Account is inheriting Jump Item
+  association criteria from its Account Group and does not have any of its own
+  Jump Item associations defined, since there is nothing to delete.
+url: "{{baseUrl}}/vault/account/:id/jump-item-association"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete Jump Item association criteria for an
+  Account-.resources/examples
+order: 6000

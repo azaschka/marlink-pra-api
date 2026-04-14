@@ -1,0 +1,28 @@
+$kind: http-example
+name: Indicates the association was successfully made.
+request:
+  url: "{{baseUrl}}/vault/endpoint/:id/remote-rdp-jump-item-association"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>"
+      }
+order: 1000

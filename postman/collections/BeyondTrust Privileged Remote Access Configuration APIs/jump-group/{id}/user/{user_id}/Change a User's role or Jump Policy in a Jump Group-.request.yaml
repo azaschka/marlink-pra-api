@@ -1,0 +1,27 @@
+$kind: http-request
+name: Change a User's role or Jump Policy in a Jump Group.
+description: Modifies the existing Jump Item Role or Jump Policy of the user
+  with the given `{user_id}` in the Jump Group with the given `{id}`.
+url: "{{baseUrl}}/jump-group/:id/user/:user_id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) The unique id of the user.
+body:
+  type: json
+  content: |-
+    {
+      "user_id": "<integer>",
+      "jump_item_role_id": "<integer>",
+      "jump_policy_id": "<integer>"
+    }
+examples: ./.resources/Change a User's role or Jump Policy in a Jump
+  Group-.resources/examples
+order: 1000

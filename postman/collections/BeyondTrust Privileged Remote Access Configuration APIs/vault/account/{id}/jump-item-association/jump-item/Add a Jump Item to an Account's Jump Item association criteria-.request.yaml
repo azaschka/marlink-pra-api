@@ -1,0 +1,39 @@
+$kind: http-request
+name: Add a Jump Item to an Account's Jump Item association criteria.
+description: >
+  Adds a specific Jump Item identified in the request body to the Jump Item
+  association criteria of the Account with the given `{id}`.
+
+
+  The Account's Jump Item association must have its `filter_type` set to
+  "criteria".
+
+
+  This API cannot be used if the given Account is inheriting Jump Item
+  association criteria from its Account Group and does not have any of its own
+  Jump Item associations defined. To create association criteria specifically
+  for this Account, use the <a
+  href="#api.config.vault.account.jump-item-association.store">POST API</a>
+  instead.
+
+
+  Currently Remote Jump Items cannot be added.
+url: "{{baseUrl}}/vault/account/:id/jump-item-association/jump-item"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "id": "<integer>",
+      "type": "remote_rdp"
+    }
+examples: ./.resources/Add a Jump Item to an Account's Jump Item association
+  criteria-.resources/examples
+order: 1000

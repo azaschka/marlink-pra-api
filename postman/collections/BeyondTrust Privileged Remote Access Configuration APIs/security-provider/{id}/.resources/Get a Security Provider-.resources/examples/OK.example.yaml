@@ -1,0 +1,43 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/security-provider/:id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "type": "ldap",
+        "name": "<string>",
+        "enabled": "<boolean>",
+        "user_authentication": "<boolean>",
+        "group_lookup": "<boolean>",
+        "priority": "<integer>",
+        "default_policy": "<integer>",
+        "group_lookup_attribute_name": "<string>",
+        "available_groups": [
+          "<string>",
+          "<string>"
+        ],
+        "display_name": "<string>",
+        "email": "<string>",
+        "user_name": "<string>",
+        "login_url": "<string>",
+        "force_signed_request": "<boolean>",
+        "sp_entity_id": "<string>",
+        "entity_id": "<string>",
+        "group_delimiter": "<string>",
+        "case_insensitive_name_ids": "<boolean>",
+        "sso_url_protocol_binding": "HTTP Redirect",
+        "sync_display_name": "<boolean>"
+      }
+order: 1000

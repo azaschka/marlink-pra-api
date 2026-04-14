@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/beyondtrust-instances/{{instanceId}}"
+method: PATCH
+body:
+  type: json
+  content: >-
+    {
+        "name": "string",
+        "authClientId": "string",
+        "authClientSecret": "string",
+        "oauth2TokenUrl": "string",
+        "apiBaseUrl": "string",
+        "billingType": "asset", // asset, user
+        "businessUnit": "MT" // optional - MT,OA,MC,EG,TE - set null to make shared instance
+    }
+order: 3000

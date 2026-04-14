@@ -1,0 +1,193 @@
+$kind: http-example
+name: Indicates the Remote RDP Jump Item was created successfully and contains
+  the new Remote RDP Jump Item instance.
+request:
+  url: "{{baseUrl}}/jump-items/remote-rdps"
+  method: POST
+  headers:
+    - key: X-Access-Key
+      value: string
+      description: Access key for authenticating and authorizing requests.
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: X-Tenant-Id
+      value: "15.767170974738676"
+      description: The identifier for the tenant making the request.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "jumpointId": 7571.694752516034,
+        "hostname": "string",
+        "jumpGroupId": 2145.7166958600983,
+        "jumpGroupType": "shared",
+        "qualityMode": "video",
+        "mustStartNewConsoleSession": false,
+        "mustIgnoreUntrustedServerCert": false,
+        "tag": "string",
+        "comments": "string",
+        "rdpUsername": "string",
+        "domain": "string",
+        "jumpPolicyId": 3509.4731414900493,
+        "isSessionForensicsEnabled": true,
+        "sessionPolicyId": 1844.3173322286023,
+        "secureAppType": "remote-app",
+        "remoteAppName": "string",
+        "remoteAppParams": "string",
+        "remoteExePath": "string",
+        "remoteExeParams": "string",
+        "targetSystem": "string",
+        "credentialType": "string"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 7793.970263069034,
+        "name": "string",
+        "jumpointId": 1857.1781008387145,
+        "hostname": "string",
+        "jumpGroupId": 6417.38437438371,
+        "lastSyncDate": "1993-02-27T01:35:19.093Z",
+        "jumpGroupType": "shared",
+        "qualityMode": "quality",
+        "mustStartNewConsoleSession": false,
+        "mustIgnoreUntrustedServerCert": false,
+        "tag": "string",
+        "comments": "string",
+        "rdpUsername": "string",
+        "domain": "string",
+        "jumpPolicyId": 2952.2028672226506,
+        "isSessionForensicsEnabled": false,
+        "sessionPolicyId": 5566.075423039014,
+        "endpointId": 4385.292300314955,
+        "secureAppType": "none",
+        "remoteAppName": "string",
+        "remoteAppParams": "string",
+        "remoteExePath": "string",
+        "remoteExeParams": "string",
+        "targetSystem": "string",
+        "credentialType": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "jumpointId": {
+            "type": "number"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "jumpGroupId": {
+            "type": "number"
+          },
+          "jumpGroupType": {
+            "type": "string",
+            "enum": [
+              "shared",
+              "personal"
+            ]
+          },
+          "qualityMode": {
+            "type": "string",
+            "enum": [
+              "low",
+              "performance",
+              "best-performance",
+              "performance-quality",
+              "quality",
+              "video",
+              "lossless"
+            ]
+          },
+          "mustStartNewConsoleSession": {
+            "type": "boolean"
+          },
+          "mustIgnoreUntrustedServerCert": {
+            "type": "boolean"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "rdpUsername": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "jumpPolicyId": {
+            "type": "number"
+          },
+          "isSessionForensicsEnabled": {
+            "type": "boolean"
+          },
+          "sessionPolicyId": {
+            "type": "number"
+          },
+          "endpointId": {
+            "type": "number"
+          },
+          "secureAppType": {
+            "type": "string",
+            "enum": [
+              "none",
+              "remote-app",
+              "remote-desktop-agent",
+              "remote-desktop-agent-credentials"
+            ]
+          },
+          "remoteAppName": {
+            "type": "string"
+          },
+          "remoteAppParams": {
+            "type": "string"
+          },
+          "remoteExePath": {
+            "type": "string"
+          },
+          "remoteExeParams": {
+            "type": "string"
+          },
+          "targetSystem": {
+            "type": "string"
+          },
+          "credentialType": {
+            "type": "string"
+          },
+          "lastSyncDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "jumpointId",
+          "hostname",
+          "jumpGroupId",
+          "lastSyncDate"
+        ]
+      }
+order: 1000

@@ -1,0 +1,28 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites/1/auditors"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "userId": 2
+      }
+response:
+  statusCode: 409
+  statusText: Conflict
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 409,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/sites/1/auditors",
+        "message": "The specified site auditor already exists."
+      }
+order: 2000

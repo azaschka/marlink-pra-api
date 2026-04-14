@@ -1,0 +1,14 @@
+$kind: http-request
+name: Grant a User access to a Jumpoint.
+description: Grants the user with the `user_id` given in the request body access
+  to the Jumpoint with the `{id}` given in the path.
+url: "{{baseUrl}}/jumpoint/:id/user"
+method: POST
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Grant a User access to a Jumpoint-.resources/examples
+order: 3000

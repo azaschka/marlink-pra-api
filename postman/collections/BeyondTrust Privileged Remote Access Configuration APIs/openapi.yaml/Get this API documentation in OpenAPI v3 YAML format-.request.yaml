@@ -1,0 +1,18 @@
+$kind: http-request
+name: Get this API documentation in OpenAPI v3 YAML format.
+description: >
+  This returns a YAML document containing an [OpenAPI
+  specification](https://swagger.io/docs/specification/about/) for all available
+  BeyondTrust Privileged Remote Access Configuration APIs. [Many
+  tools](https://openapi.tools/) exist that can read this document and generate
+  resources you may find helpful. For instance, some tools can help generate
+  client code for interacting with the API. Other tools are able to generate
+  various forms of API documentation. (If you're reading this on a web page, the
+  page was probably generated from a response to this API.)
+url: "{{baseUrl}}/openapi.yaml"
+method: GET
+headers:
+  Accept: application/yaml
+examples: ./.resources/Get this API documentation in OpenAPI v3 YAML
+  format-.resources/examples
+order: 1000

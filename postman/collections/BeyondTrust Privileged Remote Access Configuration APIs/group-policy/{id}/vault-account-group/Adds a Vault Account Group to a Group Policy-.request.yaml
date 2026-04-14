@@ -1,0 +1,23 @@
+$kind: http-request
+name: Adds a Vault Account Group to a Group Policy.
+description: Adds a Vault account group given in the request body to a Group
+  Policy with the `{id}` given in the path.
+url: "{{baseUrl}}/group-policy/:id/vault-account-group"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+body:
+  type: json
+  content: |-
+    {
+      "account_group_id": "<integer>",
+      "group_policy_id": "<integer>",
+      "role": "inject"
+    }
+examples: ./.resources/Adds a Vault Account Group to a Group Policy-.resources/examples
+order: 3000

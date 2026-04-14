@@ -1,0 +1,42 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/jump-item/web-jump/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "url": "<string>",
+        "jump_group_id": "<integer>",
+        "username_format": "default",
+        "verify_certificate": true,
+        "jump_group_type": "shared",
+        "authentication_timeout": 3,
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "username_field": "<string>",
+        "password_field": "<string>",
+        "submit_field": "<string>",
+        "session_policy_id": "<integer>"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 2000

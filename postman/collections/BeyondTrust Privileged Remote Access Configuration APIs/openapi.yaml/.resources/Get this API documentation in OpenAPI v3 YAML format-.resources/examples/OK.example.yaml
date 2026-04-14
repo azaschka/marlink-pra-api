@@ -1,0 +1,15 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/openapi.yaml"
+  method: GET
+  headers:
+    Accept: application/yaml
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/yaml
+  body:
+    type: text
+    content: "{}"
+order: 1000

@@ -1,0 +1,49 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/jump-item/remote-rdp/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "jump_group_type": "shared",
+        "quality": "video",
+        "console": false,
+        "ignore_untrusted": false,
+        "tag": "<string>",
+        "comments": "<string>",
+        "rdp_username": "<string>",
+        "domain": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_forensics": false,
+        "session_policy_id": "<integer>",
+        "secure_app_type": "remote_app",
+        "remote_app_name": "<string>",
+        "remote_app_params": "<string>",
+        "remote_exe_path": "<string>",
+        "remote_exe_params": "<string>",
+        "target_system": "<string>",
+        "credential_type": "<string>"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 2000

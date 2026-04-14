@@ -1,0 +1,23 @@
+$kind: http-request
+name: Get a list of Users in a Jump Group.
+description: Gets a paginated list of `JumpGroupUser` resources representing
+  users explicitly granted access to the Jump Group with the given `{id}`. This
+  list does not include users implicitly granted access via a group policy or
+  the "Administrator" user permission.
+url: "{{baseUrl}}/jump-group/:id/user?per_page=<integer>&current_page=<integer>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a list of Users in a Jump Group-.resources/examples
+order: 2000

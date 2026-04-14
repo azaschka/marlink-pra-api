@@ -1,0 +1,30 @@
+$kind: http-request
+name: Get a list of Vault Account Groups.
+description: >
+  Gets a paginated list of all Vault account groups. They can optionally be
+  filtered using query string parameters documented below.
+
+
+  If no filter criteria are specified then all Vault account groups are
+  returned.
+
+
+  String parameters are always matched case-insensitively and exactly. No
+  partial matches are allowed.
+url: "{{baseUrl}}/vault/account-group?per_page=<integer>&current_page=<integer>\
+  &name=<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    description: Filters results to include only account groups that match the given name.
+examples: ./.resources/Get a list of Vault Account Groups-.resources/examples
+order: 2000

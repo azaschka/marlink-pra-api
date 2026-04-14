@@ -1,0 +1,115 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps"
+method: POST
+headers:
+  - key: X-Access-Key
+    value: string
+    description: Access key for authenticating and authorizing requests.
+    $type: '{"type":"object","properties":{"value":{"type":"string"}},"required":["value"]}'
+  - key: X-Transaction-Id
+    value: string
+    description: Optional identifier for tracing and correlating a transaction
+      across services and logs.
+    $type: string
+  - key: X-Tenant-Id
+    value: "15.767170974738676"
+    description: The identifier for the tenant making the request.
+    $type: '{"type":"object","properties":{"value":{"type":"number"}},"required":["value"]}'
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "string",
+      "jumpointId": 5782.333245239622,
+      "hostname": "string",
+      "jumpGroupId": 2563.794619355324,
+      "jumpGroupType": "shared",
+      "tag": "string",
+      "comments": "string",
+      "jumpPolicyId": 5499.828298885223,
+      "sessionPolicyId": 610.845881923574,
+      "tunnelListenAddress": "string",
+      "tunnelDefinitions": "string",
+      "tunnelType": "ip",
+      "username": "string",
+      "database": "string",
+      "url": "string",
+      "caCertificates": "string"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "jumpointId": {
+          "type": "number"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "jumpGroupId": {
+          "type": "number"
+        },
+        "jumpGroupType": {
+          "type": "string",
+          "enum": [
+            "shared",
+            "personal"
+          ]
+        },
+        "tag": {
+          "type": "string"
+        },
+        "comments": {
+          "type": "string"
+        },
+        "jumpPolicyId": {
+          "type": "number"
+        },
+        "sessionPolicyId": {
+          "type": "number"
+        },
+        "tunnelListenAddress": {
+          "type": "string"
+        },
+        "tunnelDefinitions": {
+          "type": "string"
+        },
+        "tunnelType": {
+          "type": "string",
+          "enum": [
+            "tcp",
+            "mssql",
+            "k8s",
+            "ip"
+          ]
+        },
+        "username": {
+          "type": "string"
+        },
+        "database": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "caCertificates": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "jumpointId",
+        "hostname",
+        "jumpGroupId"
+      ]
+    }
+examples: ./.resources/Protocol Tunnel Jump Controller create Protocol Tunnel
+  Jump.resources/examples
+order: 3000

@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Vendor Group.
+description: Gets the vendor group resource with the given `{id}`.
+url: "{{baseUrl}}/vendor/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Vendor Group-.resources/examples
+order: 3000

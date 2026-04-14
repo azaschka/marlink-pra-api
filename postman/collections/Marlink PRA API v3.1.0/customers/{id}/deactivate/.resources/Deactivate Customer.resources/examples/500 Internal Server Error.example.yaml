@@ -1,0 +1,21 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/customers/1/deactivate"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 500,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/customers/1/deactivate",
+        "message": "Internal server error"
+      }
+order: 6000

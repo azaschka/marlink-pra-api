@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Jump Client installer's information.
+description: Gets the Jump Client installer resource with the given `{id}`.
+url: "{{baseUrl}}/jump-client/installer/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Jump Client installer's information-.resources/examples
+order: 1000

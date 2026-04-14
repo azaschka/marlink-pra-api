@@ -1,0 +1,36 @@
+$kind: http-request
+description: Retrieves a paginated list of sites with filtering capabilities.
+  Access is automatically scoped to the authenticated user's customer
+  permissions. Sites represent physical or logical locations where customer
+  infrastructure is deployed.
+url: "{{baseUrl}}/sites?pageSize=100&pageNumber=1"
+method: GET
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+queryParams:
+  - key: pageSize
+    value: "100"
+    description: Number of items per page
+  - key: pageNumber
+    value: "1"
+    description: Page number
+  - key: key
+    value: string
+    disabled: true
+    description: Filter by site key
+  - key: name
+    value: string
+    disabled: true
+    description: Filter by site name
+  - key: customerKeys
+    value: string
+    disabled: true
+    description: Filter by customer key
+  - key: customerKeys
+    value: string
+    disabled: true
+    description: Filter by customer key
+examples: ./.resources/Retrieve Sites.resources/examples
+order: 2000

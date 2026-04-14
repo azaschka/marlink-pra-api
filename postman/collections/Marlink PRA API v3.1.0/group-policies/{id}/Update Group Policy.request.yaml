@@ -1,0 +1,35 @@
+$kind: http-request
+url: "{{baseUrl}}/group-policies/{{groupPolicyId}}"
+method: PATCH
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: >-
+    {
+        "name": "string",
+        "hasEndpointsAccessPermission": false, // boolean
+        "accessPermissionStatusType": "not-defined", // not-defined, defined, final
+        "hasShareOtherTeamPermission": false, // boolean
+        "hasInviteExternalUserPermission": false, // boolean
+        "userSessionIdleTimeoutInSeconds": -1,
+        "hasEnableExtendedAvailabilityModePermission": false, // boolean
+        "hasEditExternalKeyPermission": false, // boolean
+        "hasCollaboratePermission": false, // boolean
+        "hasCollaborateControlPermission": false, // boolean
+        "hasJumpClientPermission": false, // boolean
+        "hasLocalJumpPermission": false, // boolean
+        "hasRemoteJumpPermission": false, // boolean
+        "hasRemoteVncPermission": false, // boolean
+        "hasRemoteRdpPermission": false, // boolean
+        "hasShellJumpPermission": false, // boolean
+        "hasWebJumpPermission": false, // boolean
+        "hasProtocolTunnelPermission": false, // boolean
+        "hasSdStaticPortForExternalToolsPermission": false, // boolean
+        "defaultJumpItemRoleId": 1,
+        "privateJumpItemRoleId": 1,
+        "inferiorJumpItemRoleId": 1,
+        "unassignedJumpItemRoleId": 1
+    }
+order: 6000

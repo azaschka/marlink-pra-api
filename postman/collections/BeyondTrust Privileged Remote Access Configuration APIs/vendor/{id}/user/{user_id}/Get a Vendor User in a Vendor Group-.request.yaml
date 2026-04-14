@@ -1,0 +1,16 @@
+$kind: http-request
+name: Get a Vendor User in a Vendor Group.
+description: Get a `VendorUser` resource representing the user with the given
+  `{user_id}` in the vendor group with the given `{id}`. This is useful for
+  determining if a given user exists in a specific vendor group.
+url: "{{baseUrl}}/vendor/:id/user/:user_id"
+method: GET
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) Unique identifier for the user.
+examples: ./.resources/Get a Vendor User in a Vendor Group-.resources/examples
+order: 2000

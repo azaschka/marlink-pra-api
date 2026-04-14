@@ -1,0 +1,69 @@
+$kind: http-example
+name: Indicates the Jump Client installer was created successfully and contains
+  the installer identifier and key information.
+request:
+  url: "{{baseUrl}}/jump-client/installer"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "jump_group_id": "<integer>",
+        "name": "<string>",
+        "jump_group_type": "shared",
+        "jump_policy_id": "<integer>",
+        "tag": "<string>",
+        "connection_type": "active",
+        "session_policy_id": "<integer>",
+        "comments": "",
+        "valid_duration": 1440,
+        "elevate_install": true,
+        "elevate_prompt": true,
+        "allow_override_jump_group": false,
+        "allow_override_jump_policy": false,
+        "allow_override_name": false,
+        "allow_override_tag": false,
+        "allow_override_comments": false,
+        "allow_override_session_policy": false,
+        "jumpoint_proxy": "<string>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "jump_group_id": "<integer>",
+        "jump_group_type": "shared",
+        "name": "<string>",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>",
+        "connection_type": "active",
+        "expiration_timestamp": "<dateTime>",
+        "max_offline_minutes": "<integer>",
+        "elevate_install": true,
+        "elevate_prompt": true,
+        "allow_override_jump_group": false,
+        "allow_override_jump_policy": false,
+        "allow_override_name": false,
+        "allow_override_tag": false,
+        "allow_override_comments": false,
+        "allow_override_session_policy": false,
+        "installer_id": "<string>",
+        "key_info": {
+          "encodedInfo": "<string>",
+          "filename": "<string>",
+          "installerPath": "<string>"
+        },
+        "jumpoint_proxy": "<string>"
+      }
+order: 1000

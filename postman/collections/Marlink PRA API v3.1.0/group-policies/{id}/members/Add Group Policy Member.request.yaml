@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/group-policies/{{groupPolicyId}}/members"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "userId": 0, // required
+        "securityProviderId": 0, // required
+        "distinguishedName": "string",
+        "groupName": "string"
+    }
+order: 3000

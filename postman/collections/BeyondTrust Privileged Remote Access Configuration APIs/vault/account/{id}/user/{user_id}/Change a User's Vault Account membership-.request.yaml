@@ -1,0 +1,26 @@
+$kind: http-request
+name: Change a User's Vault Account membership.
+description: Modifies the role of the user with the given `{user_id}` on the
+  vault account with the given `{id}`. This cannot modify users added by a group
+  policy or account group.
+url: "{{baseUrl}}/vault/account/:id/user/:user_id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) The unique id of the user.
+body:
+  type: json
+  content: |-
+    {
+      "user_id": "<integer>",
+      "role": "inject"
+    }
+examples: ./.resources/Change a User's Vault Account membership-.resources/examples
+order: 2000

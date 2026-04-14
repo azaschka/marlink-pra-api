@@ -1,0 +1,9 @@
+$kind: http-request
+description: Removes a user from the site manager role for the specified site.
+  The user will no longer have site management privileges.
+url: "{{baseUrl}}/sites/{{siteId}}/managers/{{managerId}}"
+method: DELETE
+headers:
+  X-Access-Key: "{{accessKey}}"
+examples: ./.resources/Remove Site Manager.resources/examples
+order: 1000

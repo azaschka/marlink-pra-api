@@ -1,0 +1,22 @@
+$kind: http-example
+name: Indicates that the Jumpoint was successfully added.
+request:
+  url: "{{baseUrl}}/group-policy/:id/jumpoint"
+  method: POST
+  headers:
+    Content-Type: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "jumpoint_id": "<integer>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

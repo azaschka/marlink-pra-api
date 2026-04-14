@@ -1,0 +1,36 @@
+$kind: http-request
+name: Add a shared Jump Group to an Account's Jump Item association criteria.
+description: >
+  Adds a specific shared Jump Group identified by `shared_jump_group_id` in the
+  request body to the Jump Item association criteria of the Account with the
+  given `{id}`.
+
+
+  The Account's Jump Item association must have its `filter_type` set to
+  "criteria".
+
+
+  This API cannot be used if the given Account is inheriting Jump Item
+  association criteria from its Account Group and does not have any of its own
+  Jump Item associations defined. To create association criteria specifically
+  for this Account, use the <a
+  href="#api.config.vault.account.jump-item-association.store">POST API</a>
+  instead.
+url: "{{baseUrl}}/vault/account/:id/jump-item-association/shared-jump-group"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "shared_jump_group_id": "<integer>"
+    }
+examples: ./.resources/Add a shared Jump Group to an Account's Jump Item
+  association cr.resources/examples
+order: 1000

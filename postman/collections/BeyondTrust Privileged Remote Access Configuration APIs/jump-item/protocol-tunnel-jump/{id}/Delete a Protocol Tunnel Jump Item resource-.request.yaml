@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a Protocol Tunnel Jump Item resource.
+description: Deletes an existing Protocol Tunnel Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/protocol-tunnel-jump/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Protocol Tunnel Jump Item resource-.resources/examples
+order: 4000

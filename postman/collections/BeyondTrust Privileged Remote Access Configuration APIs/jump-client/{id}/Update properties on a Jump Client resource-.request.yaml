@@ -1,0 +1,29 @@
+$kind: http-request
+name: Update properties on a Jump Client resource.
+description: Modifies an existing Jump Client resource with the given `{id}`
+  using the given properties.
+url: "{{baseUrl}}/jump-client/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "jump_group_id": "<integer>",
+      "jump_group_type": "shared",
+      "name": "<string>",
+      "tag": "<string>",
+      "comments": "<string>",
+      "jump_policy_id": "<integer>",
+      "session_policy_id": "<integer>",
+      "max_offline_minutes": "<integer>",
+      "endpoint_agreement_policy": "no_prompt"
+    }
+examples: ./.resources/Update properties on a Jump Client resource-.resources/examples
+order: 3000

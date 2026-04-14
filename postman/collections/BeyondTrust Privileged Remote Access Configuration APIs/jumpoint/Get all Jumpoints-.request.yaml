@@ -1,0 +1,47 @@
+$kind: http-request
+name: Get all Jumpoints.
+description: >
+  Gets a paginated list of Jumpoints.
+
+
+  They can optionally be filtered using query string parameters documented
+  below. If no filter criteria are specified then all Jumpoints are returned. If
+  more than one criteria is specified then AND logic is used to combine the
+  criteria. String parameters are always matched case-insensitively and exactly.
+  No partial matches are allowed.
+
+
+  If a clustered Jumpoint has multiple nodes then all nodes are searched for
+  matching criteria. Node resources are not returned in the response.
+url: "{{baseUrl}}/jumpoint?per_page=<integer>&current_page=<integer>&name=<stri\
+  ng>&public_ip=<string>&private_ip=<string>&hostname=<string>&code_name=cT4"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    description: Filters results to include only Jumpoints with the given name.
+  - key: public_ip
+    value: <string>
+    description: Filters results to include only Jumpoints with a node that has the
+      specified public IP.
+  - key: private_ip
+    value: <string>
+    description: Filters results to include only Jumpoints with a node that has the
+      specified private IP.
+  - key: hostname
+    value: <string>
+    description: Filters results to include only Jumpoints with a node that has the
+      specified hostname.
+  - key: code_name
+    value: cT4
+    description: Filters a response to include only resources with the given code name.
+examples: ./.resources/Get all Jumpoints-.resources/examples
+order: 2000

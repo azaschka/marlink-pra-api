@@ -1,0 +1,15 @@
+$kind: http-request
+name: List Remote RDP Jump Items to associate to a vault endpoint.
+description: Lists existing Remote RDP Jump Items that can be associated to the
+  Vault Endpoint with the given `{id}`.
+url: "{{baseUrl}}/vault/endpoint/:id/remote-rdp-jump-item-candidates"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/List Remote RDP Jump Items to associate to a vault
+  endpoint-.resources/examples
+order: 1000

@@ -1,0 +1,39 @@
+$kind: http-request
+name: Get all network tunnel jump items matching query parameters.
+description: Returns a paginated list of Network Tunnel Jump Items.
+url: "{{baseUrl}}/jump-item/network-tunnel-jump?per_page=<integer>&current_page\
+  =<integer>&name=<string>&jump_group_id=<integer>&jump_group_type=personal&jum\
+  point_id=<integer>&tag=<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    description: Filters results to include only network tunnel jump items with the
+      given name.
+  - key: jump_group_id
+    value: <integer>
+    description: Filters results to include only the network tunnel jump items with
+      the given Jump Group id.
+  - key: jump_group_type
+    value: personal
+    description: Filters results to include only the network tunnel jump items with
+      the given Jump Group type.
+  - key: jumpoint_id
+    value: <integer>
+    description: Filters results to include only the network tunnel jump items with
+      the given Jumpoint id.
+  - key: tag
+    value: <string>
+    description: Filters results to include only the network tunnel jump items with
+      the given tag.
+examples: ./.resources/Get all network tunnel jump items matching query
+  parameters-.resources/examples
+order: 2000

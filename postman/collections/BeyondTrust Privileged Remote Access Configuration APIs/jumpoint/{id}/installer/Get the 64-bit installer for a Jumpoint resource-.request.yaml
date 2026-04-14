@@ -1,0 +1,18 @@
+$kind: http-request
+name: Get the 64-bit installer for a Jumpoint resource.
+description: For non-clustered Jumpoints, this API returns an error if a node is
+  currently associated with the given Jumpoint. If a non-clustered Jumpoint
+  already has a node then that node must be deleted before calling this API. For
+  clustered Jumpoints, only 10 nodes can be installed. If this API is called
+  when a clustered Jumpoint already has 10 nodes then an error is returned.
+url: "{{baseUrl}}/jumpoint/:id/installer"
+method: GET
+headers:
+  Accept: application/x-executable
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get the 64-bit installer for a Jumpoint
+  resource-.resources/examples
+order: 1000

@@ -1,0 +1,30 @@
+$kind: http-request
+name: Update properties on a Vendor Group resource.
+description: Modifies an existing vendor group with the given `{id}` using the
+  given properties.
+url: "{{baseUrl}}/vendor/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "default_policy": "<integer>",
+      "account_expiration": 30,
+      "deletion_days_after_expiration": null,
+      "user_added_notification_enabled": true,
+      "user_expired_notification_enabled": true,
+      "user_approval_enabled": false,
+      "user_reactivation_enabled": false,
+      "duration": 24,
+      "duration_enabled": false
+    }
+examples: ./.resources/Update properties on a Vendor Group resource-.resources/examples
+order: 4000

@@ -1,0 +1,22 @@
+$kind: http-request
+name: Copy a Shell Jump Item.
+description: Copies the Shell Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/shell-jump/:id/copy"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "jump_group_id": "<integer>",
+      "jump_group_type": "personal",
+      "name": "<string>"
+    }
+examples: ./.resources/Copy a Shell Jump Item-.resources/examples
+order: 1000

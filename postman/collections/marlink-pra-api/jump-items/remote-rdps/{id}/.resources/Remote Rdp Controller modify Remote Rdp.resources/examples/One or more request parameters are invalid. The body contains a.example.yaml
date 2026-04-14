@@ -1,0 +1,55 @@
+$kind: http-example
+name: One or more request parameters are invalid. The body contains a general
+  error message as well as a validation error dictionary.
+request:
+  url: "{{baseUrl}}/jump-items/remote-rdps/:id"
+  method: PATCH
+  headers:
+    - key: X-Access-Key
+      value: string
+      description: Access key for authenticating and authorizing requests.
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: X-Tenant-Id
+      value: "15.767170974738676"
+      description: The identifier for the tenant making the request.
+    - key: Content-Type
+      value: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "jumpointId": 3328.9404471153694,
+        "hostname": "string",
+        "jumpGroupId": 9274.022609256142,
+        "jumpGroupType": "shared",
+        "qualityMode": "best-performance",
+        "mustStartNewConsoleSession": false,
+        "mustIgnoreUntrustedServerCert": false,
+        "tag": "string",
+        "comments": "string",
+        "rdpUsername": "string",
+        "domain": "string",
+        "jumpPolicyId": 4695.271786213073,
+        "isSessionForensicsEnabled": false,
+        "sessionPolicyId": 2087.9652159551256,
+        "secureAppType": "none",
+        "remoteAppName": "string",
+        "remoteAppParams": "string",
+        "remoteExePath": "string",
+        "remoteExeParams": "string",
+        "targetSystem": "string",
+        "credentialType": "string"
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  body:
+    type: text
+    content: ""
+order: 3000

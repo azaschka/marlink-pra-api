@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/group-policies/{{groupPolicyId}}/jumpoints"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "jumpointId": 0 // required
+    }
+order: 3000

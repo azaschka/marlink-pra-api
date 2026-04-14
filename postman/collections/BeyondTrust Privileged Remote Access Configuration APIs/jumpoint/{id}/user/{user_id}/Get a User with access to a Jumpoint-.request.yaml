@@ -1,0 +1,18 @@
+$kind: http-request
+name: Get a User with access to a Jumpoint.
+description: Get a `JumpointUser` for a user with the given `{user_id}` who is
+  allowed to access a Jumpoint with the given `{id}`. This is primarily useful
+  for determining if a certain user is allowed to access a certain Jumpoint.
+url: "{{baseUrl}}/jumpoint/:id/user/:user_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the Jumpoint.
+  - key: user_id
+    value: <integer>
+    description: (Required) Unique identifier for the user.
+examples: ./.resources/Get a User with access to a Jumpoint-.resources/examples
+order: 1000

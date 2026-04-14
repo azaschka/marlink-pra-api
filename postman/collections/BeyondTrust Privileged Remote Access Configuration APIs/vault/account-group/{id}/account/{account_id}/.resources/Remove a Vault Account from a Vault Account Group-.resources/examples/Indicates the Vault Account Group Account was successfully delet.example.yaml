@@ -1,0 +1,15 @@
+$kind: http-example
+name: Indicates the Vault Account Group Account was successfully deleted.
+request:
+  url: "{{baseUrl}}/vault/account-group/:id/account/:account_id"
+  method: DELETE
+  pathVariables:
+    id: ""
+    account_id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

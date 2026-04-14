@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a Team.
+description: Deletes an existing team resource with the given `{id}`.
+url: "{{baseUrl}}/team/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Team-.resources/examples
+order: 4000

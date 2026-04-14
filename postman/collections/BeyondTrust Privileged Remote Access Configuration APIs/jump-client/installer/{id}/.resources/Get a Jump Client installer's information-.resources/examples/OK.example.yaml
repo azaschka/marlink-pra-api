@@ -1,0 +1,45 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-client/installer/:id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "jump_group_id": "<integer>",
+        "jump_group_type": "shared",
+        "name": "<string>",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>",
+        "connection_type": "active",
+        "expiration_timestamp": "<dateTime>",
+        "max_offline_minutes": "<integer>",
+        "elevate_install": true,
+        "elevate_prompt": true,
+        "allow_override_jump_group": false,
+        "allow_override_jump_policy": false,
+        "allow_override_name": false,
+        "allow_override_tag": false,
+        "allow_override_comments": false,
+        "allow_override_session_policy": false,
+        "installer_id": "<string>",
+        "key_info": {
+          "encodedInfo": "<string>",
+          "filename": "<string>",
+          "installerPath": "<string>"
+        },
+        "jumpoint_proxy": "<string>"
+      }
+order: 1000

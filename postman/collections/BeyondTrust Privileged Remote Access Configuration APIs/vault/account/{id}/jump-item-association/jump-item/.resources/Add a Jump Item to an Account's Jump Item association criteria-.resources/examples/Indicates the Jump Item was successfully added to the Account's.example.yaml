@@ -1,0 +1,24 @@
+$kind: http-example
+name: Indicates the Jump Item was successfully added to the Account's Jump Item
+  association criteria.
+request:
+  url: "{{baseUrl}}/vault/account/:id/jump-item-association/jump-item"
+  method: POST
+  headers:
+    Content-Type: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "type": "remote_rdp"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

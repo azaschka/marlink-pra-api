@@ -1,0 +1,21 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jumpoint/:id/user/:user_id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+    user_id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "user_id": "<integer>"
+      }
+order: 1000

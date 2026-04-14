@@ -1,0 +1,34 @@
+$kind: http-request
+name: Get a list of Vault Account Policies.
+description: >
+  Gets a paginated list of all Vault account policies. They can optionally be
+  filtered using query string parameters documented below.
+
+
+  If no filter criteria are specified then all Vault account policies are
+  returned.
+
+
+  String parameters are always matched case-insensitively and exactly. No
+  partial matches are allowed.
+url: "{{baseUrl}}/vault/account-policy?per_page=<integer>&current_page=<integer\
+  >&name=<string>&code_name=<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    description: Filters results to include only account policies that match the given name.
+  - key: code_name
+    value: <string>
+    description: Filters results to include only account policies that match the
+      given code name.
+examples: ./.resources/Get a list of Vault Account Policies-.resources/examples
+order: 2000

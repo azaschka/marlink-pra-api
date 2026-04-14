@@ -1,0 +1,12 @@
+$kind: http-request
+description: Downloads the installer package for a specific jumpoint, enabling
+  deployment on target systems.
+url: "{{baseUrl}}/jumpoints/{{jumpointId}}/installer?pageSize=100&pageNumber=1"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+queryParams:
+  pageSize: "100"
+  pageNumber: "1"
+order: 1000

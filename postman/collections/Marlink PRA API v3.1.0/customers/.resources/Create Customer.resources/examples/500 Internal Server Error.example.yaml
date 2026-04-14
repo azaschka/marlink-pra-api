@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/customers"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "CUST003",
+        "name": "Server Error Customer",
+        "businessUnit": "MT",
+        "beyondtrustInstanceId": 1
+      }
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 500,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/customers",
+        "message": "Internal server error"
+      }
+order: 6000

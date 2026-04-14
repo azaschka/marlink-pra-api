@@ -1,0 +1,15 @@
+$kind: http-example
+name: Indicates that the Member was successfully removed.
+request:
+  url: "{{baseUrl}}/group-policy/:id/member/:member_id"
+  method: DELETE
+  pathVariables:
+    id: ""
+    member_id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

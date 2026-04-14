@@ -1,0 +1,30 @@
+$kind: http-request
+name: Adds a new Jumpoint.
+description: Creates a new Jumpoint with the properties given in the request body.
+url: "{{baseUrl}}/jumpoint"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "platform": "windows-x86",
+      "code_name": "fDvL3mm",
+      "comments": "<string>",
+      "enabled": true,
+      "clustered": false,
+      "shell_jump_enabled": false,
+      "external_jump_item_network_id": "<string>",
+      "protocol_tunnel_enabled": true,
+      "rdp_service_account_id": null,
+      "jzp_enabled": false,
+      "jzp_proxy_hostname": "",
+      "jzp_proxy_port": 9555,
+      "jzp_allow_http_get": false,
+      "jzp_client_address_restrictions_type": "no_restriction"
+    }
+examples: ./.resources/Adds a new Jumpoint-.resources/examples
+order: 3000

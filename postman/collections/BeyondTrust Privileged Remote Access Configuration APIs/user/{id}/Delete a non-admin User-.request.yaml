@@ -1,0 +1,14 @@
+$kind: http-request
+name: Delete a non-admin User.
+description: Deletes an existing user resource with the given `{id}`. Only
+  non-administrators can be deleted.
+url: "{{baseUrl}}/user/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a non-admin User-.resources/examples
+order: 5000

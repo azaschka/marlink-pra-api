@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get the schedule of a jump policy.
+description: Gets the schedule of a specific Jump Policy.
+url: "{{baseUrl}}/jump-policy/:id/schedule"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get the schedule of a jump policy-.resources/examples
+order: 1000

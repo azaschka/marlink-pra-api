@@ -1,0 +1,41 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/session-policy?per_page=<integer>&current_page=<integer>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": "<integer>",
+          "display_name": "<string>",
+          "code_name": "tWNMRwgZ",
+          "description": "<string>"
+        },
+        {
+          "id": "<integer>",
+          "display_name": "<string>",
+          "code_name": "Wauws\\MFp",
+          "description": "<string>"
+        }
+      ]
+order: 1000

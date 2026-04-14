@@ -1,0 +1,54 @@
+$kind: http-example
+name: Indicates the Shell Jump Item was created successfully and contains the
+  new instance. The `Location` header contains the URL of the item.
+request:
+  url: "{{baseUrl}}/jump-item/shell-jump"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "protocol": "ssh",
+        "jump_group_id": "<integer>",
+        "port": "SSH: 22, Telnet: 23",
+        "jump_group_type": "shared",
+        "terminal": "xterm",
+        "keep_alive": "<integer>",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "username": "<string>",
+        "session_policy_id": "<integer>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "protocol": "ssh",
+        "jump_group_id": "<integer>",
+        "id": "<integer>",
+        "port": "SSH: 22, Telnet: 23",
+        "jump_group_type": "shared",
+        "terminal": "xterm",
+        "keep_alive": "<integer>",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "username": "<string>",
+        "session_policy_id": "<integer>"
+      }
+order: 1000

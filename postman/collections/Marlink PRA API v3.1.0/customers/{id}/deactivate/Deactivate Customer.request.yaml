@@ -1,0 +1,9 @@
+$kind: http-request
+url: "{{baseUrl}}/customers/{{customerId}}/deactivate"
+method: POST
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+examples: ./.resources/Deactivate Customer.resources/examples
+order: 1000

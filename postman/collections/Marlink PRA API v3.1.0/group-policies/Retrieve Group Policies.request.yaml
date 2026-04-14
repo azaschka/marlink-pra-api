@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/group-policies?pageSize=100&pageNumber=1"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+queryParams:
+  - key: pageSize
+    value: "100"
+  - key: pageNumber
+    value: "1"
+  - key: name
+    value: string
+    disabled: true
+  - key: namePatterns
+    value: string
+    disabled: true
+  - key: namePatterns
+    value: string
+    disabled: true
+order: 2000

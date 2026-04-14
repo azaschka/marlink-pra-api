@@ -1,0 +1,15 @@
+$kind: http-request
+name: Get Jump Item association criteria for an Account Group.
+description: Get the Jump Item association criteria for the Account Group with
+  the given `{id}`.
+url: "{{baseUrl}}/vault/account-group/:id/jump-item-association"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get Jump Item association criteria for an Account
+  Group-.resources/examples
+order: 3000

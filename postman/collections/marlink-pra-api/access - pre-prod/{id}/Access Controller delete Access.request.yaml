@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/access/:id"
+method: DELETE
+headers:
+  - key: X-Transaction-Id
+    value: string
+    description: Optional identifier for tracing and correlating a transaction
+      across services and logs.
+    $type: string
+pathVariables:
+  - key: id
+    value: "15.767170974738676"
+    description: Unique identifier for the resource.
+    $type: '{"type":"object","properties":{"value":{"type":"number"}},"required":["value"]}'
+examples: ./.resources/Access Controller delete Access.resources/examples
+order: 2000

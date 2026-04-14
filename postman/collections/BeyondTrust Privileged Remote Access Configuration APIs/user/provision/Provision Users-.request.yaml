@@ -1,0 +1,25 @@
+$kind: http-request
+name: Provision Users.
+description: >
+  Provisions the existing users in the array `user_ids`, which immediately
+  recalculates all permissions and memberships for those users. Unrecognized
+  user ids will be ignored.
+
+
+  If any permission or membership changes have been made via API, the affected
+  users will need to be provisioned with this API before those changes will be
+  reflected in subsequent API calls. Users are always provisioned when they
+  login.
+
+
+  If no user ids are provided, all existing users will be provisioned.
+url: "{{baseUrl}}/user/provision"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Provision Users-.resources/examples
+order: 1000

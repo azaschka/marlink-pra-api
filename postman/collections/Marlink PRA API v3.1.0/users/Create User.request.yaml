@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/users"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "publicDisplayName": "string", // required
+        "username": "string", // required
+        "passwordExpirationDate": "2025-12-31T23:59:59.000Z",
+        "email": "string",
+        "preferredEmailLanguage": "string",
+        "isTwoFactorAuthRequired": false, // boolean
+        "isLoginAllowed": true, // boolean
+        "failedLoginAttempts": 0,
+        "mustResetPasswordOnNextLogin": false // boolean
+    }
+order: 3000

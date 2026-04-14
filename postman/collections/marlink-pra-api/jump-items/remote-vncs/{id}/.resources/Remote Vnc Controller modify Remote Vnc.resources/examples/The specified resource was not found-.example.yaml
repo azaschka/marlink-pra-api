@@ -1,0 +1,42 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/jump-items/remote-vncs/:id"
+  method: PATCH
+  headers:
+    - key: X-Access-Key
+      value: string
+      description: Access key for authenticating and authorizing requests.
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: X-Tenant-Id
+      value: "15.767170974738676"
+      description: The identifier for the tenant making the request.
+    - key: Content-Type
+      value: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "jumpointId": 3132.009828996596,
+        "hostname": "string",
+        "port": 566.9055680541125,
+        "jumpGroupId": 5437.467023973996,
+        "jumpGroupType": "personal",
+        "tag": "string",
+        "comments": "string",
+        "jumpPolicyId": 376.7108721775747,
+        "sessionPolicyId": 5537.904541623486
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  body:
+    type: text
+    content: ""
+order: 2000

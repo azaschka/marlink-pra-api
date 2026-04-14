@@ -1,0 +1,18 @@
+$kind: http-request
+name: Adds a new Jump Group.
+description: Creates a new Jump Group with the properties given in the request body.
+url: "{{baseUrl}}/jump-group"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "code_name": "\\54hsskSeFB",
+      "comments": "<string>"
+    }
+examples: ./.resources/Adds a new Jump Group-.resources/examples
+order: 3000

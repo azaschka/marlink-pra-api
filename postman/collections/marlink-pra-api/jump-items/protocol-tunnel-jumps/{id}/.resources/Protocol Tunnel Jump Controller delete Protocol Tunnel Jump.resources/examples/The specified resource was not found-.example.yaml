@@ -1,0 +1,25 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/:id"
+  method: DELETE
+  headers:
+    - key: X-Access-Key
+      value: string
+      description: Access key for authenticating and authorizing requests.
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: X-Tenant-Id
+      value: "15.767170974738676"
+      description: The identifier for the tenant making the request.
+  pathVariables:
+    id: ""
+response:
+  statusCode: 404
+  statusText: Not Found
+  body:
+    type: text
+    content: ""
+order: 2000

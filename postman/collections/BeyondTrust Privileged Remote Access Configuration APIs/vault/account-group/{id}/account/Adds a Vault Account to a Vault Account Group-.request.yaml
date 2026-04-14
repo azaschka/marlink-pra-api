@@ -1,0 +1,24 @@
+$kind: http-request
+name: Adds a Vault Account to a Vault Account Group.
+description: >
+  This API adds a Vault account to the Vault account group with the given
+  `{id}`.
+
+  If the account is part of any other group, then it will implicitly moved from
+  its prior group into this new group.
+
+  The response body contains the new Vault account group account resource.
+url: "{{baseUrl}}/vault/account-group/:id/account"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Adds a Vault Account to a Vault Account Group-.resources/examples
+order: 3000

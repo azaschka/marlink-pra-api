@@ -1,0 +1,34 @@
+$kind: http-request
+description: The response body returns a unique installer identifier that can be
+  used to download the installer for a specific platform, and the key
+  information needed to deploy a Windows MSI installer.
+url: "{{baseUrl}}/jump-client/installer"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "jump_group_id": "<integer>",
+      "name": "<string>",
+      "jump_group_type": "shared",
+      "jump_policy_id": "<integer>",
+      "tag": "<string>",
+      "connection_type": "active",
+      "session_policy_id": "<integer>",
+      "comments": "",
+      "valid_duration": 1440,
+      "elevate_install": true,
+      "elevate_prompt": true,
+      "allow_override_jump_group": false,
+      "allow_override_jump_policy": false,
+      "allow_override_name": false,
+      "allow_override_tag": false,
+      "allow_override_comments": false,
+      "allow_override_session_policy": false,
+      "jumpoint_proxy": "<string>"
+    }
+examples: ./.resources/Create a Jump Client installer.resources/examples
+order: 4000

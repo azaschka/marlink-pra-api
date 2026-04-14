@@ -1,0 +1,79 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api-account?per_page=<integer>&current_page=<integer>&name=<s\
+    tring>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters results to include only api accounts with the given name.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": "<integer>",
+          "name": "<string>",
+          "comments": "<string>",
+          "enabled": "<boolean>",
+          "ip_addresses": "<string>",
+          "client_id": "<string>",
+          "failed_login_attempts": "<integer>",
+          "failed_login_expiration": "<string>",
+          "perm_command": "full_access",
+          "perm_reporting_support": "<boolean>",
+          "perm_reporting_license": "<boolean>",
+          "perm_reporting_vault": "<boolean>",
+          "perm_reporting_jump_item": "<boolean>",
+          "perm_reporting_syslog": "<boolean>",
+          "perm_backup": "<boolean>",
+          "perm_vault_backup": "<boolean>",
+          "perm_ecm": "<boolean>",
+          "perm_scim": "<boolean>",
+          "bearer_token_long_lived": "<boolean>",
+          "perm_configuration": "<boolean>",
+          "perm_configuration_vault_account": "<boolean>"
+        },
+        {
+          "id": "<integer>",
+          "name": "<string>",
+          "comments": "<string>",
+          "enabled": "<boolean>",
+          "ip_addresses": "<string>",
+          "client_id": "<string>",
+          "failed_login_attempts": "<integer>",
+          "failed_login_expiration": "<string>",
+          "perm_command": "deny",
+          "perm_reporting_support": "<boolean>",
+          "perm_reporting_license": "<boolean>",
+          "perm_reporting_vault": "<boolean>",
+          "perm_reporting_jump_item": "<boolean>",
+          "perm_reporting_syslog": "<boolean>",
+          "perm_backup": "<boolean>",
+          "perm_vault_backup": "<boolean>",
+          "perm_ecm": "<boolean>",
+          "perm_scim": "<boolean>",
+          "bearer_token_long_lived": "<boolean>",
+          "perm_configuration": "<boolean>",
+          "perm_configuration_vault_account": "<boolean>"
+        }
+      ]
+order: 1000

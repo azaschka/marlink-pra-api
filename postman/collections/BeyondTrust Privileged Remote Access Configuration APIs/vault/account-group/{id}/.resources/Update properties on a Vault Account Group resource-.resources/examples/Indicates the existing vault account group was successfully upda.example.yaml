@@ -1,0 +1,34 @@
+$kind: http-example
+name: Indicates the existing vault account group was successfully updated and
+  returns the new vault account group.
+request:
+  url: "{{baseUrl}}/vault/account-group/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "description": "<string>",
+        "account_policy": "<string>"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "name": "<string>",
+        "description": "<string>",
+        "account_policy": "<string>"
+      }
+order: 1000

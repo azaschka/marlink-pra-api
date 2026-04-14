@@ -1,0 +1,19 @@
+$kind: http-request
+name: Get a User with access to a Team.
+description: Gets a `TeamUser` resource representing the user with the given
+  `{user_id}` belonging to the team with the given `{id}`. This is useful for
+  determining if the user is a member of a specific team and what their role is
+  on that team.
+url: "{{baseUrl}}/team/:id/user/:user_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) The unique id of the user.
+examples: ./.resources/Get a User with access to a Team-.resources/examples
+order: 1000

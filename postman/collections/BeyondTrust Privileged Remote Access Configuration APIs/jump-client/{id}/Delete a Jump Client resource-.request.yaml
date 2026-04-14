@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a Jump Client resource.
+description: Deletes the existing Jump Client resource with the given `{id}`.
+url: "{{baseUrl}}/jump-client/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Jump Client resource-.resources/examples
+order: 4000

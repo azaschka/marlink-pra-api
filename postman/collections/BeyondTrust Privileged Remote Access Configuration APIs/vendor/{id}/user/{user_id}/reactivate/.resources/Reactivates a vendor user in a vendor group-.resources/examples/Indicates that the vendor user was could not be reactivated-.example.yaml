@@ -1,0 +1,15 @@
+$kind: http-example
+name: Indicates that the vendor user was could not be reactivated.
+request:
+  url: "{{baseUrl}}/vendor/:id/user/:user_id/reactivate"
+  method: POST
+  pathVariables:
+    id: ""
+    user_id: ""
+response:
+  statusCode: 400
+  statusText: Bad Request
+  body:
+    type: text
+    content: ""
+order: 2000

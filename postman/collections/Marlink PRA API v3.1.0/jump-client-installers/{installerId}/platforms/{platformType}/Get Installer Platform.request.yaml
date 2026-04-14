@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-clients/installers/{{installerId}}/platforms/{{platformT\
+  ype}}"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 1000

@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Group Policy resource.
+description: Gets the Group Policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Get a Group Policy resource-.resources/examples
+order: 9000

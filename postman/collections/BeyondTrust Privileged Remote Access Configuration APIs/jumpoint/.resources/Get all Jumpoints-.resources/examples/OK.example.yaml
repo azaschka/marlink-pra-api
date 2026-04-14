@@ -1,0 +1,90 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jumpoint?per_page=<integer>&current_page=<integer>&name=<stri\
+    ng>&public_ip=<string>&private_ip=<string>&hostname=<string>&code_name=cT4"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters results to include only Jumpoints with the given name.
+    - key: public_ip
+      value: <string>
+      description: Filters results to include only Jumpoints with a node that has the
+        specified public IP.
+    - key: private_ip
+      value: <string>
+      description: Filters results to include only Jumpoints with a node that has the
+        specified private IP.
+    - key: hostname
+      value: <string>
+      description: Filters results to include only Jumpoints with a node that has the
+        specified hostname.
+    - key: code_name
+      value: cT4
+      description: Filters a response to include only resources with the given code name.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "name": "<string>",
+          "platform": "windows-x86",
+          "id": "<integer>",
+          "code_name": "gyh",
+          "comments": "<string>",
+          "enabled": true,
+          "connected": true,
+          "clustered": false,
+          "shell_jump_enabled": false,
+          "external_jump_item_network_id": "<string>",
+          "protocol_tunnel_enabled": true,
+          "rdp_service_account_id": null,
+          "jzp_enabled": false,
+          "jzp_proxy_hostname": "",
+          "jzp_proxy_port": 9555,
+          "jzp_allow_http_get": false,
+          "jzp_client_address_restrictions_type": "no_restriction",
+          "docker_deploy_key": "<string>",
+          "key_info": "<string>"
+        },
+        {
+          "name": "<string>",
+          "platform": "linux-x86",
+          "id": "<integer>",
+          "code_name": "k8w\\d",
+          "comments": "<string>",
+          "enabled": true,
+          "connected": true,
+          "clustered": false,
+          "shell_jump_enabled": false,
+          "external_jump_item_network_id": "<string>",
+          "protocol_tunnel_enabled": true,
+          "rdp_service_account_id": null,
+          "jzp_enabled": false,
+          "jzp_proxy_hostname": "",
+          "jzp_proxy_port": 9555,
+          "jzp_allow_http_get": false,
+          "jzp_client_address_restrictions_type": "no_restriction",
+          "docker_deploy_key": "<string>",
+          "key_info": "<string>"
+        }
+      ]
+order: 1000

@@ -1,0 +1,29 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "",
+        "name": ""
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: >-
+      {
+        "statusCode": 400,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/sites",
+        "message": "Validation failed: key must not be empty, name must not be empty"
+      }
+order: 2000

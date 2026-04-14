@@ -1,0 +1,17 @@
+$kind: http-request
+name: Remove a User's access to a Jumpoint.
+description: Removes access to the Jumpoint with the given `{id}` for the user
+  with the given `{user_id}`.
+url: "{{baseUrl}}/jumpoint/:id/user/:user_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the Jumpoint.
+  - key: user_id
+    value: <integer>
+    description: (Required) Unique identifier for the user.
+examples: ./.resources/Remove a User's access to a Jumpoint-.resources/examples
+order: 2000

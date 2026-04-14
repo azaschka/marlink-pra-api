@@ -1,0 +1,14 @@
+$kind: http-request
+name: Get a Security Provider.
+description: Gets the Security Provider with the given `{id}`. A type-specific
+  resource is returned.
+url: "{{baseUrl}}/security-provider/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Security Provider-.resources/examples
+order: 1000

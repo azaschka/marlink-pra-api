@@ -1,0 +1,22 @@
+$kind: http-request
+name: Copy a PostgreSQL Tunnel Jump Item.
+description: Copies the PostgreSQL Tunnel Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/psql-tunnel-jump/:id/copy"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "jump_group_id": "<integer>",
+      "jump_group_type": "personal",
+      "name": "<string>"
+    }
+examples: ./.resources/Copy a PostgreSQL Tunnel Jump Item-.resources/examples
+order: 1000

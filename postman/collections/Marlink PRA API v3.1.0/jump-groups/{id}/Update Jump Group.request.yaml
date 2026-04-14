@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-groups/{{jumpGroupId}}"
+method: PATCH
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "name": "string",
+        "codeName": "string",
+        "comments": "string"
+    }
+order: 2000

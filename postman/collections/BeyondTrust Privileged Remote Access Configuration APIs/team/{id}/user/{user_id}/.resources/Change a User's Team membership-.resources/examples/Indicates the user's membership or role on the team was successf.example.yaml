@@ -1,0 +1,33 @@
+$kind: http-example
+name: Indicates the user's membership or role on the team was successfully updated.
+request:
+  url: "{{baseUrl}}/team/:id/user/:user_id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+    user_id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "team_id": "<integer>",
+        "user_id": "<integer>",
+        "role": "member"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "team_id": "<integer>",
+        "user_id": "<integer>",
+        "role": "member"
+      }
+order: 1000

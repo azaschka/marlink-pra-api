@@ -1,0 +1,27 @@
+$kind: http-request
+name: Create a Vendor Group.
+description: |
+  Creates a new vendor group resource.
+  The response body contains the new vendor group.
+url: "{{baseUrl}}/vendor"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "default_policy": "<integer>",
+      "account_expiration": 30,
+      "deletion_days_after_expiration": null,
+      "user_added_notification_enabled": true,
+      "user_expired_notification_enabled": true,
+      "user_approval_enabled": false,
+      "user_reactivation_enabled": false,
+      "duration": 24,
+      "duration_enabled": false
+    }
+examples: ./.resources/Create a Vendor Group-.resources/examples
+order: 3000

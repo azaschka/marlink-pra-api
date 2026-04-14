@@ -1,0 +1,15 @@
+$kind: http-request
+name: Delete a Jump Group.
+description: Deletes an existing Jump Group resource with the given `{id}`. Note
+  that all resources owned by this Jump Group, such as Jump Items, will also be
+  deleted.
+url: "{{baseUrl}}/jump-group/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Jump Group-.resources/examples
+order: 4000

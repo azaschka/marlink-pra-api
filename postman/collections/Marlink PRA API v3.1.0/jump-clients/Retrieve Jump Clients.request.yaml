@@ -1,0 +1,45 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-clients?pageSize=100&pageNumber=1"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+queryParams:
+  - key: pageSize
+    value: "100"
+  - key: pageNumber
+    value: "1"
+  - key: name
+    value: string
+    disabled: true
+  - key: hostname
+    value: string
+    disabled: true
+  - key: fqdn
+    value: string
+    disabled: true
+  - key: tag
+    value: string
+    disabled: true
+  - key: jumpGroupType
+    value: shared,personal
+    disabled: true
+  - key: consoleUser
+    value: string
+    disabled: true
+  - key: publicIp
+    value: string
+    disabled: true
+  - key: privateIp
+    value: string
+    disabled: true
+  - key: connectionType
+    value: online,offline
+    disabled: true
+  - key: jumpGroupIds
+    value: number
+    disabled: true
+  - key: jumpGroupIds
+    value: number
+    disabled: true
+order: 2000

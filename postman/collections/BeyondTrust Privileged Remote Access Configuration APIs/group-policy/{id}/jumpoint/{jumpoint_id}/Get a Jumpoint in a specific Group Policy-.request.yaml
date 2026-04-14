@@ -1,0 +1,19 @@
+$kind: http-request
+name: Get a Jumpoint in a specific Group Policy.
+description: Returns a `GroupPolicyJumpoint` resource for the Jumpoint with the
+  given `{jumpoint_id}` in the group policy with the given `{id}`. This is
+  useful for determining if a given Jumpoint has been added to a specific group
+  policy.
+url: "{{baseUrl}}/group-policy/:id/jumpoint/:jumpoint_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: jumpoint_id
+    value: <integer>
+    description: (Required) Unique identifier for the Jumpoint.
+examples: ./.resources/Get a Jumpoint in a specific Group Policy-.resources/examples
+order: 1000

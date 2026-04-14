@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a Jump Policy.
+description: Deletes an existing Jump Policy resource with the given `{id}`.
+url: "{{baseUrl}}/jump-policy/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Jump Policy-.resources/examples
+order: 3000

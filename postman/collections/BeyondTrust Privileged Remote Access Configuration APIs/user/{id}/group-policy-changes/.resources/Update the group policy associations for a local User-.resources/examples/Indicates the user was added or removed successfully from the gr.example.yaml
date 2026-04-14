@@ -1,0 +1,48 @@
+$kind: http-example
+name: Indicates the user was added or removed successfully from the group policies.
+request:
+  url: "{{baseUrl}}/user/:id/group-policy-changes"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: "{}"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "id": "<integer>",
+        "perm_access_allowed": false,
+        "access_perm_status": "not_defined",
+        "perm_share_other_team": false,
+        "perm_invite_external_user": false,
+        "perm_session_idle_timeout": -1,
+        "perm_extended_availability_mode_allowed": false,
+        "perm_edit_external_key": false,
+        "perm_collaborate": false,
+        "perm_collaborate_control": false,
+        "perm_jump_client": false,
+        "perm_local_jump": false,
+        "perm_remote_jump": false,
+        "perm_remote_vnc": false,
+        "perm_remote_rdp": false,
+        "perm_shell_jump": false,
+        "perm_web_jump": false,
+        "perm_protocol_tunnel": false,
+        "perm_sd_static_port_for_external_tools": false,
+        "default_jump_item_role_id": 1,
+        "private_jump_item_role_id": 1,
+        "inferior_jump_item_role_id": 1,
+        "unassigned_jump_item_role_id": 1
+      }
+order: 1000

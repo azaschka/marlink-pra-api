@@ -1,0 +1,32 @@
+$kind: http-example
+name: Indicates the role on the group was successfully updated.
+request:
+  url: "{{baseUrl}}/vault/account-group/:id/user/:user_id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+    user_id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "user_id": "<integer>",
+        "role": "inject"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "user_id": "<integer>",
+        "account_group_id": "<integer>",
+        "role": "inject"
+      }
+order: 1000

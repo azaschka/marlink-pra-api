@@ -1,0 +1,24 @@
+$kind: http-request
+name: Get a list of Security Providers.
+description: >
+  Gets a paginated list of security providers.
+
+  For clustered security providers, only the parent provider is listed. Child
+  providers are not listed because users are always associated with the parent
+  provider.
+
+  Security providers that only do group lookups are not listed because users are
+  not associated with such providers.
+url: "{{baseUrl}}/security-provider?per_page=<integer>&current_page=<integer>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+examples: ./.resources/Get a list of Security Providers-.resources/examples
+order: 2000

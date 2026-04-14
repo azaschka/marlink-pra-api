@@ -1,0 +1,23 @@
+$kind: http-request
+name: Associate a Remote RDP Jump Item to a Vault endpoint.
+description: Associates an existing remote RDP Jump Items with vault endpoint
+  with the given `{id}`. The endpoint associations can be consulted at
+  `/jump-item/remote-rdp?endpoint_id={id}`.
+url: "{{baseUrl}}/vault/endpoint/:id/remote-rdp-jump-item-association"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "id": "<integer>"
+    }
+examples: ./.resources/Associate a Remote RDP Jump Item to a Vault
+  endpoint-.resources/examples
+order: 1000

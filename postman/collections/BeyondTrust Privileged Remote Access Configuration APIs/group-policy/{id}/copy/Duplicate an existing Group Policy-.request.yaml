@@ -1,0 +1,28 @@
+$kind: http-request
+name: Duplicate an existing Group Policy.
+description: >
+  Copies an existing group policy resource with the given `{id}`.
+
+
+  The body of the POST must contain the name of the new group policy.
+
+
+  The copied group policy retains all other settings and configuration
+  associated with the original group policy.
+url: "{{baseUrl}}/group-policy/:id/copy"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>"
+    }
+examples: ./.resources/Duplicate an existing Group Policy-.resources/examples
+order: 1000

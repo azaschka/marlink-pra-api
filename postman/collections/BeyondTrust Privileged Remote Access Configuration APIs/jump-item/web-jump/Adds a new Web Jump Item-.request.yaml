@@ -1,0 +1,30 @@
+$kind: http-request
+name: Adds a new Web Jump Item.
+description: Creates a new Web Jump Item with the properties given in the request body.
+url: "{{baseUrl}}/jump-item/web-jump"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "jumpoint_id": "<integer>",
+      "url": "<string>",
+      "jump_group_id": "<integer>",
+      "username_format": "default",
+      "verify_certificate": true,
+      "jump_group_type": "shared",
+      "authentication_timeout": 3,
+      "tag": "<string>",
+      "comments": "<string>",
+      "jump_policy_id": "<integer>",
+      "username_field": "<string>",
+      "password_field": "<string>",
+      "submit_field": "<string>",
+      "session_policy_id": "<integer>"
+    }
+examples: ./.resources/Adds a new Web Jump Item-.resources/examples
+order: 3000

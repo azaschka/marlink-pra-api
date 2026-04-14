@@ -1,0 +1,28 @@
+$kind: http-request
+name: Change a User's Team membership.
+description: Modifies the role or membership of the user with the given
+  `{user_id}` on the team with the given `{id}`. This can change the user's role
+  on a team or move the user to a different team. This cannot modify users added
+  to a team by a group policy.
+url: "{{baseUrl}}/team/:id/user/:user_id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) The unique id of the user.
+body:
+  type: json
+  content: |-
+    {
+      "team_id": "<integer>",
+      "user_id": "<integer>",
+      "role": "member"
+    }
+examples: ./.resources/Change a User's Team membership-.resources/examples
+order: 2000

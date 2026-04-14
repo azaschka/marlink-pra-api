@@ -1,0 +1,13 @@
+$kind: http-request
+name: Reactivates all vendor users in a vendor group.
+description: Reactivates all vendor user.
+url: "{{baseUrl}}/vendor/:id/reactivate"
+method: POST
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Reactivates all vendor users in a vendor group-.resources/examples
+order: 1000

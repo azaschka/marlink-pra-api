@@ -1,0 +1,38 @@
+$kind: http-request
+description: Creates a new jumpoint with the specified configuration. The
+  jumpoint must be associated with an existing site.
+url: "{{baseUrl}}/jumpoints"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: >-
+    {
+        "name": "string", // required
+        "platformType": "windows-x86", // required - windows-x86, linux-x86
+        "codeName": "string",
+        "comments": "string",
+        "isEnabled": true,
+        "isClustered": false,
+        "isShellJumpEnabled": false,
+        "externalJumpItemNetworkId": "string",
+        "isProtocolTunnelEnabled": true,
+        "rdpServiceAccountId": 0,
+        "managedIpRanges": [
+            {
+                "start": "string",
+                "end": "string"
+            }
+        ],
+        "isJzpEnabled": false,
+        "jzpProxyHostname": "string",
+        "jzpProxyPort": 0,
+        "isJzpHttpGetAllowed": false,
+        "jzpClientAddressRestrictionsType": "no-restriction", // no-restriction, allow-all, deny-all
+        "jzpRestrictedIps": [
+            "string"
+        ]
+    }
+order: 4000

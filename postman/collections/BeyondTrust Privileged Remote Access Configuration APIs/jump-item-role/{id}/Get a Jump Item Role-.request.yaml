@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Jump Item Role.
+description: Gets the Jump Item Role resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item-role/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Jump Item Role-.resources/examples
+order: 1000

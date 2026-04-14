@@ -1,0 +1,62 @@
+$kind: http-example
+name: One or more request parameters are invalid. The body contains a general
+  error message as well as a validation error dictionary.
+request:
+  url: "{{baseUrl}}/jump-item/protocol-tunnel-jump/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>",
+        "tunnel_listen_address": "127.0.0.1",
+        "tunnel_definitions": "<string>",
+        "tunnel_type": "tcp",
+        "username": "<string>",
+        "database": "<string>",
+        "url": "<string>",
+        "ca_certificates": "<string>"
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>",
+        "errors": {
+          "ad7e": [
+            "<string>",
+            "<string>"
+          ],
+          "est9": [
+            "<string>",
+            "<string>"
+          ],
+          "occaecat67": [
+            "<string>",
+            "<string>"
+          ],
+          "in_9_": [
+            "<string>",
+            "<string>"
+          ]
+        }
+      }
+order: 3000

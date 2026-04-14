@@ -1,0 +1,16 @@
+$kind: http-request
+name: Get a list of Session Policies.
+description: Gets a paginated list of all session policies.
+url: "{{baseUrl}}/session-policy?per_page=<integer>&current_page=<integer>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+examples: ./.resources/Get a list of Session Policies-.resources/examples
+order: 1000

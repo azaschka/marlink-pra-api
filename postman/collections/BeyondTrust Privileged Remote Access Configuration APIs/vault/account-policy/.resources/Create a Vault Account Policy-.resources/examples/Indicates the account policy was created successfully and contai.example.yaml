@@ -1,0 +1,41 @@
+$kind: http-example
+name: Indicates the account policy was created successfully and contains the new
+  account policy instance. The `Location` header contains the URL of the account
+  policy.
+request:
+  url: "{{baseUrl}}/vault/account-policy"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "code_name": "<string>",
+        "description": "<string>",
+        "auto_rotate_credentials": "<boolean>",
+        "allow_simultaneous_checkout": "<boolean>",
+        "scheduled_password_rotation": "<boolean>",
+        "maximum_password_age": "<integer>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "id": "<integer>",
+        "code_name": "<string>",
+        "description": "<string>",
+        "auto_rotate_credentials": "<boolean>",
+        "allow_simultaneous_checkout": "<boolean>",
+        "scheduled_password_rotation": "<boolean>",
+        "maximum_password_age": "<integer>"
+      }
+order: 1000

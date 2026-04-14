@@ -1,0 +1,75 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "SITE001",
+        "name": "Main Office",
+        "customerKey": "CUST001",
+        "siteManagers": []
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 1,
+        "key": "SITE001",
+        "name": "Main Office",
+        "customerKey": "CUST001",
+        "siteManagers": [
+          {
+            "id": 1,
+            "siteId": 1,
+            "userId": 1,
+            "username": "manager1",
+            "email": "manager1@example.com",
+            "creationDate": "2024-01-01T10:00:00.000Z"
+          }
+        ],
+        "siteAuditors": [
+          {
+            "id": 1,
+            "siteId": 1,
+            "userId": 2,
+            "username": "admin1",
+            "email": "admin1@example.com",
+            "isAdminOperator": true,
+            "creationDate": "2024-01-01T10:00:00.000Z"
+          }
+        ],
+        "siteSupportTeamMembers": [
+          {
+            "id": 1,
+            "siteId": 1,
+            "userId": 3,
+            "firstname": "John",
+            "lastname": "Doe",
+            "email": "support1@example.com",
+            "supportTeamName": "Technical Support",
+            "supportTeamAccessLevel": "full",
+            "supportTeamTrustLevel": "require-auth",
+            "creationDate": "2024-01-01T10:00:00.000Z"
+          }
+        ],
+        "siteApprovers": [
+          {
+            "email": "approver1@example.com"
+          },
+          {
+            "email": "approver2@example.com"
+          }
+        ],
+        "creationDate": "2024-01-01T10:00:00.000Z"
+      }
+order: 1000

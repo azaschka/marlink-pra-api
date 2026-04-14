@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/remote-rdps/{{rdpId}}"
+method: PATCH
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Updated RDP Connection"
+    }
+order: 4000

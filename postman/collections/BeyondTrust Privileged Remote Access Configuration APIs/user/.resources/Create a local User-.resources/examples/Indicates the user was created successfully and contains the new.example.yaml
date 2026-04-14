@@ -1,0 +1,85 @@
+$kind: http-example
+name: Indicates the user was created successfully and contains the new user
+  instance. The `Location` header contains the URL of the user.
+request:
+  url: "{{baseUrl}}/user"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "public_display_name": "<string>",
+        "username": "<string>",
+        "password": "<string>",
+        "password_expiration": "<dateTime>",
+        "email_address": "<string>",
+        "preferred_email_language": "en-us",
+        "two_factor_required": false,
+        "enabled": true,
+        "failed_logins": 0,
+        "password_reset_next_login": false
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "public_display_name": "<string>",
+        "id": "<integer>",
+        "security_provider_id": "<integer>",
+        "username": "<string>",
+        "password_expiration": "<dateTime>",
+        "email_address": "<string>",
+        "preferred_email_language": "en-us",
+        "two_factor_required": false,
+        "enabled": true,
+        "last_authentication": "<dateTime>",
+        "failed_logins": 0,
+        "password_reset_next_login": false,
+        "created_at": "<dateTime>",
+        "two_factor_enabled": "<boolean>",
+        "fido2_credential_count": "<integer>",
+        "fido2_last_used_date": "<dateTime>",
+        "perm_admin": "<boolean>",
+        "perm_set_passwords": "<boolean>",
+        "perm_admin_pushagents": "<boolean>",
+        "perm_view_support_reports": "user_sessions",
+        "perm_view_vault_reports": "view_user_events",
+        "perm_view_syslog_reports": "<boolean>",
+        "perm_view_sd_recordings": "<boolean>",
+        "perm_edit_jump_groups": "<boolean>",
+        "perm_edit_sd_teams": "<boolean>",
+        "perm_edit_canned_scripts": "<boolean>",
+        "perm_edit_custom_rep_links": "<boolean>",
+        "perm_access_allowed": "not_allowed",
+        "perm_share_other_team": false,
+        "perm_invite_external_user": false,
+        "perm_extended_availability_mode_allowed": false,
+        "perm_edit_external_key": false,
+        "perm_session_idle_timeout": -1,
+        "perm_collaborate": false,
+        "perm_collaborate_control": false,
+        "perm_jump_client": false,
+        "perm_local_jump": false,
+        "perm_remote_jump": false,
+        "perm_remote_vnc": false,
+        "perm_remote_rdp": false,
+        "perm_shell_jump": false,
+        "default_jump_item_role_id": 1,
+        "private_jump_item_role_id": 1,
+        "inferior_jump_item_role_id": 1,
+        "unassigned_jump_item_role_id": 1,
+        "perm_web_jump": false,
+        "perm_protocol_tunnel": false,
+        "perm_sd_static_port_for_external_tools": false,
+        "perm_vault": "<boolean>",
+        "perm_endpoint_automation": "<boolean>"
+      }
+order: 1000

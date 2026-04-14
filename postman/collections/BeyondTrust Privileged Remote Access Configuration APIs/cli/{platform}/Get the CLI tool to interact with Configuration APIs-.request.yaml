@@ -1,0 +1,15 @@
+$kind: http-request
+name: Get the CLI tool to interact with Configuration APIs.
+description: |
+  This returns the CLI tool that makes it easier to leverage configuration APIs.
+url: "{{baseUrl}}/cli/:platform"
+method: GET
+headers:
+  Accept: application/zip
+pathVariables:
+  - key: platform
+    value: win32
+    description: (Required) The platform type to download
+examples: ./.resources/Get the CLI tool to interact with Configuration
+  APIs-.resources/examples
+order: 1000

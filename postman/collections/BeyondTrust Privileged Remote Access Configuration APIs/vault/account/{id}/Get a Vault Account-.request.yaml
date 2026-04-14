@@ -1,0 +1,14 @@
+$kind: http-request
+name: Get a Vault Account.
+description: Gets the Vault account with the given `{id}`. A type-specific
+  resource is returned.
+url: "{{baseUrl}}/vault/account/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Vault Account-.resources/examples
+order: 7000

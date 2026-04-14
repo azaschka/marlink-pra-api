@@ -1,0 +1,19 @@
+$kind: http-request
+name: Get an account of Vault Account Group.
+description: >
+  Get a `VaultAccountGroupAccount` resource representing the account with the
+  given `{id}` in the Vault account group with the given  `{id}`. This is useful
+  for determining if a given account exists in a specific Vault account group.
+url: "{{baseUrl}}/vault/account-group/:id/account/:account_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: account_id
+    value: <integer>
+    description: (Required) Unique identifier for the Account.
+examples: ./.resources/Get an account of Vault Account Group-.resources/examples
+order: 1000

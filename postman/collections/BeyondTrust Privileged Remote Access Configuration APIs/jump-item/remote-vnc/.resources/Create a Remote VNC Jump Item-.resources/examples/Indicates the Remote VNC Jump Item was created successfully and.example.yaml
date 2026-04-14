@@ -1,0 +1,47 @@
+$kind: http-example
+name: Indicates the Remote VNC Jump Item was created successfully and contains
+  the new Remote VNC Jump Item instance. The `Location` header contains the URL
+  of the Remote VNC Jump Item.
+request:
+  url: "{{baseUrl}}/jump-item/remote-vnc"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "hostname": "<string>",
+        "jumpoint_id": "<integer>",
+        "jump_group_id": "<integer>",
+        "port": 5900,
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "hostname": "<string>",
+        "jumpoint_id": "<integer>",
+        "jump_group_id": "<integer>",
+        "id": "<integer>",
+        "port": 5900,
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>"
+      }
+order: 1000

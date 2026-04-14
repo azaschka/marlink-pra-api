@@ -1,0 +1,18 @@
+$kind: http-request
+description: Retrieves site auditors for the specified site. Site auditors have
+  administrative privileges for site configuration and management.
+url: "{{baseUrl}}/sites/{{siteId}}/auditors?pageSize=100&pageNumber=1"
+method: GET
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+queryParams:
+  - key: pageSize
+    value: "100"
+    description: The number of items to include in a paginated response.
+  - key: pageNumber
+    value: "1"
+    description: The 1-based index of the desired page.
+examples: ./.resources/Get Site Auditors.resources/examples
+order: 2000

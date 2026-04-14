@@ -1,0 +1,45 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-policies"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "displayName": "string", // required
+        "codeName": "string",
+        "description": "string",
+        "hasScheduledAccessRestriction": true, // boolean
+        "simultaneousJumpsType": "global", // global, join, disallow
+        "doesSimultaneousJumpBehaviorApplyToCopies": false, // boolean
+        "simultaneousJumpsRdpType": "global", // global, new-session, disallow
+        "shouldForceRemoveUsersWhenScheduleDisallows": false, // boolean
+        "isTicketIdRequired": false, // boolean
+        "isTwoFactorChallengeRequired": false, // boolean
+        "isSessionStartNotificationEnabled": false, // boolean
+        "isSessionEndNotificationEnabled": false, // boolean
+        "notificationEmailAddresses": [
+            "string"
+        ],
+        "notificationDisplayName": "string",
+        "notificationEmailLanguage": "string",
+        "isApprovalRequired": false, // boolean
+        "approvalMaxDurationInMinutes": 0,
+        "approvalScopeType": "requestor", // requestor, anyone
+        "approvalEmailAddresses": [
+            "string"
+        ],
+        "approvalUserIds": [
+            "string"
+        ],
+        "approvalTeamIds": [
+            "string"
+        ],
+        "approvalDisplayName": "string",
+        "approvalEmailLanguage": "string",
+        "approvalApproverScopeType": "not-requestor", // not-requestor, anyone
+        "isRecordingsDisabled": false // boolean
+    }
+order: 3000

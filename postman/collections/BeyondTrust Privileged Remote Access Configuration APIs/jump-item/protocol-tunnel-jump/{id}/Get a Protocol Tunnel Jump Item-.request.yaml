@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Protocol Tunnel Jump Item.
+description: Return a Protocol Tunnel Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/protocol-tunnel-jump/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Protocol Tunnel Jump Item-.resources/examples
+order: 2000

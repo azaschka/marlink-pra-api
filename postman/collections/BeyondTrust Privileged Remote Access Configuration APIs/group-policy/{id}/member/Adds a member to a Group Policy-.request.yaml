@@ -1,0 +1,52 @@
+$kind: http-request
+name: Adds a member to a Group Policy.
+description: >
+  Adds a member to a group policy. The fields required in the request body
+  depend on the type of security provider the member is in.
+
+
+  - Adding a local user as a member of a group policy requires the following
+  fields: `group_policy_id`, `security_provider_id`, and `user_id`. The field
+  `distinguished_name` must not be present.
+
+  - Adding an LDAP user requires the following fields: `group_policy_id` and
+  `security_provider_id`. Either `user_id` or `distinguished_name` must be
+  provided but not both.
+
+  - Adding an LDAP group requires the following fields: `group_policy_id`,
+  `security_provider_id`, and `distinguished_name`.
+
+  - RADIUS, Kerberos, and SAML users require the following fields:
+  `group_policy_id`, `security_provider_id`, and `user_id`. RADIUS users must
+  log into the BeyondTrust product at least once and be provisioned with a user
+  ID.
+
+  - Adding a SAML group requires the following fields: `group_policy_id`,
+  `security_provider_id`, and `group_name`. The group_name must be the name of
+  an existing group.
+
+  - Adding a SCIM user requires the following fields: `group_policy_id`,
+  `security_provider_id`, and `distinguished_name`. No user login is necessary.
+
+  - Adding a SCIM group requires the following fields: `group_policy_id`,
+  `security_provider_id`, and `group_name`.
+url: "{{baseUrl}}/group-policy/:id/member"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+body:
+  type: json
+  content: |-
+    {
+      "security_provider_id": "<integer>",
+      "distinguished_name": "<string>",
+      "group_name": "<string>",
+      "user_id": "<integer>"
+    }
+examples: ./.resources/Adds a member to a Group Policy-.resources/examples
+order: 3000

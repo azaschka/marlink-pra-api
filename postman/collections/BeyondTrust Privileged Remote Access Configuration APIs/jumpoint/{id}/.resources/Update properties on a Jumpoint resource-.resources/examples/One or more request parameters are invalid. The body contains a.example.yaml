@@ -1,0 +1,61 @@
+$kind: http-example
+name: One or more request parameters are invalid. The body contains a general
+  error message as well as a validation error dictionary.
+request:
+  url: "{{baseUrl}}/jumpoint/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "platform": "windows-x86",
+        "code_name": "fDvL3mm",
+        "comments": "<string>",
+        "enabled": true,
+        "clustered": false,
+        "shell_jump_enabled": false,
+        "external_jump_item_network_id": "<string>",
+        "protocol_tunnel_enabled": true,
+        "rdp_service_account_id": null,
+        "jzp_enabled": false,
+        "jzp_proxy_hostname": "",
+        "jzp_proxy_port": 9555,
+        "jzp_allow_http_get": false,
+        "jzp_client_address_restrictions_type": "no_restriction"
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>",
+        "errors": {
+          "ad7e": [
+            "<string>",
+            "<string>"
+          ],
+          "est9": [
+            "<string>",
+            "<string>"
+          ],
+          "occaecat67": [
+            "<string>",
+            "<string>"
+          ],
+          "in_9_": [
+            "<string>",
+            "<string>"
+          ]
+        }
+      }
+order: 3000

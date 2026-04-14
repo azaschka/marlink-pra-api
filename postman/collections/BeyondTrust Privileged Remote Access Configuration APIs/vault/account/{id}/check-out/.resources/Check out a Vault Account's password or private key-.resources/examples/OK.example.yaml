@@ -1,0 +1,24 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/account/:id/check-out"
+  method: POST
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "username": "<string>",
+        "type": "windows_local",
+        "password": "<string>",
+        "private_key": "<string>",
+        "signed_public_cert": "<string>"
+      }
+order: 1000

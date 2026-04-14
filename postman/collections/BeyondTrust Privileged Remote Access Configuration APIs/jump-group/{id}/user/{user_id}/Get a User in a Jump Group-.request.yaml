@@ -1,0 +1,18 @@
+$kind: http-request
+name: Get a User in a Jump Group.
+description: Returns a `JumpGroupUser` resource representing a user with the
+  given `{user_id}` in the Jump Group with the given `{id}`. This is useful for
+  determining the Jump Item Role and Jump Policy for the user in the Jump Group.
+url: "{{baseUrl}}/jump-group/:id/user/:user_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) The unique id of the user.
+examples: ./.resources/Get a User in a Jump Group-.resources/examples
+order: 3000

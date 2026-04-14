@@ -1,0 +1,28 @@
+$kind: http-request
+name: Remove a Jump Item from an Account Group's Jump Item association criteria.
+description: >
+  Removes a specific Jump Item identified in the request body from the Jump Item
+  association criteria of the Account Group with the given `{id}`.
+
+
+  The Account Group's Jump Item association must have its `filter_type` set to
+  "criteria".
+url: "{{baseUrl}}/vault/account-group/:id/jump-item-association/jump-item"
+method: DELETE
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "id": "<integer>",
+      "type": "remote_rdp"
+    }
+examples: ./.resources/Remove a Jump Item from an Account Group's Jump Item
+  association.resources/examples
+order: 2000

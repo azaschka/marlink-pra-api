@@ -1,0 +1,17 @@
+$kind: http-request
+name: Removes a Jumpoint from a Group Policy.
+description: Removes the Jumpoint with the given `{jumpoint_id}` from the group
+  policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/jumpoint/:jumpoint_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: jumpoint_id
+    value: <integer>
+    description: (Required) Unique identifier for the Jumpoint.
+examples: ./.resources/Removes a Jumpoint from a Group Policy-.resources/examples
+order: 2000

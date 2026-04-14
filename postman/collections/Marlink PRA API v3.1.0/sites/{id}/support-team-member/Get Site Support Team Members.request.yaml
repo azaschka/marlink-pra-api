@@ -1,0 +1,12 @@
+$kind: http-request
+description: Retrieves support team members for the specified site. Support team
+  members provide technical assistance and maintenance for site operations.
+url: "{{baseUrl}}/sites/{{siteId}}/support-team-members?pageSize=100&pageNumber=1"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+queryParams:
+  pageSize: "100"
+  pageNumber: "1"
+examples: ./.resources/Get Site Support Team Members.resources/examples
+order: 2000

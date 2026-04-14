@@ -1,0 +1,28 @@
+$kind: http-request
+name: Adds a Jump Group to a Group Policy.
+description: Adds a Jump Group with the `jump_group_id` given in the request
+  body to a group policy with the `{id}` given in the path. Optionally the
+  request body can specify a Jump Item Role by its `jump_item_role_id`,
+  otherwise the `jump_item_role_id` will default to 0 which means "User's
+  Default". Optionally the request body can specify a Jump Policy by its
+  `jump_policy_id`, otherwise the `jump_policy_id` will default to 0 which means
+  "Set on Jump Items".
+url: "{{baseUrl}}/group-policy/:id/jump-group"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+body:
+  type: json
+  content: |-
+    {
+      "jump_group_id": "<integer>",
+      "jump_item_role_id": "<integer>",
+      "jump_policy_id": "<integer>"
+    }
+examples: ./.resources/Adds a Jump Group to a Group Policy-.resources/examples
+order: 3000

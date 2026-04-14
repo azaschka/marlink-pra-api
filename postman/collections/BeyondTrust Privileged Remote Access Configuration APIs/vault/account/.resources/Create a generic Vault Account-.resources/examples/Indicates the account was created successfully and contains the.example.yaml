@@ -1,0 +1,42 @@
+$kind: http-example
+name: Indicates the account was created successfully and contains the new
+  account instance. The `Location` header contains the URL of the account.
+request:
+  url: "{{baseUrl}}/vault/account"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "type": "username_password",
+        "name": "<string>",
+        "username": "<string>",
+        "password": "<string>",
+        "description": "<string>",
+        "account_group_id": 1,
+        "account_policy": "<string>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "type": "username_password",
+        "name": "<string>",
+        "username": "<string>",
+        "id": "<integer>",
+        "description": "<string>",
+        "last_checkout_timestamp": "<dateTime>",
+        "personal": "<boolean>",
+        "owner_user_id": "<integer>",
+        "account_group_id": 1,
+        "account_policy": "<string>"
+      }
+order: 1000

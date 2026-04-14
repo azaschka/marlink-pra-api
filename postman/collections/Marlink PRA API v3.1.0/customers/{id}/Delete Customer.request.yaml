@@ -1,0 +1,9 @@
+$kind: http-request
+url: "{{baseUrl}}/customers/{{customerId}}"
+method: DELETE
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+examples: ./.resources/Delete Customer.resources/examples
+order: 4000

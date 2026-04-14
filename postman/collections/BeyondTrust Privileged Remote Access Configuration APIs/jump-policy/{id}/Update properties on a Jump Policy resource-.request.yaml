@@ -1,0 +1,41 @@
+$kind: http-request
+name: Update properties on a Jump Policy resource.
+description: Modifies an existing Jump Policy resource with the given `{id}`
+  using the given properties.
+url: "{{baseUrl}}/jump-policy/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "display_name": "<string>",
+      "code_name": "o3",
+      "description": "<string>",
+      "schedule_enabled": true,
+      "simultaneous_jumps": "global",
+      "simultaneous_jump_behavior_applies_to_copies": false,
+      "simultaneous_jumps_rdp": "global",
+      "schedule_strict": false,
+      "ticket_id_required": false,
+      "two_factor_challenge_required": false,
+      "session_start_notification": false,
+      "session_end_notification": false,
+      "notification_display_name": "<string>",
+      "notification_email_language": "en-us",
+      "approval_required": false,
+      "approval_max_duration": 480,
+      "approval_scope": "requestor",
+      "approval_display_name": "<string>",
+      "approval_email_language": "en-us",
+      "approval_approver_scope": "not_requestor",
+      "recordings_disabled": false
+    }
+examples: ./.resources/Update properties on a Jump Policy resource-.resources/examples
+order: 4000

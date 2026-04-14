@@ -1,0 +1,47 @@
+$kind: http-example
+name: One or more request parameters are invalid. The body contains a general
+  error message as well as a validation error dictionary.
+request:
+  url: "{{baseUrl}}/vault/account-group"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "description": "<string>",
+        "account_policy": "<string>"
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>",
+        "errors": {
+          "ad7e": [
+            "<string>",
+            "<string>"
+          ],
+          "est9": [
+            "<string>",
+            "<string>"
+          ],
+          "occaecat67": [
+            "<string>",
+            "<string>"
+          ],
+          "in_9_": [
+            "<string>",
+            "<string>"
+          ]
+        }
+      }
+order: 2000

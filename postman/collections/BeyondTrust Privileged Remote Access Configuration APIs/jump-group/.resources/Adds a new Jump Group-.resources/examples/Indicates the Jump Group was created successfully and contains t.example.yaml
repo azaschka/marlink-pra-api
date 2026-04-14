@@ -1,0 +1,32 @@
+$kind: http-example
+name: Indicates the Jump Group was created successfully and contains the new
+  instance. The `Location` header contains the URL of the new group.
+request:
+  url: "{{baseUrl}}/jump-group"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "code_name": "\\54hsskSeFB",
+        "comments": "<string>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "id": "<integer>",
+        "code_name": "E",
+        "comments": "<string>"
+      }
+order: 1000

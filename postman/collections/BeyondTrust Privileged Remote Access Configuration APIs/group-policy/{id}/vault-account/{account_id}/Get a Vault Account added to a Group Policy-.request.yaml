@@ -1,0 +1,19 @@
+$kind: http-request
+name: Get a Vault Account added to a Group Policy.
+description: Get a `GroupPolicyVaultAccount` resource for the account with the
+  given `{account_id}` that has been added to the group policy with the given
+  `{id}`. This is useful for determining if a given account has been added to a
+  certain group policy and the role the account of this group policy has.
+url: "{{baseUrl}}/group-policy/:id/vault-account/:account_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: account_id
+    value: <integer>
+    description: (Required) Unique identifier for the account.
+examples: ./.resources/Get a Vault Account added to a Group Policy-.resources/examples
+order: 1000

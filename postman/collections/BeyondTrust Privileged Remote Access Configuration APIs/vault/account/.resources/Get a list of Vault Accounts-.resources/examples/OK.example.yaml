@@ -1,0 +1,68 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/account?per_page=<integer>&current_page=<integer>&type=\
+    x509_ca&name=<string>&include_personal=false&account_group_id=<integer>&end\
+    point_id=<integer>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: type
+      value: x509_ca
+      description: Filters results to include only accounts of a the given type.
+    - key: name
+      value: <string>
+      description: Filters results to include only accounts that match the given name.
+    - key: include_personal
+      value: "false"
+      description: Set to "true" to allow results to include personal accounts.
+    - key: account_group_id
+      value: <integer>
+      description: Filters results to include only accounts that match the given vault
+        account group.
+    - key: endpoint_id
+      value: <integer>
+      description: Filters results to include only Windows Local accounts with the
+        given Endpoint.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": "<integer>",
+          "type": "windows_domain",
+          "name": "<string>",
+          "description": "<string>",
+          "personal": "<boolean>",
+          "owner_user_id": "<integer>",
+          "account_group_id": 1,
+          "account_policy": "<string>"
+        },
+        {
+          "id": "<integer>",
+          "type": "x509_ca",
+          "name": "<string>",
+          "description": "<string>",
+          "personal": "<boolean>",
+          "owner_user_id": "<integer>",
+          "account_group_id": 1,
+          "account_policy": "<string>"
+        }
+      ]
+order: 1000

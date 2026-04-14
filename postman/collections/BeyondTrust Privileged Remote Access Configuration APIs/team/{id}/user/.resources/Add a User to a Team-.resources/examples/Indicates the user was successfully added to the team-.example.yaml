@@ -1,0 +1,32 @@
+$kind: http-example
+name: Indicates the user was successfully added to the team.
+request:
+  url: "{{baseUrl}}/team/:id/user"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "team_id": "<integer>",
+        "user_id": "<integer>",
+        "role": "member"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "team_id": "<integer>",
+        "user_id": "<integer>",
+        "role": "member"
+      }
+order: 1000

@@ -1,0 +1,22 @@
+$kind: http-request
+name: Get Jump Item association criteria for an Account.
+description: >
+  Get the Jump Item association criteria for the Account with the given `{id}`.
+
+
+  This API cannot be used if the Account is inheriting Jump Item association
+  criteria from its Account Group. Instead, query its Account Group's
+  associations using the <a
+  href="#api.config.vault.account-group.jump-item-association.show">Account
+  Group's GET API for Jump Item associations</a>.
+url: "{{baseUrl}}/vault/account/:id/jump-item-association"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get Jump Item association criteria for an
+  Account-.resources/examples
+order: 3000

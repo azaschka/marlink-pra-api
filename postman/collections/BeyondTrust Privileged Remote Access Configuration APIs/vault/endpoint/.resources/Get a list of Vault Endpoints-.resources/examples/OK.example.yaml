@@ -1,0 +1,51 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/endpoint?per_page=<integer>&current_page=<integer>&name\
+    =<string>&hostname=<string>&description=<string>&domain_name=<string>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters results to include only endpoints that match the given name.
+    - key: hostname
+      value: <string>
+      description: Filters results to include only endpoints that match the given hostname.
+    - key: description
+      value: <string>
+      description: Filters results to include only endpoints that match the given
+        description.
+    - key: domain_name
+      value: <string>
+      description: Filters results to include only endpoints that match the given
+        domain name.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "name": "<string>",
+        "operating_system": "<string>",
+        "domain_name": "<string>",
+        "distinguished_name": "<string>",
+        "hostname": "<string>",
+        "description": "<string>"
+      }
+order: 1000

@@ -1,0 +1,28 @@
+$kind: http-request
+name: Add a shared Jump Group to an Account Group's Jump Item association criteria.
+description: >
+  Adds a specific shared Jump Group identified by `shared_jump_group_id` in the
+  request body to the Jump Item association criteria of the Account Group with
+  the given `{id}`.
+
+
+  The Account Group's Jump Item association must have its `filter_type` set to
+  "criteria".
+url: "{{baseUrl}}/vault/account-group/:id/jump-item-association/shared-jump-group"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "shared_jump_group_id": 53916575.32636094
+    }
+examples: ./.resources/Add a shared Jump Group to an Account Group's Jump Item
+  associat.resources/examples
+order: 1000

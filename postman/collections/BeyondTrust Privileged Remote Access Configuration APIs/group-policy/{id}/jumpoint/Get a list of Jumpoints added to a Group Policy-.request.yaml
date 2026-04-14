@@ -1,0 +1,23 @@
+$kind: http-request
+name: Get a list of Jumpoints added to a Group Policy.
+description: Gets a paginated list of the Jumpoints added to the group policy
+  with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/jumpoint?per_page=<integer>&current_page=<in\
+  teger>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Get a list of Jumpoints added to a Group
+  Policy-.resources/examples
+order: 2000

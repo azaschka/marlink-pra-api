@@ -1,0 +1,50 @@
+$kind: http-example
+name: Indicates the MySQL Tunnel Jump Item was created successfully and contains
+  the new instance. The `Location` header contains the URL of the item.
+request:
+  url: "{{baseUrl}}/jump-item/mysql-tunnel-jump"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>",
+        "tunnel_listen_address": "127.0.0.1",
+        "username": "<string>",
+        "database": "<string>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "id": "<integer>",
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>",
+        "tunnel_listen_address": "127.0.0.1",
+        "username": "<string>",
+        "database": "<string>"
+      }
+order: 1000

@@ -1,0 +1,32 @@
+$kind: http-example
+name: Indicates the team was created successfully and contains the new team
+  instance. The `Location` header contains the URL of the team.
+request:
+  url: "{{baseUrl}}/team"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "code_name": "3cTR",
+        "comments": "<string>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "id": "<integer>",
+        "code_name": "7",
+        "comments": "<string>"
+      }
+order: 1000

@@ -1,0 +1,21 @@
+$kind: http-example
+name: Indicates the operation was successful.
+request:
+  url: "{{baseUrl}}/jumpoint/:id/user"
+  method: POST
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "user_id": "<integer>"
+      }
+order: 1000

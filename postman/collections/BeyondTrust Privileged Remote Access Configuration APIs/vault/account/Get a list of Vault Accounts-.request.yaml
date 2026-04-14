@@ -1,0 +1,49 @@
+$kind: http-request
+name: Get a list of Vault Accounts.
+description: >
+  Gets a paginated list of all Vault accounts. They can optionally be filtered
+  using query string parameters documented below.
+
+
+  If more than one criteria is specified then AND logic is used to combine the
+  criteria. For example, if both a type and name are specified then all Vault
+  accounts with a matching type and name are returned.
+
+
+  If no filter criteria are specified then all Vault accounts are returned.
+
+
+  String parameters are always matched case-insensitively and exactly. No
+  partial matches are allowed.
+url: "{{baseUrl}}/vault/account?per_page=<integer>&current_page=<integer>&type=\
+  x509_ca&name=<string>&include_personal=false&account_group_id=<integer>&endpo\
+  int_id=<integer>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: type
+    value: x509_ca
+    description: Filters results to include only accounts of a the given type.
+  - key: name
+    value: <string>
+    description: Filters results to include only accounts that match the given name.
+  - key: include_personal
+    value: "false"
+    description: Set to "true" to allow results to include personal accounts.
+  - key: account_group_id
+    value: <integer>
+    description: Filters results to include only accounts that match the given vault
+      account group.
+  - key: endpoint_id
+    value: <integer>
+    description: Filters results to include only Windows Local accounts with the
+      given Endpoint.
+examples: ./.resources/Get a list of Vault Accounts-.resources/examples
+order: 2000

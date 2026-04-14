@@ -1,0 +1,46 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/account-policy?per_page=<integer>&current_page=<integer\
+    >&name=<string>&code_name=<string>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters results to include only account policies that match the
+        given name.
+    - key: code_name
+      value: <string>
+      description: Filters results to include only account policies that match the
+        given code name.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "id": "<integer>",
+        "code_name": "<string>",
+        "description": "<string>",
+        "auto_rotate_credentials": "<boolean>",
+        "allow_simultaneous_checkout": "<boolean>",
+        "scheduled_password_rotation": "<boolean>",
+        "maximum_password_age": "<integer>"
+      }
+order: 1000

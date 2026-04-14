@@ -1,0 +1,14 @@
+$kind: http-example
+name: Indicates the account policy was successfully deleted.
+request:
+  url: "{{baseUrl}}/vault/account-policy/:id"
+  method: DELETE
+  pathVariables:
+    id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

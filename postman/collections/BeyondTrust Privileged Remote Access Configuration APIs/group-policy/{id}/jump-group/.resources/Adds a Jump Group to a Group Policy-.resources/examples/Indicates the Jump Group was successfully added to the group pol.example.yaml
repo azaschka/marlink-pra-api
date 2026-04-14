@@ -1,0 +1,24 @@
+$kind: http-example
+name: Indicates the Jump Group was successfully added to the group policy.
+request:
+  url: "{{baseUrl}}/group-policy/:id/jump-group"
+  method: POST
+  headers:
+    Content-Type: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "jump_group_id": "<integer>",
+        "jump_item_role_id": "<integer>",
+        "jump_policy_id": "<integer>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

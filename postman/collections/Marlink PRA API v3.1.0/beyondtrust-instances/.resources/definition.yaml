@@ -1,0 +1,3 @@
+$kind: collection
+description: Endpoints for managing BeyondTrust instances (tenants) within the PRA Portal.
+order: 2000

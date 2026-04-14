@@ -1,0 +1,14 @@
+$kind: http-request
+name: Get a Vault Account Policy.
+description: Gets the Vault account policy with the given `{id}`. A
+  type-specific resource is returned.
+url: "{{baseUrl}}/vault/account-policy/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Vault Account Policy-.resources/examples
+order: 1000

@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Jump Group.
+description: Gets the Jump Group resource with the given `{id}`.
+url: "{{baseUrl}}/jump-group/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Jump Group-.resources/examples
+order: 2000

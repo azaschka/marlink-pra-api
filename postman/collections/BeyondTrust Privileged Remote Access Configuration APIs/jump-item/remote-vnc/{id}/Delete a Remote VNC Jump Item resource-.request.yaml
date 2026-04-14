@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a Remote VNC Jump Item resource.
+description: Deletes the existing Remote VNC Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/remote-vnc/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Remote VNC Jump Item resource-.resources/examples
+order: 4000

@@ -1,0 +1,135 @@
+$kind: http-request
+name: Update the Jump Item association criteria for an Account Group.
+description: |
+  Update the Jump Item association criteria for the Account Group with the given `{id}` using the data in the request body.
+
+  You may change either or both of the `filter_type` and `criteria` properties of the association object in a single request, but `criteria` will be ignored if the `filter_type` is not set to "criteria". Updating `filter_type` from "criteria" to "any_jump_items" or "no_jump_items" implicitly deletes all previous `criteria` for the account group.
+
+  You may specify some or all of the available `criteria` properties. Each `criteria` property you supply will *replace* the previous value for that property. To keep the existing values for a certain property, omit that property from the request. Separate APIs exist for adding or deleting single Jump Items or shared Jump Groups, which might be preferable to supplying the entire array of ids with this API:
+
+  - <a href="#api.config.vault.account-group.jump-item-association.jump-item.store">Add a single Jump Item to `jump_items`.</a>
+  - <a href="#api.config.vault.account-group.jump-item-association.jump-item.destroy">Remove a single Jump Item from `jump_items`.</a>
+  - <a href="#api.config.vault.account-group.jump-item-association.shared-jump-group.store">Add a single Jump Group to `shared_jump_groups`.</a>
+  - <a href="#api.config.vault.account-group.jump-item-association.shared-jump-group.destroy">Remove a single Jump Group from `shared_jump_groups`.</a>
+url: "{{baseUrl}}/vault/account-group/:id/jump-item-association"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "filter_type": "no_jump_items",
+      "criteria": {
+        "shared_jump_groups": [
+          "<integer>",
+          "<integer>"
+        ],
+        "host": [
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>"
+        ],
+        "name": [
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>"
+        ],
+        "tag": [
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>"
+        ],
+        "comment": [
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>",
+          "<string>"
+        ]
+      },
+      "jump_items": [
+        {
+          "id": "<integer>",
+          "type": "shell_jump"
+        },
+        {
+          "id": "<integer>",
+          "type": "web_jump"
+        }
+      ]
+    }
+examples: ./.resources/Update the Jump Item association criteria for an Account
+  Group-.resources/examples
+order: 4000

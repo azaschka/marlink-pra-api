@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Team.
+description: Gets the team resource with the given `{id}`.
+url: "{{baseUrl}}/team/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Team-.resources/examples
+order: 2000

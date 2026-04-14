@@ -1,0 +1,21 @@
+$kind: http-request
+name: Get a list of members added to a Group Policy.
+description: Get a paginated list of `GroupPolicyMember` resources representing
+  members that have been added to the group policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/member?per_page=<integer>&current_page=<integer>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Get a list of members added to a Group Policy-.resources/examples
+order: 2000

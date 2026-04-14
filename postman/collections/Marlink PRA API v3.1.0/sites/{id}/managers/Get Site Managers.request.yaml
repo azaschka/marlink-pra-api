@@ -1,0 +1,16 @@
+$kind: http-request
+description: Retrieves site managers for the specified site. Site managers have
+  administrative privileges for the site and can manage site operations.
+url: "{{baseUrl}}/sites/{{siteId}}/managers?pageSize=10&pageNumber=1"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+queryParams:
+  - key: pageSize
+    value: "10"
+    description: Number of items per page
+  - key: pageNumber
+    value: "1"
+    description: Page number
+examples: ./.resources/Get Site Managers.resources/examples
+order: 2000

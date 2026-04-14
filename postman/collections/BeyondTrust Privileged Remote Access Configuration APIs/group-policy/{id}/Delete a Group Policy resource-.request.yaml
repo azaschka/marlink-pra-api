@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a Group Policy resource.
+description: Deletes an existing group policy resource with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Delete a Group Policy resource-.resources/examples
+order: 10000

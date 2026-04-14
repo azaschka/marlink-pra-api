@@ -1,0 +1,34 @@
+$kind: http-request
+name: Create a generic Vault Account.
+description: >
+  Adds a new username / password account, SSH account or X.509 account. Windows
+  local and domain accounts cannot be added via this API.
+
+
+  The request body must either be a `VaultUsernamePasswordAccount`,
+  `VaultTokenAccount`, `VaultSSHAccount`, `VaultX509ImportedCAAccount`,
+  `VaultX509GeneratedCAAccount`, or `VaultX509ClientAccount` resource.
+
+
+  After an account is added via the API, the Vault Account Activity Report shows
+  an "Account Created" event for that account. The "User" column shows the name
+  of the API Account that created the account.
+url: "{{baseUrl}}/vault/account"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "type": "username_password",
+      "name": "<string>",
+      "username": "<string>",
+      "password": "<string>",
+      "description": "<string>",
+      "account_group_id": 1,
+      "account_policy": "<string>"
+    }
+examples: ./.resources/Create a generic Vault Account-.resources/examples
+order: 3000

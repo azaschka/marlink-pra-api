@@ -1,0 +1,28 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/customers/1"
+  method: PATCH
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "beyondtrustInstanceId": 2
+      }
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 500,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/customers/1",
+        "message": "Internal server error"
+      }
+order: 6000

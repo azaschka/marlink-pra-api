@@ -1,0 +1,3 @@
+$kind: collection
+description: Endpoints for managing customers within the PRA Portal.
+order: 4000

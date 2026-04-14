@@ -1,0 +1,29 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/account/:id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "type": "username_password",
+        "name": "<string>",
+        "username": "<string>",
+        "id": "<integer>",
+        "description": "<string>",
+        "last_checkout_timestamp": "<dateTime>",
+        "personal": "<boolean>",
+        "owner_user_id": "<integer>",
+        "account_group_id": 1,
+        "account_policy": "<string>"
+      }
+order: 1000

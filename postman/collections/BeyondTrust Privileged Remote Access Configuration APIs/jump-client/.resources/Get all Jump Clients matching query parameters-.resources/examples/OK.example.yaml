@@ -1,0 +1,116 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-client?per_page=<integer>&current_page=<integer>&name=<s\
+    tring>&hostname=<string>&fqdn=<string>&tag=<string>&jump_group_id=<integer>\
+    &jump_group_type=personal&console_user=<string>&public_ip=<string>&private_\
+    ip=<string>&connection_type=uninstalled"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters Jump Clients by the given name.
+    - key: hostname
+      value: <string>
+      description: Filters Jump Clients by the given hostname (computer name).
+    - key: fqdn
+      value: <string>
+      description: Filters Jump Clients by the given fully qualified domain name.
+    - key: tag
+      value: <string>
+      description: Filters Jump Clients by the given tag.
+    - key: jump_group_id
+      value: <integer>
+      description: Filters Jump Clients by the given jump group id.
+    - key: jump_group_type
+      value: personal
+      description: Filters Jump Clients by the given jump group type.
+    - key: console_user
+      value: <string>
+      description: Filters Jump Clients by the given console user.
+    - key: public_ip
+      value: <string>
+      description: Filters Jump Clients by the given public IP address.
+    - key: private_ip
+      value: <string>
+      description: Filters Jump Clients by the given private IP address.
+    - key: connection_type
+      value: uninstalled
+      description: Filters Jump Clients by the given connection type.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "jump_group_id": "<integer>",
+          "id": "<integer>",
+          "jump_group_type": "shared",
+          "name": "<string>",
+          "hostname": "<string>",
+          "fqdn": "<string>",
+          "tag": "<string>",
+          "comments": "<string>",
+          "jump_policy_id": "<integer>",
+          "session_policy_id": "<integer>",
+          "install_mode": "service",
+          "connection_type": "active",
+          "last_connect_timestamp": "<dateTime>",
+          "last_disconnect_timestamp": "<dateTime>",
+          "is_lost": "<boolean>",
+          "needs_update": "<boolean>",
+          "unavailable_reason": "disabled",
+          "operating_system": "<string>",
+          "public_ip": "<string>",
+          "private_ip": "<string>",
+          "console_user": "<string>",
+          "expiration_timestamp": "<dateTime>",
+          "max_offline_minutes": "<integer>",
+          "last_access_timestamp": "<dateTime>",
+          "endpoint_agreement_policy": "reject"
+        },
+        {
+          "jump_group_id": "<integer>",
+          "id": "<integer>",
+          "jump_group_type": "shared",
+          "name": "<string>",
+          "hostname": "<string>",
+          "fqdn": "<string>",
+          "tag": "<string>",
+          "comments": "<string>",
+          "jump_policy_id": "<integer>",
+          "session_policy_id": "<integer>",
+          "install_mode": "user",
+          "connection_type": "active",
+          "last_connect_timestamp": "<dateTime>",
+          "last_disconnect_timestamp": "<dateTime>",
+          "is_lost": "<boolean>",
+          "needs_update": "<boolean>",
+          "unavailable_reason": "disabled",
+          "operating_system": "<string>",
+          "public_ip": "<string>",
+          "private_ip": "<string>",
+          "console_user": "<string>",
+          "expiration_timestamp": "<dateTime>",
+          "max_offline_minutes": "<integer>",
+          "last_access_timestamp": "<dateTime>",
+          "endpoint_agreement_policy": "reject"
+        }
+      ]
+order: 1000

@@ -1,0 +1,27 @@
+$kind: http-request
+name: Create a Remote VNC Jump Item.
+description: |
+  Adds a new Remote VNC Jump Item resource.
+  The response body contains the new Remote VNC Jump Item.
+url: "{{baseUrl}}/jump-item/remote-vnc"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "hostname": "<string>",
+      "jumpoint_id": "<integer>",
+      "jump_group_id": "<integer>",
+      "port": 5900,
+      "jump_group_type": "shared",
+      "tag": "<string>",
+      "comments": "<string>",
+      "jump_policy_id": "<integer>",
+      "session_policy_id": "<integer>"
+    }
+examples: ./.resources/Create a Remote VNC Jump Item-.resources/examples
+order: 3000

@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/beyondtrust-instances"
+method: POST
+body:
+  type: json
+  content: >-
+    {
+        "name": "string", // required
+        "authClientId": "string", // required
+        "authClientSecret": "string", // required
+        "oauth2TokenUrl": "string", // required
+        "apiBaseUrl": "string", // required
+        "billingType": "asset", // required - asset, user
+        "businessUnit": "MT" // optional - MT,OA,MC,EG,TE - omit for shared instance (accessible to all BUs)
+    }
+order: 3000

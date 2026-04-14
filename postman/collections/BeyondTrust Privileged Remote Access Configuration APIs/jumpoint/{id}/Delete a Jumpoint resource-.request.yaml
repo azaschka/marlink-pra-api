@@ -1,0 +1,16 @@
+$kind: http-request
+name: Delete a Jumpoint resource.
+description: Deletes the existing Jumpoint resource with the given `{id}`.
+  Deleting a Jumpoint also deletes all Jumpoint nodes and Jump Items owned by
+  the Jumpoint. It will also delete all endpoints, discovery jobs, local
+  accounts, domain accounts, and domains that use the Jumpoint.
+url: "{{baseUrl}}/jumpoint/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Jumpoint resource-.resources/examples
+order: 6000

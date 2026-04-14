@@ -1,0 +1,21 @@
+$kind: http-request
+name: Adds a Jumpoint to a Group Policy.
+description: Adds the Jumpoint with the `{jumpoint_id}` given in the request
+  body to a group policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/jumpoint"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "jumpoint_id": "<integer>"
+    }
+examples: ./.resources/Adds a Jumpoint to a Group Policy-.resources/examples
+order: 3000

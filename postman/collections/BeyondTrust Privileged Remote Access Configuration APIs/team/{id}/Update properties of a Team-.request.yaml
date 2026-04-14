@@ -1,0 +1,23 @@
+$kind: http-request
+name: Update properties of a Team.
+description: Modifies an existing team resource with the given `{id}` using the
+  given properties.
+url: "{{baseUrl}}/team/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "code_name": "3cTR",
+      "comments": "<string>"
+    }
+examples: ./.resources/Update properties of a Team-.resources/examples
+order: 3000

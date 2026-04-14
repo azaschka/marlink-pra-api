@@ -1,0 +1,15 @@
+$kind: http-request
+name: Removes a Jump Group from a Group Policy.
+description: Removes the Jump Group with the given `{jump_group_id}` from the
+  group policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/jump-group/:jump_group_id"
+method: DELETE
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+  - key: jump_group_id
+    value: <integer>
+    description: (Required) Unique identifier for the Jump Group.
+examples: ./.resources/Removes a Jump Group from a Group Policy-.resources/examples
+order: 2000

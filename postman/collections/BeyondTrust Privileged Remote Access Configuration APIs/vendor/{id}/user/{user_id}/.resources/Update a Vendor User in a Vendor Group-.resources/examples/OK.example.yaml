@@ -1,0 +1,51 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vendor/:id/user/:user_id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+    user_id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "username": "<string>",
+        "public_display_name": "<string>",
+        "password": "<string>",
+        "email_address": "<string>",
+        "password_expiration": "<dateTime>",
+        "password_reset_next_login": false,
+        "enabled": true,
+        "preferred_email_language": "en-us"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "username": "<string>",
+        "public_display_name": "<string>",
+        "password": "<string>",
+        "email_address": "<string>",
+        "id": "<integer>",
+        "password_expiration": "<dateTime>",
+        "password_reset_next_login": false,
+        "account_expiration": "<dateTime>",
+        "enabled": true,
+        "preferred_email_language": "en-us",
+        "last_authenticated_date": "<dateTime>",
+        "vendor_administrator": "<boolean>",
+        "is_approved": "<boolean>",
+        "is_expired": "<boolean>",
+        "two_factor_enabled": "<boolean>",
+        "fido2_credential_count": "<integer>",
+        "fido2_last_used_date": "<dateTime>"
+      }
+order: 1000

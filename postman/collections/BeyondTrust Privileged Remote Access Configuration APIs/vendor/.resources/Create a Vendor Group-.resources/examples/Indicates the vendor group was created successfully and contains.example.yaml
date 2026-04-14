@@ -1,0 +1,47 @@
+$kind: http-example
+name: Indicates the vendor group was created successfully and contains the new
+  vendor group instance. The `Location` header contains the URL of the vendor
+  group.
+request:
+  url: "{{baseUrl}}/vendor"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "default_policy": "<integer>",
+        "account_expiration": 30,
+        "deletion_days_after_expiration": null,
+        "user_added_notification_enabled": true,
+        "user_expired_notification_enabled": true,
+        "user_approval_enabled": false,
+        "user_reactivation_enabled": false,
+        "duration": 24,
+        "duration_enabled": false
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "default_policy": "<integer>",
+        "id": "<integer>",
+        "account_expiration": 30,
+        "deletion_days_after_expiration": null,
+        "user_added_notification_enabled": true,
+        "user_expired_notification_enabled": true,
+        "user_approval_enabled": false,
+        "user_reactivation_enabled": false,
+        "duration": 24,
+        "duration_enabled": false
+      }
+order: 1000

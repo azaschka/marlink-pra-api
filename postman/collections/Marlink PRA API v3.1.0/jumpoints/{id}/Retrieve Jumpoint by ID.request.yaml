@@ -1,0 +1,9 @@
+$kind: http-request
+description: Retrieves detailed information about a specific jumpoint by its
+  unique identifier.
+url: "{{baseUrl}}/jumpoints/{{jumpointId}}"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 3000

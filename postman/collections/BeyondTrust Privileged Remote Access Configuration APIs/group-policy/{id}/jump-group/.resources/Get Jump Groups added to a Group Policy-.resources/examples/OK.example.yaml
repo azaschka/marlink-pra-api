@@ -1,0 +1,29 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/group-policy/:id/jump-group"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "jump_group_id": "<integer>",
+          "jump_item_role_id": "<integer>",
+          "jump_policy_id": "<integer>"
+        },
+        {
+          "jump_group_id": "<integer>",
+          "jump_item_role_id": "<integer>",
+          "jump_policy_id": "<integer>"
+        }
+      ]
+order: 1000

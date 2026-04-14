@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/group-policies/{{groupPolicyId}}/teams"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "teamId": 0, // required
+        "roleType": "member" // member, lead, manager
+    }
+order: 3000

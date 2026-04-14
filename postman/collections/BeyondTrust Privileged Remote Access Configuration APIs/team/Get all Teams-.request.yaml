@@ -1,0 +1,32 @@
+$kind: http-request
+name: Get all Teams.
+description: >
+  Gets a paginated list of teams.
+
+
+  They can optionally be filtered using query string parameters documented
+  below. If more than one filter is specified, then AND logic is used to combine
+  the criteria. If no filter criteria are specified, then all teams are
+  returned. String parameters are always matched case-insensitively and exactly;
+  no partial matches are allowed.
+url: "{{baseUrl}}/team?per_page=100&current_page=1"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: "100"
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: "1"
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    disabled: true
+    description: Filters results to include only the team with the given name.
+  - key: code_name
+    value: cT4
+    disabled: true
+    description: Filters a response to include only resources with the given code name.
+examples: ./.resources/Get all Teams-.resources/examples
+order: 2000

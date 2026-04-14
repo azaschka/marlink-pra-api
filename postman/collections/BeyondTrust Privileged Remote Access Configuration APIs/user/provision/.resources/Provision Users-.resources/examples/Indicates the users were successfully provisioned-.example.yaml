@@ -1,0 +1,17 @@
+$kind: http-example
+name: Indicates the users were successfully provisioned.
+request:
+  url: "{{baseUrl}}/user/provision"
+  method: POST
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: "{}"
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

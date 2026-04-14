@@ -1,0 +1,20 @@
+$kind: http-request
+name: Get all Vendor groups.
+description: Gets a paginated list of all vendor groups. They can optionally be
+  filtered using query string parameters documented below.
+url: "{{baseUrl}}/vendor?per_page=<integer>&current_page=<integer>&name=<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    description: Filters Vendors by the given name.
+examples: ./.resources/Get all Vendor groups-.resources/examples
+order: 2000

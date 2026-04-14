@@ -1,0 +1,72 @@
+$kind: http-example
+name: Indicates the Remote RDP Jump Item was created successfully and contains
+  the new Remote RDP Jump Item instance. The `Location` header contains the URL
+  of the Remote RDP Jump Item.
+request:
+  url: "{{baseUrl}}/jump-item/remote-rdp"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "jump_group_type": "shared",
+        "quality": "video",
+        "console": false,
+        "ignore_untrusted": false,
+        "tag": "<string>",
+        "comments": "<string>",
+        "rdp_username": "<string>",
+        "domain": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_forensics": false,
+        "session_policy_id": "<integer>",
+        "secure_app_type": "remote_app",
+        "remote_app_name": "<string>",
+        "remote_app_params": "<string>",
+        "remote_exe_path": "<string>",
+        "remote_exe_params": "<string>",
+        "target_system": "<string>",
+        "credential_type": "<string>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "jump_group_id": "<integer>",
+        "id": "<integer>",
+        "jump_group_type": "shared",
+        "quality": "video",
+        "console": false,
+        "ignore_untrusted": false,
+        "tag": "<string>",
+        "comments": "<string>",
+        "rdp_username": "<string>",
+        "domain": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_forensics": false,
+        "session_policy_id": "<integer>",
+        "endpoint_id": "<integer>",
+        "secure_app_type": "remote_app",
+        "remote_app_name": "<string>",
+        "remote_app_params": "<string>",
+        "remote_exe_path": "<string>",
+        "remote_exe_params": "<string>",
+        "target_system": "<string>",
+        "credential_type": "<string>"
+      }
+order: 1000

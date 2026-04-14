@@ -1,0 +1,14 @@
+$kind: http-request
+name: Get Jump Groups added to a Group Policy.
+description: Get a list of `GroupPolicyJumpGroup` resources representing Jump
+  Groups added to the group policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/jump-group"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Get Jump Groups added to a Group Policy-.resources/examples
+order: 2000

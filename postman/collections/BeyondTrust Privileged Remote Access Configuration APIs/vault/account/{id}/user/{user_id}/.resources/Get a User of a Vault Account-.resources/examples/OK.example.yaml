@@ -1,0 +1,22 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vault/account/:id/user/:user_id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+    user_id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "user_id": "<integer>",
+        "role": "inject"
+      }
+order: 1000

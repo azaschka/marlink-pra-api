@@ -1,0 +1,17 @@
+$kind: http-request
+name: Removes a Vendor User from a Vendor Group.
+description: Removes the vendor user with the given `{user_id}` from the vendor
+  group with the given `{id}`.
+url: "{{baseUrl}}/vendor/:id/user/:user_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: user_id
+    value: <integer>
+    description: (Required) Unique identifier for the user.
+examples: ./.resources/Removes a Vendor User from a Vendor Group-.resources/examples
+order: 4000

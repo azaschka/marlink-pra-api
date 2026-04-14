@@ -1,0 +1,15 @@
+$kind: http-request
+name: Get a list of Vault Account Groups associated with this Group Policy.
+description: Get a list of `GroupPolicyVaultAccountGroup` resources representing
+  Vault account groups added to the group policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/vault-account-group"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Get a list of Vault Account Groups associated with this
+  Group Po.resources/examples
+order: 2000

@@ -1,0 +1,14 @@
+$kind: http-example
+name: The account was forcibly checked-in successfully.
+request:
+  url: "{{baseUrl}}/vault/account/:id/force-check-in"
+  method: POST
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

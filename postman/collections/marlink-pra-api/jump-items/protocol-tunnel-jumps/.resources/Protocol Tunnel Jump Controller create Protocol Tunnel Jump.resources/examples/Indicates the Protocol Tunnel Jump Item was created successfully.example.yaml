@@ -1,0 +1,150 @@
+$kind: http-example
+name: Indicates the Protocol Tunnel Jump Item was created successfully and
+  contains the new Protocol Tunnel Jump Item instance.
+request:
+  url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps"
+  method: POST
+  headers:
+    - key: X-Access-Key
+      value: string
+      description: Access key for authenticating and authorizing requests.
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: X-Tenant-Id
+      value: "15.767170974738676"
+      description: The identifier for the tenant making the request.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "jumpointId": 5782.333245239622,
+        "hostname": "string",
+        "jumpGroupId": 2563.794619355324,
+        "jumpGroupType": "shared",
+        "tag": "string",
+        "comments": "string",
+        "jumpPolicyId": 5499.828298885223,
+        "sessionPolicyId": 610.845881923574,
+        "tunnelListenAddress": "string",
+        "tunnelDefinitions": "string",
+        "tunnelType": "ip",
+        "username": "string",
+        "database": "string",
+        "url": "string",
+        "caCertificates": "string"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 2191.1913781938465,
+        "name": "string",
+        "jumpointId": 7328.453466338345,
+        "hostname": "string",
+        "jumpGroupId": 5587.806285166767,
+        "lastSyncDate": "1975-03-11T13:24:51.873Z",
+        "jumpGroupType": "personal",
+        "tag": "string",
+        "comments": "string",
+        "jumpPolicyId": 527.8063804869171,
+        "sessionPolicyId": 8648.667979491127,
+        "tunnelListenAddress": "string",
+        "tunnelDefinitions": "string",
+        "tunnelType": "ip",
+        "username": "string",
+        "database": "string",
+        "url": "string",
+        "caCertificates": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "jumpointId": {
+            "type": "number"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "jumpGroupId": {
+            "type": "number"
+          },
+          "jumpGroupType": {
+            "type": "string",
+            "enum": [
+              "shared",
+              "personal"
+            ]
+          },
+          "tag": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "jumpPolicyId": {
+            "type": "number"
+          },
+          "sessionPolicyId": {
+            "type": "number"
+          },
+          "tunnelListenAddress": {
+            "type": "string"
+          },
+          "tunnelDefinitions": {
+            "type": "string"
+          },
+          "tunnelType": {
+            "type": "string",
+            "enum": [
+              "tcp",
+              "mssql",
+              "k8s",
+              "ip"
+            ]
+          },
+          "username": {
+            "type": "string"
+          },
+          "database": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "caCertificates": {
+            "type": "string"
+          },
+          "lastSyncDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "jumpointId",
+          "hostname",
+          "jumpGroupId",
+          "lastSyncDate"
+        ]
+      }
+order: 1000

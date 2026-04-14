@@ -1,0 +1,59 @@
+$kind: http-example
+name: Indicates the Jumpoint was created successfully and contains the new
+  instance. The `Location` header contains the URL of the new Jumpoint.
+request:
+  url: "{{baseUrl}}/jumpoint"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "platform": "windows-x86",
+        "code_name": "fDvL3mm",
+        "comments": "<string>",
+        "enabled": true,
+        "clustered": false,
+        "shell_jump_enabled": false,
+        "external_jump_item_network_id": "<string>",
+        "protocol_tunnel_enabled": true,
+        "rdp_service_account_id": null,
+        "jzp_enabled": false,
+        "jzp_proxy_hostname": "",
+        "jzp_proxy_port": 9555,
+        "jzp_allow_http_get": false,
+        "jzp_client_address_restrictions_type": "no_restriction"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "platform": "windows-x86",
+        "id": "<integer>",
+        "code_name": "pZlnl",
+        "comments": "<string>",
+        "enabled": true,
+        "connected": true,
+        "clustered": false,
+        "shell_jump_enabled": false,
+        "external_jump_item_network_id": "<string>",
+        "protocol_tunnel_enabled": true,
+        "rdp_service_account_id": null,
+        "jzp_enabled": false,
+        "jzp_proxy_hostname": "",
+        "jzp_proxy_port": 9555,
+        "jzp_allow_http_get": false,
+        "jzp_client_address_restrictions_type": "no_restriction",
+        "docker_deploy_key": "<string>",
+        "key_info": "<string>"
+      }
+order: 1000

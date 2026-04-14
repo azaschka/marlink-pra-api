@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a PostgreSQL Tunnel Jump Item resource.
+description: Deletes an existing PostgreSQL Tunnel Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/psql-tunnel-jump/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a PostgreSQL Tunnel Jump Item resource-.resources/examples
+order: 4000

@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a Remote VNC Jump Item.
+description: Gets the Remote VNC Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/remote-vnc/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a Remote VNC Jump Item-.resources/examples
+order: 2000

@@ -1,0 +1,3 @@
+$kind: collection
+description: Endpoints for managing group policies within the PRA Portal.
+order: 10000

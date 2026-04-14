@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites/1/managers"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "username": "site-manager@example.com",
+         "email": "site-manager@example.com"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 1,
+        "siteId": 1,
+        "userId": 1,
+        "username": "manager1",
+        "email": "manager1@example.com",
+        "creationDate": "2024-01-01T10:00:00.000Z"
+      }
+order: 1000

@@ -1,0 +1,34 @@
+$kind: http-example
+name: Indicates the existing Jump Group was successfully updated and returns the
+  new Jump Group.
+request:
+  url: "{{baseUrl}}/jump-group/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "code_name": "\\54hsskSeFB",
+        "comments": "<string>"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "id": "<integer>",
+        "code_name": "E",
+        "comments": "<string>"
+      }
+order: 1000

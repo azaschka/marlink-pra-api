@@ -1,0 +1,35 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/customers"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "CUST001",
+        "name": "Example Customer",
+        "businessUnit": "MT",
+        "beyondtrustInstanceId": 1
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 1,
+        "key": "CUST001",
+        "name": "Example Customer",
+        "businessUnit": "MT",
+        "beyondtrustInstanceId": 1,
+        "active": true,
+        "creationDate": "2024-01-01T10:00:00.000Z",
+        "modificationDate": "2024-01-01T10:00:00.000Z"
+      }
+order: 1000

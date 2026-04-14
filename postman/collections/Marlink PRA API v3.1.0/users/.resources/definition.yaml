@@ -1,0 +1,3 @@
+$kind: collection
+description: Endpoints for managing users within the PRA Portal.
+order: 8000

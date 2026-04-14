@@ -1,0 +1,14 @@
+$kind: http-request
+name: Delete a Vault Account.
+description: Removes the account with the given `{id}`. Personal accounts are
+  not eligible for deletion through this API.
+url: "{{baseUrl}}/vault/account/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Vault Account-.resources/examples
+order: 9000

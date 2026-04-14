@@ -1,0 +1,23 @@
+$kind: http-example
+name: Indicates the shared Jump Group was successfully added to the Account's
+  Jump Item association criteria.
+request:
+  url: "{{baseUrl}}/vault/account/:id/jump-item-association/shared-jump-group"
+  method: POST
+  headers:
+    Content-Type: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "shared_jump_group_id": "<integer>"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

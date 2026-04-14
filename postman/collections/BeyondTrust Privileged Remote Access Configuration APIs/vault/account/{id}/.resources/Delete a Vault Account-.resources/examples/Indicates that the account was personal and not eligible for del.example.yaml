@@ -1,0 +1,14 @@
+$kind: http-example
+name: Indicates that the account was personal and not eligible for deletion.
+request:
+  url: "{{baseUrl}}/vault/account/:id"
+  method: DELETE
+  pathVariables:
+    id: ""
+response:
+  statusCode: 403
+  statusText: Forbidden
+  body:
+    type: text
+    content: ""
+order: 2000

@@ -1,0 +1,24 @@
+$kind: http-request
+name: Get a paginated list of Jump Policy resources.
+description: "Gets a paginated list of Jump Policy resources matching query
+  parameters. The following filter criteria is supported: Code Name. If no
+  filter criteria are specified then all Jump Policies are returned. String
+  parameters are always matched case-insensitively and exactly. No partial
+  matches are allowed."
+url: "{{baseUrl}}/jump-policy?per_page=<integer>&current_page=<integer>&code_na\
+  me=<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: code_name
+    value: <string>
+    description: Filters results to include only the Jump Policy with the given code name.
+examples: ./.resources/Get a paginated list of Jump Policy resources-.resources/examples
+order: 2000

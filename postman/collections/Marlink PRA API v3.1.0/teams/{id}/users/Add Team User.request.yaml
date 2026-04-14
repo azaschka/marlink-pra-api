@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/teams/{{teamId}}/users"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+body:
+  type: json
+  content: |-
+    {
+        "userId": 0, // number
+        "roleType": "member" // member, lead, manager
+    }
+order: 3000

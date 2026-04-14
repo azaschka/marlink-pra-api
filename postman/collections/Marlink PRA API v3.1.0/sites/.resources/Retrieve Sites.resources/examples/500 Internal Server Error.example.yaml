@@ -1,0 +1,21 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites"
+  method: GET
+  headers:
+    X-Access-Key: "{{accessKey}}"
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 500,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/sites",
+        "message": "Internal server error"
+      }
+order: 5000

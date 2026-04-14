@@ -1,0 +1,138 @@
+$kind: http-example
+name: Indicates the Protocol Tunnel Jump was successfully copied.
+request:
+  url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/:id/copy"
+  method: POST
+  headers:
+    - key: X-Access-Key
+      value: string
+      description: Access key for authenticating and authorizing requests.
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: X-Tenant-Id
+      value: "15.767170974738676"
+      description: The identifier for the tenant making the request.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "jumpGroupId": 6056.504124450226,
+        "jumpGroupType": "personal",
+        "name": "string"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 2191.1913781938465,
+        "name": "string",
+        "jumpointId": 7328.453466338345,
+        "hostname": "string",
+        "jumpGroupId": 5587.806285166767,
+        "lastSyncDate": "1975-03-11T13:24:51.873Z",
+        "jumpGroupType": "personal",
+        "tag": "string",
+        "comments": "string",
+        "jumpPolicyId": 527.8063804869171,
+        "sessionPolicyId": 8648.667979491127,
+        "tunnelListenAddress": "string",
+        "tunnelDefinitions": "string",
+        "tunnelType": "ip",
+        "username": "string",
+        "database": "string",
+        "url": "string",
+        "caCertificates": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "jumpointId": {
+            "type": "number"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "jumpGroupId": {
+            "type": "number"
+          },
+          "jumpGroupType": {
+            "type": "string",
+            "enum": [
+              "shared",
+              "personal"
+            ]
+          },
+          "tag": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "jumpPolicyId": {
+            "type": "number"
+          },
+          "sessionPolicyId": {
+            "type": "number"
+          },
+          "tunnelListenAddress": {
+            "type": "string"
+          },
+          "tunnelDefinitions": {
+            "type": "string"
+          },
+          "tunnelType": {
+            "type": "string",
+            "enum": [
+              "tcp",
+              "mssql",
+              "k8s",
+              "ip"
+            ]
+          },
+          "username": {
+            "type": "string"
+          },
+          "database": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "caCertificates": {
+            "type": "string"
+          },
+          "lastSyncDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "jumpointId",
+          "hostname",
+          "jumpGroupId",
+          "lastSyncDate"
+        ]
+      }
+order: 1000

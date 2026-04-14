@@ -1,0 +1,44 @@
+$kind: http-example
+name: Indicates the existing vault account was successfully updated and returns
+  the new vault account.
+request:
+  url: "{{baseUrl}}/vault/account/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "type": "username_password",
+        "name": "<string>",
+        "username": "<string>",
+        "password": "<string>",
+        "description": "<string>",
+        "account_group_id": 1,
+        "account_policy": "<string>"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "type": "username_password",
+        "name": "<string>",
+        "username": "<string>",
+        "id": "<integer>",
+        "description": "<string>",
+        "last_checkout_timestamp": "<dateTime>",
+        "personal": "<boolean>",
+        "owner_user_id": "<integer>",
+        "account_group_id": 1,
+        "account_policy": "<string>"
+      }
+order: 1000

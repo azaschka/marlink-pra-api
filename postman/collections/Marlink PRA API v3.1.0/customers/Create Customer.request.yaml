@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/customers"
+method: POST
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+body:
+  type: json
+  content: |-
+    {
+        "key": "string", // required
+        "name": "string", // required
+        "businessUnit": "MT", // required - MT,OA,MC,EG,TE
+        "beyondtrustInstanceId": 1 // required
+    }
+examples: ./.resources/Create Customer.resources/examples
+order: 3000

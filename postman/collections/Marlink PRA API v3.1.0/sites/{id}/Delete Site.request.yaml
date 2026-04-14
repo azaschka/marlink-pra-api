@@ -1,0 +1,11 @@
+$kind: http-request
+description: Permanently deletes a site from the system. The site must not have
+  any active jumpoints or other dependencies, otherwise the operation may fail.
+url: "{{baseUrl}}/sites/{{siteId}}"
+method: DELETE
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+examples: ./.resources/Delete Site.resources/examples
+order: 5000

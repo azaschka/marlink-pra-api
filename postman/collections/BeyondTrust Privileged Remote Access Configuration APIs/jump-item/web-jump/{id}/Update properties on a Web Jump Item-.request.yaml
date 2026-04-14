@@ -1,0 +1,34 @@
+$kind: http-request
+name: Update properties on a Web Jump Item.
+description: Modifies the existing Web Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/web-jump/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "jumpoint_id": "<integer>",
+      "url": "<string>",
+      "jump_group_id": "<integer>",
+      "username_format": "default",
+      "verify_certificate": true,
+      "jump_group_type": "shared",
+      "authentication_timeout": 3,
+      "tag": "<string>",
+      "comments": "<string>",
+      "jump_policy_id": "<integer>",
+      "username_field": "<string>",
+      "password_field": "<string>",
+      "submit_field": "<string>",
+      "session_policy_id": "<integer>"
+    }
+examples: ./.resources/Update properties on a Web Jump Item-.resources/examples
+order: 4000

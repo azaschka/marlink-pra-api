@@ -1,0 +1,22 @@
+$kind: http-request
+name: Get all Jump Item Roles matching query parameters.
+description: Gets a paginated list of Jump Item Roles.
+url: "{{baseUrl}}/jump-item-role?per_page=<integer>&current_page=<integer>&name\
+  =<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    description: Filters results to include the Jump Item Role that matches the name
+      in the query.
+examples: ./.resources/Get all Jump Item Roles matching query
+  parameters-.resources/examples
+order: 2000

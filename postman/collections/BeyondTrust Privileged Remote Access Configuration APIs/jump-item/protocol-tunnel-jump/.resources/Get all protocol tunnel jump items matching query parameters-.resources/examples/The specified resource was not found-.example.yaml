@@ -1,0 +1,52 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/jump-item/protocol-tunnel-jump?per_page=<integer>&current_pag\
+    e=<integer>&name=<string>&hostname=<string>&jump_group_id=<integer>&jump_gr\
+    oup_type=personal&jumpoint_id=<integer>&tag=<string>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters results to include only protocol tunnel jump items with the
+        given name.
+    - key: hostname
+      value: <string>
+      description: Filters results to include only the protocol tunnel jump items with
+        the given hostname.
+    - key: jump_group_id
+      value: <integer>
+      description: Filters results to include only the protocol tunnel jump items with
+        the given Jump Group id.
+    - key: jump_group_type
+      value: personal
+      description: Filters results to include only the protocol tunnel jump items with
+        the given Jump Group type.
+    - key: jumpoint_id
+      value: <integer>
+      description: Filters results to include only the protocol tunnel jump items with
+        the given Jumpoint id.
+    - key: tag
+      value: <string>
+      description: Filters results to include only the protocol tunnel jump items with
+        the given tag.
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 2000

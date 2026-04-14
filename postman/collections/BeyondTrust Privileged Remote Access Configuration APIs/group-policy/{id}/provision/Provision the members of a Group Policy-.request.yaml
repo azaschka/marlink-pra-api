@@ -1,0 +1,15 @@
+$kind: http-request
+name: Provision the members of a Group Policy.
+description: >
+  Provisions the members of an existing group policy resource with the given
+  `{id}`.
+url: "{{baseUrl}}/group-policy/:id/provision"
+method: POST
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Provision the members of a Group Policy-.resources/examples
+order: 1000

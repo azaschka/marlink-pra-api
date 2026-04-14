@@ -1,0 +1,36 @@
+$kind: collection
+description: >-
+  This Postman collection provides a comprehensive set of API endpoints for
+  managing and interacting with the PRA (Privileged Remote Access) Portal. It
+  includes endpoints for health monitoring, customer management, site
+  management, user management, jumpoint management, and more. Each endpoint is
+  documented with request methods, headers, parameters, and example responses to
+  facilitate easy integration and testing.
+
+
+  Base URL: `https://pra-api-pp.cdn-vas.net`
+
+
+  Make sure to replace placeholder variables (e.g., `{{accessKey}}`,
+  `{{customerId}}`) with actual values before making requests.
+variables:
+  baseUrl: https://pra-api-pp.cdn-vas.net
+  apiKey: ""
+  accessKey: ""
+  tenantId: "1"
+  customerId: "1"
+  siteId: "1"
+  userId: "1"
+  teamId: "1"
+  groupPolicyId: "1"
+  jumpointId: "1"
+  jumpGroupId: "1"
+  jumpClientId: "1"
+  instanceId: "1"
+  backupId: "1"
+  policyId: "1"
+  managerId: "1"
+  auditorId: "1"
+  supportTeamMemberId: "1"
+  healthCheckTimeout: "5000"
+  monitoringInterval: "30000"

@@ -1,0 +1,109 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/web-jumps/:id"
+method: PATCH
+headers:
+  - key: X-Access-Key
+    value: string
+    description: Access key for authenticating and authorizing requests.
+    $type: '{"type":"object","properties":{"value":{"type":"string"}},"required":["value"]}'
+  - key: X-Transaction-Id
+    value: string
+    description: Optional identifier for tracing and correlating a transaction
+      across services and logs.
+    $type: string
+  - key: X-Tenant-Id
+    value: "15.767170974738676"
+    description: The identifier for the tenant making the request.
+    $type: '{"type":"object","properties":{"value":{"type":"number"}},"required":["value"]}'
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: id
+    value: "15.767170974738676"
+    description: Unique identifier for the resource.
+    $type: '{"type":"object","properties":{"value":{"type":"number"}},"required":["value"]}'
+body:
+  type: json
+  content: |-
+    {
+      "name": "string",
+      "jumpointId": 5336.401186613911,
+      "url": "string",
+      "jumpGroupId": 6457.4203509067065,
+      "jumpGroupType": "personal",
+      "usernameFormatType": "default",
+      "mustVerifyCertificate": true,
+      "authenticationTimeoutInSeconds": 1227.5536957425604,
+      "tag": "string",
+      "comments": "string",
+      "jumpPolicyId": 6263.975272759725,
+      "usernameField": "string",
+      "passwordField": "string",
+      "submitField": "string",
+      "sessionPolicyId": 5598.150747212696
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "jumpointId": {
+          "type": "number"
+        },
+        "url": {
+          "type": "string"
+        },
+        "jumpGroupId": {
+          "type": "number"
+        },
+        "jumpGroupType": {
+          "type": "string",
+          "enum": [
+            "shared",
+            "personal"
+          ]
+        },
+        "usernameFormatType": {
+          "type": "string",
+          "enum": [
+            "default",
+            "username-only",
+            "force-upn-format",
+            "force-dlln-format"
+          ]
+        },
+        "mustVerifyCertificate": {
+          "type": "boolean"
+        },
+        "authenticationTimeoutInSeconds": {
+          "type": "number"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "comments": {
+          "type": "string"
+        },
+        "jumpPolicyId": {
+          "type": "number"
+        },
+        "usernameField": {
+          "type": "string"
+        },
+        "passwordField": {
+          "type": "string"
+        },
+        "submitField": {
+          "type": "string"
+        },
+        "sessionPolicyId": {
+          "type": "number"
+        }
+      }
+    }
+examples: ./.resources/Web Jump Controller modify Web Jump.resources/examples
+order: 3000

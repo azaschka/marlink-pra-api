@@ -1,0 +1,15 @@
+$kind: http-example
+name: Indicates the user was successfully deleted.
+request:
+  url: "{{baseUrl}}/vault/account-group/:id/user/:user_id"
+  method: DELETE
+  pathVariables:
+    id: ""
+    user_id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

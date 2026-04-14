@@ -1,0 +1,26 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/remote-rdps/:id"
+method: GET
+headers:
+  - key: X-Access-Key
+    value: string
+    description: Access key for authenticating and authorizing requests.
+    $type: '{"type":"object","properties":{"value":{"type":"string"}},"required":["value"]}'
+  - key: X-Transaction-Id
+    value: string
+    description: Optional identifier for tracing and correlating a transaction
+      across services and logs.
+    $type: string
+  - key: X-Tenant-Id
+    value: "15.767170974738676"
+    description: The identifier for the tenant making the request.
+    $type: '{"type":"object","properties":{"value":{"type":"number"}},"required":["value"]}'
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: id
+    value: "15.767170974738676"
+    description: Unique identifier for the resource.
+    $type: '{"type":"object","properties":{"value":{"type":"number"}},"required":["value"]}'
+examples: ./.resources/Remote Rdp Controller retrieve Remote Rdp.resources/examples
+order: 2000

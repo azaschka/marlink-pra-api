@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete a Remote RDP Jump Item resource.
+description: Deletes the existing Remote RDP Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/remote-rdp/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Remote RDP Jump Item resource-.resources/examples
+order: 4000

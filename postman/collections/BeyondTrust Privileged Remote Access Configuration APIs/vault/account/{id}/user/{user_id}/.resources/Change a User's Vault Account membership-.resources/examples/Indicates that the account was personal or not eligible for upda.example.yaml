@@ -1,0 +1,24 @@
+$kind: http-example
+name: Indicates that the account was personal or not eligible for updating a user.
+request:
+  url: "{{baseUrl}}/vault/account/:id/user/:user_id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+  pathVariables:
+    id: ""
+    user_id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "user_id": "<integer>",
+        "role": "inject"
+      }
+response:
+  statusCode: 403
+  statusText: Forbidden
+  body:
+    type: text
+    content: ""
+order: 2000

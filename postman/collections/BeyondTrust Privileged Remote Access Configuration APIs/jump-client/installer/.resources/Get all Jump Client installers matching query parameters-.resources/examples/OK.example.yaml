@@ -1,0 +1,108 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-client/installer?per_page=<integer>&current_page=<intege\
+    r>&name=<string>&hostname=<string>&fqdn=<string>&tag=<string>&jump_group_id\
+    =<integer>&jump_group_type=personal&connection_type=passive"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters Jump Client installers by the given name.
+    - key: hostname
+      value: <string>
+      description: Filters Jump Client installers by the given hostname (computer name).
+    - key: fqdn
+      value: <string>
+      description: Filters Jump Client installers by the given fully qualified domain name.
+    - key: tag
+      value: <string>
+      description: Filters Jump Client installers by the given tag.
+    - key: jump_group_id
+      value: <integer>
+      description: Filters Jump Client installers by the given jump group id.
+    - key: jump_group_type
+      value: personal
+      description: Filters Jump Client installers by the given jump group type.
+    - key: connection_type
+      value: passive
+      description: Filters Jump Client installers by the given connection type.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": "<integer>",
+          "jump_group_id": "<integer>",
+          "jump_group_type": "shared",
+          "name": "<string>",
+          "tag": "<string>",
+          "comments": "<string>",
+          "jump_policy_id": "<integer>",
+          "session_policy_id": "<integer>",
+          "connection_type": "active",
+          "expiration_timestamp": "<dateTime>",
+          "max_offline_minutes": "<integer>",
+          "elevate_install": true,
+          "elevate_prompt": true,
+          "allow_override_jump_group": false,
+          "allow_override_jump_policy": false,
+          "allow_override_name": false,
+          "allow_override_tag": false,
+          "allow_override_comments": false,
+          "allow_override_session_policy": false,
+          "installer_id": "<string>",
+          "key_info": {
+            "encodedInfo": "<string>",
+            "filename": "<string>",
+            "installerPath": "<string>"
+          },
+          "jumpoint_proxy": "<string>"
+        },
+        {
+          "id": "<integer>",
+          "jump_group_id": "<integer>",
+          "jump_group_type": "shared",
+          "name": "<string>",
+          "tag": "<string>",
+          "comments": "<string>",
+          "jump_policy_id": "<integer>",
+          "session_policy_id": "<integer>",
+          "connection_type": "active",
+          "expiration_timestamp": "<dateTime>",
+          "max_offline_minutes": "<integer>",
+          "elevate_install": true,
+          "elevate_prompt": true,
+          "allow_override_jump_group": false,
+          "allow_override_jump_policy": false,
+          "allow_override_name": false,
+          "allow_override_tag": false,
+          "allow_override_comments": false,
+          "allow_override_session_policy": false,
+          "installer_id": "<string>",
+          "key_info": {
+            "encodedInfo": "<string>",
+            "filename": "<string>",
+            "installerPath": "<string>"
+          },
+          "jumpoint_proxy": "<string>"
+        }
+      ]
+order: 1000

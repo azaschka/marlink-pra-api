@@ -1,0 +1,21 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/customers"
+  method: GET
+  headers:
+    X-Access-Key: invalid-key
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 400,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/customers",
+        "message": "Validation failed: pageSize must be a number"
+      }
+order: 2000

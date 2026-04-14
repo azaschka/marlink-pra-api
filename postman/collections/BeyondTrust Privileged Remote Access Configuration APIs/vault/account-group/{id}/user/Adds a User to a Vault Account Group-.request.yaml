@@ -1,0 +1,19 @@
+$kind: http-request
+name: Adds a User to a Vault Account Group.
+description: |
+  Adds a user to the Vault account group with the given `{id}`.
+  The response body contains the new `VaultAccountGroupUser` resource.
+url: "{{baseUrl}}/vault/account-group/:id/user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Adds a User to a Vault Account Group-.resources/examples
+order: 3000

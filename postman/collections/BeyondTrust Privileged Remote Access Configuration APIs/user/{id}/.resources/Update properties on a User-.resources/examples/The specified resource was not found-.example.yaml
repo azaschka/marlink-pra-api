@@ -1,0 +1,37 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/user/:id"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "public_display_name": "<string>",
+        "username": "<string>",
+        "password": "<string>",
+        "password_expiration": "<dateTime>",
+        "email_address": "<string>",
+        "preferred_email_language": "en-us",
+        "two_factor_required": false,
+        "enabled": true,
+        "failed_logins": 0,
+        "password_reset_next_login": false
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 2000

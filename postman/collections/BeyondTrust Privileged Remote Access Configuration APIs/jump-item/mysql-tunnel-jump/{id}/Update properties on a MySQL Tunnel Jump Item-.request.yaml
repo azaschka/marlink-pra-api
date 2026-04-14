@@ -1,0 +1,31 @@
+$kind: http-request
+name: Update properties on a MySQL Tunnel Jump Item.
+description: Modifies the existing MySQL Tunnel Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/mysql-tunnel-jump/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "jumpoint_id": "<integer>",
+      "hostname": "<string>",
+      "jump_group_id": "<integer>",
+      "jump_group_type": "shared",
+      "tag": "<string>",
+      "comments": "<string>",
+      "jump_policy_id": "<integer>",
+      "session_policy_id": "<integer>",
+      "tunnel_listen_address": "127.0.0.1",
+      "username": "<string>",
+      "database": "<string>"
+    }
+examples: ./.resources/Update properties on a MySQL Tunnel Jump Item-.resources/examples
+order: 3000

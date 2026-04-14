@@ -1,0 +1,14 @@
+$kind: http-request
+name: Delete a Vendor Group.
+description: Deletes an existing vendor group with the given `{id}`. Note that
+  all users associated with the vendor group will also be deleted.
+url: "{{baseUrl}}/vendor/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete a Vendor Group-.resources/examples
+order: 5000

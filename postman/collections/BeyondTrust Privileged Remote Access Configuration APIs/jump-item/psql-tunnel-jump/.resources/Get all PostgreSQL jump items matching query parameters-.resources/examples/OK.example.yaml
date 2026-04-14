@@ -1,0 +1,85 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-item/psql-tunnel-jump?per_page=<integer>&current_page=<i\
+    nteger>&name=<string>&hostname=<string>&jump_group_id=<integer>&jump_group_\
+    type=personal&jumpoint_id=<integer>&tag=<string>"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    - key: per_page
+      value: <integer>
+      description: The number of items to include a paginated response.
+    - key: current_page
+      value: <integer>
+      description: The 1-based index of the desired page.
+    - key: name
+      value: <string>
+      description: Filters results to include only PostgreSQL jump items with the
+        given name.
+    - key: hostname
+      value: <string>
+      description: Filters results to include only the PostgreSQL jump items with the
+        given hostname.
+    - key: jump_group_id
+      value: <integer>
+      description: Filters results to include only the PostgreSQL jump items with the
+        given Jump Group id.
+    - key: jump_group_type
+      value: personal
+      description: Filters results to include only the PostgreSQL jump items with the
+        given Jump Group type.
+    - key: jumpoint_id
+      value: <integer>
+      description: Filters results to include only the PostgreSQL jump items with the
+        given Jumpoint id.
+    - key: tag
+      value: <string>
+      description: Filters results to include only the PostgreSQL jump items with the
+        given tag.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Link: ""
+    X-BT-Pagination-Current-Page: ""
+    X-BT-Pagination-Per-Page: ""
+    X-BT-Pagination-Last-Page: ""
+    X-BT-Pagination-Total: ""
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "name": "<string>",
+          "jumpoint_id": "<integer>",
+          "hostname": "<string>",
+          "jump_group_id": "<integer>",
+          "id": "<integer>",
+          "jump_group_type": "shared",
+          "tag": "<string>",
+          "comments": "<string>",
+          "jump_policy_id": "<integer>",
+          "session_policy_id": "<integer>",
+          "tunnel_listen_address": "127.0.0.1",
+          "username": "<string>",
+          "database": "<string>"
+        },
+        {
+          "name": "<string>",
+          "jumpoint_id": "<integer>",
+          "hostname": "<string>",
+          "jump_group_id": "<integer>",
+          "id": "<integer>",
+          "jump_group_type": "shared",
+          "tag": "<string>",
+          "comments": "<string>",
+          "jump_policy_id": "<integer>",
+          "session_policy_id": "<integer>",
+          "tunnel_listen_address": "127.0.0.1",
+          "username": "<string>",
+          "database": "<string>"
+        }
+      ]
+order: 1000

@@ -1,0 +1,3 @@
+$kind: collection
+description: Endpoints for managing discrepancies within the PRA Portal.
+order: 15000

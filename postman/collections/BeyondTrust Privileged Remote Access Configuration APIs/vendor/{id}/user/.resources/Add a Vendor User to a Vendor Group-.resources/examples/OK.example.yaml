@@ -1,0 +1,28 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/vendor/:id/user"
+  method: POST
+  headers:
+    Content-Type: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "username": "<string>",
+        "public_display_name": "<string>",
+        "password": "<string>",
+        "email_address": "<string>",
+        "password_expiration": "<dateTime>",
+        "password_reset_next_login": false,
+        "enabled": true,
+        "preferred_email_language": "en-us"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

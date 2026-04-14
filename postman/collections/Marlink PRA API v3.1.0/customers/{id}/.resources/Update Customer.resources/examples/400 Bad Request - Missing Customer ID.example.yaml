@@ -1,0 +1,28 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/customers/invalid"
+  method: PATCH
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "beyondtrustInstanceId": 2
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 400,
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "path": "/customers/invalid",
+        "message": "Missing customer ID parameter"
+      }
+order: 2000

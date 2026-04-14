@@ -1,0 +1,25 @@
+$kind: http-request
+name: Remove a shared Jump Group from an Account Group's Jump Item association
+  criteria.
+description: >
+  Removes a specific shared Jump Group identified by `{shared_jump_group_id}`
+  from the Jump Item association criteria of the Account Group with the given
+  `{id}`.
+
+
+  The Account Group's Jump Item association must have its `filter_type` set to
+  "criteria".
+url: "{{baseUrl}}/vault/account-group/:id/jump-item-association/shared-jump-group"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+  - key: shared_jump_group_id
+    value: <integer>
+    description: (Required) Unique identifier for the shared Jump Group.
+examples: ./.resources/Remove a shared Jump Group from an Account Group's Jump
+  Item ass.resources/examples
+order: 2000

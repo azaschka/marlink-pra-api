@@ -1,0 +1,14 @@
+$kind: http-request
+name: Delete an Account Group.
+description: Deletes an existing account group with the given `{id}`. Note that
+  all accounts associated with the account group will be moved to default group.
+url: "{{baseUrl}}/vault/account-group/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete an Account Group-.resources/examples
+order: 5000

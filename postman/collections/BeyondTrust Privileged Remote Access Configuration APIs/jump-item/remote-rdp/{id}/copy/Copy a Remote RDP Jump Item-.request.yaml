@@ -1,0 +1,22 @@
+$kind: http-request
+name: Copy a Remote RDP Jump Item.
+description: Copies the Remote RDP Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/remote-rdp/:id/copy"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "jump_group_id": "<integer>",
+      "jump_group_type": "personal",
+      "name": "<string>"
+    }
+examples: ./.resources/Copy a Remote RDP Jump Item-.resources/examples
+order: 1000

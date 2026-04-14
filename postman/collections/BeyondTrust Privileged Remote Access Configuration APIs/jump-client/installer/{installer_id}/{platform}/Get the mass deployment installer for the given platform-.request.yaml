@@ -1,0 +1,17 @@
+$kind: http-request
+name: Get the mass deployment installer for the given platform.
+description: Gets the mass deployment installer for the given platform.
+url: "{{baseUrl}}/jump-client/installer/:installer_id/:platform"
+method: GET
+headers:
+  Accept: application/x-executable
+pathVariables:
+  - key: installer_id
+    value: <string>
+    description: (Required) The unique installer identifier.
+  - key: platform
+    value: windows-32
+    description: (Required) The platform for the mass deployment installer.
+examples: ./.resources/Get the mass deployment installer for the given
+  platform-.resources/examples
+order: 1000

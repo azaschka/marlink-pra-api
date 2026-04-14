@@ -1,0 +1,58 @@
+$kind: http-example
+name: One or more request parameters are invalid. The body contains a general
+  error message as well as a validation error dictionary.
+request:
+  url: "{{baseUrl}}/jump-item/shell-jump"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "hostname": "<string>",
+        "protocol": "ssh",
+        "jump_group_id": "<integer>",
+        "port": "SSH: 22, Telnet: 23",
+        "jump_group_type": "shared",
+        "terminal": "xterm",
+        "keep_alive": "<integer>",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "username": "<string>",
+        "session_policy_id": "<integer>"
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>",
+        "errors": {
+          "ad7e": [
+            "<string>",
+            "<string>"
+          ],
+          "est9": [
+            "<string>",
+            "<string>"
+          ],
+          "occaecat67": [
+            "<string>",
+            "<string>"
+          ],
+          "in_9_": [
+            "<string>",
+            "<string>"
+          ]
+        }
+      }
+order: 2000

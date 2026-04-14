@@ -1,0 +1,104 @@
+$kind: http-example
+name: Indicates the access was created successfully and contains the new access.
+request:
+  url: "{{baseUrl}}/access"
+  method: POST
+  headers:
+    - key: X-Transaction-Id
+      value: string
+      description: Optional identifier for tracing and correlating a transaction
+        across services and logs.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "string",
+        "name": "string",
+        "value": {
+          "businessUnits": [
+            "DI",
+            "TE"
+          ]
+        }
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 6966.377983578614,
+        "key": "string",
+        "name": "string",
+        "value": {
+          "businessUnits": [
+            "TE",
+            "DI"
+          ]
+        },
+        "creationDate": "1997-08-02T20:28:41.788Z",
+        "lastModificationDate": "1987-06-11T04:35:45.287Z"
+      }
+    $type: >-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The unique identifier of the access."
+          },
+          "key": {
+            "type": "string",
+            "description": "The key of the access."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the access."
+          },
+          "value": {
+            "description": "The access.",
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "businessUnits": {
+                    "type": "array",
+                    "description": "The business units included in the access scope.",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "businessUnits"
+                ]
+              }
+            ]
+          },
+          "creationDate": {
+            "type": "string",
+            "description": "The creation date of the access.",
+            "format": "date-time"
+          },
+          "lastModificationDate": {
+            "type": "string",
+            "description": "The last modification date of the access.",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name",
+          "value",
+          "creationDate"
+        ]
+      }
+order: 1000

@@ -1,0 +1,52 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/remote-vncs?pageSize=100&pageNumber=1&name=string&\
+  hostname=string&jumpGroupIds=8188.969177409411&jumpGroupIds=923.1753602758986\
+  &jumpGroupType=shared&jumpointId=15.767170974738676&tag=string"
+method: GET
+headers:
+  - key: X-Access-Key
+    value: string
+    description: Access key for authenticating and authorizing requests.
+    $type: '{"type":"object","properties":{"value":{"type":"string"}},"required":["value"]}'
+  - key: X-Transaction-Id
+    value: string
+    description: Optional identifier for tracing and correlating a transaction
+      across services and logs.
+    $type: string
+  - key: X-Tenant-Id
+    value: "15.767170974738676"
+    description: The identifier for the tenant making the request.
+    $type: '{"type":"object","properties":{"value":{"type":"number"}},"required":["value"]}'
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: pageSize
+    value: "100"
+    description: The number of items to include in a paginated response.
+    $type: '{"type":"object","properties":{"value":{"type":"number","default":100}}}'
+  - key: pageNumber
+    value: "1"
+    description: The 1-based index of the desired page.
+    $type: '{"type":"object","properties":{"value":{"type":"number","default":1}}}'
+  - key: name
+    value: string
+    $type: string
+  - key: hostname
+    value: string
+    $type: string
+  - key: jumpGroupIds
+    value: "8188.969177409411"
+    $type: array
+  - key: jumpGroupIds
+    value: "923.1753602758986"
+  - key: jumpGroupType
+    value: shared
+    $type: '{"type":"object","properties":{"value":{"type":"string","enum":["shared","personal"]}}}'
+  - key: jumpointId
+    value: "15.767170974738676"
+    $type: number
+  - key: tag
+    value: string
+    $type: string
+examples: ./.resources/Remote Vnc Controller retrieve Remote Vncs.resources/examples
+order: 2000

@@ -1,0 +1,15 @@
+$kind: http-example
+name: Indicates that the Jump Group was successfully removed.
+request:
+  url: "{{baseUrl}}/group-policy/:id/jump-group/:jump_group_id"
+  method: DELETE
+  pathVariables:
+    id: ""
+    jump_group_id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

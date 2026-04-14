@@ -1,0 +1,38 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jumpoint/:id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "platform": "windows-x86",
+        "id": "<integer>",
+        "code_name": "pZlnl",
+        "comments": "<string>",
+        "enabled": true,
+        "connected": true,
+        "clustered": false,
+        "shell_jump_enabled": false,
+        "external_jump_item_network_id": "<string>",
+        "protocol_tunnel_enabled": true,
+        "rdp_service_account_id": null,
+        "jzp_enabled": false,
+        "jzp_proxy_hostname": "",
+        "jzp_proxy_port": 9555,
+        "jzp_allow_http_get": false,
+        "jzp_client_address_restrictions_type": "no_restriction",
+        "docker_deploy_key": "<string>",
+        "key_info": "<string>"
+      }
+order: 1000

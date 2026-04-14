@@ -1,0 +1,21 @@
+$kind: http-request
+description: Assigns a user as a site auditor for the specified site. The user
+  must exist and have appropriate permissions.
+url: "{{baseUrl}}/sites/{{siteId}}/auditors"
+method: POST
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "username": "string", // required
+        "email": "string", // required
+        "isAdminOperator": false // boolean
+    }
+examples: ./.resources/Add Site Auditor.resources/examples
+order: 3000

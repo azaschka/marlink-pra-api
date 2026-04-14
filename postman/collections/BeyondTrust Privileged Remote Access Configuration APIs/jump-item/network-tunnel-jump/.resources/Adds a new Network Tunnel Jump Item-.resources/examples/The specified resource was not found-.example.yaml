@@ -1,0 +1,47 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/jump-item/network-tunnel-jump"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "jumpoint_id": "<integer>",
+        "jump_group_id": "<integer>",
+        "filter_rules": [
+          {
+            "ip_addresses": {
+              "cidr": "<string>"
+            },
+            "protocol": "ANY",
+            "ports": {
+              "range": {
+                "start": "<integer>",
+                "end": "<integer>"
+              }
+            }
+          }
+        ],
+        "jump_group_type": "shared",
+        "tag": "<string>",
+        "comments": "<string>",
+        "jump_policy_id": "<integer>",
+        "session_policy_id": "<integer>"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 2000

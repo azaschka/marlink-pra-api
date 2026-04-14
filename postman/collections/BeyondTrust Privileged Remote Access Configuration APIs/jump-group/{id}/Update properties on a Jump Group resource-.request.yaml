@@ -1,0 +1,23 @@
+$kind: http-request
+name: Update properties on a Jump Group resource.
+description: Modifies an existing Jump Group resource with the given `{id}`
+  using the given properties.
+url: "{{baseUrl}}/jump-group/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "code_name": "\\54hsskSeFB",
+      "comments": "<string>"
+    }
+examples: ./.resources/Update properties on a Jump Group resource-.resources/examples
+order: 3000

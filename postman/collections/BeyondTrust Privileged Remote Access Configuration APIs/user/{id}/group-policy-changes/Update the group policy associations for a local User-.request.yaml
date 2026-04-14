@@ -1,0 +1,25 @@
+$kind: http-request
+name: Update the group policy associations for a local User.
+description: >
+  Adds or removes a local user from the group policies with the IDs specified in
+  the body.
+
+  IDs in the `added` field that the user is already a member of will be ignored.
+  IDs in the `removed` field that the user is not a member of will be ignored.
+
+  Only local users are allowed.
+url: "{{baseUrl}}/user/:id/group-policy-changes"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Update the group policy associations for a local
+  User-.resources/examples
+order: 1000

@@ -1,0 +1,38 @@
+$kind: http-request
+name: Create a local User.
+description: >
+  Adds a new local user resource. There is no way to add non-local users via
+  this API.
+
+
+  If no password is provided, then a secure random password is automatically
+  generated and an administrator must manually reset the password via /login.
+
+
+  The `failed_logins` property is ignored for this request because it is always
+  0 for new users.
+
+
+  The response body contains the new local user.
+url: "{{baseUrl}}/user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "public_display_name": "<string>",
+      "username": "<string>",
+      "password": "<string>",
+      "password_expiration": "<dateTime>",
+      "email_address": "<string>",
+      "preferred_email_language": "en-us",
+      "two_factor_required": false,
+      "enabled": true,
+      "failed_logins": 0,
+      "password_reset_next_login": false
+    }
+examples: ./.resources/Create a local User-.resources/examples
+order: 4000

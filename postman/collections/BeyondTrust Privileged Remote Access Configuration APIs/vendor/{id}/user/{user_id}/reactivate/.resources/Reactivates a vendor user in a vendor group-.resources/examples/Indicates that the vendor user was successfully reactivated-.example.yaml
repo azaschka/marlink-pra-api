@@ -1,0 +1,15 @@
+$kind: http-example
+name: Indicates that the vendor user was successfully reactivated.
+request:
+  url: "{{baseUrl}}/vendor/:id/user/:user_id/reactivate"
+  method: POST
+  pathVariables:
+    id: ""
+    user_id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

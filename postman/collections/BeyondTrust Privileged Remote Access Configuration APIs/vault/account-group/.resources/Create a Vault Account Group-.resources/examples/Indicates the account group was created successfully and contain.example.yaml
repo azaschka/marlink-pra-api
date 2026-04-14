@@ -1,0 +1,33 @@
+$kind: http-example
+name: Indicates the account group was created successfully and contains the new
+  account group instance. The `Location` header contains the URL of the account
+  group.
+request:
+  url: "{{baseUrl}}/vault/account-group"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "<string>",
+        "description": "<string>",
+        "account_policy": "<string>"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "name": "<string>",
+        "description": "<string>",
+        "account_policy": "<string>"
+      }
+order: 1000

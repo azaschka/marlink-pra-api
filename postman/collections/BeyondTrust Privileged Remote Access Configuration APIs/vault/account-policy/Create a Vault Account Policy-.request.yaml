@@ -1,0 +1,25 @@
+$kind: http-request
+name: Create a Vault Account Policy.
+description: |
+  Creates a new account policy resource.
+
+  The response body contains the new account policy.
+url: "{{baseUrl}}/vault/account-policy"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "code_name": "<string>",
+      "description": "<string>",
+      "auto_rotate_credentials": "<boolean>",
+      "allow_simultaneous_checkout": "<boolean>",
+      "scheduled_password_rotation": "<boolean>",
+      "maximum_password_age": "<integer>"
+    }
+examples: ./.resources/Create a Vault Account Policy-.resources/examples
+order: 3000

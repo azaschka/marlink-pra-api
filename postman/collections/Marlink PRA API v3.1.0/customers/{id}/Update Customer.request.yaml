@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/customers/{{customerId}}"
+method: PATCH
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+body:
+  type: json
+  content: |-
+    {
+        "beyondtrustInstanceId": 1
+    }
+examples: ./.resources/Update Customer.resources/examples
+order: 3000

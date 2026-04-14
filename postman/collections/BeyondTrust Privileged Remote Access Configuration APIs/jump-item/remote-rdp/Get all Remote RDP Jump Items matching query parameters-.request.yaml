@@ -1,0 +1,44 @@
+$kind: http-request
+name: Get all Remote RDP Jump Items matching query parameters.
+description: Gets a paginated list of Remote RDP Jump Items.
+url: "{{baseUrl}}/jump-item/remote-rdp?per_page=<integer>&current_page=<integer\
+  >&name=<string>&hostname=<string>&jump_group_id=<integer>&jump_group_type=per\
+  sonal&jumpoint_id=<integer>&endpoint_id=<integer>&tag=<string>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+  - key: name
+    value: <string>
+    description: Filters results to include only remote rdp items with the given name.
+  - key: hostname
+    value: <string>
+    description: Filters results to include only the remote rdp items with the given
+      hostname.
+  - key: jump_group_id
+    value: <integer>
+    description: Filters results to include only the remote rdp items with the given
+      jump_group_id.
+  - key: jump_group_type
+    value: personal
+    description: Filters results to include only the remote rdp items with the given
+      Jump Group type.
+  - key: jumpoint_id
+    value: <integer>
+    description: Filters results to include only the remote rdp items with the given
+      Jumpoint id.
+  - key: endpoint_id
+    value: <integer>
+    description: Filters results to include only the remote rdp with the given endpoint_id.
+  - key: tag
+    value: <string>
+    description: Filters results to include only the remote rdp items with the given tag.
+examples: ./.resources/Get all Remote RDP Jump Items matching query
+  parameters-.resources/examples
+order: 2000

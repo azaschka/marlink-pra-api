@@ -1,0 +1,26 @@
+$kind: http-request
+name: Add a User to a Jump Group.
+description: Adds a user with the `user_id` given in the request body to the
+  Jump Group with the given `{id}`. Only the `user_id` field is required in the
+  body. The `jump_item_role_id` defaults to `null`, which means the system will
+  use the user's Default Jump Item Role at the time of a jump. The
+  `jump_policy_id` defaults to `null`, which means "Set on Jump Items".
+url: "{{baseUrl}}/jump-group/:id/user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "user_id": "<integer>",
+      "jump_item_role_id": "<integer>",
+      "jump_policy_id": "<integer>"
+    }
+examples: ./.resources/Add a User to a Jump Group-.resources/examples
+order: 3000

@@ -1,0 +1,25 @@
+$kind: http-request
+name: Add a User to a Team.
+description: Adds the user with the `user_id` given in the request body to the
+  team with the `{id}` given in the path. The request body can optionally
+  contain a `role` indicating what role the user should have on the team. The
+  `role` defaults to "member" if not provided.
+url: "{{baseUrl}}/team/:id/user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "team_id": "<integer>",
+      "user_id": "<integer>",
+      "role": "member"
+    }
+examples: ./.resources/Add a User to a Team-.resources/examples
+order: 3000

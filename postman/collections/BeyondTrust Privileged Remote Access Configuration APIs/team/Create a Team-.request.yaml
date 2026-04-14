@@ -1,0 +1,20 @@
+$kind: http-request
+name: Create a Team.
+description: |
+  Adds a new team resource.
+  The response body contains the new team instance.
+url: "{{baseUrl}}/team"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "code_name": "3cTR",
+      "comments": "<string>"
+    }
+examples: ./.resources/Create a Team-.resources/examples
+order: 3000

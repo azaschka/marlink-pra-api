@@ -1,0 +1,22 @@
+$kind: http-example
+name: The specified resource was not found.
+request:
+  url: "{{baseUrl}}/vendor/:id/user/:user_id/reactivate"
+  method: POST
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+    user_id: ""
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>"
+      }
+order: 3000

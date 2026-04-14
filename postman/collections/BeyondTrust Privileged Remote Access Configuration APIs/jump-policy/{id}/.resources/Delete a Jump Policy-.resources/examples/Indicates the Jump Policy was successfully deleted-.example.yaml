@@ -1,0 +1,14 @@
+$kind: http-example
+name: Indicates the Jump Policy was successfully deleted.
+request:
+  url: "{{baseUrl}}/jump-policy/:id"
+  method: DELETE
+  pathVariables:
+    id: ""
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

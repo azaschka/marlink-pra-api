@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get a jumpoint.
+description: Gets the Jumpoint resource with the given `{id}`.
+url: "{{baseUrl}}/jumpoint/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Get a jumpoint-.resources/examples
+order: 4000

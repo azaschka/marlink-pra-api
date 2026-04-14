@@ -1,0 +1,65 @@
+$kind: http-example
+name: One or more request parameters are invalid. The body contains a general
+  error message as well as a validation error dictionary.
+request:
+  url: "{{baseUrl}}/jump-policy"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "display_name": "<string>",
+        "code_name": "o3",
+        "description": "<string>",
+        "schedule_enabled": true,
+        "simultaneous_jumps": "global",
+        "simultaneous_jump_behavior_applies_to_copies": false,
+        "simultaneous_jumps_rdp": "global",
+        "schedule_strict": false,
+        "ticket_id_required": false,
+        "two_factor_challenge_required": false,
+        "session_start_notification": false,
+        "session_end_notification": false,
+        "notification_display_name": "<string>",
+        "notification_email_language": "en-us",
+        "approval_required": false,
+        "approval_max_duration": 480,
+        "approval_scope": "requestor",
+        "approval_display_name": "<string>",
+        "approval_email_language": "en-us",
+        "approval_approver_scope": "not_requestor",
+        "recordings_disabled": false
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "<string>",
+        "errors": {
+          "ad7e": [
+            "<string>",
+            "<string>"
+          ],
+          "est9": [
+            "<string>",
+            "<string>"
+          ],
+          "occaecat67": [
+            "<string>",
+            "<string>"
+          ],
+          "in_9_": [
+            "<string>",
+            "<string>"
+          ]
+        }
+      }
+order: 2000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: Returns the nodes for the Jumpoint with the given `{id}`.
+description: Returns the nodes for the Jumpoint with the given `{id}`. This API
+  is not paginated because clustered Jumpoints can have a maximum of 10 nodes.
+url: "{{baseUrl}}/jumpoint/:id/node"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Returns the nodes for the Jumpoint with the given
+  `{id}`-.resources/examples
+order: 1000

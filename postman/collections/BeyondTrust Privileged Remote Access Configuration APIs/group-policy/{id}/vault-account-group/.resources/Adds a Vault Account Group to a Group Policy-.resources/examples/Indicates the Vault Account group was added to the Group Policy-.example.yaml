@@ -1,0 +1,32 @@
+$kind: http-example
+name: Indicates the Vault Account group was added to the Group Policy.
+request:
+  url: "{{baseUrl}}/group-policy/:id/vault-account-group"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  pathVariables:
+    id: ""
+  body:
+    type: json
+    content: |-
+      {
+        "account_group_id": "<integer>",
+        "group_policy_id": "<integer>",
+        "role": "inject"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "account_group_id": "<integer>",
+        "group_policy_id": "<integer>",
+        "role": "inject"
+      }
+order: 1000

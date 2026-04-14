@@ -1,0 +1,25 @@
+$kind: http-request
+name: Update available_groups on a SAML Security Providers resource.
+description: Modifies an existing Security Provider resource of type SAML with
+  the given `{id}` using the given properties.
+url: "{{baseUrl}}/security-provider/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "available_groups": [
+        "<string>",
+        "<string>"
+      ]
+    }
+examples: ./.resources/Update available_groups on a SAML Security Providers
+  resource-.resources/examples
+order: 2000

@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups/{{backupId}}"
+method: GET
+order: 2000

@@ -1,0 +1,33 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-item-role/:id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    id: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "<integer>",
+        "name": "<string>",
+        "description": "<string>",
+        "perm_add": false,
+        "perm_assign_jump_group": false,
+        "perm_remove": false,
+        "perm_start": false,
+        "perm_edit_tag": false,
+        "perm_edit_comments": false,
+        "perm_edit_jump_policy": false,
+        "perm_edit_session_policy": false,
+        "perm_edit_identity": false,
+        "perm_edit_behavior": false,
+        "perm_view_jump_item_report": false
+      }
+order: 1000

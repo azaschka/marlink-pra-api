@@ -1,0 +1,31 @@
+$kind: http-request
+name: Update properties on a Remote VNC Jump Item resource.
+description: Modifies an existing Remote VNC Jump Item resource with the given
+  `{id}` using the given properties.
+url: "{{baseUrl}}/jump-item/remote-vnc/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "hostname": "<string>",
+      "jumpoint_id": "<integer>",
+      "jump_group_id": "<integer>",
+      "port": 5900,
+      "jump_group_type": "shared",
+      "tag": "<string>",
+      "comments": "<string>",
+      "jump_policy_id": "<integer>",
+      "session_policy_id": "<integer>"
+    }
+examples: ./.resources/Update properties on a Remote VNC Jump Item
+  resource-.resources/examples
+order: 3000

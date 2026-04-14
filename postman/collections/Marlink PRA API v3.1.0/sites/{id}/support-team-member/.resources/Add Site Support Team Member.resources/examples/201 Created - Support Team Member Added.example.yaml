@@ -1,0 +1,34 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites/1/support-team-members"
+  method: POST
+  headers:
+    X-Access-Key: "{{accessKey}}"
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "userId": 3
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 1,
+        "siteId": 1,
+        "userId": 3,
+        "firstname": "John",
+        "lastname": "Doe",
+        "email": "support1@example.com",
+        "supportTeamName": "Technical Support",
+        "supportTeamAccessLevel": "full",
+        "supportTeamTrustLevel": "require-auth",
+        "creationDate": "2024-01-01T10:00:00.000Z"
+      }
+order: 1000

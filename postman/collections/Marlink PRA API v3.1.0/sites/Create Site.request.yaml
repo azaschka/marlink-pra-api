@@ -1,0 +1,46 @@
+$kind: http-request
+description: Creates a new site and assigns initial management roles. The site
+  key must be unique and the customer must exist. Site managers, auditors, and
+  support team members can be assigned during creation.
+url: "{{baseUrl}}/sites"
+method: POST
+headers:
+  - key: X-Access-Key
+    value: "{{accessKey}}"
+    description: Access key for authenticating and authorizing requests.
+body:
+  type: json
+  content: >-
+    {
+        "key": "string", // required
+        "name": "string", // required
+        "customerKey": "string", // required
+        "siteManagers": [ // required
+            {
+                "username": "string", // required
+                "email": "string" // required
+            }
+        ],
+        "siteAuditors": [
+            {
+                "username": "string", // required
+                "email": "string", // required
+                "isAdminOperator": false // required, boolean
+            }
+        ],
+        "siteSupportTeamMembers": [
+            {
+                "firstname": "string", // required
+                "lastname": "string", // required
+                "email": "string", // required
+                "supportTeamName": "string", // required
+                "supportTeamAccessLevel": "full", // required - full, limited
+                "supportTeamTrustLevel": "require-auth" // required - require-auth, notify-only, no-restrictions
+            }
+        ],
+        "siteApprovers": [
+            "string"
+        ]
+    }
+examples: ./.resources/Create Site.resources/examples
+order: 3000

@@ -1,0 +1,33 @@
+$kind: http-request
+name: Update properties on a Shell Jump Item.
+description: Modifies the existing Shell Jump Item resource with the given `{id}`.
+url: "{{baseUrl}}/jump-item/shell-jump/:id"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+body:
+  type: json
+  content: |-
+    {
+      "name": "<string>",
+      "jumpoint_id": "<integer>",
+      "hostname": "<string>",
+      "protocol": "ssh",
+      "jump_group_id": "<integer>",
+      "port": "SSH: 22, Telnet: 23",
+      "jump_group_type": "shared",
+      "terminal": "xterm",
+      "keep_alive": "<integer>",
+      "tag": "<string>",
+      "comments": "<string>",
+      "jump_policy_id": "<integer>",
+      "username": "<string>",
+      "session_policy_id": "<integer>"
+    }
+examples: ./.resources/Update properties on a Shell Jump Item-.resources/examples
+order: 3000

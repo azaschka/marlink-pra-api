@@ -1,0 +1,21 @@
+$kind: http-request
+name: Get Teams added to a Group Policy.
+description: Gets a paginated list of `GroupPolicyTeam` resources for the group
+  policy with the given `{id}`.
+url: "{{baseUrl}}/group-policy/:id/team?per_page=<integer>&current_page=<integer>"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: per_page
+    value: <integer>
+    description: The number of items to include a paginated response.
+  - key: current_page
+    value: <integer>
+    description: The 1-based index of the desired page.
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the group policy.
+examples: ./.resources/Get Teams added to a Group Policy-.resources/examples
+order: 2000

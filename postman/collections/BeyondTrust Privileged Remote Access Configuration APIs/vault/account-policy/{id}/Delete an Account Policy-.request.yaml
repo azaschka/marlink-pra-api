@@ -1,0 +1,15 @@
+$kind: http-request
+name: Delete an Account Policy.
+description: Deletes an existing account policy with the given `{id}`. Note that
+  all accounts associated with the account policy will be moved to default
+  policy. You may not delete the default policy.
+url: "{{baseUrl}}/vault/account-policy/:id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    description: (Required) Unique identifier for the resource.
+examples: ./.resources/Delete an Account Policy-.resources/examples
+order: 2000
