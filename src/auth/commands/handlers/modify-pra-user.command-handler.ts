@@ -28,7 +28,7 @@ export class ModifyPraUserCommandHandler implements ICommandHandler<ModifyPraUse
 
             let userPassword: string | undefined = undefined;
             if (command.regeneratePassword) {
-                userPassword = PasswordGeneratorUtility.generate();
+                userPassword = command.password ? command.password : PasswordGeneratorUtility.generate();
             }
 
             const hashedPassword: string | undefined = userPassword
