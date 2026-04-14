@@ -7,7 +7,7 @@
         "assets": [
             {
                 "include": "email/templates/*.mjml",
-                "outDir": "dist/src"
+                "outDir": "dist"
             }
         ]
     }
