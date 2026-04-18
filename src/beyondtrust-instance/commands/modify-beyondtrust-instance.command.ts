@@ -12,6 +12,6 @@ export class ModifyBeyondtrustInstanceCommand {
         public readonly oauth2TokenUrl?: string,
         public readonly apiBaseUrl?: string,
         public readonly billingType?: BillingType,
-        public readonly businessUnit?: BusinessUnit,
+        public readonly businessUnit?: BusinessUnit | null,
     ) {}
 }

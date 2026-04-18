@@ -11,6 +11,6 @@ export class CreateBeyondtrustInstanceCommand {
         public readonly oauth2TokenUrl: string,
         public readonly apiBaseUrl: string,
         public readonly billingType: BillingType,
-        public readonly businessUnit: BusinessUnit | undefined,
+        public readonly businessUnit: BusinessUnit | null,
     ) {}
 }

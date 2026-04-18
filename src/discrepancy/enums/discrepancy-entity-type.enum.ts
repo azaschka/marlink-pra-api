@@ -15,6 +15,7 @@ export enum DiscrepancyEntityType {
     JumpPolicy = 'jump-policy',
     Jumpoint = 'jumpoint',
     JumpointNode = 'jumpoint-node',
+    SessionPolicy = 'session-policy',
     Team = 'team',
     TeamUser = 'team-user',
     User = 'user',

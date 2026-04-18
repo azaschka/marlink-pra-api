@@ -50,10 +50,9 @@ export class BeyondtrustInstanceCreatedDtoOutput implements BeyondtrustInstance 
 
     @ApiProperty({
         required: false,
-        enum: BusinessUnit,
         nullable: true,
-        description:
-            'Business unit of the BeyondTrust instance. Null indicates a shared instance accessible to all business units.',
+        enum: BusinessUnit,
+        description: 'Business unit of the BeyondTrust instance.',
     })
     public businessUnit!: BusinessUnit | null;
 

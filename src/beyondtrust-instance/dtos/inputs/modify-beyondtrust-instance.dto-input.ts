@@ -55,10 +55,11 @@ export class ModifyBeyondtrustInstanceDtoInput {
 
     @ApiProperty({
         required: false,
+        nullable: true,
         enum: BusinessUnit,
-        description: 'Business unit of the BeyondTrust instance.',
+        description: 'Business unit of the BeyondTrust instance. Set to null to make shared.',
     })
     @IsEnum(BusinessUnit)
     @IsOptional()
-    public businessUnit?: BusinessUnit;
+    public businessUnit?: BusinessUnit | null;
 }
