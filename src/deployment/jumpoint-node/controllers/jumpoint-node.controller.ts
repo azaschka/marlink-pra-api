@@ -22,8 +22,8 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
-import { UuidUtility } from '../../shared/utilities';
+import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
+import { UuidUtility } from '../../../shared/utilities';
 import {
     ApproveJumpointNodeCommand,
     CreateJumpointNodeCommand,
@@ -52,8 +52,8 @@ import {
 } from '../queries';
 
 @ApiTransactionIdHeader()
-@ApiTags('Jumpoint Nodes')
-@Controller('jumpoint-nodes')
+@ApiTags('Deployment - Jumpoint Node')
+@Controller('deployments/jumpoint-nodes')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointNodeController {
     constructor(

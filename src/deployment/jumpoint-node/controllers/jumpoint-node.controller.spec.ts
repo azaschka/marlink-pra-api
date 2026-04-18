@@ -1,6 +1,6 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
-import { UuidUtility } from '../../shared/utilities';
+import { UuidUtility } from '../../../shared/utilities';
 import {
     ApproveJumpointNodeCommand,
     CreateJumpointNodeCommand,
