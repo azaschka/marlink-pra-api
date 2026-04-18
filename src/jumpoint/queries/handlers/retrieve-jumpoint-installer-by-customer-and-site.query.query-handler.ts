@@ -15,7 +15,9 @@ import { RetrieveJumpointInstallerQuery } from '../retrieve-jumpoint-installer.q
 import { RetrieveJumpointsQuery } from '../retrieve-jumpoints.query';
 
 @QueryHandler(RetrieveJumpointInstallerByCustomerAndSiteQuery)
-export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements IQueryHandler<RetrieveJumpointInstallerByCustomerAndSiteQuery> {
+export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
+    implements IQueryHandler<RetrieveJumpointInstallerByCustomerAndSiteQuery>
+{
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     constructor(private readonly queryBus: QueryBus) {}
@@ -98,7 +100,7 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements I
         const btInstances = await this.getAllBTInstances(transactionId);
         const jumpointNamePatterns = customer
             ? [
-                  `${customer.beyondtrustInstance.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
+                  `${customer.businessUnit}%${customer.name.toUpperCase()}_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
               ]
             : businessUnits.map(
                   (businessUnit) => `${businessUnit}%_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
