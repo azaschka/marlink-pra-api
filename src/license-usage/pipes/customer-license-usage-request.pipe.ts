@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { SuperAdminUtility } from '../../shared/utilities';
 
 @Injectable()
 export class CustomerLicenseUsageRequestPipe implements PipeTransform {
@@ -16,6 +17,10 @@ export class CustomerLicenseUsageRequestPipe implements PipeTransform {
     public transform(value: unknown, metadata: ArgumentMetadata) {
         // Skip if this isn't an HTTP request body, query, param.
         if (metadata.type !== 'query' && metadata.type !== 'body' && metadata.type !== 'param') {
+            return value;
+        }
+
+        if (SuperAdminUtility.isSuperAdmin(this.request.authInfo?.access?.value?.businessUnits ?? [])) {
             return value;
         }
 

@@ -10,7 +10,7 @@ import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { UuidUtility } from '../../shared/utilities';
+import { SuperAdminUtility, UuidUtility } from '../../shared/utilities';
 import { Site } from '../../site/models';
 import { RetrieveSiteByIdQuery } from '../../site/queries';
 
@@ -29,6 +29,10 @@ export class SiteLicenseUsageRequestPipe implements PipeTransform {
 
         if (!this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()]) {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
+        }
+
+        if (SuperAdminUtility.isSuperAdmin(this.request.authInfo?.access?.value?.businessUnits ?? [])) {
+            return value;
         }
 
         const customerScopes = this.request.customers!;

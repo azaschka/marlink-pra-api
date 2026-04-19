@@ -10,7 +10,7 @@ import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { ObjectUtility, UuidUtility } from '../../shared/utilities';
+import { ObjectUtility, SuperAdminUtility, UuidUtility } from '../../shared/utilities';
 import {
     CreateBeyondtrustInstanceDtoInput,
     ModifyBeyondtrustInstanceDtoInput,
@@ -39,6 +39,10 @@ export class BeyondtrustInstanceRequestPipe implements PipeTransform {
 
         const businessUnitScopes = this.request.businessUnits!;
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
+
+        if (SuperAdminUtility.isSuperAdmin(businessUnitScopes)) {
+            return value;
+        }
 
         if (metadata.metatype?.name === RetrieveBeyondtrustInstancesDtoInput.name) {
             // Validate business unit scopes with queried business units
