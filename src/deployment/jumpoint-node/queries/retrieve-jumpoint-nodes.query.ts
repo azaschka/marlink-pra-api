@@ -8,7 +8,7 @@ export class RetrieveJumpointNodesQuery {
         public readonly pageSize: number,
         public readonly pageNumber: number,
         public readonly certname?: string,
-        public readonly businessUnit?: JumpointNodeBusinessUnit,
+        public readonly businessUnits?: JumpointNodeBusinessUnit[],
         public readonly siteKey?: string,
         public readonly customerName?: string | null,
         public readonly puppetServerDomain?: string,

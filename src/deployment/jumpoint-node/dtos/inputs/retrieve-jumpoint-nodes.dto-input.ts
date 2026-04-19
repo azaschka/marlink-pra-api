@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType } from '../../enums';
 
@@ -38,11 +38,14 @@ export class RetrieveJumpointNodesDtoInput {
     @ApiProperty({
         enum: JumpointNodeBusinessUnit,
         required: false,
-        description: 'The business unit associated with the jumpoint node.',
+        isArray: true,
+        description: 'The business units associated with the jumpoint node.',
     })
-    @IsEnum(JumpointNodeBusinessUnit)
+    @IsEnum(JumpointNodeBusinessUnit, { each: true })
     @IsOptional()
-    public businessUnit?: JumpointNodeBusinessUnit;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public businessUnits?: JumpointNodeBusinessUnit[];
 
     @ApiProperty({
         type: String,

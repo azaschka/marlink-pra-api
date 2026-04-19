@@ -9,6 +9,8 @@ import {
     Post,
     Query,
     Res,
+    UseGuards,
+    UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -22,7 +24,10 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
+import { AccessGuard } from '../../../access/guards';
+import { BusinessUnitsScopeInterceptor } from '../../../access/interceptors';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../../core/decorators';
+import { MonitoringRequestPipe } from '../../../monitoring/pipes';
 import { UuidUtility } from '../../../shared/utilities';
 import {
     ApproveJumpointNodeCommand,
@@ -45,6 +50,7 @@ import {
 } from '../dtos/outputs';
 import { JumpointNodeServiceType } from '../enums';
 import { JumpointNode, JumpointNodeIsoContent } from '../models';
+import { JumpointNodeRequestPipe } from '../pipes';
 import {
     RetrieveJumpointNodeByIdQuery,
     RetrieveJumpointNodeIsoByIdQuery,
@@ -52,8 +58,13 @@ import {
 } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Deployment - Jumpoint Node')
 @Controller('deployments/jumpoint-nodes')
+@UseGuards(AccessGuard)
+@UseInterceptors(BusinessUnitsScopeInterceptor)
+@UsePipes(MonitoringRequestPipe)
+@UsePipes(JumpointNodeRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointNodeController {
     constructor(
@@ -88,7 +99,7 @@ export class JumpointNodeController {
                 dtoInput.pageSize,
                 dtoInput.pageNumber,
                 dtoInput.certname,
-                dtoInput.businessUnit,
+                dtoInput.businessUnits,
                 dtoInput.siteKey,
                 dtoInput.customerName,
                 dtoInput.puppetServerDomain,
@@ -99,6 +110,24 @@ export class JumpointNodeController {
         );
 
         return result;
+    }
+
+    @Post('deploy')
+    @ApiCreatedResponse({
+        type: JumpointNodeCreatedDtoOutput,
+        description: 'Indicates the Jumpoint node was created successfully and contains the new instance.',
+    })
+    public async deployJumpointNode(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @Body() dtoInput: CreateJumpointNodeDtoInput,
+    ): Promise<JumpointNodeCreatedDtoOutput> {
+        const jumpointNode = await this.createJumpointNode(transactionId, dtoInput);
+        await this.createJumpointNodeService(transactionId, jumpointNode.id, {
+            serviceType: JumpointNodeServiceType.Pra,
+        });
+        await this.approveJumpointNode(transactionId, jumpointNode.id);
+
+        return await this.downloadJumpointNodeIso(transactionId, jumpointNode.id);
     }
 
     @Post()
@@ -207,24 +236,6 @@ export class JumpointNodeController {
         });
 
         res.send(result.buffer);
-    }
-
-    @Post(':id/deploy')
-    @ApiCreatedResponse({
-        type: JumpointNodeCreatedDtoOutput,
-        description: 'Indicates the Jumpoint node was created successfully and contains the new instance.',
-    })
-    public async deployJumpointNode(
-        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
-        @Body() dtoInput: CreateJumpointNodeDtoInput,
-    ): Promise<JumpointNodeCreatedDtoOutput> {
-        const jumpointNode = await this.createJumpointNode(transactionId, dtoInput);
-        await this.createJumpointNodeService(transactionId, jumpointNode.id, {
-            serviceType: JumpointNodeServiceType.Pra,
-        });
-        await this.approveJumpointNode(transactionId, jumpointNode.id);
-
-        return await this.downloadJumpointNodeIso(transactionId, jumpointNode.id);
     }
 
     @Delete(':id')
