@@ -39,13 +39,13 @@ import {
 import {
     CreateJumpointNodeDtoInput,
     CreateJumpointNodeServiceDtoInput,
-    RetrieveJumpointNodesDtoInput,
+    DeploymentRetrieveJumpointNodesDtoInput,
 } from '../dtos/inputs';
 import {
     JumpointNodeApprovedDtoOutput,
     JumpointNodeCreatedDtoOutput,
     JumpointNodeIsoDownloadedDtoOutput,
-    JumpointNodeRetrievedDtoOutput,
+    DeploymentJumpointNodeRetrievedDtoOutput,
     JumpointNodeServiceCreatedDtoOutput,
 } from '../dtos/outputs';
 import { JumpointNodeServiceType } from '../enums';
@@ -54,7 +54,7 @@ import { JumpointNodeRequestPipe } from '../pipes';
 import {
     RetrieveJumpointNodeByIdQuery,
     RetrieveJumpointNodeIsoByIdQuery,
-    RetrieveJumpointNodesQuery,
+    DeploymentRetrieveJumpointNodesQuery,
 } from '../queries';
 
 @ApiTransactionIdHeader()
@@ -74,12 +74,12 @@ export class JumpointNodeController {
 
     @Get(':id')
     @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
-    @ApiOkResponse({ type: JumpointNodeRetrievedDtoOutput })
+    @ApiOkResponse({ type: DeploymentJumpointNodeRetrievedDtoOutput })
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async retrieveJumpointNode(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
-    ): Promise<JumpointNodeRetrievedDtoOutput> {
+    ): Promise<DeploymentJumpointNodeRetrievedDtoOutput> {
         const result = await this.queryBus.execute<RetrieveJumpointNodeByIdQuery, JumpointNode>(
             new RetrieveJumpointNodeByIdQuery(transactionId, id),
         );
@@ -88,13 +88,13 @@ export class JumpointNodeController {
     }
 
     @Get()
-    @ApiOkResponse({ type: JumpointNodeRetrievedDtoOutput, isArray: true })
+    @ApiOkResponse({ type: DeploymentJumpointNodeRetrievedDtoOutput, isArray: true })
     public async retrieveJumpointNodes(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
-        @Query() dtoInput: RetrieveJumpointNodesDtoInput,
-    ): Promise<JumpointNodeRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveJumpointNodesQuery, JumpointNode[]>(
-            new RetrieveJumpointNodesQuery(
+        @Query() dtoInput: DeploymentRetrieveJumpointNodesDtoInput,
+    ): Promise<DeploymentJumpointNodeRetrievedDtoOutput[]> {
+        const result = await this.queryBus.execute<DeploymentRetrieveJumpointNodesQuery, JumpointNode[]>(
+            new DeploymentRetrieveJumpointNodesQuery(
                 transactionId,
                 dtoInput.pageSize,
                 dtoInput.pageNumber,

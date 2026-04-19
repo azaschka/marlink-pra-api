@@ -12,7 +12,7 @@ import { Request } from 'express';
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { TRANSACTION_ID_HEADER } from '../../../core/decorators';
 import { ObjectUtility, SuperAdminUtility, UuidUtility } from '../../../shared/utilities';
-import { CreateJumpointNodeDtoInput, RetrieveJumpointNodesDtoInput } from '../dtos/inputs';
+import { CreateJumpointNodeDtoInput, DeploymentRetrieveJumpointNodesDtoInput } from '../dtos/inputs';
 import { JumpointNodeBusinessUnit } from '../enums';
 import { JumpointNode } from '../models';
 import { RetrieveJumpointNodeByIdQuery } from '../queries';
@@ -41,14 +41,14 @@ export class JumpointNodeRequestPipe implements PipeTransform {
             return value;
         }
 
-        if (metadata.metatype?.name === RetrieveJumpointNodesDtoInput.name) {
+        if (metadata.metatype?.name === DeploymentRetrieveJumpointNodesDtoInput.name) {
             // Validate business unit scopes with queried business units
             const businessUnitsQuery = ObjectUtility.convertToArray<JumpointNodeBusinessUnit | undefined>(
                 this.request.query.businessUnits as JumpointNodeBusinessUnit | JumpointNodeBusinessUnit[] | undefined,
             ).filter((bu) => bu !== undefined);
 
             if (businessUnitsQuery.length === 0) {
-                const dto = value as RetrieveJumpointNodesDtoInput;
+                const dto = value as DeploymentRetrieveJumpointNodesDtoInput;
 
                 // If no business units are queried, set to scoped business units
                 dto.businessUnits = businessUnitScopes as unknown as JumpointNodeBusinessUnit[];

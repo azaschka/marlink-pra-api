@@ -13,7 +13,7 @@ import { JumpointNode, JumpointNodeIsoContent } from '../models';
 import {
     RetrieveJumpointNodeByIdQuery,
     RetrieveJumpointNodeIsoByIdQuery,
-    RetrieveJumpointNodesQuery,
+    DeploymentRetrieveJumpointNodesQuery,
 } from '../queries';
 import { JumpointNodeController } from './jumpoint-node.controller';
 
@@ -62,7 +62,7 @@ describe('JumpointController', () => {
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
-                new RetrieveJumpointNodesQuery(
+                new DeploymentRetrieveJumpointNodesQuery(
                     'uuid-123',
                     10,
                     1,

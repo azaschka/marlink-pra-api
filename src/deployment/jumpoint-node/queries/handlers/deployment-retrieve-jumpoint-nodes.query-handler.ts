@@ -7,16 +7,16 @@ import { AppConfigService } from '../../../../app-config/services/app-config.ser
 import { TRANSACTION_ID_HEADER } from '../../../../core/decorators';
 import { ErrorProcessorUtility, ObjectUtility, UrlUtility } from '../../../../shared/utilities';
 import { JumpointNode } from '../../models';
-import { RetrieveJumpointNodesQuery } from '../retrieve-jumpoint-nodes.query';
+import { DeploymentRetrieveJumpointNodesQuery } from '../deployment-retrieve-jumpoint-nodes.query';
 
-@QueryHandler(RetrieveJumpointNodesQuery)
-export class RetrieveJumpointNodesQueryHandler implements IQueryHandler<RetrieveJumpointNodesQuery> {
+@QueryHandler(DeploymentRetrieveJumpointNodesQuery)
+export class DeploymentRetrieveJumpointNodesQueryHandler implements IQueryHandler<DeploymentRetrieveJumpointNodesQuery> {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,
     ) {}
 
-    public async execute(query: RetrieveJumpointNodesQuery): Promise<JumpointNode[]> {
+    public async execute(query: DeploymentRetrieveJumpointNodesQuery): Promise<JumpointNode[]> {
         try {
             const url = UrlUtility.join(
                 this.appConfigService.praSyncApi.baseUrl,

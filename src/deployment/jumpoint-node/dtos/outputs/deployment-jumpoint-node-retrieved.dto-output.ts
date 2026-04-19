@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType, JumpointNodeServiceType } from '../../enums';
 
-export class JumpointNodeRetrievedDtoOutput {
+export class DeploymentJumpointNodeRetrievedDtoOutput {
     @ApiProperty({
         type: Number,
         required: true,

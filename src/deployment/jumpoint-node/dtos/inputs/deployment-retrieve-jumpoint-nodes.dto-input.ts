@@ -3,7 +3,7 @@ import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType } from '../../enums';
 
-export class RetrieveJumpointNodesDtoInput {
+export class DeploymentRetrieveJumpointNodesDtoInput {
     @ApiProperty({
         required: false,
         type: Number,
