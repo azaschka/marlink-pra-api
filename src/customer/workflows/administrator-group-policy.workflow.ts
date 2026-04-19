@@ -6,7 +6,12 @@ import { AppConfigService } from '../../app-config/services/app-config.service';
 import { CreateGroupPolicyCommand, DeleteGroupPolicyCommand } from '../../group-policy/commands';
 import { GroupPolicy } from '../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
+import { GroupPolicyMember } from '../../group-policy-member/models';
+import { RetrieveGroupPolicyMembersQuery } from '../../group-policy-member/queries/retrieve-group-policy-members.query';
 import { BaseWorkflow } from '../../shared/workflows';
+import { SiteAuditor } from '../../site/models';
+import { RetrieveSiteAuditorsByUserIdQuery } from '../../site/queries';
+import { DeleteUserCommand } from '../../user/commands';
 
 export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolicy> {
     private get groupPolicyName(): string {
@@ -42,6 +47,8 @@ export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolic
                 return;
             }
 
+            await this.deleteOrphanedUsers(groupPolicy.id);
+
             await this.commandBus.execute<DeleteGroupPolicyCommand, void>(
                 new DeleteGroupPolicyCommand(this.transactionId, this.customerBeyondTrustInstanceId, groupPolicy.id),
             );
@@ -57,6 +64,50 @@ export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolic
             }
 
             throw error;
+        }
+    }
+
+    private async deleteOrphanedUsers(groupPolicyId: number): Promise<void> {
+        const members = await this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
+            new RetrieveGroupPolicyMembersQuery(
+                this.transactionId,
+                this.customerBeyondTrustInstanceId,
+                100,
+                1,
+                groupPolicyId,
+            ),
+        );
+
+        for (const member of members) {
+            try {
+                const siteAuditors = await this.queryBus.execute<RetrieveSiteAuditorsByUserIdQuery, SiteAuditor[]>(
+                    new RetrieveSiteAuditorsByUserIdQuery(this.transactionId, 1, 1, member.userId),
+                );
+
+                if (siteAuditors.length > 0) {
+                    console.log(
+                        `[${this.transactionId}] User ${member.userId} still associated with ${siteAuditors.length} site(s) - skipping deletion`,
+                    );
+                    continue;
+                }
+
+                console.log(`[${this.transactionId}] Deleting orphaned BT user ${member.userId} from customer cleanup`);
+                await this.commandBus.execute<DeleteUserCommand, void>(
+                    new DeleteUserCommand(this.transactionId, this.customerBeyondTrustInstanceId, member.userId),
+                );
+            } catch (error) {
+                const statusCode =
+                    (error as any)?.status ??
+                    (error as any)?.response?.statusCode ??
+                    (error as any)?.response?.message?.statusCode;
+
+                if (statusCode === 404) {
+                    console.log(`[${this.transactionId}] BT user ${member.userId} not found (404) - skipping`);
+                    continue;
+                }
+
+                console.error(`[${this.transactionId}] Failed to delete BT user ${member.userId}:`, error);
+            }
         }
     }
 

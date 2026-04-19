@@ -15,9 +15,7 @@ import { RetrieveJumpointInstallerQuery } from '../retrieve-jumpoint-installer.q
 import { RetrieveJumpointsQuery } from '../retrieve-jumpoints.query';
 
 @QueryHandler(RetrieveJumpointInstallerByCustomerAndSiteQuery)
-export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler
-    implements IQueryHandler<RetrieveJumpointInstallerByCustomerAndSiteQuery>
-{
+export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements IQueryHandler<RetrieveJumpointInstallerByCustomerAndSiteQuery> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     constructor(private readonly queryBus: QueryBus) {}
