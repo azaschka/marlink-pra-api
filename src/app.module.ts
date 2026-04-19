@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { BeyondtrustInstanceBackupModule } from './beyondtrust-instance-backup/beyondtrust-instance-backup.module';
 import { BeyondtrustInstanceModule } from './beyondtrust-instance/beyondtrust-instance.module';
 import { CustomerModule } from './customer/customer.module';
+import { DeploymentModule } from './deployment/deployment.module';
 import { DiscrepancyModule } from './discrepancy/discrepancy.module';
 import { EmailModule } from './email/email.module';
 import { GroupPolicyJumpGroupModule } from './group-policy-jump-group/group-policy-jump-group.module';
@@ -86,6 +87,7 @@ import { UserModule } from './user/user.module';
         JobModule,
         LogModule,
         MonitoringModule,
+        DeploymentModule,
     ],
     controllers: [AppController],
     providers: [

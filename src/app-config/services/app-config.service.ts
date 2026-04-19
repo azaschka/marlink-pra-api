@@ -207,6 +207,32 @@ export class AppConfigService {
                     this.configService.get<string>('PRA_SYNC_API_SESSION_POLICY_PATH') ??
                     DefaultAppConfig.praSyncApi.sessionPolicy.path,
             },
+            deployments: {
+                path:
+                    this.configService.get<string>('PRA_SYNC_API_DEPLOYMENTS_PATH') ??
+                    DefaultAppConfig.praSyncApi.deployments.path,
+                jumpointNode: {
+                    path:
+                        this.configService.get<string>('PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_PATH') ??
+                        DefaultAppConfig.praSyncApi.deployments.jumpointNode.path,
+                    approve:
+                        this.configService.get<string>('PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_APPROVE') ??
+                        DefaultAppConfig.praSyncApi.deployments.jumpointNode.approve,
+                    deploy:
+                        this.configService.get<string>('PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_DEPLOY') ??
+                        DefaultAppConfig.praSyncApi.deployments.jumpointNode.deploy,
+                    services: {
+                        path:
+                            this.configService.get<string>('PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_SERVICES_PATH') ??
+                            DefaultAppConfig.praSyncApi.deployments.jumpointNode.services.path,
+                    },
+                    iso: {
+                        path:
+                            this.configService.get<string>('PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_ISO_PATH') ??
+                            DefaultAppConfig.praSyncApi.deployments.jumpointNode.iso.path,
+                    },
+                },
+            },
             discrepancy: {
                 path:
                     this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_PATH') ??

@@ -141,6 +141,20 @@ export abstract class DefaultAppConfig {
             sessionPolicy: {
                 path: '/session-policies',
             },
+            deployments: {
+                path: '/deployments',
+                jumpointNode: {
+                    path: '/jumpoint-nodes',
+                    approve: 'approve',
+                    deploy: 'deploy',
+                    services: {
+                        path: '/services',
+                    },
+                    iso: {
+                        path: '/iso',
+                    },
+                },
+            },
             discrepancy: {
                 path: '/discrepancies',
                 scan: {

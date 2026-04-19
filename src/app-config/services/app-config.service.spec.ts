@@ -200,6 +200,21 @@ describe('AppConfigService', () => {
                     sessionPolicy: {
                         path: 'api-path-session-policy-1',
                     },
+                    deployments: {
+                        path: 'api-path-deployments-1',
+                        jumpointNode: {
+                            path: 'api-path-deployments-jumpoint-node-1',
+                            approve: 'api-path-deployments-jumpoint-node-approve-1',
+                            deploy: 'api-path-deployments-jumpoint-node-deploy-1',
+                            services: {
+                                path: 'api-path-deployments-jumpoint-node-services-1',
+                            },
+                            iso: {
+                                path: 'api-path-deployments-jumpoint-node-iso-1',
+                            },
+                        },
+                    },
+
                     discrepancy: {
                         path: '/api-path-discrepancies-1',
                         scan: {
@@ -295,6 +310,20 @@ describe('AppConfigService', () => {
                     },
                     sessionPolicy: {
                         path: 'api-path-session-policy-1',
+                    },
+                    deployments: {
+                        path: 'api-path-deployments-1',
+                        jumpointNode: {
+                            path: 'api-path-deployments-jumpoint-node-1',
+                            approve: 'api-path-deployments-jumpoint-node-approve-1',
+                            deploy: 'api-path-deployments-jumpoint-node-deploy-1',
+                            services: {
+                                path: 'api-path-deployments-jumpoint-node-services-1',
+                            },
+                            iso: {
+                                path: 'api-path-deployments-jumpoint-node-iso-1',
+                            },
+                        },
                     },
                     discrepancy: {
                         path: '/api-path-discrepancies-1',
@@ -395,6 +424,20 @@ describe('AppConfigService', () => {
                     sessionPolicy: {
                         path: '/session-policies',
                     },
+                    deployments: {
+                        path: '/deployments',
+                        jumpointNode: {
+                            path: '/jumpoint-nodes',
+                            approve: 'approve',
+                            deploy: 'deploy',
+                            services: {
+                                path: '/services',
+                            },
+                            iso: {
+                                path: '/iso',
+                            },
+                        },
+                    },
                     discrepancy: {
                         path: '/discrepancies',
                         scan: {
@@ -474,6 +517,18 @@ describe('AppConfigService', () => {
                         return input.jumpItem?.protocolTunnelJump?.copy;
                     case 'PRA_SYNC_API_SESSION_POLICY_PATH':
                         return input.sessionPolicy?.path;
+                    case 'PRA_SYNC_API_DEPLOYMENTS_PATH':
+                        return input.deployments?.path;
+                    case 'PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_PATH':
+                        return input.deployments?.jumpointNode?.path;
+                    case 'PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_APPROVE':
+                        return input.deployments?.jumpointNode?.approve;
+                    case 'PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_DEPLOY':
+                        return input.deployments?.jumpointNode?.deploy;
+                    case 'PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_SERVICES_PATH':
+                        return input.deployments?.jumpointNode?.services?.path;
+                    case 'PRA_SYNC_API_DEPLOYMENTS_JUMPOINT_NODE_ISO_PATH':
+                        return input.deployments?.jumpointNode?.iso?.path;
                     case 'PRA_SYNC_API_DISCREPANCY_PATH':
                         return input.discrepancy?.path;
                     case 'PRA_SYNC_API_DISCREPANCY_SCAN_PATH':
@@ -571,6 +626,20 @@ describe('AppConfigService', () => {
                 },
                 sessionPolicy: {
                     path: expected.sessionPolicy?.path,
+                },
+                deployments: {
+                    path: expected.deployments?.path,
+                    jumpointNode: {
+                        path: expected.deployments?.jumpointNode?.path,
+                        approve: expected.deployments?.jumpointNode?.approve,
+                        deploy: expected.deployments?.jumpointNode?.deploy,
+                        services: {
+                            path: expected.deployments?.jumpointNode?.services?.path,
+                        },
+                        iso: {
+                            path: expected.deployments?.jumpointNode?.iso?.path,
+                        },
+                    },
                 },
                 discrepancy: {
                     path: expected.discrepancy?.path,
