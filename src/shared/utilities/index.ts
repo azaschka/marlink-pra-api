@@ -5,5 +5,6 @@ export * from './object.utility';
 export * from './pagination.utility';
 export * from './password-generator.utility';
 export * from './retry.utility';
+export * from './super-admin.utility';
 export * from './url.utility';
 export * from './uuid.utility';

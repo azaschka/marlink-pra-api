@@ -11,7 +11,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { ObjectUtility, UuidUtility } from '../../shared/utilities';
+import { ObjectUtility, SuperAdminUtility, UuidUtility } from '../../shared/utilities';
 import { CreateCustomerDtoInput, RetrieveCustomersDtoInput } from '../dtos/inputs';
 import { Customer } from '../models';
 import { RetrieveCustomerByIdQuery } from '../queries';
@@ -35,6 +35,10 @@ export class CustomerRequestPipe implements PipeTransform {
 
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
         const businessUnitScopes = this.request.businessUnits;
+
+        if (SuperAdminUtility.isSuperAdmin(businessUnitScopes ?? [])) {
+            return value;
+        }
 
         if (!businessUnitScopes || businessUnitScopes.length === 0) {
             console.error(`[${transactionId}] CustomerRequestPipe: No business unit scopes found in request`);

@@ -2,7 +2,7 @@ import { ArgumentMetadata, ForbiddenException, Inject, Injectable, PipeTransform
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { ObjectUtility, UuidUtility } from '../../shared/utilities';
+import { ObjectUtility, SuperAdminUtility, UuidUtility } from '../../shared/utilities';
 import { RetrieveSessionPoliciesDtoInput } from '../dtos/inputs';
 
 @Injectable()
@@ -17,6 +17,10 @@ export class SessionPolicyRequestPipe implements PipeTransform {
 
         if (!this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()]) {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
+        }
+
+        if (SuperAdminUtility.isSuperAdmin(this.request.authInfo?.access?.value?.businessUnits ?? [])) {
+            return value;
         }
 
         const customerScopes = this.request.customers!;

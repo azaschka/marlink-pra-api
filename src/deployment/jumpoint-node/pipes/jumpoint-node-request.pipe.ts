@@ -11,7 +11,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { TRANSACTION_ID_HEADER } from '../../../core/decorators';
-import { ObjectUtility, UuidUtility } from '../../../shared/utilities';
+import { ObjectUtility, SuperAdminUtility, UuidUtility } from '../../../shared/utilities';
 import { CreateJumpointNodeDtoInput, RetrieveJumpointNodesDtoInput } from '../dtos/inputs';
 import { JumpointNodeBusinessUnit } from '../enums';
 import { JumpointNode } from '../models';
@@ -36,6 +36,10 @@ export class JumpointNodeRequestPipe implements PipeTransform {
 
         const businessUnitScopes = this.request.businessUnits!;
         const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
+
+        if (SuperAdminUtility.isSuperAdmin(businessUnitScopes ?? [])) {
+            return value;
+        }
 
         if (metadata.metatype?.name === RetrieveJumpointNodesDtoInput.name) {
             // Validate business unit scopes with queried business units

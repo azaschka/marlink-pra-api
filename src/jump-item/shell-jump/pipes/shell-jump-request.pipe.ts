@@ -10,7 +10,7 @@ import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
-import { ObjectUtility, UuidUtility } from '../../../shared/utilities';
+import { ObjectUtility, SuperAdminUtility, UuidUtility } from '../../../shared/utilities';
 import { CreateShellJumpDtoInput, RetrieveShellJumpsDtoInput } from '../dtos/inputs';
 import { ShellJump } from '../models';
 import { RetrieveShellJumpByIdQuery } from '../queries';
@@ -30,6 +30,10 @@ export class ShellJumpRequestPipe implements PipeTransform {
 
         if (!this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()]) {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
+        }
+
+        if (SuperAdminUtility.isSuperAdmin(this.request.authInfo?.access?.value?.businessUnits ?? [])) {
+            return value;
         }
 
         const jumpGroupScopes = this.request.jumpGroups!;

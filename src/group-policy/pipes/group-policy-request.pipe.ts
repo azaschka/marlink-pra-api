@@ -11,7 +11,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { ObjectUtility, UuidUtility } from '../../shared/utilities';
+import { ObjectUtility, SuperAdminUtility, UuidUtility } from '../../shared/utilities';
 import { CreateGroupPolicyDtoInput, RetrieveGroupPoliciesDtoInput } from '../dtos/inputs';
 import { GroupPolicy } from '../models';
 import { RetrieveGroupPolicyByIdQuery } from '../queries';
@@ -42,6 +42,10 @@ export class GroupPolicyRequestPipe implements PipeTransform {
 
         if (!this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()]) {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
+        }
+
+        if (SuperAdminUtility.isSuperAdmin(this.request.authInfo?.access?.value?.businessUnits ?? [])) {
+            return value;
         }
 
         const customerScopes = this.request.customers!;

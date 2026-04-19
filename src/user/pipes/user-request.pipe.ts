@@ -9,14 +9,13 @@ import {
 import { REQUEST } from '@nestjs/core';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
-import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
 import { Customer } from '../../customer/models';
 import { GroupPolicyMember } from '../../group-policy-member/models';
 import { RetrieveGroupPolicyMembersQuery } from '../../group-policy-member/queries';
 import { GroupPolicy } from '../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
-import { ObjectUtility, PaginationUtility, UuidUtility } from '../../shared/utilities';
+import { ObjectUtility, PaginationUtility, SuperAdminUtility, UuidUtility } from '../../shared/utilities';
 import { CreateUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { User } from '../models';
 import { RetrieveUserByIdQuery } from '../queries';
@@ -45,13 +44,7 @@ export class UserRequestPipe implements PipeTransform {
 
         // Super Admin bypass: an access key containing all business units belongs to a super admin.
         // Skip all scope validation to allow unrestricted user management.
-        const accessBusinessUnits = this.request.authInfo?.access?.value?.businessUnits ?? [];
-        const allBusinessUnits = Object.values(BusinessUnit);
-
-        if (allBusinessUnits.every((bu) => accessBusinessUnits.includes(bu))) {
-            console.log(
-                `[${transactionId}] UserRequestPipe: Super admin access key detected - skipping scope validation`,
-            );
+        if (SuperAdminUtility.isSuperAdmin(this.request.authInfo?.access?.value?.businessUnits ?? [])) {
             return value;
         }
 
