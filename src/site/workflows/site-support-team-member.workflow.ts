@@ -198,6 +198,11 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             ),
         );
 
+        // The site support team member user is only deleted if they are not associated with any other sites.
+        if (!isSiteSupportTeamMemberAssociatedWithMultipleSites) {
+            await this.siteSupportTeamMemberUserWorkflow.delete();
+        }
+
         // TODO
         // 1. Jumpoint and jump group removal from the group policies.
         // 2. Remove support team group policy and jump group.

@@ -109,6 +109,11 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [], [this.siteManager.email]);
         await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [], [siteManagerUser.id.toString()]);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
+
+        // The site manager user is only deleted if they are not associated with any other sites.
+        if (!isSiteManagerAssociatedWithMultipleSites) {
+            await this.siteManagerUserWorkflow.delete();
+        }
     }
 
     private async modifyAuthJumpPolicyNotificationEmailAddresses(

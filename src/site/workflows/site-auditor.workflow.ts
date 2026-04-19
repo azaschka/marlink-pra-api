@@ -139,6 +139,11 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
                 ),
             );
         }
+
+        // The site auditor user is only deleted if they are not associated with any other sites.
+        if (!isSiteAuditorAssociatedWithMultipleSites) {
+            await this.siteAuditorUserWorkflow.delete();
+        }
     }
 
     private async isSiteAuditorAssociatedWithMultipleSites(siteAuditorUser: User) {
