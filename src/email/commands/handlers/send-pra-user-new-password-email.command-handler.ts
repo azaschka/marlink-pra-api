@@ -37,6 +37,10 @@ export class SendPraUserNewPasswordEmailCommandHandler implements ICommandHandle
                 }),
             );
         } catch (error) {
+            console.error(
+                `[${command.transactionId}] Failed to send PRA user new password email to "${command.sendTo}":`,
+                ErrorProcessorUtility.stringify(error),
+            );
             this.eventBus.publish(
                 new SendPraUserNewPasswordEmailFailedEvent(command.transactionId, {
                     email: command.sendTo,

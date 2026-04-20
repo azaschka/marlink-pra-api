@@ -37,6 +37,10 @@ export class SendUserNewPasswordEmailCommandHandler implements ICommandHandler<S
                 }),
             );
         } catch (error) {
+            console.error(
+                `[${command.transactionId}] Failed to send new password email to "${command.sendTo}":`,
+                ErrorProcessorUtility.stringify(error),
+            );
             this.eventBus.publish(
                 new SendUserNewPasswordEmailFailedEvent(command.transactionId, {
                     email: command.sendTo,

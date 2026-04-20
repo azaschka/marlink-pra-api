@@ -51,7 +51,7 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
 
     private trySendUserNewPasswordEmailAsync(transactionId: string, user: User, password: string): void {
         if (!user.email) {
-            console.warn(`User with ID ${user.id} does not have an email address, skipping new password email.`);
+            console.warn(`[${transactionId}] User ${user.id} has no email address, skipping new password email.`);
             return;
         }
 
@@ -67,7 +67,7 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
             )
             .catch((error) => {
                 console.error(
-                    `Failed to send new password email for user ${user.id}:`,
+                    `[${transactionId}] Failed to send new password email for user ${user.id}:`,
                     ErrorProcessorUtility.stringify(error),
                 );
             });

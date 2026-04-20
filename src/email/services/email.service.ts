@@ -22,12 +22,22 @@ export class EmailService {
     ): Promise<void> {
         const compiledTemplate = this.loadCompiledTemplate(templateFilename);
         const mjmlContent = compiledTemplate(context);
-        const { html, errors } = mjml2html(mjmlContent, { validationLevel: 'strict' });
 
-        if (errors.length) {
-            throw new InternalServerErrorException(
-                `MJML validation errors: ${errors.map((e) => e.formattedMessage).join(', ')}`,
-            );
+        let html: string;
+        try {
+            const result = mjml2html(mjmlContent, { validationLevel: 'soft' });
+            if (result?.errors?.length) {
+                throw new InternalServerErrorException(
+                    `MJML validation errors in template "${templateFilename}": ${result.errors.map((e) => e.formattedMessage).join(', ')}`,
+                );
+            }
+            html = result?.html;
+            if (!html) {
+                throw new InternalServerErrorException(`MJML produced empty HTML for template "${templateFilename}"`);
+            }
+        } catch (error) {
+            console.error(`EmailService: failed to render template "${templateFilename}":`, error);
+            throw error;
         }
 
         await this.mailerService.sendMail({
