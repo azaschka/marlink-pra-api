@@ -262,7 +262,9 @@ export class AppConfigService {
             username: this.configService.get<string>('DB_USERNAME') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             password: this.configService.get<string>('DB_PASSWORD') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             database: this.configService.get<string>('DB_NAME') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
-            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            // __dirname is dist/app-config/services/ — go up two levels to reach dist/
+            // so the glob scans ALL entity files across the entire compiled output.
+            entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
             synchronize: !this.isProduction,
             logging: false,
             autoLoadEntities: true,
