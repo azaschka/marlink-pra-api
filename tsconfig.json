@@ -10,7 +10,7 @@
         "target": "ES2023",
         "sourceMap": true,
         "outDir": "./dist",
-        "rootDir": "./src",
+        "rootDir": "./",
         "baseUrl": "./",
         "incremental": false,
         "skipLibCheck": true,
@@ -21,6 +21,6 @@
         "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
         "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
         "noUncheckedIndexedAccess": true /* Include 'undefined' in index signature results */,
-        "resolveJsonModule": true
-    }
+        "resolveJsonModule": true,
+    },
 }
