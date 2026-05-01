@@ -55,8 +55,10 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements I
             }
         }
 
-        throw new Error(
-            `Failed to download every jumpoint installers for business unit ${query.businessUnits}, customer key ${query.customerKey ?? '-'} and site key ${query.siteKey}.`,
+        throw new NotFoundException(
+            `No downloadable jumpoint installer found for business unit ${query.businessUnits}, customer key ${
+                query.customerKey ?? '-'
+            } and site key ${query.siteKey}. Ensure the jumpoint exists in BeyondTrust and has a valid key_info (installer key) configured.`,
         );
     }
 

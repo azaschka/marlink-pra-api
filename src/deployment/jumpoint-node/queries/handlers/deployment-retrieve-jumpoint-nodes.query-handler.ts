@@ -29,7 +29,9 @@ export class DeploymentRetrieveJumpointNodesQueryHandler implements IQueryHandle
 
             const response = await firstValueFrom(
                 this.httpService.get<JumpointNode[]>(url, {
-                    params: ObjectUtility.stripProperties(query, 'transactionId'),
+                    // Strip 'transactionId' (sent via header) and 'queryType' (internal CQRS field,
+                    // not a valid DTO property on the Sync API side).
+                    params: ObjectUtility.stripProperties(query, 'transactionId', 'queryType'),
                     headers: headers,
                     paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
                 }),
