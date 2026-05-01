@@ -34,7 +34,7 @@ describe('SessionPolicyController', () => {
                     'session-policy-code%',
                 ]),
             );
-            expect(result).toBe(expectedResult);
+            expect(result).toStrictEqual(expectedResult);
         });
     });
 });

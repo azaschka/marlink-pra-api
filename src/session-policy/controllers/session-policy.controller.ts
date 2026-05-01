@@ -50,6 +50,9 @@ export class SessionPolicyController {
             ),
         );
 
-        return result;
+        return result.map((policy) => ({
+            ...policy,
+            description: policy.description ?? '',
+        }));
     }
 }
