@@ -36,7 +36,7 @@ describe('DiscrepancyScannerController', () => {
             // Flush the microtask queue so the fire-and-forget runAllScans completes
             await new Promise<void>((resolve) => setImmediate(resolve));
 
-            expect(scanDiscrepanciesSpy).toHaveBeenCalledTimes(13);
+            expect(scanDiscrepanciesSpy).toHaveBeenCalledTimes(14);
         });
     });
 
