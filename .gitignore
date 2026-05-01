@@ -38,6 +38,10 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# IDE - Zed
+.zed/*
+!.zed/settings.json
+
 # dotenv environment variable files
 .env
 .env.development.local
