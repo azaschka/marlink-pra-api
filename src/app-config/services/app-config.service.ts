@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { resolve } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DefaultAppConfig } from '../consts';
@@ -262,9 +263,10 @@ export class AppConfigService {
             username: this.configService.get<string>('DB_USERNAME') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             password: this.configService.get<string>('DB_PASSWORD') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             database: this.configService.get<string>('DB_NAME') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
-            // __dirname is dist/app-config/services/ — go up two levels to reach dist/
-            // so the glob scans ALL entity files across the entire compiled output.
-            entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
+            // resolve() converts the relative '../..' to an absolute path before passing
+            // it to TypeORM's glob library, which cannot reliably resolve '..' segments.
+            // Result: /app/dist/**/*.entity.{ts,js}  (finds every entity in the project).
+            entities: [`${resolve(__dirname, '../..')}/**/*.entity{.ts,.js}`],
             synchronize: !this.isProduction,
             logging: false,
             autoLoadEntities: true,
