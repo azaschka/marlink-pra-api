@@ -8,7 +8,7 @@ import {
     DeleteJumpointNodeCommand,
     DownloadJumpointNodeIsoCommand,
 } from '../commands';
-import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType, JumpointNodeServiceType } from '../enums';
+import { JumpointNodeBusinessUnit, JumpointNodeServiceType } from '../enums';
 import { JumpointNode, JumpointNodeIsoContent } from '../models';
 import {
     RetrieveJumpointNodeByIdQuery,
@@ -56,9 +56,6 @@ describe('JumpointController', () => {
                 siteKey: 'site-1',
                 customerName: 'customer-1',
                 puppetServerDomain: 'puppet-1',
-                hypervisorId: 'hypervisor-1',
-                hypervisorType: JumpointNodeHypervisorType.OneEdge,
-                vmId: 123,
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
@@ -71,9 +68,6 @@ describe('JumpointController', () => {
                     'site-1',
                     'customer-1',
                     'puppet-1',
-                    'hypervisor-1',
-                    JumpointNodeHypervisorType.OneEdge,
-                    123,
                 ),
             );
             expect(result).toBe(expectedResult);
@@ -88,20 +82,10 @@ describe('JumpointController', () => {
             const result = await controller.createJumpointNode(undefined, {
                 siteKey: 'site-1',
                 businessUnit: JumpointNodeBusinessUnit.MC,
-                hypervisorId: 'hypervisor-1',
-                hypervisorType: JumpointNodeHypervisorType.OneEdge,
-                vmId: 123,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateJumpointNodeCommand(
-                    'uuid-123',
-                    'site-1',
-                    JumpointNodeBusinessUnit.MC,
-                    'hypervisor-1',
-                    JumpointNodeHypervisorType.OneEdge,
-                    123,
-                ),
+                new CreateJumpointNodeCommand('uuid-123', 'site-1', JumpointNodeBusinessUnit.MC),
             );
             expect(result).toBe(expectedResult);
         });
@@ -156,21 +140,11 @@ describe('JumpointController', () => {
             const result = await controller.deployJumpointNode(undefined, {
                 siteKey: 'site-1',
                 businessUnit: JumpointNodeBusinessUnit.MC,
-                hypervisorId: 'hypervisor-1',
-                hypervisorType: JumpointNodeHypervisorType.OneEdge,
-                vmId: 123,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenNthCalledWith(
                 1,
-                new CreateJumpointNodeCommand(
-                    'uuid-123',
-                    'site-1',
-                    JumpointNodeBusinessUnit.MC,
-                    'hypervisor-1',
-                    JumpointNodeHypervisorType.OneEdge,
-                    123,
-                ),
+                new CreateJumpointNodeCommand('uuid-123', 'site-1', JumpointNodeBusinessUnit.MC),
             );
             expect(commandBusExecuteSpy).toHaveBeenNthCalledWith(
                 2,

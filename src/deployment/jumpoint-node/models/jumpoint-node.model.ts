@@ -1,4 +1,4 @@
-import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType, JumpointNodeServiceType } from '../enums';
+import { JumpointNodeBusinessUnit, JumpointNodeServiceType } from '../enums';
 
 export interface JumpointNode {
     id: number;
@@ -7,10 +7,7 @@ export interface JumpointNode {
     siteKey: string;
     status: string;
     puppetServerDomain: string;
-    hypervisorId?: string;
-    hypervisorType?: JumpointNodeHypervisorType;
     customerName?: string | null;
-    vmId?: number;
     serviceType?: JumpointNodeServiceType;
     hasApproval?: boolean;
     isoFilePath?: string;

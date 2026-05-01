@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType } from '../../enums';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { JumpointNodeBusinessUnit } from '../../enums';
 
 export class CreateJumpointNodeDtoInput {
     @ApiProperty({
@@ -20,31 +20,4 @@ export class CreateJumpointNodeDtoInput {
     @IsEnum(JumpointNodeBusinessUnit)
     @IsNotEmpty()
     public businessUnit!: JumpointNodeBusinessUnit;
-
-    @ApiProperty({
-        type: String,
-        required: false,
-        description: 'The ID of the hypervisor associated with the jumpoint node.',
-    })
-    @IsString()
-    @IsOptional()
-    public hypervisorId?: string;
-
-    @ApiProperty({
-        enum: JumpointNodeHypervisorType,
-        required: false,
-        description: 'The type of the hypervisor associated with the jumpoint node.',
-    })
-    @IsEnum(JumpointNodeHypervisorType)
-    @IsOptional()
-    public hypervisorType?: JumpointNodeHypervisorType;
-
-    @ApiProperty({
-        type: Number,
-        required: false,
-        description: 'The ID of the VM associated with the jumpoint node.',
-    })
-    @IsNumber()
-    @IsOptional()
-    public vmId?: number;
 }

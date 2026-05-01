@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType, JumpointNodeServiceType } from '../../enums';
+import { JumpointNodeBusinessUnit, JumpointNodeServiceType } from '../../enums';
 
 export class JumpointNodeServiceCreatedDtoOutput {
     @ApiProperty({
@@ -15,20 +15,6 @@ export class JumpointNodeServiceCreatedDtoOutput {
         description: 'The name of the jumpoint node cert.',
     })
     public certname!: string;
-
-    @ApiProperty({
-        type: String,
-        required: false,
-        description: 'The ID of the hypervisor associated with the jumpoint node.',
-    })
-    public hypervisorId?: string;
-
-    @ApiProperty({
-        enum: JumpointNodeHypervisorType,
-        required: false,
-        description: 'The type of the hypervisor associated with the jumpoint node.',
-    })
-    public hypervisorType?: JumpointNodeHypervisorType;
 
     @ApiProperty({
         enum: JumpointNodeBusinessUnit,
@@ -51,13 +37,6 @@ export class JumpointNodeServiceCreatedDtoOutput {
         nullable: true,
     })
     public customerName?: string | null;
-
-    @ApiProperty({
-        type: Number,
-        required: false,
-        description: 'The ID of the virtual machine associated with the jumpoint node.',
-    })
-    public vmId?: number;
 
     @ApiProperty({
         type: String,

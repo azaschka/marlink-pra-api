@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsEnum, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
-import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType } from '../../enums';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { JumpointNodeBusinessUnit } from '../../enums';
 
 export class DeploymentRetrieveJumpointNodesDtoInput {
     @ApiProperty({
@@ -74,31 +74,4 @@ export class DeploymentRetrieveJumpointNodesDtoInput {
     @IsString()
     @IsOptional()
     public puppetServerDomain?: string;
-
-    @ApiProperty({
-        type: String,
-        required: false,
-        description: 'The ID of the hypervisor associated with the jumpoint node.',
-    })
-    @IsString()
-    @IsOptional()
-    public hypervisorId?: string;
-
-    @ApiProperty({
-        enum: JumpointNodeHypervisorType,
-        required: false,
-        description: 'The type of the hypervisor associated with the jumpoint node.',
-    })
-    @IsEnum(JumpointNodeHypervisorType)
-    @IsOptional()
-    public hypervisorType?: JumpointNodeHypervisorType;
-
-    @ApiProperty({
-        type: Number,
-        required: false,
-        description: 'The ID of the VM associated with the jumpoint node.',
-    })
-    @IsNumber()
-    @IsOptional()
-    public vmId?: number;
 }

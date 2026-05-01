@@ -103,9 +103,6 @@ export class JumpointNodeController {
                 dtoInput.siteKey,
                 dtoInput.customerName,
                 dtoInput.puppetServerDomain,
-                dtoInput.hypervisorId,
-                dtoInput.hypervisorType,
-                dtoInput.vmId,
             ),
         );
 
@@ -140,14 +137,7 @@ export class JumpointNodeController {
         @Body() dtoInput: CreateJumpointNodeDtoInput,
     ): Promise<JumpointNodeCreatedDtoOutput> {
         const result = await this.commandBus.execute<CreateJumpointNodeCommand, JumpointNode>(
-            new CreateJumpointNodeCommand(
-                transactionId,
-                dtoInput.siteKey,
-                dtoInput.businessUnit,
-                dtoInput.hypervisorId,
-                dtoInput.hypervisorType,
-                dtoInput.vmId,
-            ),
+            new CreateJumpointNodeCommand(transactionId, dtoInput.siteKey, dtoInput.businessUnit),
         );
 
         return result;

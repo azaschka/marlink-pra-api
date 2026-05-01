@@ -1,4 +1,4 @@
-import { JumpointNodeBusinessUnit, JumpointNodeHypervisorType } from '../enums';
+import { JumpointNodeBusinessUnit } from '../enums';
 
 export class DeploymentRetrieveJumpointNodesQuery {
     public readonly queryType = 'deployment-retrieve-jumpoint-nodes';
@@ -12,8 +12,5 @@ export class DeploymentRetrieveJumpointNodesQuery {
         public readonly siteKey?: string,
         public readonly customerName?: string | null,
         public readonly puppetServerDomain?: string,
-        public readonly hypervisorId?: string,
-        public readonly hypervisorType?: JumpointNodeHypervisorType,
-        public readonly vmId?: number,
     ) {}
 }
