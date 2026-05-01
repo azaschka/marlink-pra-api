@@ -151,22 +151,22 @@ export class CalculateAssetLicenseUsageCommandHandler implements ICommandHandler
 
                 if (site) {
                     remoteRdps = remoteRdps.filter((remoteRdp) =>
-                        remoteRdp.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                        remoteRdp.tag?.toLowerCase().includes(`${site.name}`.toLowerCase()),
                     );
                     remoteVncs = remoteVncs.filter((remoteVnc) =>
-                        remoteVnc.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                        remoteVnc.tag?.toLowerCase().includes(`${site.name}`.toLowerCase()),
                     );
                     shellJumps = shellJumps.filter((shellJump) =>
-                        shellJump.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                        shellJump.tag?.toLowerCase().includes(`${site.name}`.toLowerCase()),
                     );
                     protocolTunnelJumps = protocolTunnelJumps.filter((protocolTunnelJump) =>
-                        protocolTunnelJump.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                        protocolTunnelJump.tag?.toLowerCase().includes(`${site.name}`.toLowerCase()),
                     );
                     webJumps = webJumps.filter((webJump) =>
-                        webJump.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                        webJump.tag?.toLowerCase().includes(`${site.name}`.toLowerCase()),
                     );
                     jumpClients = jumpClients.filter((jumpClient) =>
-                        jumpClient.tag?.toLowerCase().includes(`${site.name}_${site.key}`.toLowerCase()),
+                        jumpClient.tag?.toLowerCase().includes(`${site.name}`.toLowerCase()),
                     );
                 }
 
