@@ -658,6 +658,8 @@ describe('AppConfigService', () => {
     describe('database', () => {
         it.each([
             {
+                // Behavior settings (retryAttempts, pool, timeouts) are hardcoded via DefaultAppConfig
+                // and cannot be overridden by environment variables. Only credentials vary per environment.
                 input: {
                     env: 'production',
                     type: 'mysql',
@@ -666,9 +668,6 @@ describe('AppConfigService', () => {
                     username: 'root',
                     password: 'password',
                     database: 'test',
-                    retryAttempts: 30,
-                    retryDelayInMs: 5000,
-                    maxQueryExecutionTimeInMs: 1000,
                 },
                 expected: {
                     type: 'mysql',
@@ -680,9 +679,9 @@ describe('AppConfigService', () => {
                     synchronize: false,
                     logging: false,
                     autoLoadEntities: true,
-                    retryAttempts: 30,
-                    retryDelayInMs: 5000,
-                    maxQueryExecutionTimeInMs: 1000,
+                    retryAttempts: 60,
+                    retryDelayInMs: 8000,
+                    maxQueryExecutionTimeInMs: 15000,
                 },
             },
             {
@@ -721,12 +720,6 @@ describe('AppConfigService', () => {
                         return input.password;
                     case 'DB_NAME':
                         return input.database;
-                    case 'DB_RETRY_ATTEMPTS':
-                        return input.retryAttempts;
-                    case 'DB_RETRY_DELAY_IN_MS':
-                        return input.retryDelayInMs;
-                    case 'DB_MAX_QUERY_EXECUTION_TIME_IN_MS':
-                        return input.maxQueryExecutionTimeInMs;
                     default:
                         return undefined;
                 }
@@ -747,6 +740,12 @@ describe('AppConfigService', () => {
                 retryAttempts: expected.retryAttempts,
                 retryDelay: expected.retryDelayInMs,
                 maxQueryExecutionTime: expected.maxQueryExecutionTimeInMs,
+                extra: {
+                    connectionLimit: 20,
+                    connectTimeout: 10000,
+                    waitForConnections: true,
+                    queueLimit: 50,
+                },
             });
         });
     });
