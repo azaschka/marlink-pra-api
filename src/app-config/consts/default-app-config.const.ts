@@ -1,5 +1,3 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-
 export abstract class DefaultAppConfig {
     private static readonly PORT_NUMBER = 9000;
 
@@ -13,9 +11,31 @@ export abstract class DefaultAppConfig {
     private static readonly PRA_ADMIN_CONSOLE_URL = 'https://pra-admin.cdn-vas.net';
     private static readonly BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra.beyondtrustcloud.com/login';
     private static readonly PRA_SYNC_API_BASE_URL = 'http://pra-sync-api:9001';
+    // Database connection settings
+    // Current baseline: MariaDB default max_connections = 151, wait_timeout / interactive_timeout = 30 s
     private static readonly DB_RETRY_ATTEMPTS = 60;
     private static readonly DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
     private static readonly DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
+
+    // Connection pool — sized for max_connections = 151.
+    // pra-api serves short-lived HTTP requests without complex saga burst patterns,
+    // so a conservative pool size is sufficient.
+    //   Pool(20) + queue(50) = 70 capacity; combined with pra-sync-api(20), total DB usage ≈ 40 ✅
+    private static readonly DB_EXTRA_MAX_CONNECTIONS = 20;
+    // TODO: After MariaDB upgrade to max_connections = 300 & wait_timeout / interactive_timeout = 300 s,
+    //       increase the connection pool accordingly:
+    //   Pool(30) + queue(100) = 130 capacity; combined with pra-sync-api(50), total DB usage ≈ 80 ✅
+    // private static readonly DB_EXTRA_MAX_CONNECTIONS = 30;
+
+    private static readonly DB_CONNECT_TIMEOUT_IN_MS = 10000; // 10 seconds to establish connection (unchanged for both DB configs)
+    private static readonly DB_WAIT_FOR_CONNECTIONS = true; // Wait for available connection (MySQL2 option)
+
+    // Max requests queuing for a free pool slot before failing (MySQL2 option).
+    // Prevents "Too many connections" errors during short traffic bursts.
+    private static readonly DB_QUEUE_LIMIT = 50;
+    // TODO: After MariaDB upgrade to max_connections = 300, increase to match pra-sync-api:
+    // private static readonly DB_QUEUE_LIMIT = 100;
+
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
     private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '35 2 * * *'; // At 02:35 AM every day
     private static readonly CRON_JOB_BT_DATA_POPULATION_IF_EMPTY = '0 */3 * * *'; // Every 3 hours
@@ -168,11 +188,17 @@ export abstract class DefaultAppConfig {
         };
     }
 
-    public static get database(): TypeOrmModuleOptions {
+    public static get database() {
         return {
             retryAttempts: DefaultAppConfig.DB_RETRY_ATTEMPTS,
             retryDelay: DefaultAppConfig.DB_RETRY_DELAY_IN_MS,
             maxQueryExecutionTime: DefaultAppConfig.DB_MAX_QUERY_EXECUTION_TIME_IN_MS, // Only applicable to MariaDB and MySQL
+            connectTimeout: DefaultAppConfig.DB_CONNECT_TIMEOUT_IN_MS,
+            queueLimit: DefaultAppConfig.DB_QUEUE_LIMIT,
+            waitForConnections: DefaultAppConfig.DB_WAIT_FOR_CONNECTIONS,
+            extra: {
+                connectionLimit: DefaultAppConfig.DB_EXTRA_MAX_CONNECTIONS,
+            },
         };
     }
 
