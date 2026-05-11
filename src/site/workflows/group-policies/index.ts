@@ -1,4 +1,5 @@
 export * from './admin-operator-access-group-policy.workflow';
+export * from './bu-support-group-policy.workflow';
 export * from './administrator-access-group-policy.workflow';
 export * from './administrator-group-policy.workflow';
 export * from './full-access-group-policy.workflow';

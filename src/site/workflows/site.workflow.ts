@@ -25,6 +25,7 @@ import {
 } from '../models';
 import {
     AdministratorGroupPolicyWorkflow,
+    BuSupportGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
     MarlinkOperatorGroupPolicyWorkflow,
     MarlinkSuperuserGroupPolicyWorkflow,
@@ -53,6 +54,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
     private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow;
     private readonly marlinkOperatorGroupPolicyWorkflow: MarlinkOperatorGroupPolicyWorkflow;
     private readonly marlinkSuperuserGroupPolicyWorkflow: MarlinkSuperuserGroupPolicyWorkflow;
+    private readonly buSupportGroupPolicyWorkflow: BuSupportGroupPolicyWorkflow;
 
     constructor(
         private readonly appConfigService: AppConfigService,
@@ -173,6 +175,13 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.customerBeyondtrustInstanceId,
         );
 
+        this.buSupportGroupPolicyWorkflow = new BuSupportGroupPolicyWorkflow(
+            this.queryBus,
+            this.transactionId,
+            this.customerBusinessUnit,
+            this.customerBeyondtrustInstanceId,
+        );
+
         this.siteManagerWorkflows = this.siteManagers.map(
             (siteManager) =>
                 new SiteManagerWorkflow(
@@ -217,6 +226,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     this.administratorGroupPolicyWorkflow,
                     this.operatorGroupPolicyWorkflow,
                     this.jumpointsWorkflow,
+                    this.buSupportGroupPolicyWorkflow,
                 ),
         );
     }
@@ -314,6 +324,36 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             }
         }
 
+        // Add jumpoints to BU Support Group Policy (non-blocking: log warning if not found)
+        try {
+            const buGroupPolicy = await this.buSupportGroupPolicyWorkflow.get();
+
+            if (buGroupPolicy) {
+                const buGpJumpoints = await this.getAllGroupPolicyJumpoints(buGroupPolicy.id);
+
+                for (const jumpoint of jumpoints) {
+                    if (buGpJumpoints.some((gj) => gj.jumpointId === jumpoint.id)) {
+                        continue;
+                    }
+
+                    await this.commandBus.execute<AddJumpointToGroupPolicyCommand, GroupPolicyJumpoint>(
+                        new AddJumpointToGroupPolicyCommand(
+                            this.transactionId,
+                            this.customerBeyondtrustInstanceId,
+                            buGroupPolicy.id,
+                            jumpoint.id,
+                        ),
+                    );
+                }
+            } else {
+                console.warn(
+                    `[${this.transactionId}] BU Operators Group Policy "${this.buSupportGroupPolicyWorkflow.groupPolicyName}" (R3.1-P003) not found on instance ${this.customerBeyondtrustInstanceId}. Jumpoint assignment skipped.`,
+                );
+            }
+        } catch (error) {
+            console.error(`[${this.transactionId}] Failed to assign jumpoints to BU Support Group Policy:`, error);
+        }
+
         return siteWorkflowResult;
     }
 
@@ -387,6 +427,35 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                         ),
                     );
                 }
+            }
+
+            // Remove jumpoints from BU Support Group Policy
+            try {
+                const buGroupPolicy = await this.buSupportGroupPolicyWorkflow.get();
+
+                if (buGroupPolicy) {
+                    const buGpJumpoints = await this.getAllGroupPolicyJumpoints(buGroupPolicy.id);
+
+                    for (const jumpoint of jumpoints) {
+                        if (!buGpJumpoints.some((gj) => gj.jumpointId === jumpoint.id)) {
+                            continue;
+                        }
+
+                        await this.commandBus.execute<RemoveJumpointFromGroupPolicyCommand, GroupPolicyJumpoint>(
+                            new RemoveJumpointFromGroupPolicyCommand(
+                                this.transactionId,
+                                this.customerBeyondtrustInstanceId,
+                                buGroupPolicy.id,
+                                jumpoint.id,
+                            ),
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error(
+                    `[${this.transactionId}] Failed to remove jumpoints from BU Support Group Policy:`,
+                    error,
+                );
             }
 
             await this.managerGroupPolicyWorkflow.delete();

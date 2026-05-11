@@ -4,6 +4,7 @@ import { Customer } from '../../../customer/models';
 import { PartialSiteAuditor, PartialSiteManager, PartialSiteSupportTeamMember, Site } from '../../models';
 import {
     AdministratorGroupPolicyWorkflow,
+    BuSupportGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
 } from '../group-policies';
@@ -77,6 +78,7 @@ export class WorkflowFactory {
             this.createAdministratorGroupPolicyWorkflow(),
             this.createOperatorGroupPolicyWorkflow(),
             this.createJumpointsWorkflow(),
+            this.createBuSupportGroupPolicyWorkflow(),
         );
     }
 
@@ -141,6 +143,15 @@ export class WorkflowFactory {
             this.site.name,
             this.site.key,
             this.customer.name,
+            this.customer.beyondtrustInstanceId,
+        );
+    }
+
+    private createBuSupportGroupPolicyWorkflow(): BuSupportGroupPolicyWorkflow {
+        return new BuSupportGroupPolicyWorkflow(
+            this.queryBus,
+            this.transactionId,
+            this.customer.businessUnit,
             this.customer.beyondtrustInstanceId,
         );
     }

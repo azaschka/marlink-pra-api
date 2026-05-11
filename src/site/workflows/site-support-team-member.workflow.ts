@@ -16,6 +16,7 @@ import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId, S
 import { RetrieveSiteSupportTeamMembersByUserIdQuery } from '../queries';
 import {
     AdministratorGroupPolicyWorkflow,
+    BuSupportGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     LimitedAccessGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
@@ -45,6 +46,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
         private readonly jumpointsWorkflow: JumpointsWorkflow,
+        private readonly buSupportGroupPolicyWorkflow: BuSupportGroupPolicyWorkflow,
     ) {
         this.siteSupportTeamMemberUserWorkflow = new SiteSupportTeamMemberUserWorkflow(
             this.queryBus,
@@ -138,16 +140,20 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             );
         }
 
-        // Add jump group to the support team group policy and administrator group policy
-        for (const groupPolicy of [supportTeamGroupPolicy, administratorGroupPolicy]) {
+        // Resolve the BU Support Group Policy (may be null if not yet created, non-blocking)
+        const buGroupPolicy = await this.buSupportGroupPolicyWorkflow.get();
+
+        // Add jump group to: support team GP, administrator GP, and (if found) BU Support GP
+        const jumpGroupTargetPolicies = [
+            supportTeamGroupPolicy,
+            administratorGroupPolicy,
+            ...(buGroupPolicy ? [buGroupPolicy] : []),
+        ];
+
+        for (const groupPolicy of jumpGroupTargetPolicies) {
             const groupPolicyJumpGroups = await this.getAllGroupPolicyJumpGroups(groupPolicy.id);
 
-            // Skip if the jump group is already added to the group policy
-            if (
-                groupPolicyJumpGroups.some(
-                    (groupPolicyJumpGroup) => groupPolicyJumpGroup.jumpGroupId === supportTeamJumpGroup.id,
-                )
-            ) {
+            if (groupPolicyJumpGroups.some((gj) => gj.jumpGroupId === supportTeamJumpGroup.id)) {
                 continue;
             }
 
