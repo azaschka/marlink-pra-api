@@ -75,7 +75,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     /** Returns true only for 5xx status codes that represent real server errors. */
     private isServerError(status: number): boolean {
-        return status >= HttpStatus.INTERNAL_SERVER_ERROR;
+        return status >= Number(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private determineMessage(exception: unknown) {
