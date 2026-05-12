@@ -21,18 +21,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const status = this.determineStatusCode(exception);
         const message = this.determineMessage(exception);
 
-        // Log to console for immediate visibility (important for debugging pod restarts)
-        console.error(`❌ [${new Date().toISOString()}] Exception caught:`, {
-            method: req.method,
-            url: req.originalUrl,
-            status,
-            message,
-            transactionId: req.headers[TRANSACTION_ID_HEADER.toLowerCase()],
-            user: (req.user as { username?: string })?.username,
-        });
+        // Only log real server errors (5xx) to console.
+        // 4xx errors are expected business-logic responses and do not need visibility in pod logs.
+        if (this.isServerError(status)) {
+            console.error(`❌ [${new Date().toISOString()}] Exception caught:`, {
+                method: req.method,
+                url: req.originalUrl,
+                status,
+                message,
+                transactionId: req.headers[TRANSACTION_ID_HEADER.toLowerCase()],
+                user: (req.user as { username?: string })?.username,
+            });
 
-        if (exception instanceof Error && exception.stack) {
-            console.error('Stack trace:', exception.stack);
+            if (exception instanceof Error && exception.stack) {
+                console.error('Stack trace:', exception.stack);
+            }
         }
 
         /* ---- Database Logging (non-blocking) ---- */
@@ -68,6 +71,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         }
 
         return exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    /** Returns true only for 5xx status codes that represent real server errors. */
+    private isServerError(status: number): boolean {
+        return status >= HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
     private determineMessage(exception: unknown) {
