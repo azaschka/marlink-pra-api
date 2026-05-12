@@ -4,7 +4,7 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
-import { SiteCreatedEvent } from '../../events';
+import { SiteCreatedEvent, SiteModifiedEvent } from '../../events';
 import {
     PartialSiteApprover,
     PartialSiteAuditor,
@@ -16,8 +16,11 @@ import {
     Site,
     SiteWorkflowResult,
 } from '../../models';
-import { RetrieveSitesQuery } from '../../queries';
-import { SiteEntity } from '../../repositories/entities';
+import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
+import { SiteApproverEntity, SiteAuditorEntity, SiteEntity, SiteManagerEntity } from '../../repositories/entities';
+import { SiteApproverRepositoryService } from '../../repositories/services/site-approver.service';
+import { SiteAuditorRepositoryService } from '../../repositories/services/site-auditor.service';
+import { SiteManagerRepositoryService } from '../../repositories/services/site-manager.service';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
@@ -30,15 +33,24 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
         private readonly siteRepositoryService: SiteRepositoryService,
+        private readonly siteManagerRepositoryService: SiteManagerRepositoryService,
+        private readonly siteAuditorRepositoryService: SiteAuditorRepositoryService,
+        private readonly siteApproverRepositoryService: SiteApproverRepositoryService,
     ) {}
 
     public async execute(command: CreateSiteCommand): Promise<Site> {
-        await this.validateSiteKeyAndName(command.transactionId, command.key, command.name);
-        const customer = await this.getCustomer(command.transactionId, command.customerKey);
-        const partialSiteApprovers = command.siteApproverEmails.map((email) => ({
-            email,
-        }));
+        const existingSite = await this.getSiteByKey(command.transactionId, command.key);
 
+        // For new sites only: fail fast before any BeyondTrust calls.
+        if (existingSite === null) {
+            await this.validateSiteNameNotTaken(command.transactionId, command.name);
+        }
+
+        const customer = await this.getCustomer(command.transactionId, command.customerKey);
+        const partialSiteApprovers = command.siteApproverEmails.map((email) => ({ email }));
+
+        // SiteWorkflow.getOrCreate() is fully idempotent: it creates BeyondTrust
+        // users/group-policies/jump-policies only if they don't exist yet.
         const siteWorkflowResult = await this.runWorkflow(
             command.transactionId,
             command.name,
@@ -52,40 +64,75 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             customer.beyondtrustInstanceId,
         );
 
-        const createdSite = await this.createSite(
-            command.key,
-            command.name,
-            command.customerKey,
-            siteWorkflowResult.siteManagers,
-            siteWorkflowResult.siteAuditors,
-            siteWorkflowResult.siteSupportTeamMembers,
-            partialSiteApprovers,
-        );
+        if (existingSite === null) {
+            // ── New site path ────────────────────────────────────────────────
+            const createdSite = await this.createSite(
+                command.key,
+                command.name,
+                command.customerKey,
+                siteWorkflowResult.siteManagers,
+                siteWorkflowResult.siteAuditors,
+                siteWorkflowResult.siteSupportTeamMembers,
+                partialSiteApprovers,
+            );
+
+            this.eventBus.publish(
+                new SiteCreatedEvent(command.transactionId, {
+                    site: createdSite,
+                }),
+            );
+
+            return createdSite;
+        }
+
+        // ── Existing site path (re-ingestion) ────────────────────────────────
+        // Persist only the members that are not already recorded in the DB so
+        // that repeated ingestion runs are safe to call multiple times.
+        await this.syncNewManagers(existingSite, siteWorkflowResult.siteManagers);
+        await this.syncNewAuditors(existingSite, siteWorkflowResult.siteAuditors);
+        await this.syncNewApprovers(existingSite, partialSiteApprovers);
+
+        const updatedSite = await this.getSiteById(command.transactionId, existingSite.id);
 
         this.eventBus.publish(
-            new SiteCreatedEvent(command.transactionId, {
-                site: createdSite,
+            new SiteModifiedEvent(command.transactionId, {
+                site: updatedSite,
             }),
         );
 
-        return createdSite;
+        return updatedSite;
     }
 
-    private async validateSiteKeyAndName(transactionId: string, key: string, name: string): Promise<void> {
-        const sitesWithSameKey = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
+    // ── Private query helpers ────────────────────────────────────────────────
+
+    /** Returns the site matching the given key, or null if it does not exist. */
+    private async getSiteByKey(transactionId: string, key: string): Promise<Site | null> {
+        const sites = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
             new RetrieveSitesQuery(transactionId, 1, 1, key, undefined),
         );
 
-        if (sitesWithSameKey.length > 0) {
-            throw new ConflictException(`Site with key "${key}" already exists.`);
-        }
+        return sites[0] ?? null;
+    }
 
+    /** Re-fetches a site by its database ID (used after partial updates). */
+    private async getSiteById(transactionId: string, siteId: number): Promise<Site> {
+        return await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
+            new RetrieveSiteByIdQuery(transactionId, siteId),
+        );
+    }
+
+    /**
+     * Validates that no site with a name matching the given pattern already
+     * exists. Key conflicts are handled separately and no longer treated as an
+     * error (see getSiteByKey usage in execute()).
+     */
+    private async validateSiteNameNotTaken(transactionId: string, name: string): Promise<void> {
         const sitesWithMatchingName = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
             new RetrieveSitesQuery(transactionId, 1, 1, undefined, undefined, undefined, `%${name}%`),
         );
 
         if (sitesWithMatchingName.length > 0) {
-            throw new ConflictException(`Site with matching the name "${name}" already exists.`);
+            throw new ConflictException(`Site matching the name "${name}" already exists.`);
         }
     }
 
@@ -100,6 +147,8 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
 
         return customers[0];
     }
+
+    // ── Workflow ─────────────────────────────────────────────────────────────
 
     private async runWorkflow(
         transactionId: string,
@@ -132,6 +181,8 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         return await siteWorkflow.getOrCreate();
     }
 
+    // ── Creation helper ──────────────────────────────────────────────────────
+
     private async createSite(
         key: string,
         name: string,
@@ -140,7 +191,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         auditors: PartialSiteAuditorWithUserId[],
         supportTeamMembers: PartialSiteSupportTeamMemberWithUserId[],
         approvers: PartialSiteApprover[],
-    ) {
+    ): Promise<Site> {
         const siteEntity = SiteEntity.createWithoutId(
             key,
             name,
@@ -152,5 +203,72 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         );
 
         return await this.siteRepositoryService.create(siteEntity);
+    }
+
+    // ── Sync helpers (re-ingestion path) ─────────────────────────────────────
+
+    /**
+     * Inserts managers from the workflow result that are not yet recorded in
+     * the DB for this site (deduplicated by userId).
+     */
+    private async syncNewManagers(existingSite: Site, incomingManagers: PartialSiteManagerWithUserId[]): Promise<void> {
+        const existingUserIds = new Set(existingSite.siteManagers.map((m) => m.userId));
+
+        for (const manager of incomingManagers) {
+            if (existingUserIds.has(manager.userId)) {
+                continue;
+            }
+
+            const entity = SiteManagerEntity.createWithoutId(
+                existingSite.id,
+                manager.userId,
+                manager.username,
+                manager.email,
+            );
+
+            await this.siteManagerRepositoryService.createOrUpdateById(entity);
+        }
+    }
+
+    /**
+     * Inserts auditors from the workflow result that are not yet recorded in
+     * the DB for this site (deduplicated by userId).
+     */
+    private async syncNewAuditors(existingSite: Site, incomingAuditors: PartialSiteAuditorWithUserId[]): Promise<void> {
+        const existingUserIds = new Set(existingSite.siteAuditors.map((a) => a.userId));
+
+        for (const auditor of incomingAuditors) {
+            if (existingUserIds.has(auditor.userId)) {
+                continue;
+            }
+
+            const entity = SiteAuditorEntity.createWithoutId(
+                existingSite.id,
+                auditor.userId,
+                auditor.username,
+                auditor.email,
+                auditor.isAdminOperator,
+            );
+
+            await this.siteAuditorRepositoryService.createOrUpdateById(entity);
+        }
+    }
+
+    /**
+     * Inserts approvers from the command that are not yet recorded in the DB
+     * for this site (deduplicated by email).
+     */
+    private async syncNewApprovers(existingSite: Site, incomingApprovers: PartialSiteApprover[]): Promise<void> {
+        const existingEmails = new Set(existingSite.siteApprovers.map((a) => a.email));
+
+        for (const approver of incomingApprovers) {
+            if (existingEmails.has(approver.email)) {
+                continue;
+            }
+
+            const entity = SiteApproverEntity.createWithoutId(existingSite.id, approver.email);
+
+            await this.siteApproverRepositoryService.createOrUpdateById(entity);
+        }
     }
 }

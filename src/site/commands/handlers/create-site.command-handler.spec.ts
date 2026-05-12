@@ -5,10 +5,13 @@ import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
-import { SiteCreatedEvent } from '../../events';
-import { PartialSiteApprover, SiteWorkflowResult } from '../../models';
-import { RetrieveSitesQuery } from '../../queries';
+import { SiteCreatedEvent, SiteModifiedEvent } from '../../events';
+import { PartialSiteApprover, Site, SiteWorkflowResult } from '../../models';
+import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
+import { SiteApproverRepositoryService } from '../../repositories/services/site-approver.service';
+import { SiteAuditorRepositoryService } from '../../repositories/services/site-auditor.service';
+import { SiteManagerRepositoryService } from '../../repositories/services/site-manager.service';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
@@ -40,6 +43,9 @@ describe('CreateSiteCommandHandler', () => {
     let queryBus: QueryBus;
     let eventBus: EventBus;
     let siteRepositoryService: SiteRepositoryService;
+    let siteManagerRepositoryService: SiteManagerRepositoryService;
+    let siteAuditorRepositoryService: SiteAuditorRepositoryService;
+    let siteApproverRepositoryService: SiteApproverRepositoryService;
     let handler: CreateSiteCommandHandler;
 
     beforeEach(() => {
@@ -49,45 +55,105 @@ describe('CreateSiteCommandHandler', () => {
         queryBus = mockQueryBus();
         eventBus = mockEventBus();
         siteRepositoryService = mockSiteRepositoryService();
-        handler = new CreateSiteCommandHandler(appConfigService, commandBus, queryBus, eventBus, siteRepositoryService);
+        siteManagerRepositoryService = mockSiteManagerRepositoryService();
+        siteAuditorRepositoryService = mockSiteAuditorRepositoryService();
+        siteApproverRepositoryService = mockSiteApproverRepositoryService();
+        handler = new CreateSiteCommandHandler(
+            appConfigService,
+            commandBus,
+            queryBus,
+            eventBus,
+            siteRepositoryService,
+            siteManagerRepositoryService,
+            siteAuditorRepositoryService,
+            siteApproverRepositoryService,
+        );
     });
 
     describe('execute', () => {
-        it('should throw ConflictException if a site with the same key already exists', async () => {
+        it('should sync new members, emit SiteModifiedEvent and return the updated site when a site with the same key already exists', async () => {
             // Arrange
-            const existingSite = { id: 1, key: 'site-key-1', name: 'site-name-1' } as SiteEntity;
-            const queryBusExecuteMethod = jest.spyOn(queryBus, 'execute').mockReset().mockResolvedValue([existingSite]);
+            // existingSite already has auditor userId:2 — so no new auditor should be inserted.
+            // Manager userId:1 and the approver email are both new.
+            const existingSite = {
+                id: 10,
+                key: 'site-key-1',
+                name: 'site-name-1',
+                siteManagers: [],
+                siteAuditors: [
+                    { userId: 2, username: 'existing-auditor', email: 'existing@example.com', isAdminOperator: false },
+                ],
+                siteApprovers: [],
+            } as unknown as Site;
+            const updatedSite = { id: 10, key: 'site-key-1', name: 'site-name-1' } as unknown as Site;
+            const customer = {
+                name: 'customer-name-1',
+                businessUnit: BusinessUnit.EG,
+                beyondtrustInstanceId: 1,
+            } as Customer;
 
-            // Act & Assert
-            await expect(
-                handler.execute(
-                    new CreateSiteCommand(
-                        'transaction-1',
-                        'site-key-1',
-                        'site-name-1',
-                        'customer-key-1',
-                        [],
-                        [],
-                        [],
-                        [],
-                    ),
+            const queryBusExecuteMethod = jest
+                .spyOn(queryBus, 'execute')
+                .mockReset()
+                .mockResolvedValueOnce([existingSite]) // getSiteByKey → found (triggers update path)
+                .mockResolvedValueOnce([customer]) // getCustomer
+                .mockResolvedValue(updatedSite); // getSiteById → re-fetch after sync
+
+            const managerCreateOrUpdate = jest
+                .spyOn(siteManagerRepositoryService, 'createOrUpdateById')
+                .mockResolvedValue(undefined);
+            const auditorCreateOrUpdate = jest
+                .spyOn(siteAuditorRepositoryService, 'createOrUpdateById')
+                .mockResolvedValue(undefined);
+            const approverCreateOrUpdate = jest
+                .spyOn(siteApproverRepositoryService, 'createOrUpdateById')
+                .mockResolvedValue(undefined);
+            const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
+
+            // Act
+            const result = await handler.execute(
+                new CreateSiteCommand(
+                    'transaction-1',
+                    'site-key-1',
+                    'site-name-1',
+                    'customer-key-1',
+                    [],
+                    [],
+                    [],
+                    ['new-approver@example.com'],
                 ),
-            ).rejects.toThrow(ConflictException);
-            expect(queryBusExecuteMethod).toHaveBeenCalledTimes(1);
-            expect(queryBusExecuteMethod).toHaveBeenCalledWith(
-                new RetrieveSitesQuery('transaction-1', 1, 1, 'site-key-1', undefined),
             );
+
+            // Assert
+            // Manager userId:1 (from workflow) is new → inserted once
+            expect(managerCreateOrUpdate).toHaveBeenCalledTimes(1);
+            // Auditor userId:2 already in DB → skipped
+            expect(auditorCreateOrUpdate).not.toHaveBeenCalled();
+            // Approver email is new → inserted once
+            expect(approverCreateOrUpdate).toHaveBeenCalledTimes(1);
+            // Re-fetch called with correct site ID
+            expect(queryBusExecuteMethod).toHaveBeenCalledWith(
+                new RetrieveSiteByIdQuery('transaction-1', existingSite.id),
+            );
+            // SiteModifiedEvent emitted (not SiteCreatedEvent)
+            expect(eventBusPublishMethod).toHaveBeenCalledWith(
+                expect.objectContaining(<SiteModifiedEvent>{
+                    transactionId: 'transaction-1',
+                    eventType: SiteModifiedEvent.EVENT_TYPE,
+                    payload: { site: updatedSite },
+                }),
+            );
+            expect(result).toBe(updatedSite);
         });
 
         it('should throw ConflictException if a site with the same name already exists', async () => {
-            'approver-1';
             // Arrange
             const existingSite = { id: 1, key: 'site-key-1', name: 'site-name-1' } as SiteEntity;
             const queryBusExecuteMethod = jest
                 .spyOn(queryBus, 'execute')
                 .mockReset()
-                .mockResolvedValueOnce([]) // First call for key check
-                .mockResolvedValueOnce([existingSite]); // Second call for name check
+                .mockResolvedValueOnce([]) // First call: getSiteByKey → no existing site
+                .mockResolvedValueOnce([existingSite]); // Second call: validateSiteNameNotTaken → conflict
 
             // Act & Assert
             await expect(
@@ -116,7 +182,6 @@ describe('CreateSiteCommandHandler', () => {
         });
 
         it('should throw NotFoundException if the customer does not exist', async () => {
-            'approver-1';
             // Arrange
             const queryBusExecuteMethod = jest
                 .spyOn(queryBus, 'execute')
@@ -155,7 +220,7 @@ describe('CreateSiteCommandHandler', () => {
             );
         });
 
-        it('should call the repository service with correct parameters, publish an event and return the result', async () => {
+        it('should call the repository service with correct parameters, publish a SiteCreatedEvent and return the result', async () => {
             // Arrange
             const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
             const siteEntityToBeCreated = { id: 123 } as SiteEntity;
@@ -231,15 +296,15 @@ function mockQueryBus() {
     const queryBus = {} as QueryBus;
     queryBus.execute = jest
         .fn()
-        .mockResolvedValueOnce([]) // First call for site key check
-        .mockResolvedValueOnce([]) // Second call for site name check
+        .mockResolvedValueOnce([]) // First call: getSiteByKey → no existing site (creation path)
+        .mockResolvedValueOnce([]) // Second call: validateSiteNameNotTaken → no name conflict
         .mockResolvedValueOnce([
             {
                 name: 'customer-name-1',
                 beyondtrustInstance: { businessUnit: BusinessUnit.EG },
                 beyondtrustInstanceId: 1,
             } as Customer,
-        ]); // Third call for customer key check
+        ]); // Third call: getCustomer → found
 
     return queryBus;
 }
@@ -256,4 +321,25 @@ function mockSiteRepositoryService() {
     siteRepositoryService.create = jest.fn();
 
     return siteRepositoryService;
+}
+
+function mockSiteManagerRepositoryService() {
+    const service = {} as SiteManagerRepositoryService;
+    service.createOrUpdateById = jest.fn();
+
+    return service;
+}
+
+function mockSiteAuditorRepositoryService() {
+    const service = {} as SiteAuditorRepositoryService;
+    service.createOrUpdateById = jest.fn();
+
+    return service;
+}
+
+function mockSiteApproverRepositoryService() {
+    const service = {} as SiteApproverRepositoryService;
+    service.createOrUpdateById = jest.fn();
+
+    return service;
 }
