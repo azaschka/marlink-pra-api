@@ -223,6 +223,7 @@ describe('AppConfigService', () => {
                         },
                         sync: {
                             path: '/api-path-discrepancy-sync-1',
+                            allExternal: '/api-path-discrepancy-sync-all-external-1',
                         },
                     },
                 },
@@ -333,6 +334,7 @@ describe('AppConfigService', () => {
                         },
                         sync: {
                             path: '/api-path-discrepancy-sync-1',
+                            allExternal: '/api-path-discrepancy-sync-all-external-1',
                         },
                     },
                 },
@@ -446,6 +448,7 @@ describe('AppConfigService', () => {
                         },
                         sync: {
                             path: '/sync',
+                            allExternal: '/all-external',
                         },
                     },
                 },
@@ -537,6 +540,8 @@ describe('AppConfigService', () => {
                         return input.discrepancy?.scan?.all;
                     case 'PRA_SYNC_API_DISCREPANCY_SYNC_PATH':
                         return input.discrepancy?.sync?.path;
+                    case 'PRA_SYNC_API_DISCREPANCY_SYNC_ALL_EXTERNAL':
+                        return input.discrepancy?.sync?.allExternal;
                     default:
                         return undefined;
                 }
@@ -649,6 +654,7 @@ describe('AppConfigService', () => {
                     },
                     sync: {
                         path: expected.discrepancy?.sync?.path,
+                        allExternal: expected.discrepancy?.sync?.allExternal,
                     },
                 },
             });

@@ -183,6 +183,7 @@ export abstract class DefaultAppConfig {
                 },
                 sync: {
                     path: '/sync',
+                    allExternal: '/all-external',
                 },
             },
         };

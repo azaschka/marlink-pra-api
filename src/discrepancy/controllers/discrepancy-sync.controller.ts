@@ -5,7 +5,7 @@ import { ApiTenantIdHeader, TenantIdHeader, TransactionIdHeader } from '../../co
 import { MonitoringRequestPipe } from '../../monitoring/pipes/monitoring-request.pipe';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
 import { UuidUtility } from '../../shared/utilities';
-import { SyncDiscrepancyCommand } from '../commands';
+import { SyncAllExternalDiscrepanciesCommand, SyncAllExternalResult, SyncDiscrepancyCommand } from '../commands';
 import { SyncDiscrepancyDtoInput } from '../dtos/inputs';
 
 @ApiTenantIdHeader()
@@ -14,6 +14,18 @@ import { SyncDiscrepancyDtoInput } from '../dtos/inputs';
 @UsePipes(MonitoringRequestPipe)
 export class DiscrepancySyncController {
     constructor(private readonly commandBus: CommandBus) {}
+
+    @Post('sync/all-external')
+    @ApiOkResponse()
+    @HttpCode(HttpStatus.OK)
+    public async syncAllExternalDiscrepancies(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+    ): Promise<SyncAllExternalResult> {
+        return await this.commandBus.execute<SyncAllExternalDiscrepanciesCommand, SyncAllExternalResult>(
+            new SyncAllExternalDiscrepanciesCommand(transactionId, tenantId),
+        );
+    }
 
     @Post(':id/sync')
     @ApiParam({

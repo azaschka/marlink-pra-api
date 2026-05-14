@@ -250,6 +250,9 @@ export class AppConfigService {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_SYNC_PATH') ??
                         DefaultAppConfig.praSyncApi.discrepancy.sync.path,
+                    allExternal:
+                        this.configService.get<string>('PRA_SYNC_API_DISCREPANCY_SYNC_ALL_EXTERNAL') ??
+                        DefaultAppConfig.praSyncApi.discrepancy.sync.allExternal,
                 },
             },
         };
