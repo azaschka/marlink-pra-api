@@ -7,7 +7,7 @@ import { CustomerDeletedEvent } from '../../events';
 import { Customer } from '../../models';
 import { RetrieveCustomerByIdQuery } from '../../queries';
 import { CustomerRepositoryService } from '../../repositories/services/customer-repository.service';
-import { AdministratorGroupPolicyWorkflow } from '../../workflows';
+import { AdministratorGroupPolicyWorkflow, SupportTeamArtifactsWorkflow } from '../../workflows';
 import { DeleteCustomerCommand } from '../delete-customer.command';
 
 @CommandHandler(DeleteCustomerCommand)
@@ -54,7 +54,8 @@ export class DeleteCustomerCommandHandler implements ICommandHandler<DeleteCusto
         customerName: string,
         customerBeyondTrustInstanceId: number,
     ): Promise<void> {
-        const workflow = new AdministratorGroupPolicyWorkflow(
+        // 1. Delete the Administrator Group Policy and its orphaned users
+        const adminWorkflow = new AdministratorGroupPolicyWorkflow(
             this.appConfigService,
             this.queryBus,
             this.commandBus,
@@ -62,7 +63,19 @@ export class DeleteCustomerCommandHandler implements ICommandHandler<DeleteCusto
             customerName,
             customerBeyondTrustInstanceId,
         );
+        await adminWorkflow.delete();
 
-        await workflow.delete();
+        // 2. Delete all Support Team artifacts:
+        //    - Support Team Jump Groups  ({customerName}_{supportTeamName})
+        //    - Jump Client Installers    (linked to those Jump Groups)
+        //    - Support Team Group Policies ({CUSTOMER_NAME}_{SUPPORT_TEAM_NAME})
+        const supportTeamWorkflow = new SupportTeamArtifactsWorkflow(
+            this.queryBus,
+            this.commandBus,
+            transactionId,
+            customerName,
+            customerBeyondTrustInstanceId,
+        );
+        await supportTeamWorkflow.delete();
     }
 }
