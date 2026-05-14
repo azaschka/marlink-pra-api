@@ -115,6 +115,7 @@ export class WorkflowFactory {
             this.site.name,
             this.site.key,
             this.site.siteApprovers,
+            this.site.siteManagers,
             this.customer.name,
             this.customer.beyondtrustInstanceId,
         );
