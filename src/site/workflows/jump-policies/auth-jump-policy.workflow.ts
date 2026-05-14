@@ -9,7 +9,7 @@ import { JumpPolicy } from '../../../jump-policy/models';
 import { RetrieveJumpPoliciesQuery } from '../../../jump-policy/queries';
 import { ObjectUtility } from '../../../shared/utilities';
 import { BaseWorkflow } from '../../../shared/workflows';
-import { PartialSiteApprover } from '../../models';
+import { PartialSiteApprover, PartialSiteManager } from '../../models';
 
 export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     private static readonly HAS_SCHEDULED_ACCESS_RESTRICTION = false;
@@ -42,6 +42,7 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         private readonly siteName: string,
         private readonly siteKey: string,
         private readonly siteApprovers: PartialSiteApprover[],
+        private readonly siteManagers: PartialSiteManager[],
         private readonly customerName: string,
         private readonly customerBeyondtrustInstanceId: number,
     ) {}
@@ -170,6 +171,14 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
     }
 
     private generateApprovalEmailAddresses(): string[] {
-        return ObjectUtility.filterUnique<string>([...this.siteApprovers.map((siteApprover) => siteApprover.email)]);
+        const approverEmails = this.siteApprovers.map((siteApprover) => siteApprover.email);
+        if (approverEmails.length > 0) {
+            return ObjectUtility.filterUnique<string>(approverEmails);
+        }
+        // Fallback: when no explicit approvers are defined, use site manager emails.
+        // BeyondTrust requires at least one approver/notification recipient when
+        // approval_required=true and notifications are enabled.
+        // SiteManagerWorkflow will subsequently add manager user IDs to approvalUserIds.
+        return ObjectUtility.filterUnique<string>(this.siteManagers.map((m) => m.email));
     }
 }

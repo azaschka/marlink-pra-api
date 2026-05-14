@@ -111,6 +111,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.siteName,
             this.siteKey,
             this.siteApprovers,
+            this.siteManagers,
             this.customerName,
             this.customerBeyondtrustInstanceId,
         );
