@@ -20,43 +20,36 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         const status = this.determineStatusCode(exception);
         const message = this.determineMessage(exception);
+        const shouldLog = this.shouldLog(status);
 
-        // Only log real server errors (5xx) to console.
-        // 4xx errors are expected business-logic responses and do not need visibility in pod logs.
-        if (this.isServerError(status)) {
-            console.error(`❌ [${new Date().toISOString()}] Exception caught:`, {
-                method: req.method,
-                url: req.originalUrl,
-                status,
+        // Truncate long URLs to prevent database logging errors
+        const actionName = `${AllExceptionsFilter.ACTION_NAME_PREFIX} ${req.method} ${req.originalUrl}`;
+        const truncatedActionName = actionName.length > 950 ? `${actionName.substring(0, 950)}...` : actionName;
+
+        if (shouldLog) {
+            console.error(`❌ [${new Date().toISOString()}] ${req.method} ${req.originalUrl} → ${status}`, {
                 message,
-                transactionId: req.headers[TRANSACTION_ID_HEADER.toLowerCase()],
-                user: (req.user as { username?: string })?.username,
+                stack: exception instanceof Error ? exception.stack : String(exception),
             });
 
-            if (exception instanceof Error && exception.stack) {
-                console.error('Stack trace:', exception.stack);
+            try {
+                await this.logService.log(
+                    truncatedActionName,
+                    (req.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string) ??
+                        AllExceptionsFilter.DEFAULT_TRANSACTION_ID,
+                    (req.user as { username?: string })?.username ?? AllExceptionsFilter.DEFAULT_INITIATED_BY,
+                    JSON.stringify({
+                        status,
+                        message,
+                        stack: exception instanceof Error ? exception.stack : undefined,
+                        originalUrl: req.originalUrl,
+                    }),
+                );
+            } catch (logError) {
+                console.error('⚠️  Failed to persist exception to DB log:', logError);
             }
         }
 
-        /* ---- Database Logging (non-blocking) ---- */
-        try {
-            await this.logService.log(
-                `${AllExceptionsFilter.ACTION_NAME_PREFIX} ${req.method} ${req.originalUrl}`,
-                (req.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string) ??
-                    AllExceptionsFilter.DEFAULT_TRANSACTION_ID,
-                (req.user as { username?: string })?.username ?? AllExceptionsFilter.DEFAULT_INITIATED_BY,
-                JSON.stringify({
-                    status,
-                    message,
-                    stack: exception instanceof Error ? exception.stack : undefined,
-                }),
-            );
-        } catch (logError) {
-            // Don't fail the request if logging fails
-            console.error('⚠️  Failed to log exception to database:', logError);
-        }
-
-        /* ---- Response to Client ---- */
         res.status(status).json({
             statusCode: status,
             timestamp: new Date().toISOString(),
@@ -73,16 +66,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
         return exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    /** Returns true only for 5xx status codes that represent real server errors. */
-    private isServerError(status: number): boolean {
-        return status >= Number(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     private determineMessage(exception: unknown) {
         if (exception instanceof QueryFailedError) {
             return exception.message;
         }
 
         return exception instanceof HttpException ? exception.getResponse() : AllExceptionsFilter.DEFAULT_ERROR_MESSAGE;
+    }
+
+    private shouldLog(status: number) {
+        return this.isServerError(status);
+    }
+
+    /** Returns true only for 5xx status codes that represent real server errors. */
+    private isServerError(status: number): boolean {
+        return status >= Number(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
