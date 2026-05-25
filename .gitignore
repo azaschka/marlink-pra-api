@@ -63,3 +63,9 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .local.env
 .github/*
+!.github/instructions/
+!.github/instructions/*.md
+!.github/prompts/
+!.github/prompts/*.md
+!.github/copilot-instructions.md
+!.github/CROSS_REPO_CONTRACT_CHECKLIST.md
