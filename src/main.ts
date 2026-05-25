@@ -18,7 +18,9 @@ function configureOpenApi(app: INestApplication<unknown>) {
         .setVersion(version)
         .addBearerAuth()
         .build();
-    const document = SwaggerModule.createDocument(app, options);
+    const document = SwaggerModule.createDocument(app, options, {
+        ignoreGlobalPrefix: false,
+    });
 
     SwaggerModule.setup('open-api', app, document);
 }
@@ -59,7 +61,7 @@ async function bootstrap() {
 
         // Enable global prefix for API routes
         // const defaultApiVersion = version.split('.')[0] ?? '1';
-        // app.setGlobalPrefix('api', { exclude: ['open-api'] });
+        app.setGlobalPrefix('api', { exclude: ['open-api'] });
         // app.enableVersioning({
         //     type: VersioningType.URI,
         //     defaultVersion: defaultApiVersion,

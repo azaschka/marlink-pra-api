@@ -1,9 +1,5 @@
-# Use this workspace to collaborate
 workspace:
   id: 1d69719d-3d44-4647-91ff-f913df1ee553
-
-# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
-
 cloudResources:
   collections:
     ../postman/collections/Marlink PRA API v3.1.0: 11321463-ed8ef1d3-324b-4b3e-810a-e2e0070732e6
@@ -11,7 +7,10 @@ cloudResources:
     ../postman/collections/marlink-pra-api: 11321463-8ef5f96f-cd90-4b0e-bc1f-d42d554228d0
   specs:
     ../postman/specs/marlink-pra-api.json: df1df622-0c45-443e-8d2b-c4927705346c
-
 localResources:
   specs:
     - ../postman/specs/marlink-pra-api.json
+  collections:
+    - ../postman/collections/Marlink PRA API v3.1.0
+    - ../postman/collections/BeyondTrust Privileged Remote Access Configuration APIs
+    - ../postman/collections/marlink-pra-api
