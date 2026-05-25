@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/"
+method: HEAD
+order: 2000

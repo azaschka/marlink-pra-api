@@ -5,7 +5,7 @@
 # This file is declarative metadata and does not execute workflows by itself.
 workflows:
   syncSpecToCollection:
-    - spec: ../marlink-pra-api.json
-      collection: ../postman/collections/marlink-pra-api
+    - spec: ../postman/specs/marlink-pra-api.json
+      collection: ../postman/collections/Marlink PRA API v3.1.0
       options:
         syncExamples: false

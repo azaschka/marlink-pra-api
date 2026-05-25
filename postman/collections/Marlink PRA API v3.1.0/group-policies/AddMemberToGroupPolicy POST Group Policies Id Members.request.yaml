@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/group-policies/{{id}}/members"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 8000

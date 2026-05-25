@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-groups/{{id}}"
+method: PATCH
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 4000

@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/users/{{id}}/group-policies"
+method: PATCH
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 2000

@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/users/{{id}}"
+method: GET
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 3000

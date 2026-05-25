@@ -1,9 +1,0 @@
-$kind: http-request
-description: Removes a user from the support team member role for the specified
-  site. The user will no longer have support access privileges.
-url: "{{baseUrl}}/sites/{{siteId}}/support-team-members/{{supportTeamMemberId}}"
-method: DELETE
-headers:
-  X-Access-Key: "{{accessKey}}"
-examples: ./.resources/Remove Site Support Team Member.resources/examples
-order: 1000

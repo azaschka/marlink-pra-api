@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/ping"
+method: GET
+order: 1000

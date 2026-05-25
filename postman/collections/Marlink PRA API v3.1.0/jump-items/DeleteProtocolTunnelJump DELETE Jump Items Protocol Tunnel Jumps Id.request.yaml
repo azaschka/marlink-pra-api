@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/{{id}}"
+method: DELETE
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 5000

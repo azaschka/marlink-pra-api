@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/group-policies/{{id}}/jump-groups"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 2000

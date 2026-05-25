@@ -1,0 +1,2145 @@
+info:
+  _postman_id: c13c63b6-674e-4bb6-9db4-49d7b68c20dd
+  name: Marlink PRA API v3.1.x
+  description: |-
+    Collection for PRA API v3.1.x endpoints.
+  schema: https://schema.getpostman.com/json/collection/v2.1.0/collection.json
+item:
+  - name: app
+    item:
+      - name: Ping GET Ping
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/ping"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - ping
+      - name: Root HEAD Root
+        request:
+          method: HEAD
+          url:
+            raw: "{{baseUrl}}/"
+            host:
+              - "{{baseUrl}}"
+            path: []
+  - name: beyondtrust-instances
+    item:
+      - name: CreateBeyondtrustInstance POST Beyondtrust Instances
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: CreateBeyondtrustInstanceBackup POST Beyondtrust Instances Id Backups
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances/{{id}}/backups"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+              - "{{id}}"
+              - backups
+      - name: DeleteBeyondtrustInstance DELETE Beyondtrust Instances Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: ModifyBeyondtrustInstance PATCH Beyondtrust Instances Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveBeyondtrustInstance GET Beyondtrust Instances Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveBeyondtrustInstanceBackup GET Beyondtrust Instances Id Backups BackupId
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances/{{id}}/backups/{{backupId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+              - "{{id}}"
+              - backups
+              - "{{backupId}}"
+      - name: RetrieveBeyondtrustInstanceBackupContent GET Beyondtrust Instances Id Backups BackupId Content
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances/{{id}}/backups/{{backupId}}/content"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+              - "{{id}}"
+              - backups
+              - "{{backupId}}"
+              - content
+      - name: RetrieveBeyondtrustInstanceBackups GET Beyondtrust Instances Id Backups
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances/{{id}}/backups"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+              - "{{id}}"
+              - backups
+      - name: RetrieveBeyondtrustInstances GET Beyondtrust Instances
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/beyondtrust-instances"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - beyondtrust-instances
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+  - name: customers
+    item:
+      - name: CreateCustomer POST Customers
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/customers"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - customers
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: DeactivateCustomer POST Customers Id Deactivate
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/customers/{{id}}/deactivate"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - customers
+              - "{{id}}"
+              - deactivate
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: DeleteCustomer DELETE Customers Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/customers/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - customers
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: ModifyCustomer PATCH Customers Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/customers/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - customers
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: ReactivateCustomer POST Customers Id Reactivate
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/customers/{{id}}/reactivate"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - customers
+              - "{{id}}"
+              - reactivate
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveCustomers GET Customers
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/customers"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - customers
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+  - name: deployments
+    item:
+      - name: ApproveJumpointNode POST Deployments Jumpoint Nodes Id Approve
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}/approve"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+              - "{{id}}"
+              - approve
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: CreateJumpointNode POST Deployments Jumpoint Nodes
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: CreateJumpointNodeService POST Deployments Jumpoint Nodes Id Services
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}/services"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+              - "{{id}}"
+              - services
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: DeleteJumpointNode DELETE Deployments Jumpoint Nodes Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: DeployJumpointNode POST Deployments Jumpoint Nodes Deploy
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes/deploy"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+              - deploy
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: DownloadJumpointNodeIso POST Deployments Jumpoint Nodes Id Iso
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}/iso"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+              - "{{id}}"
+              - iso
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveJumpointNode GET Deployments Jumpoint Nodes Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveJumpointNodeIso GET Deployments Jumpoint Nodes Id Iso
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}/iso"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+              - "{{id}}"
+              - iso
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveJumpointNodes GET Deployments Jumpoint Nodes
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/deployments/jumpoint-nodes"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - deployments
+              - jumpoint-nodes
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+  - name: discrepancies
+    item:
+      - name: GetScanStatus GET Discrepancies Scan Status ScanId
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/discrepancies/scan/status/{{scanId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - discrepancies
+              - scan
+              - status
+              - "{{scanId}}"
+          header:
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveDiscrepancies GET Discrepancies
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/discrepancies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - discrepancies
+          header:
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ScanAllDiscrepancies POST Discrepancies Scan All
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/discrepancies/scan/all"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - discrepancies
+              - scan
+              - all
+          header:
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ScanDiscrepancies POST Discrepancies Scan EntityType
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/discrepancies/scan/{{entityType}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - discrepancies
+              - scan
+              - "{{entityType}}"
+          header:
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: SyncAllExternalDiscrepancies POST Discrepancies Sync All External
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/discrepancies/sync/all-external"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - discrepancies
+              - sync
+              - all-external
+          header:
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: SyncDiscrepancy POST Discrepancies Id Sync
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/discrepancies/{{id}}/sync"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - discrepancies
+              - "{{id}}"
+              - sync
+          header:
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: group-policies
+    item:
+      - name: AddJumpGroupToGroupPolicy POST Group Policies Id Jump Groups
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/jump-groups"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - jump-groups
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: AddJumpointToGroupPolicy POST Group Policies Id Jumpoints
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/jumpoints"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - jumpoints
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: AddMemberToGroupPolicy POST Group Policies Id Members
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/members"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - members
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: AddTeamToGroupPolicy POST Group Policies Id Teams
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/teams"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - teams
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateGroupPolicy POST Group Policies
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/group-policies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteGroupPolicy DELETE Group Policies Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyGroupPolicy PATCH Group Policies Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RemoveJumpGroupFromGroupPolicy DELETE Group Policies Id Jump Groups JumpGroupId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/jump-groups/{{jumpGroupId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - jump-groups
+              - "{{jumpGroupId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RemoveJumpointFromGroupPolicy DELETE Group Policies Id Jumpoints JumpointId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/jumpoints/{{jumpointId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - jumpoints
+              - "{{jumpointId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RemoveMemberFromGroupPolicy DELETE Group Policies Id Members MemberId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/members/{{memberId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - members
+              - "{{memberId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RemoveTeamFromGroupPolicy DELETE Group Policies Id Teams TeamId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/teams/{{teamId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - teams
+              - "{{teamId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveGroupPolicies GET Group Policies
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/group-policies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveGroupPolicy GET Group Policies Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveGroupPolicyJumpGroups GET Group Policies Id Jump Groups
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/jump-groups"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - jump-groups
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveGroupPolicyJumpoints GET Group Policies Id Jumpoints
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/jumpoints"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - jumpoints
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveGroupPolicyMembers GET Group Policies Id Members
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/members"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - members
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveGroupPolicyTeams GET Group Policies Id Teams
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/group-policies/{{id}}/teams"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - group-policies
+              - "{{id}}"
+              - teams
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: health
+    item:
+      - name: CheckHealth GET Health
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/health"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - health
+      - name: CheckLiveness GET Health Live
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/health/live"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - health
+              - live
+      - name: CheckReadiness GET Health Ready
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/health/ready"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - health
+              - ready
+  - name: jump-clients
+    item:
+      - name: CopyJumpClient POST Jump Clients Id Copy
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-clients/{{id}}/copy"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - "{{id}}"
+              - copy
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateJumpClientInstaller POST Jump Clients Installers
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-clients/installers"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - installers
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteJumpClient DELETE Jump Clients Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-clients/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteJumpClientInstaller DELETE Jump Clients Installers Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-clients/installers/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - installers
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyJumpClient PATCH Jump Clients Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-clients/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpClient GET Jump Clients Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-clients/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpClientInstaller GET Jump Clients Installers Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-clients/installers/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - installers
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpClientInstallerPlatform GET Jump Clients Installers InstallerId Platforms PlatformType
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-clients/installers/{{installerId}}/platforms/{{platformType}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - installers
+              - "{{installerId}}"
+              - platforms
+              - "{{platformType}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpClientInstallers GET Jump Clients Installers
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-clients/installers"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+              - installers
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpClients GET Jump Clients
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-clients"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-clients
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: jump-groups
+    item:
+      - name: CreateJumpGroup POST Jump Groups
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-groups"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-groups
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteJumpGroup DELETE Jump Groups Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-groups/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-groups
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyJumpGroup PATCH Jump Groups Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-groups/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-groups
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpGroup GET Jump Groups Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-groups/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-groups
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpGroups GET Jump Groups
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-groups"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-groups
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: jump-items
+    item:
+      - name: CopyProtocolTunnelJump POST Jump Items Protocol Tunnel Jumps Id Copy
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/{{id}}/copy"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - protocol-tunnel-jumps
+              - "{{id}}"
+              - copy
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CopyRemoteRdp POST Jump Items Remote Rdps Id Copy
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-rdps/{{id}}/copy"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-rdps
+              - "{{id}}"
+              - copy
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CopyRemoteVnc POST Jump Items Remote Vncs Id Copy
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-vncs/{{id}}/copy"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-vncs
+              - "{{id}}"
+              - copy
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CopyShellJump POST Jump Items Shell Jumps Id Copy
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/shell-jumps/{{id}}/copy"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - shell-jumps
+              - "{{id}}"
+              - copy
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CopyWebJump POST Jump Items Web Jumps Id Copy
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/web-jumps/{{id}}/copy"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - web-jumps
+              - "{{id}}"
+              - copy
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateProtocolTunnelJump POST Jump Items Protocol Tunnel Jumps
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/protocol-tunnel-jumps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - protocol-tunnel-jumps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateRemoteRdp POST Jump Items Remote Rdps
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-rdps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-rdps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateRemoteVnc POST Jump Items Remote Vncs
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-vncs"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-vncs
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateShellJump POST Jump Items Shell Jumps
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/shell-jumps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - shell-jumps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateWebJump POST Jump Items Web Jumps
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-items/web-jumps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - web-jumps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteProtocolTunnelJump DELETE Jump Items Protocol Tunnel Jumps Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - protocol-tunnel-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteRemoteRdp DELETE Jump Items Remote Rdps Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-rdps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-rdps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteRemoteVnc DELETE Jump Items Remote Vncs Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-vncs/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-vncs
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteShellJump DELETE Jump Items Shell Jumps Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-items/shell-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - shell-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteWebJump DELETE Jump Items Web Jumps Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-items/web-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - web-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyProtocolTunnelJump PATCH Jump Items Protocol Tunnel Jumps Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - protocol-tunnel-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyRemoteRdp PATCH Jump Items Remote Rdps Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-rdps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-rdps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyRemoteVnc PATCH Jump Items Remote Vncs Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-vncs/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-vncs
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyShellJump PATCH Jump Items Shell Jumps Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-items/shell-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - shell-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyWebJump PATCH Jump Items Web Jumps Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-items/web-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - web-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveProtocolTunnelJump GET Jump Items Protocol Tunnel Jumps Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - protocol-tunnel-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveProtocolTunnelJumps GET Jump Items Protocol Tunnel Jumps
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/protocol-tunnel-jumps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - protocol-tunnel-jumps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveRemoteRdp GET Jump Items Remote Rdps Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-rdps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-rdps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveRemoteRdps GET Jump Items Remote Rdps
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-rdps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-rdps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveRemoteVnc GET Jump Items Remote Vncs Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-vncs/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-vncs
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveRemoteVncs GET Jump Items Remote Vncs
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/remote-vncs"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - remote-vncs
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveShellJump GET Jump Items Shell Jumps Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/shell-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - shell-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveShellJumps GET Jump Items Shell Jumps
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/shell-jumps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - shell-jumps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveWebJump GET Jump Items Web Jumps Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/web-jumps/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - web-jumps
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveWebJumps GET Jump Items Web Jumps
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-items/web-jumps"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-items
+              - web-jumps
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: jump-policies
+    item:
+      - name: CreateJumpPolicy POST Jump Policies
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jump-policies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-policies
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteJumpPolicy DELETE Jump Policies Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jump-policies/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-policies
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyJumpPolicy PATCH Jump Policies Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jump-policies/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-policies
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpPolicies GET Jump Policies
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-policies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-policies
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpPolicy GET Jump Policies Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jump-policies/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jump-policies
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: jumpoints
+    item:
+      - name: CreateJumpoint POST Jumpoints
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/jumpoints"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteJumpoint DELETE Jumpoints Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/jumpoints/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyJumpoint PATCH Jumpoints Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/jumpoints/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpoint GET Jumpoints Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jumpoints/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpointInstaller GET Jumpoints Id Installer
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jumpoints/{{id}}/installer"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+              - "{{id}}"
+              - installer
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpointInstallerByCustomerAndSite GET Jumpoints Installers
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jumpoints/installers"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+              - installers
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveJumpointNodes GET Jumpoints Id Nodes
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jumpoints/{{id}}/nodes"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+              - "{{id}}"
+              - nodes
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveJumpoints GET Jumpoints
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/jumpoints"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - jumpoints
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: license-usages
+    item:
+      - name: CalculateCustomerLicenseUsage POST License Usages Customers Id
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/license-usages/customers/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - license-usages
+              - customers
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: CalculateSiteLicenseUsage POST License Usages Sites Id
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/license-usages/sites/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - license-usages
+              - sites
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+  - name: logs
+    item:
+      - name: ClearLogs DELETE Logs
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/logs"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - logs
+      - name: RetrieveLogs GET Logs
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/logs"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - logs
+  - name: monitorings
+    item:
+      - name: DeleteMonitoringRecords DELETE Monitorings
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/monitorings"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - monitorings
+      - name: RetrieveMonitoringRecords GET Monitorings
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/monitorings"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - monitorings
+  - name: session-policies
+    item:
+      - name: RetrieveSessionPolicies GET Session Policies
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/session-policies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - session-policies
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: sites
+    item:
+      - name: AddSiteAuditor POST Sites Id Auditors
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/auditors"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - auditors
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: AddSiteManager POST Sites Id Managers
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/managers"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - managers
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: AddSiteSupportTeamMember POST Sites Id Support Team Members
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/support-team-members"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - support-team-members
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: CreateSite POST Sites
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/sites"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: DeleteSite DELETE Sites Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RemoveSiteAuditor DELETE Sites Id Auditors AuditorId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/auditors/{{auditorId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - auditors
+              - "{{auditorId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RemoveSiteManager DELETE Sites Id Managers ManagerId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/managers/{{managerId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - managers
+              - "{{managerId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RemoveSiteSupportTeamMember DELETE Sites Id Support Team Members SupportTeamMemberId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/support-team-members/{{supportTeamMemberId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - support-team-members
+              - "{{supportTeamMemberId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveSiteAuditors GET Sites Id Auditors
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/auditors"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - auditors
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveSiteJumpoints GET Sites Id Jumpoints
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/jumpoints"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - jumpoints
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveSiteManagers GET Sites Id Managers
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/managers"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - managers
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveSiteSupportTeamMembers GET Sites Id Support Team Members
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/sites/{{id}}/support-team-members"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+              - "{{id}}"
+              - support-team-members
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+      - name: RetrieveSites GET Sites
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/sites"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - sites
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+  - name: teams
+    item:
+      - name: AddUserToTeam POST Teams Id Users
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/teams/{{id}}/users"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+              - "{{id}}"
+              - users
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: CreateTeam POST Teams
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/teams"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteTeam DELETE Teams Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/teams/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyTeam PATCH Teams Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/teams/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RemoveUserFromTeam DELETE Teams Id Users UserId
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/teams/{{id}}/users/{{userId}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+              - "{{id}}"
+              - users
+              - "{{userId}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveTeam GET Teams Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/teams/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveTeamUsers GET Teams Id Users
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/teams/{{id}}/users"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+              - "{{id}}"
+              - users
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveTeams GET Teams
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/teams"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - teams
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+  - name: users
+    item:
+      - name: CreateUser POST Users
+        request:
+          method: POST
+          url:
+            raw: "{{baseUrl}}/users"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - users
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: DeleteUser DELETE Users Id
+        request:
+          method: DELETE
+          url:
+            raw: "{{baseUrl}}/users/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - users
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyUser PATCH Users Id
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/users/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - users
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: ModifyUserGroupPolicies PATCH Users Id Group Policies
+        request:
+          method: PATCH
+          url:
+            raw: "{{baseUrl}}/users/{{id}}/group-policies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - users
+              - "{{id}}"
+              - group-policies
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveUser GET Users Id
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/users/{{id}}"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - users
+              - "{{id}}"
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveUserGroupPolicies GET Users Id Group Policies
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/users/{{id}}/group-policies"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - users
+              - "{{id}}"
+              - group-policies
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+      - name: RetrieveUsers GET Users
+        request:
+          method: GET
+          url:
+            raw: "{{baseUrl}}/users"
+            host:
+              - "{{baseUrl}}"
+            path:
+              - users
+          header:
+            - key: X-Access-Key
+              value: "{{accessKey}}"
+            - key: X-Tenant-Id
+              value: "{{tenantId}}"
+variable:
+  - key: baseUrl
+    value: https://pra-api-pp.cdn-vas.net
+  - key: accessKey
+    value: ""
+  - key: tenantId
+    value: "1"

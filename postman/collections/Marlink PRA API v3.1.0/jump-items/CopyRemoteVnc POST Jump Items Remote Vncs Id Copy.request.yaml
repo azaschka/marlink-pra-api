@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/remote-vncs/{{id}}/copy"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 18000

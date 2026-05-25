@@ -1,0 +1,3 @@
+$kind: collection
+description: Endpoints for /session-policies.
+order: 16000

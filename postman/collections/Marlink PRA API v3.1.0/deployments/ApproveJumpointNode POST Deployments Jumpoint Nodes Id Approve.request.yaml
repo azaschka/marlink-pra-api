@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}/approve"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+order: 6000

@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/discrepancies/scan/{{entityType}}"
+method: POST
+headers:
+  X-Tenant-Id: "{{tenantId}}"
+order: 4000

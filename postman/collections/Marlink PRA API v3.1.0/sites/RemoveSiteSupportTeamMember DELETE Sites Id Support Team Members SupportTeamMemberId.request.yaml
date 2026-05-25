@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/sites/{{id}}/support-team-members/{{supportTeamMemberId}}"
+method: DELETE
+headers:
+  X-Access-Key: "{{accessKey}}"
+order: 10000

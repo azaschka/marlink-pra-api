@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/beyondtrust-instances/{{instanceId}}/backups?pageSize=100&pag\
-  eNumber=1"
-method: GET
-queryParams:
-  pageSize: "100"
-  pageNumber: "1"
-order: 2000

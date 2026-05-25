@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/customers/{{id}}"
+method: DELETE
+headers:
+  X-Access-Key: "{{accessKey}}"
+order: 6000

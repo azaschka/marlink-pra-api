@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/jumpoints/{{id}}"
+method: PATCH
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 5000

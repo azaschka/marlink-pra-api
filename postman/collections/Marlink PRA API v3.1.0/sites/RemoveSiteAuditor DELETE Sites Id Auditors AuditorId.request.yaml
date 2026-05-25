@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/sites/{{id}}/auditors/{{auditorId}}"
+method: DELETE
+headers:
+  X-Access-Key: "{{accessKey}}"
+order: 3000

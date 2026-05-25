@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/teams/{{id}}"
+method: PATCH
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 7000

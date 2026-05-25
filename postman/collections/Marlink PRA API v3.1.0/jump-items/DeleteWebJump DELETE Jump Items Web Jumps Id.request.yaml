@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/jump-items/web-jumps/{{id}}"
+method: DELETE
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 29000

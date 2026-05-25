@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/teams/{{id}}/users/{{userId}}"
+method: DELETE
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 3000

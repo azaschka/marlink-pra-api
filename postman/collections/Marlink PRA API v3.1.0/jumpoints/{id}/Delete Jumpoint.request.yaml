@@ -1,8 +1,0 @@
-$kind: http-request
-description: Permanently deletes a jumpoint from the system. This action cannot be undone.
-url: "{{baseUrl}}/jumpoints/{{jumpointId}}"
-method: DELETE
-headers:
-  X-Access-Key: "{{accessKey}}"
-  X-Tenant-Id: "{{tenantId}}"
-order: 5000

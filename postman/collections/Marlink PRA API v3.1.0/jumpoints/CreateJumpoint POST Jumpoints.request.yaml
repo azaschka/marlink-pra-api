@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/jumpoints"
+method: POST
+headers:
+  X-Access-Key: "{{accessKey}}"
+  X-Tenant-Id: "{{tenantId}}"
+order: 4000
