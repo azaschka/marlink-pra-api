@@ -1,0 +1,30 @@
+$kind: http-request
+url: '{{baseUrl}}/jump-items/remote-vncs/{{id}}'
+method: PATCH
+headers:
+  - key: X-Access-Key
+    value: '{{accessKey}}'
+    description: Access key for authenticating and authorizing requests.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+body:
+  type: json
+  content: |-
+    {
+      "name": "string",
+      "jumpointId": 0,
+      "hostname": "string",
+      "port": 0,
+      "jumpGroupId": 0,
+      "jumpGroupType": "shared",
+      "tag": "string",
+      "comments": "string",
+      "jumpPolicyId": 0,
+      "sessionPolicyId": 0
+    }
+order: 14000

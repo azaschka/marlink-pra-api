@@ -1,0 +1,14 @@
+$kind: http-request
+url: '{{baseUrl}}/discrepancies/{{id}}/sync'
+method: POST
+headers:
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+body:
+  type: json
+  content: |-
+    {
+      "syncType": "internal-to-external"
+    }
+order: 4000

@@ -1,7 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/jump-policies"
-method: POST
-headers:
-  X-Access-Key: "{{accessKey}}"
-  X-Tenant-Id: "{{tenantId}}"
-order: 3000

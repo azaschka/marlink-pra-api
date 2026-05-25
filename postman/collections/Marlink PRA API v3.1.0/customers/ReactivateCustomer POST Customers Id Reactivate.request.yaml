@@ -1,6 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/customers/{{id}}/reactivate"
-method: POST
-headers:
-  X-Access-Key: "{{accessKey}}"
-order: 5000

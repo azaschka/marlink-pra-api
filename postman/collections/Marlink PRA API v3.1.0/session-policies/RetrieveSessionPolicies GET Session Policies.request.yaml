@@ -1,7 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/session-policies"
-method: GET
-headers:
-  X-Access-Key: "{{accessKey}}"
-  X-Tenant-Id: "{{tenantId}}"
-order: 1000

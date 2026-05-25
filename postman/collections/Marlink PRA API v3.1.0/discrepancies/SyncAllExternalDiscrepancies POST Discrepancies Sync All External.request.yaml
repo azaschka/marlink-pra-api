@@ -1,6 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/discrepancies/sync/all-external"
-method: POST
-headers:
-  X-Tenant-Id: "{{tenantId}}"
-order: 5000

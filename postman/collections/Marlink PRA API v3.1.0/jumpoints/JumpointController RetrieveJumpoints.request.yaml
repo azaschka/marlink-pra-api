@@ -1,0 +1,54 @@
+$kind: http-request
+url: '{{baseUrl}}/jumpoints'
+method: GET
+headers:
+  - key: X-Access-Key
+    value: '{{accessKey}}'
+    description: Access key for authenticating and authorizing requests.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+queryParams:
+  - key: pageSize
+    value: '100'
+    description: The number of items to include in a paginated response.
+    disabled: true
+  - key: pageNumber
+    value: '1'
+    description: The 1-based index of the desired page.
+    disabled: true
+  - key: name
+    value: string
+    description: Filters results to include only Jumpoints with the given name.
+    disabled: true
+  - key: publicIp
+    value: string
+    description: >-
+      Filters results to include only Jumpoints with a node that has the specified public IP. Setting this property
+      triggers a direct query to the BeyondTrust Privileged Remote Access system.
+    disabled: true
+  - key: privateIp
+    value: string
+    description: >-
+      Filters results to include only Jumpoints with a node that has the specified private IP. Setting this property
+      triggers a direct query to the BeyondTrust Privileged Remote Access system.
+    disabled: true
+  - key: hostname
+    value: string
+    description: >-
+      Filters results to include only Jumpoints with a node that has the specified hostname. Setting this property
+      triggers a direct query to the BeyondTrust Privileged Remote Access system.
+    disabled: true
+  - key: codeName
+    value: string
+    description: Filters a response to include only resources with the given code name.
+    disabled: true
+  - key: namePatterns
+    value: string
+    description: Filters results to include only jumpoints that match the given name patterns.
+    disabled: true
+order: 5000

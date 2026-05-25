@@ -1,6 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/customers/{{id}}/deactivate"
-method: POST
-headers:
-  X-Access-Key: "{{accessKey}}"
-order: 4000

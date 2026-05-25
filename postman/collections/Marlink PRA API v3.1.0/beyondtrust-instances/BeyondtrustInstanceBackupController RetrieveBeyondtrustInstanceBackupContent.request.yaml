@@ -1,0 +1,9 @@
+$kind: http-request
+url: '{{baseUrl}}/beyondtrust-instances/{{id}}/backups/{{backupId}}/content'
+method: GET
+headers:
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+order: 9000

@@ -1,0 +1,22 @@
+$kind: http-request
+url: '{{baseUrl}}/group-policies/{{id}}/teams'
+method: POST
+headers:
+  - key: X-Access-Key
+    value: '{{accessKey}}'
+    description: Access key for authenticating and authorizing requests.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+body:
+  type: json
+  content: |-
+    {
+      "teamId": 0,
+      "roleType": "member"
+    }
+order: 16000

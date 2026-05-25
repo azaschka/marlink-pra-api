@@ -1,0 +1,38 @@
+$kind: http-request
+url: '{{baseUrl}}/jump-clients/installers'
+method: POST
+headers:
+  - key: X-Access-Key
+    value: '{{accessKey}}'
+    description: Access key for authenticating and authorizing requests.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+body:
+  type: json
+  content: |-
+    {
+      "name": "string",
+      "jumpGroupId": 0,
+      "jumpGroupType": "personal",
+      "jumpPolicyId": 0,
+      "tag": "string",
+      "connectionType": "passive",
+      "sessionPolicyId": 0,
+      "comments": "string",
+      "validDurationInMinutes": 0,
+      "shouldElevateInstall": false,
+      "shouldElevatePrompt": false,
+      "canOverrideJumpGroup": false,
+      "canOverrideJumpPolicy": false,
+      "canOverrideName": false,
+      "canOverrideTag": false,
+      "canOverrideComments": false,
+      "canOverrideSessionPolicy": false,
+      "jumpointProxy": "string"
+    }
+order: 4000

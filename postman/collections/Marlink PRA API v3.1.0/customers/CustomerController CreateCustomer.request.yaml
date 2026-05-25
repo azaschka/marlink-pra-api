@@ -1,0 +1,21 @@
+$kind: http-request
+url: '{{baseUrl}}/customers'
+method: POST
+headers:
+  - key: X-Access-Key
+    value: '{{accessKey}}'
+    description: Access key for authenticating and authorizing requests.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+body:
+  type: json
+  content: |-
+    {
+      "key": "string",
+      "name": "string",
+      "businessUnit": "MT",
+      "beyondtrustInstanceId": 0
+    }
+order: 2000

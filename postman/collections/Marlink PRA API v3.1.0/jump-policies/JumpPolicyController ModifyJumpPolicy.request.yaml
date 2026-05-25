@@ -1,0 +1,53 @@
+$kind: http-request
+url: '{{baseUrl}}/jump-policies/{{id}}'
+method: PATCH
+headers:
+  - key: X-Access-Key
+    value: '{{accessKey}}'
+    description: Access key for authenticating and authorizing requests.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+body:
+  type: json
+  content: |-
+    {
+      "displayName": "string",
+      "codeName": "string",
+      "description": "string",
+      "hasScheduledAccessRestriction": false,
+      "simultaneousJumpsType": "global",
+      "doesSimultaneousJumpBehaviorApplyToCopies": false,
+      "simultaneousJumpsRdpType": "global",
+      "shouldForceRemoveUsersWhenScheduleDisallows": false,
+      "isTicketIdRequired": false,
+      "isTwoFactorChallengeRequired": false,
+      "isSessionStartNotificationEnabled": false,
+      "isSessionEndNotificationEnabled": false,
+      "notificationEmailAddresses": [
+        "string"
+      ],
+      "notificationDisplayName": "string",
+      "notificationEmailLanguage": "string",
+      "isApprovalRequired": false,
+      "approvalMaxDurationInMinutes": 0,
+      "approvalScopeType": "requestor",
+      "approvalEmailAddresses": [
+        "string"
+      ],
+      "approvalUserIds": [
+        "string"
+      ],
+      "approvalTeamIds": [
+        "string"
+      ],
+      "approvalDisplayName": "string",
+      "approvalEmailLanguage": "string",
+      "approvalApproverScopeType": "not-requestor",
+      "isRecordingsDisabled": false
+    }
+order: 2000

@@ -1,7 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/group-policies/{{id}}/teams/{{teamId}}"
-method: DELETE
-headers:
-  X-Access-Key: "{{accessKey}}"
-  X-Tenant-Id: "{{tenantId}}"
-order: 12000

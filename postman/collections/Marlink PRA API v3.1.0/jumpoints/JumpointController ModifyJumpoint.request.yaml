@@ -1,0 +1,42 @@
+$kind: http-request
+url: '{{baseUrl}}/jumpoints/{{id}}'
+method: PATCH
+headers:
+  - key: X-Access-Key
+    value: '{{accessKey}}'
+    description: Access key for authenticating and authorizing requests.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+body:
+  type: json
+  content: |-
+    {
+      "name": "string",
+      "codeName": "string",
+      "comments": "string",
+      "isEnabled": false,
+      "isShellJumpEnabled": false,
+      "externalJumpItemNetworkId": "string",
+      "isProtocolTunnelEnabled": false,
+      "rdpServiceAccountId": 0,
+      "managedIpRanges": [
+        {
+          "start": "string",
+          "end": "string"
+        }
+      ],
+      "isJzpEnabled": false,
+      "jzpProxyHostname": "string",
+      "jzpProxyPort": 0,
+      "isJzpHttpGetAllowed": false,
+      "jzpClientAddressRestrictionsType": "no-restriction",
+      "jzpRestrictedIps": [
+        "string"
+      ]
+    }
+order: 3000

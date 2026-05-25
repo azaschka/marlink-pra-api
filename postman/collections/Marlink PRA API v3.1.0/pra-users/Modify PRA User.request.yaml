@@ -1,0 +1,29 @@
+$kind: http-request
+description: Internal endpoint (X-API-Key protected). Included for full internal PRA testing.
+url: '{{baseUrl}}/pra-users/{{id}}'
+method: PATCH
+headers:
+  - key: X-API-Key
+    value: '{{apiKey}}'
+    description: API key for internal PRA endpoints.
+  - key: Authorization
+    value: Bearer {{jwtToken}}
+    description: JWT access token.
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+body:
+  type: json
+  content: |-
+    {
+      "username": "string",
+      "password": "string",
+      "email": "user@example.com",
+      "role": "Admin",
+      "displayName": "User Display Name",
+      "businessUnit": "MT",
+      "canManagePraUsers": true,
+      "regeneratePassword": false
+    }
+order: 3000

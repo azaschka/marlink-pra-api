@@ -1,0 +1,15 @@
+$kind: http-request
+url: '{{baseUrl}}/beyondtrust-instances/{{id}}/backups'
+method: POST
+headers:
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+body:
+  type: json
+  content: |-
+    {
+      "password": "string"
+    }
+order: 7000

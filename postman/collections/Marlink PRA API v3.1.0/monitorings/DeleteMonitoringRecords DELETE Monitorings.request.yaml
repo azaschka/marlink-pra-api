@@ -1,4 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/monitorings"
-method: DELETE
-order: 2000

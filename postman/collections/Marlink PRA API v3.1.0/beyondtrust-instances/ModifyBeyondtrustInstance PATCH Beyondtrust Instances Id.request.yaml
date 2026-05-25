@@ -1,6 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/beyondtrust-instances/{{id}}"
-method: PATCH
-headers:
-  X-Access-Key: "{{accessKey}}"
-order: 8000

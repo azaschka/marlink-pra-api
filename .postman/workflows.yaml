@@ -9,3 +9,8 @@ workflows:
       collection: ../postman/collections/Marlink PRA API v3.1.0
       options:
         syncExamples: false
+  syncCollectionToSpec:
+    - spec: ../postman/specs/marlink-pra-api.json
+      collection: ../postman/collections/Marlink PRA API v3.1.0
+      options:
+        syncExamples: false

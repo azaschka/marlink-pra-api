@@ -1,0 +1,26 @@
+$kind: http-request
+url: '{{baseUrl}}/access'
+method: GET
+headers:
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+queryParams:
+  - key: pageSize
+    value: '100'
+    description: The number of items to include in a paginated response.
+    disabled: true
+  - key: pageNumber
+    value: '1'
+    description: The 1-based index of the desired page.
+    disabled: true
+  - key: key
+    value: string
+    description: The key of the access.
+    disabled: true
+  - key: name
+    value: string
+    description: The name of the access.
+    disabled: true
+order: 1000

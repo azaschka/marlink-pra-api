@@ -1,0 +1,30 @@
+$kind: http-request
+url: '{{baseUrl}}/beyondtrust-instances'
+method: GET
+headers:
+  - key: X-Transaction-Id
+    value: '{{transactionId}}'
+    description: Optional identifier for tracing and correlating a transaction across services and logs.
+    disabled: true
+queryParams:
+  - key: pageSize
+    value: '100'
+    description: The number of items to include in a paginated response.
+    disabled: true
+  - key: pageNumber
+    value: '1'
+    description: The 1-based index of the desired page.
+    disabled: true
+  - key: name
+    value: string
+    description: The display name of the BeyondTrust instance.
+    disabled: true
+  - key: oauth2TokenUrl
+    value: string
+    description: The url to retrieve BeyondTrust OAuth2 token.
+    disabled: true
+  - key: apiBaseUrl
+    value: string
+    description: The base url of the BeyondTrust PRA Configuration API.
+    disabled: true
+order: 4000

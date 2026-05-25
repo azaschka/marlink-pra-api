@@ -1,6 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/deployments/jumpoint-nodes/{{id}}/iso"
-method: POST
-headers:
-  X-Access-Key: "{{accessKey}}"
-order: 7000

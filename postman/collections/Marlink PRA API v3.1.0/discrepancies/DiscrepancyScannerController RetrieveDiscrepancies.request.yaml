@@ -1,0 +1,25 @@
+$kind: http-request
+url: '{{baseUrl}}/discrepancies'
+method: GET
+headers:
+  - key: X-Tenant-Id
+    value: '{{tenantId}}'
+    description: The identifier for the tenant making the request.
+queryParams:
+  - key: pageSize
+    value: '100'
+    description: The number of items to include in a paginated response.
+    disabled: true
+  - key: pageNumber
+    value: '1'
+    description: The 1-based index of the desired page.
+    disabled: true
+  - key: entityType
+    value: group-policy
+    description: Filters results to include only discrepancies for the given entity type.
+    disabled: true
+  - key: entityId
+    value: '1'
+    description: Filters results to include only discrepancies for the given entity ID.
+    disabled: true
+order: 1000

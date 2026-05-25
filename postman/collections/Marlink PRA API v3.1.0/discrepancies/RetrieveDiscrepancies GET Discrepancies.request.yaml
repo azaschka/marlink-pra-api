@@ -1,6 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/discrepancies"
-method: GET
-headers:
-  X-Tenant-Id: "{{tenantId}}"
-order: 1000
