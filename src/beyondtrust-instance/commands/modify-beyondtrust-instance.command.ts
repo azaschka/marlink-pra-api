@@ -13,5 +13,6 @@ export class ModifyBeyondtrustInstanceCommand {
         public readonly apiBaseUrl?: string,
         public readonly billingType?: BillingType,
         public readonly businessUnit?: BusinessUnit | null,
+        public readonly cname?: string,
     ) {}
 }

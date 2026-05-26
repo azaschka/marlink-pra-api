@@ -76,6 +76,7 @@ describe('BeyondtrustInstanceController', () => {
                 apiBaseUrl: 'https://api.example.com',
                 billingType: BillingType.Asset,
                 businessUnit: BusinessUnit.MC,
+                cname: 'https://pra.example.com',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -88,6 +89,7 @@ describe('BeyondtrustInstanceController', () => {
                     'https://api.example.com',
                     BillingType.Asset,
                     BusinessUnit.MC,
+                    'https://pra.example.com',
                 ),
             );
             expect(result).toBe(expectedResult);

@@ -28,6 +28,9 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
     @Column({ name: 'business_unit', type: 'enum', enum: BusinessUnit, nullable: true })
     public businessUnit!: BusinessUnit | null;
 
+    @Column({ name: 'cname', type: 'varchar', nullable: true })
+    public cname!: string | null;
+
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
 
@@ -43,6 +46,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         apiBaseUrl: string,
         billingType: BillingType,
         businessUnit: BusinessUnit | undefined,
+        cname: string | null = null,
     ): BeyondtrustInstanceEntity {
         const entity = new BeyondtrustInstanceEntity();
         entity.id = id;
@@ -53,6 +57,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         entity.apiBaseUrl = apiBaseUrl;
         entity.billingType = billingType;
         entity.businessUnit = businessUnit ?? null;
+        entity.cname = cname;
 
         return entity;
     }
@@ -65,6 +70,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         apiBaseUrl: string,
         billingType: BillingType,
         businessUnit: BusinessUnit | undefined,
+        cname: string | null = null,
     ): BeyondtrustInstanceEntity {
         const entity = new BeyondtrustInstanceEntity();
         entity.name = name;
@@ -74,6 +80,7 @@ export class BeyondtrustInstanceEntity implements BeyondtrustInstance {
         entity.apiBaseUrl = apiBaseUrl;
         entity.billingType = billingType;
         entity.businessUnit = businessUnit ?? null;
+        entity.cname = cname;
 
         return entity;
     }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 import { BillingType, BusinessUnit } from '../../enums';
 
 export class CreateBeyondtrustInstanceDtoInput {
@@ -63,4 +63,15 @@ export class CreateBeyondtrustInstanceDtoInput {
     @IsEnum(BusinessUnit)
     @IsOptional()
     public businessUnit?: BusinessUnit | null;
+
+    @ApiProperty({
+        required: true,
+        type: String,
+        description:
+            'The CNAME (full HTTPS URL) displayed to end-users as the BT console login URL in activation emails.',
+    })
+    @IsNotEmpty()
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    @IsUrl({ require_protocol: true, protocols: ['https'] })
+    public cname!: string;
 }

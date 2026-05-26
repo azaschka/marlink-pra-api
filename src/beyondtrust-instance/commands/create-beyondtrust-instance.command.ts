@@ -12,5 +12,6 @@ export class CreateBeyondtrustInstanceCommand {
         public readonly apiBaseUrl: string,
         public readonly billingType: BillingType,
         public readonly businessUnit: BusinessUnit | null,
+        public readonly cname: string,
     ) {}
 }

@@ -57,6 +57,15 @@ export class BeyondtrustInstanceModifiedDtoOutput implements BeyondtrustInstance
     public businessUnit!: BusinessUnit | null;
 
     @ApiProperty({
+        required: false,
+        nullable: true,
+        type: String,
+        description:
+            'The CNAME (full HTTPS URL) displayed to end-users as the BT console login URL in activation emails.',
+    })
+    public cname!: string | null;
+
+    @ApiProperty({
         required: true,
         type: Date,
         description: 'The date and time when this BeyondTrust instance was created.',
