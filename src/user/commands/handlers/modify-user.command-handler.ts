@@ -1,8 +1,10 @@
 import { HttpService } from '@nestjs/axios';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { SendUserNewPasswordEmailCommand } from 'src/email/commands';
+import { RetrieveBeyondtrustInstanceByIdQuery } from '../../../beyondtrust-instance/queries';
+import { BeyondtrustInstance } from '../../../beyondtrust-instance/models';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
 import { ErrorProcessorUtility, ObjectUtility, PasswordGeneratorUtility, UrlUtility } from '../../../shared/utilities';
@@ -15,6 +17,7 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,
         private readonly commandBus: CommandBus,
+        private readonly queryBus: QueryBus,
     ) {}
 
     public async execute(command: ModifyUserCommand): Promise<User> {
@@ -40,7 +43,12 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
             );
 
             if (command.mustResetPasswordOnNextLogin) {
-                this.trySendUserNewPasswordEmailAsync(command.transactionId, response.data, command.password!);
+                void this.trySendUserNewPasswordEmailAsync(
+                    command.transactionId,
+                    response.data,
+                    command.password!,
+                    command.tenantId,
+                );
             }
 
             return response.data;
@@ -49,13 +57,25 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
         }
     }
 
-    private trySendUserNewPasswordEmailAsync(transactionId: string, user: User, password: string): void {
+    private async trySendUserNewPasswordEmailAsync(
+        transactionId: string,
+        user: User,
+        password: string,
+        tenantId: number,
+    ): Promise<void> {
         if (!user.email) {
             console.warn(`[${transactionId}] User ${user.id} has no email address, skipping new password email.`);
             return;
         }
 
-        void this.commandBus
+        const cname = await this.queryBus
+            .execute<RetrieveBeyondtrustInstanceByIdQuery, BeyondtrustInstance>(
+                new RetrieveBeyondtrustInstanceByIdQuery(transactionId, tenantId),
+            )
+            .then((instance) => instance?.cname ?? null)
+            .catch(() => null);
+
+        await this.commandBus
             .execute(
                 new SendUserNewPasswordEmailCommand(
                     transactionId,
@@ -63,6 +83,7 @@ export class ModifyUserCommandHandler implements ICommandHandler<ModifyUserComma
                     user.publicDisplayName,
                     user.username ?? user.email, // Username and email should match in most cases
                     password,
+                    cname,
                 ),
             )
             .catch((error) => {

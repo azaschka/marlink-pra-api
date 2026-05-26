@@ -1,11 +1,13 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpStatus } from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { AxiosHeaders } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
 import { SendUserActivationEmailCommand } from '../../../email/commands';
+import { RetrieveBeyondtrustInstanceByIdQuery } from '../../../beyondtrust-instance/queries';
+import { BeyondtrustInstance } from '../../../beyondtrust-instance/models';
 import { ErrorProcessorUtility, ObjectUtility, PasswordGeneratorUtility, UrlUtility } from '../../../shared/utilities';
 import { User } from '../../models';
 import { CreateUserCommand } from '../create-user.command';
@@ -16,6 +18,7 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
         private readonly appConfigService: AppConfigService,
         private readonly httpService: HttpService,
         private readonly commandBus: CommandBus,
+        private readonly queryBus: QueryBus,
     ) {}
 
     public async execute(command: CreateUserCommand): Promise<User> {
@@ -43,7 +46,12 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
             // TODO Replace with event handler/saga once the event transporter is implemented.
             // Use user created event from PRA Sync API to trigger the email sending
             if (response.status === HttpStatus.CREATED.valueOf()) {
-                this.trySendUserActivationEmailAsync(command.transactionId, response.data, command.password!);
+                void this.trySendUserActivationEmailAsync(
+                    command.transactionId,
+                    response.data,
+                    command.password!,
+                    command.tenantId,
+                );
             }
 
             return response.data;
@@ -52,13 +60,25 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
         }
     }
 
-    private trySendUserActivationEmailAsync(transactionId: string, user: User, password: string): void {
+    private async trySendUserActivationEmailAsync(
+        transactionId: string,
+        user: User,
+        password: string,
+        tenantId: number,
+    ): Promise<void> {
         if (!user.email) {
             console.warn(`User with ID ${user.id} does not have an email address, skipping activation email.`);
             return;
         }
 
-        void this.commandBus
+        const cname = await this.queryBus
+            .execute<RetrieveBeyondtrustInstanceByIdQuery, BeyondtrustInstance>(
+                new RetrieveBeyondtrustInstanceByIdQuery(transactionId, tenantId),
+            )
+            .then((instance) => instance?.cname ?? null)
+            .catch(() => null);
+
+        await this.commandBus
             .execute(
                 new SendUserActivationEmailCommand(
                     transactionId,
@@ -66,6 +86,7 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
                     user.publicDisplayName,
                     user.username ?? user.email, // Username and email should match in most cases
                     password,
+                    cname,
                 ),
             )
             .catch((error) => {

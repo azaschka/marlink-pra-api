@@ -18,7 +18,7 @@ export class SendUserNewPasswordEmailCommandHandler implements ICommandHandler<S
 
     public async execute(command: SendUserNewPasswordEmailCommand): Promise<void> {
         try {
-            const praConsoleUrl = this.appConfigService.beyondTrust.consoleUrl;
+            const btConsoleUrl = command.cname ?? this.appConfigService.beyondTrust.consoleUrl;
 
             await this.emailService.sendEmail(
                 SendUserNewPasswordEmailCommandHandler.TEMPLATE,
@@ -28,7 +28,7 @@ export class SendUserNewPasswordEmailCommandHandler implements ICommandHandler<S
                     displayName: command.displayName,
                     username: command.username,
                     password: command.password,
-                    praConsoleUrl,
+                    btConsoleUrl,
                 },
             );
             this.eventBus.publish(

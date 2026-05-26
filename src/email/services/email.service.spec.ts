@@ -44,7 +44,7 @@ describe('EmailService', () => {
                     displayName: 'Jane Doe',
                     username: 'janedoe',
                     password: 'S3cr3t!Pass',
-                    praConsoleUrl: 'https://pra.example.com',
+                    btConsoleUrl: 'https://pra.example.com',
                 },
                 expectedInHtml: ['Jane Doe', 'janedoe', 'S3cr3t!Pass', 'https://pra.example.com'],
             },
@@ -66,7 +66,7 @@ describe('EmailService', () => {
                     displayName: 'New User',
                     username: 'newuser',
                     password: 'Welcome!123',
-                    praConsoleUrl: 'https://pra.example.com',
+                    btConsoleUrl: 'https://pra.example.com',
                 },
                 expectedInHtml: ['New User', 'newuser', 'Welcome!123', 'https://pra.example.com'],
             },
@@ -118,7 +118,7 @@ describe('EmailService', () => {
                 displayName: 'Test',
                 username: 'test',
                 password: 'Test1234!',
-                praConsoleUrl: 'https://pra.example.com',
+                btConsoleUrl: 'https://pra.example.com',
             });
 
             expect(sendMail).toHaveBeenCalledWith(
@@ -143,7 +143,7 @@ describe('EmailService', () => {
                 displayName: 'Cache User',
                 username: 'cacheuser',
                 password: 'CacheP4ss!',
-                praConsoleUrl: 'https://pra.example.com',
+                btConsoleUrl: 'https://pra.example.com',
             };
 
             await service.sendEmail('user-new-password.mjml', 'a@example.com', 'S', context);

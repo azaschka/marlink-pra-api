@@ -7,5 +7,6 @@ export class SendUserActivationEmailCommand {
         public readonly displayName: string,
         public readonly username: string,
         public readonly password: string,
+        public readonly cname: string | null,
     ) {}
 }
