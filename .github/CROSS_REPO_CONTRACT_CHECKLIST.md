@@ -4,6 +4,9 @@
 
 - Use this checklist when a change may affect contracts between PRA Console, PRA API, and PRA Sync API.
 - Keep this file synchronized across all three repositories.
+- Responsibility split reminder (PRA Console): UI orchestration, frontend DTO mapping, form/display behavior.
+- Responsibility split reminder (PRA API): public contract owner for Console (endpoints, DTOs, validation semantics).
+- Responsibility split reminder (PRA Sync API): internal downstream integration behind PRA API; Console must not call it directly.
 
 ## Contract Surface
 

@@ -18,6 +18,12 @@ applyTo:
 - Ensure repository and external API query/filter inputs remain explicitly scoped (business units, customers, jump groups, tenantId).
 - Do not introduce default-tenant fallbacks or silent scope expansion.
 
+# tenantId Semantics
+
+- `X-Tenant-Id` carries the **BeyondTrust instance ID** (not a customer ID or business-unit ID).
+- In modules like `UserModule` that need to resolve per-instance properties (e.g., `cname`), use `tenantId` directly as the BeyondTrust instance ID — do not navigate through `CustomerEntity` to reach it.
+- Example: `BeyondtrustInstanceRepositoryService.findCnameById(tenantId)` is a direct lookup; no intermediate join is required.
+
 # Self-Review Prompts
 
 - Can this change read or write resources outside caller scope?

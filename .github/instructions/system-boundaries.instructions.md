@@ -14,6 +14,14 @@ applyTo:
 - Do not move direct BeyondTrust integration responsibilities into PRA API if they belong in PRA Sync API adapters.
 - Do not move frontend concerns (UI shaping, view state rules) into backend contracts unless explicitly required by API design.
 
+# Shared Database
+
+PRA API and PRA Sync API connect to the **same database**. Sync API owns the base schema and is the authoritative writer for shared domain tables. PRA API may augment shared tables with local-only columns via its own idempotent migrations (see `src/migration/`).
+
+# Local-Only Properties
+
+Avoid introducing local-only properties unless strictly necessary. The preferred pattern is to add the field natively to Sync API (model, entity, commands, DTOs, handlers) and proxy it through PRA API without special handling.
+
 # Cross-Repo Contract Discipline
 
 - If endpoint payloads, required headers, auth behavior, or error shapes change:
