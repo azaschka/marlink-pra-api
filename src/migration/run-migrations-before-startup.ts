@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { addCnameToBeyondtrustInstances } from './scripts/add-cname-to-beyondtrust-instances.migration';
 import { migrateCustomerBUToBTInstanceBU } from './scripts/move-customer-bu-to-bt-instance-bu.migration';
 import { migrateSiteAdministratorsToAuditors } from './scripts/rename-site-administrators-to-auditors.migration';
 
@@ -37,6 +38,9 @@ export async function runMigrationsBeforeStartup(): Promise<void> {
 
         // Run column move migration
         await migrateCustomerBUToBTInstanceBU(tempDataSource);
+
+        // Add cname column to beyondtrust_instances
+        await addCnameToBeyondtrustInstances(tempDataSource);
 
         console.log('✅ Pre-startup migrations completed successfully');
     } catch (error) {
