@@ -6,7 +6,7 @@ const yaml = require('js-yaml');
 const ROOT = process.cwd();
 const SPEC_PATH = path.join(ROOT, 'postman', 'specs', 'marlink-pra-api.json');
 const COLLECTION_DIR = path.join(ROOT, 'postman', 'collections', 'Marlink PRA API v3.1.0');
-const EXPORT_PATH = path.join(ROOT, 'postman', 'exports', 'Marlink PRA API v3.1.x.postman.collection.yaml');
+const EXPORT_PATH = path.join(ROOT, 'postman', 'exports', 'Marlink PRA API v3.1.0.postman.collection.json');
 
 const BASE_VARIABLES = {
   baseUrl: 'https://pra-api-pp.cdn-vas.net',
@@ -517,7 +517,7 @@ function generateCollectionFromSpec() {
   writeYamlFile(path.join(COLLECTION_DIR, '.resources', 'definition.yaml'), {
     $kind: 'collection',
     description:
-      'Complete PRA API v3.1.x collection including all endpoints. ' +
+      'Complete PRA API v3.1.0 collection including all endpoints. ' +
       'X-Access-Key and X-API-Key values are variable-based for easy global configuration.',
     variables: rootVariables,
   });
@@ -576,7 +576,7 @@ function generateCollectionFromSpec() {
   writeYamlFile(path.join(COLLECTION_DIR, '.resources', 'definition.yaml'), {
     $kind: 'collection',
     description:
-      'Complete PRA API v3.1.x collection including all endpoints. ' +
+      'Complete PRA API v3.1.0 collection including all endpoints. ' +
       'X-Access-Key and X-API-Key values are variable-based for easy global configuration.',
     variables: Object.fromEntries(
       Object.entries({ ...rootVariables, ...Object.fromEntries([...variableSet].sort().map((k) => [k, rootVariables[k] ?? '1'])) }),
@@ -668,7 +668,11 @@ function isApiKeyRequest(item) {
   return headers.some((h) => String(h.key || '').toLowerCase() === 'x-api-key');
 }
 
-function generateFilteredExportYaml() {
+function shouldExcludeFromFilteredExport(folderName, item) {
+  return folderName === 'access' || isApiKeyRequest(item);
+}
+
+function generateFilteredExportJson() {
   const rootDefinition = yaml.load(fs.readFileSync(path.join(COLLECTION_DIR, '.resources', 'definition.yaml'), 'utf8'), {
     schema: yaml.FAILSAFE_SCHEMA,
   });
@@ -677,7 +681,7 @@ function generateFilteredExportYaml() {
   const postmanItems = [];
 
   for (const folder of folders) {
-    const filtered = folder.items.filter((item) => !isApiKeyRequest(item));
+    const filtered = folder.items.filter((item) => !shouldExcludeFromFilteredExport(folder.name, item));
     if (!filtered.length) continue;
 
     postmanItems.push({
@@ -692,10 +696,10 @@ function generateFilteredExportYaml() {
   const postmanCollection = {
     info: {
       _postman_id: crypto.randomUUID(),
-      name: 'Marlink PRA API v3.1.x (Export Without X-API-Key Endpoints)',
+      name: 'Marlink PRA API v3.1.0 (Importable Export)',
       description:
-        'Complete PRA API v3.1.x export without X-API-Key protected endpoints. ' +
-        'X-Access-Key endpoints are included.',
+        'Complete PRA API v3.1.0 export without X-API-Key protected endpoints and without access endpoints. ' +
+        'X-Access-Key endpoints remain included.',
       schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
     },
     item: postmanItems,
@@ -706,7 +710,7 @@ function generateFilteredExportYaml() {
   };
 
   ensureDir(path.dirname(EXPORT_PATH));
-  fs.writeFileSync(EXPORT_PATH, yaml.dump(postmanCollection, { sortKeys: false, noRefs: true, lineWidth: 120 }), 'utf8');
+  fs.writeFileSync(EXPORT_PATH, `${JSON.stringify(postmanCollection, null, 2)}\n`, 'utf8');
 
   return {
     folderCount: postmanItems.length,
@@ -716,14 +720,14 @@ function generateFilteredExportYaml() {
 
 function main() {
   const { folderMap } = generateCollectionFromSpec();
-  const exportStats = generateFilteredExportYaml();
+  const exportStats = generateFilteredExportJson();
 
   const fullRequests = [...folderMap.values()].reduce((sum, list) => sum + list.length, 0);
 
   console.log(`Collection generated: ${COLLECTION_DIR}`);
   console.log(`Folders: ${folderMap.size}`);
   console.log(`Requests (all endpoints): ${fullRequests}`);
-  console.log(`Filtered YAML export: ${EXPORT_PATH}`);
+  console.log(`Filtered JSON export: ${EXPORT_PATH}`);
   console.log(`Export folders: ${exportStats.folderCount}`);
   console.log(`Export requests (without X-API-Key): ${exportStats.requestCount}`);
 }

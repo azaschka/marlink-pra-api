@@ -15,6 +15,7 @@ body:
       "authClientSecret": "string",
       "oauth2TokenUrl": "string",
       "apiBaseUrl": "string",
-      "billingType": "user"
+      "billingType": "user",
+      "cname": "string"
     }
 order: 5000

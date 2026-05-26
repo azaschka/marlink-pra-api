@@ -5783,9 +5783,14 @@
           "authClientSecret": { "type": "string", "description": "The client secret to be authenticated by BeyondTrust system." },
           "oauth2TokenUrl": { "type": "string", "description": "The url to retrieve BeyondTrust OAuth2 token." },
           "apiBaseUrl": { "type": "string", "description": "The base url of the BeyondTrust PRA Configuration API." },
-          "billingType": { "type": "string", "enum": ["user", "asset"], "description": "Billing type of the BeyondTrust instance." }
+          "billingType": { "type": "string", "enum": ["user", "asset"], "description": "Billing type of the BeyondTrust instance." },
+          "cname": {
+            "type": "string",
+            "format": "uri",
+            "description": "The CNAME (full HTTPS URL) displayed to end-users as the BT console login URL in activation emails."
+          }
         },
-        "required": ["name", "authClientId", "authClientSecret", "oauth2TokenUrl", "apiBaseUrl", "billingType"]
+        "required": ["name", "authClientId", "authClientSecret", "oauth2TokenUrl", "apiBaseUrl", "billingType", "cname"]
       },
       "BeyondtrustInstanceCreatedDtoOutput": {
         "type": "object",
@@ -5797,6 +5802,12 @@
           "oauth2TokenUrl": { "type": "string", "description": "The url to retrieve BeyondTrust OAuth2 token." },
           "apiBaseUrl": { "type": "string", "description": "The base url of the BeyondTrust PRA Configuration API." },
           "billingType": { "type": "string", "enum": ["user", "asset"], "description": "Billing type of the BeyondTrust instance." },
+          "cname": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "The CNAME (full HTTPS URL) displayed to end-users as the BT console URL in activation emails."
+          },
           "creationDate": { "format": "date-time", "type": "string", "description": "The date and time when this BeyondTrust instance was created." },
           "lastModificationDate": {
             "format": "date-time",
@@ -5814,7 +5825,12 @@
           "authClientSecret": { "type": "string", "description": "The client secret to be authenticated by BeyondTrust system." },
           "oauth2TokenUrl": { "type": "string", "description": "The url to retrieve BeyondTrust OAuth2 token." },
           "apiBaseUrl": { "type": "string", "description": "The base url of the BeyondTrust PRA Configuration API." },
-          "billingType": { "type": "string", "enum": ["user", "asset"], "description": "Billing type of the BeyondTrust instance." }
+          "billingType": { "type": "string", "enum": ["user", "asset"], "description": "Billing type of the BeyondTrust instance." },
+          "cname": {
+            "type": "string",
+            "format": "uri",
+            "description": "The CNAME (full HTTPS URL) displayed to end-users as the BT console login URL in activation emails."
+          }
         }
       },
       "BeyondtrustInstanceModifiedDtoOutput": {
@@ -5827,6 +5843,12 @@
           "oauth2TokenUrl": { "type": "string", "description": "The url to retrieve BeyondTrust OAuth2 token." },
           "apiBaseUrl": { "type": "string", "description": "The base url of the BeyondTrust PRA Configuration API." },
           "billingType": { "type": "string", "enum": ["user", "asset"], "description": "Billing type of the BeyondTrust instance." },
+          "cname": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "The CNAME (full HTTPS URL) displayed to end-users as the BT console login URL in activation emails."
+          },
           "creationDate": { "format": "date-time", "type": "string", "description": "The date and time when this BeyondTrust instance was created." },
           "lastModificationDate": {
             "format": "date-time",
