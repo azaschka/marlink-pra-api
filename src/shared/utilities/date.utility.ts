@@ -6,6 +6,13 @@ export abstract class DateUtility {
         return newDate;
     }
 
+    public static subtractDays(date: Date, days: number): Date {
+        const newDate = new Date(date);
+        newDate.setDate(newDate.getDate() - days);
+
+        return newDate;
+    }
+
     public static getCurrentUtcDate(): Date {
         return new Date(new Date().toISOString());
     }

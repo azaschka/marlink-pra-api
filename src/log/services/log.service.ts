@@ -118,4 +118,12 @@ export class LogService {
     public async clearLogs(creationDateFrom?: Date, creationDateTo?: Date, tenantId?: number): Promise<void> {
         await this.logRepositoryService.deleteByDateBetween(creationDateFrom, creationDateTo, tenantId);
     }
+
+    /**
+     * Removes every log entry and resets the table's AUTO_INCREMENT counter.
+     * Intended for administrative maintenance only.
+     */
+    public async purgeAllLogs(): Promise<void> {
+        await this.logRepositoryService.truncate();
+    }
 }

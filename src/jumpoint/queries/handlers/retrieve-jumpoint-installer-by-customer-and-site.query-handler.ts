@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { AxiosResponse } from 'axios';
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
@@ -18,14 +18,33 @@ import { RetrieveJumpointsQuery } from '../retrieve-jumpoints.query';
 export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements IQueryHandler<RetrieveJumpointInstallerByCustomerAndSiteQuery> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
+    private readonly logger = new Logger(RetrieveJumpointInstallerByCustomerAndSiteQueryHandler.name);
+
     constructor(private readonly queryBus: QueryBus) {}
 
     public async execute(
         query: RetrieveJumpointInstallerByCustomerAndSiteQuery,
     ): Promise<AxiosResponse<NodeJS.ReadableStream>> {
+        this.logger.log({
+            transactionId: query.transactionId,
+            businessUnits: query.businessUnits,
+            customerKey: query.customerKey,
+            siteKey: query.siteKey,
+        });
+
         const customer = await this.getCustomer(query.transactionId, query.customerKey, query.businessUnits);
         const site = await this.getSite(query.transactionId, query.siteKey, query.customerKey);
         const tenantJumpoints = await this.getJumpoints(query.transactionId, customer, site, query.businessUnits);
+        this.logger.log({
+            transactionId: query.transactionId,
+            jumpoints: tenantJumpoints.map(({ tenantId, jumpoint }) => ({
+                tenantId,
+                jumpointId: jumpoint.id,
+                jumpointName: jumpoint.name,
+                hasKeyInfo: !!jumpoint.keyInfo,
+            })),
+        });
+
         const tenantJumpointsWithKeyInfo = this.filterJumpointsWithKeyInfo(
             tenantJumpoints,
             query.businessUnits,
@@ -35,7 +54,15 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements I
 
         for (const tenantJumpoint of tenantJumpointsWithKeyInfo) {
             try {
-                return await this.queryBus.execute<
+                this.logger.log({
+                    event: 'jumpoint-installer-download-attempt',
+                    transactionId: query.transactionId,
+                    attemptedTenantId: tenantJumpoint.tenantId,
+                    attemptedJumpointId: tenantJumpoint.jumpoint.id,
+                    attemptedJumpointName: tenantJumpoint.jumpoint.name,
+                });
+
+                const response = await this.queryBus.execute<
                     RetrieveJumpointInstallerQuery,
                     AxiosResponse<NodeJS.ReadableStream>
                 >(
@@ -45,13 +72,30 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements I
                         tenantJumpoint.jumpoint.id,
                     ),
                 );
-            } catch (error) {
-                console.error(
-                    `Failed to retrieve jumpoint installer for tenant ${tenantJumpoint.tenantId} with jumpoint id ${tenantJumpoint.jumpoint.id}.`,
-                    ErrorProcessorUtility.stringify(error),
-                );
 
-                continue;
+                const responseHeaders = response.headers as Record<string, unknown>;
+
+                this.logger.log({
+                    event: 'jumpoint-installer-selected',
+                    transactionId: query.transactionId,
+                    selectedTenantId: tenantJumpoint.tenantId,
+                    selectedJumpointId: tenantJumpoint.jumpoint.id,
+                    selectedJumpointName: tenantJumpoint.jumpoint.name,
+                    contentDisposition: responseHeaders['content-disposition'],
+                    contentLength: responseHeaders['content-length'],
+                    contentType: responseHeaders['content-type'],
+                });
+
+                return response;
+            } catch (error) {
+                this.logger.error({
+                    event: 'jumpoint-installer-download-failed',
+                    transactionId: query.transactionId,
+                    failedTenantId: tenantJumpoint.tenantId,
+                    failedJumpointId: tenantJumpoint.jumpoint.id,
+                    failedJumpointName: tenantJumpoint.jumpoint.name,
+                    error: ErrorProcessorUtility.stringify(error),
+                });
             }
         }
 
@@ -105,6 +149,13 @@ export class RetrieveJumpointInstallerByCustomerAndSiteQueryHandler implements I
             : businessUnits.map(
                   (businessUnit) => `${businessUnit}%_${site.name.toUpperCase()}_${site.key.toUpperCase()}`,
               );
+
+        this.logger.log({
+            transactionId,
+            siteKey: site.key,
+            customerKey: customer?.key,
+            jumpointNamePatterns,
+        });
 
         for (const btInstance of btInstances) {
             const jumpoints = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>

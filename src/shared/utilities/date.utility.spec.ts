@@ -28,6 +28,27 @@ describe('DateUtility', () => {
         });
     });
 
+    describe('subtractDays', () => {
+        it.each([
+            {
+                days: 0,
+                expectedDate: new Date('2025-10-01T00:00:00Z'),
+            },
+            {
+                days: 1,
+                expectedDate: new Date('2025-09-30T00:00:00Z'),
+            },
+            {
+                days: 90,
+                expectedDate: new Date('2025-07-03T00:00:00Z'),
+            },
+        ])('should return as expected', (param: { days: number; expectedDate: Date }) => {
+            const result = DateUtility.subtractDays(currentDate, param.days);
+
+            expect(result).toEqual(param.expectedDate);
+        });
+    });
+
     describe('getCurrentUtcDate', () => {
         it('should return as expected)', () => {
             jest.useFakeTimers().setSystemTime(new Date('2025-10-01T07:00:00+07:00').getTime());

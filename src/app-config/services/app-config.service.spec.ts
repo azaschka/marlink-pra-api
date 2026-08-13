@@ -1076,6 +1076,8 @@ describe('AppConfigService', () => {
                     retryDelayInMs: 10000,
                     btInstanceBackup: '0 10 * * *',
                     btDataPopulationIfEmpty: '*/45 * * * *',
+                    logRetention: '0 4 * * *',
+                    logRetentionDays: 30,
                 },
                 expected: {
                     timezone: 'Europe/Berlin',
@@ -1083,6 +1085,8 @@ describe('AppConfigService', () => {
                     retryDelayInMs: 10000,
                     btInstanceBackup: '0 10 * * *',
                     btDataPopulationIfEmpty: '*/45 * * * *',
+                    logRetention: '0 4 * * *',
+                    logRetentionDays: 30,
                 },
             },
             {
@@ -1093,6 +1097,8 @@ describe('AppConfigService', () => {
                     retryDelayInMs: 10000,
                     btInstanceBackup: '35 2 * * *',
                     btDataPopulationIfEmpty: '0 */3 * * *',
+                    logRetention: '15 3 * * *',
+                    logRetentionDays: 90,
                 },
             },
         ])('should return the sync configuration as expected', ({ input, expected }) => {
@@ -1112,6 +1118,12 @@ describe('AppConfigService', () => {
                 if (key === 'CRON_JOB_BT_DATA_POPULATION_IF_EMPTY') {
                     return input.btDataPopulationIfEmpty;
                 }
+                if (key === 'CRON_JOB_LOG_RETENTION') {
+                    return input.logRetention;
+                }
+                if (key === 'LOG_RETENTION_DAYS') {
+                    return input.logRetentionDays;
+                }
 
                 return undefined;
             });
@@ -1122,6 +1134,8 @@ describe('AppConfigService', () => {
                 retryDelayInMs: expected.retryDelayInMs,
                 btInstanceBackup: expected.btInstanceBackup,
                 btDataPopulationIfEmpty: expected.btDataPopulationIfEmpty,
+                logRetention: expected.logRetention,
+                logRetentionDays: expected.logRetentionDays,
             });
         });
     });

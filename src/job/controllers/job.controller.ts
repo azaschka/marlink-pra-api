@@ -13,6 +13,7 @@ import { Discrepancy } from '../../discrepancy/models';
 import { RetrieveDiscrepanciesQuery } from '../../discrepancy/queries';
 import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
 import { PaginationUtility, UuidUtility } from '../../shared/utilities';
+import { ClearExpiredLogsCommand } from '../../log/commands';
 import { RetrieveUsersQuery } from '../../user/queries';
 
 @Controller('job')
@@ -39,6 +40,11 @@ export class JobController implements OnModuleInit {
                 name: 'ensureBTRelatedDBTablesPopulated',
                 cronExpression: this.appConfigService.cronJob.btDataPopulationIfEmpty,
                 func: this.ensureBTRelatedDBTablesPopulated.bind(this),
+            },
+            {
+                name: 'clearExpiredLogs',
+                cronExpression: this.appConfigService.cronJob.logRetention,
+                func: this.clearExpiredLogs.bind(this),
             },
         ];
 
@@ -141,6 +147,12 @@ export class JobController implements OnModuleInit {
                 );
             }
         }
+    }
+
+    private async clearExpiredLogs() {
+        await this.commandBus.execute<ClearExpiredLogsCommand, void>(
+            new ClearExpiredLogsCommand(UuidUtility.generate(), this.appConfigService.cronJob.logRetentionDays),
+        );
     }
 
     private async getAllBTInstances(transactionId: string) {

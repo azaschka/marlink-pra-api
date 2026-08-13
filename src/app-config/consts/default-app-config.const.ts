@@ -39,6 +39,8 @@ export abstract class DefaultAppConfig {
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
     private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '35 2 * * *'; // At 02:35 AM every day
     private static readonly CRON_JOB_BT_DATA_POPULATION_IF_EMPTY = '0 */3 * * *'; // Every 3 hours
+    private static readonly CRON_JOB_LOG_RETENTION = '15 3 * * *'; // Daily at 03:15 AM
+    private static readonly LOG_RETENTION_DAYS = 90;
     private static readonly THROTTLE_TTL_IN_MS = 60000; // 1 minute
     private static readonly THROTTLE_LIMIT = 1500; // 1500 requests per TTL
     private static readonly THROTTLE_IS_ENABLED = true;
@@ -255,6 +257,8 @@ export abstract class DefaultAppConfig {
             retryDelayInMs: 10000,
             btInstanceBackup: DefaultAppConfig.CRON_JOB_BT_INSTANCE_BACKUP,
             btDataPopulationIfEmpty: DefaultAppConfig.CRON_JOB_BT_DATA_POPULATION_IF_EMPTY,
+            logRetention: DefaultAppConfig.CRON_JOB_LOG_RETENTION,
+            logRetentionDays: DefaultAppConfig.LOG_RETENTION_DAYS,
         };
     }
 

@@ -107,6 +107,24 @@ export class BaseRepositoryService<T> {
         }
     }
 
+    /**
+     * Truncates the underlying table, removing all rows and resetting the
+     * AUTO_INCREMENT counter back to its initial value.
+     *
+     * Note: TRUNCATE performs an implicit commit in MySQL and cannot be rolled
+     * back, so it is intentionally not wrapped in an explicit transaction.
+     */
+    public async truncate(): Promise<void> {
+        const queryRunner = await this.createQueryRunnerAndConnect();
+
+        try {
+            const tableName = queryRunner.manager.getRepository(this.entity).metadata.tableName;
+            await queryRunner.query(`TRUNCATE TABLE \`${tableName}\``);
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
     private async createQueryRunnerAndConnect() {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();

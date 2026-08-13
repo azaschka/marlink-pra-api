@@ -405,6 +405,10 @@ export class AppConfigService {
             btDataPopulationIfEmpty:
                 this.configService.get<string>('CRON_JOB_BT_DATA_POPULATION_IF_EMPTY') ??
                 DefaultAppConfig.cronJob.btDataPopulationIfEmpty,
+            logRetention:
+                this.configService.get<string>('CRON_JOB_LOG_RETENTION') ?? DefaultAppConfig.cronJob.logRetention,
+            logRetentionDays:
+                this.configService.get<number>('LOG_RETENTION_DAYS') ?? DefaultAppConfig.cronJob.logRetentionDays,
         };
     }
 
