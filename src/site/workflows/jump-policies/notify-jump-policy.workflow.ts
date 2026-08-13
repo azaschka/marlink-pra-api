@@ -7,6 +7,7 @@ import {
 } from '../../../jump-policy/commands';
 import { JumpPolicy } from '../../../jump-policy/models';
 import { RetrieveJumpPoliciesQuery } from '../../../jump-policy/queries';
+import { ObjectUtility } from '../../../shared/utilities';
 import { BaseWorkflow } from '../../../shared/workflows';
 import { PartialSiteManager } from '../../models';
 
@@ -63,7 +64,7 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                 undefined, // isTwoFactorChallengeRequired
                 NotifyJumpPolicyWorkflow.IS_SESSION_START_NOTIFICATION_ENABLED, // isSessionStartNotificationEnabled
                 NotifyJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED, // isSessionEndNotificationEnabled
-                this.siteManagers.map((siteManager) => siteManager.email), // notificationEmailAddresses
+                this.generateNotificationEmailAddresses(), // notificationEmailAddresses
                 this.jumpPolicyNotificationDisplayName, // notificationDisplayName
                 undefined, // notificationEmailLanguage
                 undefined, // isApprovalRequired
@@ -107,7 +108,7 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
             jumpPolicy.isSessionEndNotificationEnabled !==
                 NotifyJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED ||
             JSON.stringify(jumpPolicy.notificationEmailAddresses ?? []) !==
-                JSON.stringify(this.siteManagers.map((siteManager) => siteManager.email)) ||
+                JSON.stringify(this.generateNotificationEmailAddresses()) ||
             jumpPolicy.notificationDisplayName !== this.jumpPolicyNotificationDisplayName ||
             jumpPolicy.approvalMaxDurationInMinutes !== NotifyJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES
         ) {
@@ -128,7 +129,7 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                     undefined, // isTwoFactorChallengeRequired
                     NotifyJumpPolicyWorkflow.IS_SESSION_START_NOTIFICATION_ENABLED, // isSessionStartNotificationEnabled
                     NotifyJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED, // isSessionEndNotificationEnabled
-                    this.siteManagers.map((siteManager) => siteManager.email), // notificationEmailAddresses
+                    this.generateNotificationEmailAddresses(), // notificationEmailAddresses
                     this.jumpPolicyNotificationDisplayName, // notificationDisplayName
                     undefined, // notificationEmailLanguage
                     undefined, // isApprovalRequired
@@ -160,5 +161,9 @@ export class NotifyJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         );
 
         return jumpPolicies[0] ?? null;
+    }
+
+    private generateNotificationEmailAddresses(): string[] {
+        return ObjectUtility.filterUnique<string>(this.siteManagers.map((siteManager) => siteManager.email));
     }
 }
