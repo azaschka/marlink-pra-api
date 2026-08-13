@@ -1,7 +1,0 @@
-$kind: http-request
-name: Retrieve PRA Users
-url: "{{baseUrl}}/pra-users"
-method: GET
-headers:
-  x-api-key: ***REMOVED-PRA-API-KEY***
-order: 2404762672297161
