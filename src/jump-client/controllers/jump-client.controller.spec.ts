@@ -47,6 +47,7 @@ describe('JumpClientController', () => {
                 jumpGroupIds: [123],
                 jumpGroupType: JumpClientGroupType.Personal,
                 connectionType: JumpClientConnectionType.Passive,
+                jumpPolicyIds: [456],
             });
 
             expect(queryBusExecuteSpy).toHaveBeenCalledWith(
@@ -65,6 +66,7 @@ describe('JumpClientController', () => {
                     undefined,
                     undefined,
                     JumpClientConnectionType.Passive,
+                    [456],
                 ),
             );
             expect(result).toBe(expectedResult);

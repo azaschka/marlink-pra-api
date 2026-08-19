@@ -11,5 +11,6 @@ export class RetrieveCustomersQuery {
         public readonly name?: string,
         public readonly namePattern?: string,
         public readonly businessUnits?: BusinessUnit[],
+        public readonly beyondtrustInstanceId?: number,
     ) {}
 }

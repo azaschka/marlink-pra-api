@@ -16,6 +16,7 @@ function configureOpenApi(app: INestApplication<unknown>) {
         .setTitle(name)
         .setDescription(description)
         .setVersion(version)
+        .setOpenAPIVersion('3.2.0')
         .addServer('/api')
         .addBearerAuth()
         .build();
@@ -23,7 +24,11 @@ function configureOpenApi(app: INestApplication<unknown>) {
         ignoreGlobalPrefix: false,
     });
 
-    SwaggerModule.setup('open-api', app, document);
+    SwaggerModule.setup('open-api', app, document, {
+        swaggerOptions: {
+            supportedSubmitMethods: ['get', 'put', 'post', 'delete', 'patch', 'query'],
+        },
+    });
 }
 
 async function bootstrap() {
@@ -55,7 +60,7 @@ async function bootstrap() {
             allowedHeaders: ['Content-Type', 'X-Api-Key', 'X-Access-Key', 'X-Tenant-Id', 'Authorization'],
             exposedHeaders: ['Content-Length', 'Content-Disposition'],
             credentials: false,
-            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+            methods: ['GET', 'QUERY', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
             maxAge: 3600,
             optionsSuccessStatus: 204,
         });

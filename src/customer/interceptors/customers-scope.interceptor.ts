@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
-import { TRANSACTION_ID_HEADER } from '../../core/decorators';
+import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../core/decorators';
 import { PaginationUtility } from '../../shared/utilities';
 import { Customer } from '../models';
 import { RetrieveCustomersQuery } from '../queries';
@@ -22,6 +22,7 @@ export class CustomersScopeInterceptor implements NestInterceptor {
     public async intercept(context: ExecutionContext, next: CallHandler) {
         const request = context.switchToHttp().getRequest<Request>();
         const transactionId = request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
+        const tenantId = request.headers[TENANT_ID_HEADER.toLowerCase()] as unknown as number | undefined;
         const access = request.authInfo?.access;
 
         if (!access) {
@@ -48,6 +49,7 @@ export class CustomersScopeInterceptor implements NestInterceptor {
                         undefined,
                         undefined,
                         access.value.businessUnits,
+                        tenantId,
                     ),
                 ),
             );

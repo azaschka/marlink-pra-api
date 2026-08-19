@@ -38,6 +38,21 @@ describe('RetrieveCustomersQueryHandler', () => {
                     businessUnit: In([BusinessUnit.MC, BusinessUnit.EG]),
                 },
             },
+            {
+                query: new RetrieveCustomersQuery(
+                    'transaction-2',
+                    10,
+                    1,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    123,
+                ),
+                expectedFindByQuery: {
+                    beyondtrustInstanceId: 123,
+                },
+            },
         ])(
             'should call the repo with correct parameter and return value from the repo',
             async ({ query, expectedFindByQuery }) => {

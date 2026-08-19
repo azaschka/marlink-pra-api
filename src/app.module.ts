@@ -33,6 +33,7 @@ import { MigrationModule } from './migration/migration.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { SessionPolicyModule } from './session-policy/session-policy.module';
 import { SiteModule } from './site/site.module';
+import { SocModule } from './soc/soc.module';
 import { TeamUserModule } from './team-user/team-user.module';
 import { TeamModule } from './team/team.module';
 import { UserGroupPolicyModule } from './user-group-policy/user-group-policy.module';
@@ -82,6 +83,7 @@ import { UserModule } from './user/user.module';
         JumpPolicyModule,
         JumpItemModule,
         SessionPolicyModule,
+        SocModule,
         DiscrepancyModule,
         EmailModule,
         JobModule,
