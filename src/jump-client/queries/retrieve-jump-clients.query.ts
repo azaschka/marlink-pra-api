@@ -18,5 +18,6 @@ export class RetrieveJumpClientsQuery {
         public readonly publicIp?: string,
         public readonly privateIp?: string,
         public readonly connectionType?: JumpClientConnectionType,
+        public readonly jumpPolicyIds?: number[],
     ) {}
 }

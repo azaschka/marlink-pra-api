@@ -98,4 +98,12 @@ export class RetrieveJumpClientsDtoInput {
     @IsEnum(JumpClientConnectionType)
     @IsOptional()
     public connectionType?: JumpClientConnectionType;
+
+    @ApiProperty({ required: false, type: [Number], description: 'Filters Jump Clients by the given jump policy ids.' })
+    @Type(() => Number)
+    @IsInt({ each: true })
+    @IsOptional()
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    public jumpPolicyIds?: number[];
 }

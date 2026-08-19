@@ -28,6 +28,10 @@ export class RetrieveCustomersQueryHandler implements IQueryHandler<RetrieveCust
             customerFindByQuery.businessUnit = In(query.businessUnits);
         }
 
+        if (query.beyondtrustInstanceId) {
+            customerFindByQuery.beyondtrustInstanceId = query.beyondtrustInstanceId;
+        }
+
         const customers = await this.customerRepositoryService.findBy(
             customerFindByQuery as FindOptionsWhere<CustomerEntity>,
             query.pageNumber,
