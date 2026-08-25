@@ -27,8 +27,17 @@ export class ModifyRemoteRdpCommandHandler implements ICommandHandler<ModifyRemo
             headers.set(TRANSACTION_ID_HEADER, command.transactionId);
             headers.set(TENANT_ID_HEADER, command.tenantId);
 
+            // MARLINKPRA-55: RDP Jump Items must always have the "ignore untrusted server
+            // certificate" flag enabled, regardless of what the caller sends. This is a
+            // server-side invariant, not a client-configurable option, so it is enforced
+            // here rather than as a default the client could override.
+            const payload = {
+                ...ObjectUtility.stripProperties(command, 'transactionId', 'id'),
+                mustIgnoreUntrustedServerCert: true,
+            };
+
             const response = await firstValueFrom(
-                this.httpService.patch<RemoteRdp>(url, ObjectUtility.stripProperties(command, 'transactionId', 'id'), {
+                this.httpService.patch<RemoteRdp>(url, payload, {
                     headers: headers,
                 }),
             );

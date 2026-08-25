@@ -91,6 +91,41 @@ describe('RemoteRdpController', () => {
             );
             expect(result).toBe(expectedResult);
         });
+
+        // MARLINKPRA-55: the controller itself does not enforce the "ignore untrusted
+        // certificate" invariant — it passes whatever the client sent through to the
+        // command unchanged. Enforcement happens in CreateRemoteRdpCommandHandler, the
+        // single point through which both manual creation and ingestion flow.
+        it('should pass mustIgnoreUntrustedServerCert through unchanged to the command when omitted by the client', async () => {
+            const expectedResult = {} as RemoteRdp;
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
+
+            await controller.createRemoteRdp(undefined, 123, {
+                name: 'remote-rdp-3',
+                jumpointId: 2,
+                hostname: 'hostname-3',
+                jumpGroupId: 3,
+            });
+
+            const dispatchedCommand = commandBusExecuteSpy.mock.calls[0]?.[0] as CreateRemoteRdpCommand;
+            expect(dispatchedCommand.mustIgnoreUntrustedServerCert).toBeUndefined();
+        });
+
+        it('should pass mustIgnoreUntrustedServerCert through unchanged to the command when the client explicitly sends false', async () => {
+            const expectedResult = {} as RemoteRdp;
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
+
+            await controller.createRemoteRdp(undefined, 123, {
+                name: 'remote-rdp-4',
+                jumpointId: 2,
+                hostname: 'hostname-4',
+                jumpGroupId: 3,
+                mustIgnoreUntrustedServerCert: false,
+            });
+
+            const dispatchedCommand = commandBusExecuteSpy.mock.calls[0]?.[0] as CreateRemoteRdpCommand;
+            expect(dispatchedCommand.mustIgnoreUntrustedServerCert).toBe(false);
+        });
     });
 
     describe('modifyRemoteRdp', () => {
@@ -109,6 +144,34 @@ describe('RemoteRdpController', () => {
                 new ModifyRemoteRdpCommand('uuid-123', 123, 1, 'remote-rdp-1', 1, 'hostname-1', 2),
             );
             expect(result).toBe(expectedResult);
+        });
+
+        // MARLINKPRA-55: the controller itself does not enforce the "ignore untrusted
+        // certificate" invariant — it passes whatever the client sent through to the
+        // command unchanged. Enforcement happens in ModifyRemoteRdpCommandHandler.
+        it('should pass mustIgnoreUntrustedServerCert through unchanged to the command when omitted by the client', async () => {
+            const expectedResult = {} as RemoteRdp;
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
+
+            await controller.modifyRemoteRdp(undefined, 123, 1, {
+                name: 'remote-rdp-2',
+            });
+
+            const dispatchedCommand = commandBusExecuteSpy.mock.calls[0]?.[0] as ModifyRemoteRdpCommand;
+            expect(dispatchedCommand.mustIgnoreUntrustedServerCert).toBeUndefined();
+        });
+
+        it('should pass mustIgnoreUntrustedServerCert through unchanged to the command when the client explicitly sends false', async () => {
+            const expectedResult = {} as RemoteRdp;
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue(expectedResult);
+
+            await controller.modifyRemoteRdp(undefined, 123, 1, {
+                name: 'remote-rdp-3',
+                mustIgnoreUntrustedServerCert: false,
+            });
+
+            const dispatchedCommand = commandBusExecuteSpy.mock.calls[0]?.[0] as ModifyRemoteRdpCommand;
+            expect(dispatchedCommand.mustIgnoreUntrustedServerCert).toBe(false);
         });
     });
 

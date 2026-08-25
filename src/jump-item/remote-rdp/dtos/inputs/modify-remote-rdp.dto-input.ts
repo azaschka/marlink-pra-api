@@ -38,7 +38,16 @@ export class ModifyRemoteRdpDtoInput {
     @IsBoolean()
     public mustStartNewConsoleSession?: boolean;
 
-    @ApiProperty({ required: false, type: Boolean })
+    // MARLINKPRA-55: kept for backward compatibility with existing integrations, but the
+    // value is currently ignored — RDP Jump Items always have untrusted-certificate
+    // warnings disabled. See ModifyRemoteRdpCommandHandler.
+    @ApiProperty({
+        required: false,
+        type: Boolean,
+        description:
+            'Currently ignored. RDP Jump Items always have untrusted server certificate warnings ' +
+            'disabled (MARLINKPRA-55), regardless of the value provided here.',
+    })
     @IsOptional()
     @IsBoolean()
     public mustIgnoreUntrustedServerCert?: boolean;
