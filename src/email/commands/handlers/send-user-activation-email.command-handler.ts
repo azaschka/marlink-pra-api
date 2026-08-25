@@ -1,5 +1,5 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorProcessorUtility } from '../../../shared/utilities';
+import { ErrorProcessorUtility, UrlUtility } from '../../../shared/utilities';
 import { SendUserActivationEmailFailedEvent, UserActivationEmailSentEvent } from '../../events';
 import { EmailService } from '../../services/email.service';
 import { SendUserActivationEmailCommand } from '../send-user-activation-email.command';
@@ -18,7 +18,9 @@ export class SendUserActivationEmailCommandHandler implements ICommandHandler<Se
 
     public async execute(command: SendUserActivationEmailCommand): Promise<void> {
         try {
-            const btConsoleUrl = command.cname ?? this.appConfigService.beyondTrust.consoleUrl;
+            const btConsoleUrl = command.cname
+                ? UrlUtility.join(command.cname, 'login')
+                : this.appConfigService.beyondTrust.consoleUrl;
 
             await this.emailService.sendEmail(
                 SendUserActivationEmailCommandHandler.TEMPLATE,
