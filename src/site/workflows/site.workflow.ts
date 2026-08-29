@@ -37,12 +37,14 @@ import { SiteAuditorWorkflow } from './site-auditor.workflow';
 import { SiteManagerWorkflow } from './site-manager.workflow';
 import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workflow';
 import { TeamWorkflow } from './teams';
+import { SiteManagerUserWorkflow } from './users';
 
 export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow;
     private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow;
+    private readonly siteManagerUserWorkflows: SiteManagerUserWorkflow[];
     private readonly siteManagerWorkflows: SiteManagerWorkflow[];
     private readonly siteAuditorWorkflows: SiteAuditorWorkflow[];
     private readonly siteSupportTeamMemberWorkflows: SiteSupportTeamMemberWorkflow[];
@@ -183,6 +185,19 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             this.customerBeyondtrustInstanceId,
         );
 
+        this.siteManagerUserWorkflows = this.siteManagers.map(
+            (siteManager) =>
+                new SiteManagerUserWorkflow(
+                    this.appConfigService,
+                    this.queryBus,
+                    this.commandBus,
+                    this.transactionId,
+                    this.siteName,
+                    siteManager,
+                    this.customerBeyondtrustInstanceId,
+                ),
+        );
+
         this.siteManagerWorkflows = this.siteManagers.map(
             (siteManager) =>
                 new SiteManagerWorkflow(
@@ -245,7 +260,18 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
         const marlinkOperatorGroupPolicy = await this.marlinkOperatorGroupPolicyWorkflow.getOrCreate();
         const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
-        await this.authJumpPolicyWorkflow.getOrCreate();
+
+        // Site managers' BeyondTrust accounts must exist before the auth jump policy is created so it
+        // can be given their real user ids as approvers (approvalUserIds) instead of ever falling back
+        // to a manager's raw email address as an approval_email_addresses entry (MARLINKPRA-58). This is
+        // idempotent: SiteManagerWorkflow below fetches the same, already-created users.
+        const siteManagerUserIds: string[] = [];
+        for (const siteManagerUserWorkflow of this.siteManagerUserWorkflows) {
+            const siteManagerUser = await siteManagerUserWorkflow.getOrCreate();
+            siteManagerUserIds.push(siteManagerUser.id.toString());
+        }
+
+        await this.authJumpPolicyWorkflow.getOrCreate(siteManagerUserIds);
         await this.noAuthJumpPolicyWorkflow.getOrCreate();
         await this.notifyJumpPolicyWorkflow.getOrCreate();
 

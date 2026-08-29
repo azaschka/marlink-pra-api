@@ -47,7 +47,13 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
-    public async getOrCreate(): Promise<JumpPolicy> {
+    /**
+     * @param siteManagerUserIds BeyondTrust user ids of the site's managers. Must be resolved by the
+     * caller (their BT accounts created) *before* this is called, so that on first creation the policy
+     * can be given a real approver (approvalUserIds) instead of ever using a site manager's raw email as
+     * an approval_email_addresses entry — see MARLINKPRA-58.
+     */
+    public async getOrCreate(siteManagerUserIds: string[] = []): Promise<JumpPolicy> {
         const jumpPolicy = await this.getOrModify();
 
         if (jumpPolicy) {
@@ -70,14 +76,14 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
                 undefined, // isTwoFactorChallengeRequired
                 AuthJumpPolicyWorkflow.IS_SESSION_START_NOTIFICATION_ENABLED, // isSessionStartNotificationEnabled
                 AuthJumpPolicyWorkflow.IS_SESSION_END_NOTIFICATION_ENABLED, // isSessionEndNotificationEnabled
-                this.generateApprovalEmailAddresses(), // notificationEmailAddresses (use approver emails as fallback until managers add theirs)
+                this.generateNotificationEmailAddresses(), // notificationEmailAddresses (managers + approvers)
                 this.jumpPolicyNotificationDisplayName, // notificationDisplayName
                 undefined, // notificationEmailLanguage
                 AuthJumpPolicyWorkflow.IS_APPROVAL_REQUIRED, // isApprovalRequired
                 AuthJumpPolicyWorkflow.APPROVAL_MAX_DURATION_IN_MINUTES, // approvalMaxDurationInMinutes
                 undefined, // approvalScopeType
-                this.generateApprovalEmailAddresses(), // approvalEmailAddresses (site approvers only)
-                [], // approvalUserIds (will be populated by SiteManagerWorkflow)
+                this.generateApprovalEmailAddresses(), // approvalEmailAddresses (site approvers only, never manager emails)
+                ObjectUtility.filterUnique<string>(siteManagerUserIds), // approvalUserIds (site managers' BT accounts)
                 undefined, // approvalTeamIds
                 this.jumpPolicyApprovalDisplayName, // approvalDisplayName
                 undefined, // approvalEmailLanguage
@@ -170,15 +176,25 @@ export class AuthJumpPolicyWorkflow implements BaseWorkflow<JumpPolicy> {
         return jumpPolicies[0] ?? null;
     }
 
+    /**
+     * Explicit site approvers only. Site managers approve via their BeyondTrust account
+     * (approvalUserIds), never via a raw email address here — an email approver can approve
+     * straight from the notification link without logging into BeyondTrust, which would defeat
+     * requiring approval for managers. See MARLINKPRA-58.
+     */
     private generateApprovalEmailAddresses(): string[] {
-        const approverEmails = this.siteApprovers.map((siteApprover) => siteApprover.email);
-        if (approverEmails.length > 0) {
-            return ObjectUtility.filterUnique<string>(approverEmails);
-        }
-        // Fallback: when no explicit approvers are defined, use site manager emails.
-        // BeyondTrust requires at least one approver/notification recipient when
-        // approval_required=true and notifications are enabled.
-        // SiteManagerWorkflow will subsequently add manager user IDs to approvalUserIds.
-        return ObjectUtility.filterUnique<string>(this.siteManagers.map((m) => m.email));
+        return ObjectUtility.filterUnique<string>(this.siteApprovers.map((siteApprover) => siteApprover.email));
+    }
+
+    /**
+     * BeyondTrust requires notification_email_addresses to be non-empty whenever session
+     * start/end notifications are enabled (which they are for this policy), so this always
+     * includes the site managers, in addition to any explicit site approvers.
+     */
+    private generateNotificationEmailAddresses(): string[] {
+        return ObjectUtility.filterUnique<string>([
+            ...this.siteManagers.map((siteManager) => siteManager.email),
+            ...this.siteApprovers.map((siteApprover) => siteApprover.email),
+        ]);
     }
 }
