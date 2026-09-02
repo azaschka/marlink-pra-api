@@ -30,8 +30,8 @@ import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateSiteCommand, DeleteSiteCommand } from '../commands';
 import { CreateSiteDtoInput, RetrieveSitesDtoInput } from '../dtos/inputs';
-import { SiteCreatedDtoOutput, SiteRetrievedDtoOutput } from '../dtos/outputs';
-import { Site } from '../models';
+import { SiteProcessingResultDtoOutput, SiteRetrievedDtoOutput } from '../dtos/outputs';
+import { Site, SiteProcessingResult } from '../models';
 import { SiteRequestPipe } from '../pipes';
 import { RetrieveSitesQuery } from '../queries';
 
@@ -72,8 +72,8 @@ export class SiteController {
 
     @Post()
     @ApiCreatedResponse({
-        type: SiteCreatedDtoOutput,
-        description: 'Indicates the site was created successfully and contains the new site.',
+        type: SiteProcessingResultDtoOutput,
+        description: 'Indicates the site was created successfully and contains the processing result.',
     })
     @ApiConflictResponse({
         description: 'The specified site already exists.',
@@ -82,8 +82,8 @@ export class SiteController {
     public async createSite(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Body() dtoInput: CreateSiteDtoInput,
-    ): Promise<SiteCreatedDtoOutput> {
-        const result = await this.commandBus.execute<CreateSiteCommand, Site>(
+    ): Promise<SiteProcessingResultDtoOutput> {
+        const result = await this.commandBus.execute<CreateSiteCommand, SiteProcessingResult>(
             new CreateSiteCommand(
                 transactionId,
                 dtoInput.key,

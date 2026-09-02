@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { addCnameToBeyondtrustInstances } from './scripts/add-cname-to-beyondtrust-instances.migration';
+import { addDefaultSiteUserSourceType } from './scripts/add-default-site-user-source-type';
 import { migrateCustomerBUToBTInstanceBU } from './scripts/move-customer-bu-to-bt-instance-bu.migration';
 import { migrateSiteAdministratorsToAuditors } from './scripts/rename-site-administrators-to-auditors.migration';
 
@@ -41,6 +42,9 @@ export async function runMigrationsBeforeStartup(): Promise<void> {
 
         // Add cname column to beyondtrust_instances
         await addCnameToBeyondtrustInstances(tempDataSource);
+
+        // Add default sourceType column to site users
+        await addDefaultSiteUserSourceType(tempDataSource);
 
         console.log('✅ Pre-startup migrations completed successfully');
     } catch (error) {

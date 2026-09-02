@@ -80,7 +80,7 @@ export class SiteManagerController {
         @Body() dtoInput: SiteManagerDtoInput,
     ): Promise<SiteManagerDtoOutput> {
         const result = await this.commandBus.execute<AddSiteManagerCommand, SiteManager>(
-            new AddSiteManagerCommand(transactionId, id, dtoInput.username, dtoInput.email),
+            new AddSiteManagerCommand(transactionId, id, dtoInput.username, dtoInput.email, dtoInput.sourceType),
         );
 
         return result;

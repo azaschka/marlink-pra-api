@@ -4,7 +4,6 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    PrimaryColumn,
     PrimaryGeneratedColumn,
     Unique,
     UpdateDateColumn,
@@ -18,7 +17,7 @@ export class SiteApproverEntity implements SiteApprover {
     @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
     public id!: number;
 
-    @PrimaryColumn({ name: 'site_id', type: 'int' })
+    @Column({ name: 'site_id', type: 'int' })
     public siteId!: number;
 
     @Column({ name: 'email', type: 'varchar' })

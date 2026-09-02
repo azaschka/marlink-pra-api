@@ -80,7 +80,14 @@ export class SiteAuditorController {
         @Body() dtoInput: SiteAuditorDtoInput,
     ): Promise<SiteAuditorDtoOutput> {
         const result = await this.commandBus.execute<AddSiteAuditorCommand, SiteAuditor>(
-            new AddSiteAuditorCommand(transactionId, id, dtoInput.username, dtoInput.email, dtoInput.isAdminOperator),
+            new AddSiteAuditorCommand(
+                transactionId,
+                id,
+                dtoInput.username,
+                dtoInput.email,
+                dtoInput.isAdminOperator,
+                dtoInput.sourceType,
+            ),
         );
 
         return result;

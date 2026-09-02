@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, In, Not } from 'typeorm';
 import { BaseRepositoryService } from '../../../core/services/base-repository.service';
 import { SiteApproverEntity } from '../entities';
 
@@ -19,5 +19,12 @@ export class SiteApproverRepositoryService extends BaseRepositoryService<SiteApp
 
     public async deleteById(id: number): Promise<void> {
         return await super.deleteBy({ id: id });
+    }
+
+    public async deleteBySiteIdExceptEmails(siteId: number, emails: string[]): Promise<void> {
+        return await super.deleteBy({
+            siteId: siteId,
+            email: emails.length > 0 ? Not(In(emails)) : undefined,
+        });
     }
 }

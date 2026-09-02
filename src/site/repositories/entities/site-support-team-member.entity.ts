@@ -4,12 +4,11 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    PrimaryColumn,
     PrimaryGeneratedColumn,
     Unique,
     UpdateDateColumn,
 } from 'typeorm';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
 import { SiteSupportTeamMember } from '../../models';
 import { SiteEntity } from './site.entity';
 
@@ -19,11 +18,14 @@ export class SiteSupportTeamMemberEntity implements SiteSupportTeamMember {
     @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
     public id!: number;
 
-    @PrimaryColumn({ name: 'site_id', type: 'int' })
+    @Column({ name: 'site_id', type: 'int' })
     public siteId!: number;
 
-    @PrimaryColumn({ name: 'user_id', type: 'int' })
+    @Column({ name: 'user_id', type: 'int' })
     public userId!: number;
+
+    @Column({ name: 'source_type', type: 'enum', enum: UserSourceType })
+    public sourceType!: UserSourceType;
 
     @Column({ name: 'firstname', type: 'varchar' })
     public firstname!: string;
@@ -58,6 +60,7 @@ export class SiteSupportTeamMemberEntity implements SiteSupportTeamMember {
     public static createWithoutId(
         siteId: number,
         userId: number,
+        sourceType: UserSourceType,
         firstname: string,
         lastname: string,
         email: string,
@@ -68,6 +71,7 @@ export class SiteSupportTeamMemberEntity implements SiteSupportTeamMember {
         const entity = new SiteSupportTeamMemberEntity();
         entity.siteId = siteId;
         entity.userId = userId;
+        entity.sourceType = sourceType;
         entity.firstname = firstname;
         entity.lastname = lastname;
         entity.email = email;

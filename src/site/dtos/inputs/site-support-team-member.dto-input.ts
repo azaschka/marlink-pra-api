@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { NameSanitizerUtility } from '../../../shared/utilities';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
 
 export class SiteSupportTeamMemberDtoInput {
     @ApiProperty({
@@ -59,4 +59,13 @@ export class SiteSupportTeamMemberDtoInput {
     @IsNotEmpty()
     @IsEnum(SiteSupportTeamTrustLevel)
     public supportTeamTrustLevel!: SiteSupportTeamTrustLevel;
+
+    @ApiProperty({
+        required: true,
+        enum: UserSourceType,
+        description: 'The source type of the site support team member.',
+        default: UserSourceType.Internal,
+    })
+    @IsEnum(UserSourceType)
+    public sourceType: UserSourceType = UserSourceType.Internal;
 }

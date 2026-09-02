@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserSourceType } from '../../enums';
 import { SiteAuditor } from '../../models';
 
 export class SiteAuditorDtoOutput implements SiteAuditor {
@@ -22,6 +23,13 @@ export class SiteAuditorDtoOutput implements SiteAuditor {
         description: 'The unique identifier of the user associated with the site auditor.',
     })
     public userId!: number;
+
+    @ApiProperty({
+        required: true,
+        enum: UserSourceType,
+        description: 'The source type of the user associated with the site auditor.',
+    })
+    public sourceType!: UserSourceType;
 
     @ApiProperty({
         required: true,

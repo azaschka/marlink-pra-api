@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserSourceType } from '../../enums';
 import { SiteManager } from '../../models';
 
 export class SiteManagerDtoOutput implements SiteManager {
@@ -22,6 +23,13 @@ export class SiteManagerDtoOutput implements SiteManager {
         description: 'The unique identifier of the user associated with the site manager.',
     })
     public userId!: number;
+
+    @ApiProperty({
+        required: true,
+        enum: UserSourceType,
+        description: 'The source type of the user associated with the site manager.',
+    })
+    public sourceType!: UserSourceType;
 
     @ApiProperty({
         required: true,

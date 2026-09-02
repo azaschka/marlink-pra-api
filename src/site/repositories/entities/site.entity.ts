@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import {
-    PartialSiteAuditorWithUserId,
     PartialSiteApprover,
+    PartialSiteAuditorWithUserId,
     PartialSiteManagerWithUserId,
     PartialSiteSupportTeamMemberWithUserId,
     Site,
@@ -9,8 +9,8 @@ import {
     SiteManager,
     SiteSupportTeamMember,
 } from '../../models';
-import { SiteAuditorEntity } from './site-auditor.entity';
 import { SiteApproverEntity } from './site-approver.entity';
+import { SiteAuditorEntity } from './site-auditor.entity';
 import { SiteManagerEntity } from './site-manager.entity';
 import { SiteSupportTeamMemberEntity } from './site-support-team-member.entity';
 
@@ -75,6 +75,30 @@ export class SiteEntity implements Site {
         entity.siteAuditors = siteAuditors as SiteAuditorEntity[];
         entity.siteSupportTeamMembers = siteSupportTeamMembers as SiteSupportTeamMemberEntity[];
         entity.siteApprovers = siteApprovers as SiteApproverEntity[];
+
+        return entity;
+    }
+
+    public static createWithId(
+        id: number,
+        key: string,
+        name: string,
+        customerKey: string,
+        siteManagers: (SiteManagerEntity | PartialSiteManagerWithUserId)[],
+        siteAuditors: (SiteAuditorEntity | PartialSiteAuditorWithUserId)[],
+        siteSupportTeamMembers: (SiteSupportTeamMemberEntity | PartialSiteSupportTeamMemberWithUserId)[],
+        siteApprovers: (SiteApproverEntity | PartialSiteApprover)[],
+    ): SiteEntity {
+        const entity = this.createWithoutId(
+            key,
+            name,
+            customerKey,
+            siteManagers,
+            siteAuditors,
+            siteSupportTeamMembers,
+            siteApprovers,
+        );
+        entity.id = id;
 
         return entity;
     }

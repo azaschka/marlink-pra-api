@@ -4,6 +4,8 @@ import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
+import { SiteUserType, UserSourceType } from '../enums';
+import { UserNotFoundException } from '../exceptions';
 import { PartialSiteAuditor, PartialSiteAuditorWithUserId, SiteAuditor } from '../models';
 import { RetrieveSiteAuditorsByUserIdQuery } from '../queries';
 import {
@@ -67,6 +69,10 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         );
     }
 
+    /**
+     * @throws UserNotFoundException if the site auditor user cannot be found
+     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
+     */
     public async getOrCreate(): Promise<PartialSiteAuditorWithUserId> {
         const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
         const administratorAccessGroupPolicy = await this.administratorAccessGroupPolicyWorkflow.getOrCreate();
@@ -74,6 +80,14 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
+
+        if (!siteAuditorUser) {
+            throw new UserNotFoundException(
+                SiteUserType.SiteAuditor,
+                this.siteAuditor.username,
+                this.siteAuditor.email,
+            );
+        }
 
         // Assign the site auditor user to the appropriate group policies based on their role:
         //
@@ -109,6 +123,10 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         };
     }
 
+    /**
+     * @throws UserNotFoundException if the site auditor user cannot be found
+     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
+     */
     public async delete(): Promise<void> {
         const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
         const administratorAccessGroupPolicy = await this.administratorAccessGroupPolicyWorkflow.getOrCreate();
@@ -116,6 +134,15 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
+
+        if (!siteAuditorUser) {
+            throw new UserNotFoundException(
+                SiteUserType.SiteAuditor,
+                this.siteAuditor.username,
+                this.siteAuditor.email,
+            );
+        }
+
         const isSiteAuditorAssociatedWithMultipleSites =
             await this.isSiteAuditorAssociatedWithMultipleSites(siteAuditorUser);
 
@@ -140,8 +167,9 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
             );
         }
 
-        // The site auditor user is only deleted if they are not associated with any other sites.
-        if (!isSiteAuditorAssociatedWithMultipleSites) {
+        // The site auditor user is only deleted if they are not associated with any other sites and they are an internal user.
+        // External users are not managed by the system, so we don't delete them.
+        if (!isSiteAuditorAssociatedWithMultipleSites && this.siteAuditor.sourceType === UserSourceType.Internal) {
             await this.siteAuditorUserWorkflow.delete();
         }
     }

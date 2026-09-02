@@ -38,6 +38,7 @@ export class AddSiteSupportTeamMemberCommandHandler implements ICommandHandler<A
             supportTeamName: command.supportTeamName,
             supportTeamAccessLevel: command.supportTeamAccessLevel,
             supportTeamTrustLevel: command.supportTeamTrustLevel,
+            sourceType: command.sourceType,
         });
 
         this.validateSiteSupportTeamMemberHasNotAddedToSite(site, siteSupportTeamMember);
@@ -46,6 +47,7 @@ export class AddSiteSupportTeamMemberCommandHandler implements ICommandHandler<A
             SiteSupportTeamMemberEntity.createWithoutId(
                 site.id,
                 siteSupportTeamMember.userId,
+                siteSupportTeamMember.sourceType,
                 siteSupportTeamMember.firstname,
                 siteSupportTeamMember.lastname,
                 siteSupportTeamMember.email,

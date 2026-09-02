@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { UserSourceType } from '../../enums';
 
 export class SiteAuditorDtoInput {
     @ApiProperty({
@@ -24,4 +25,13 @@ export class SiteAuditorDtoInput {
     @IsNotEmpty()
     @IsBoolean()
     public isAdminOperator!: boolean;
+
+    @ApiProperty({
+        required: true,
+        enum: UserSourceType,
+        description: 'The source type of the site auditor.',
+        default: UserSourceType.Internal,
+    })
+    @IsEnum(UserSourceType)
+    public sourceType: UserSourceType = UserSourceType.Internal;
 }

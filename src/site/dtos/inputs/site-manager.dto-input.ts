@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { UserSourceType } from '../../enums';
 
 export class SiteManagerDtoInput {
     @ApiProperty({
@@ -15,4 +16,13 @@ export class SiteManagerDtoInput {
     @IsNotEmpty()
     @IsString()
     public email!: string;
+
+    @ApiProperty({
+        required: true,
+        enum: UserSourceType,
+        description: 'The source type of the site manager.',
+        default: UserSourceType.Internal,
+    })
+    @IsEnum(UserSourceType)
+    public sourceType: UserSourceType = UserSourceType.Internal;
 }

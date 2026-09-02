@@ -14,13 +14,11 @@ import {
     PartialSiteSupportTeamMember,
     PartialSiteSupportTeamMemberWithUserId,
     Site,
+    SiteProcessingResult,
     SiteWorkflowResult,
 } from '../../models';
 import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
-import { SiteApproverEntity, SiteAuditorEntity, SiteEntity, SiteManagerEntity } from '../../repositories/entities';
-import { SiteApproverRepositoryService } from '../../repositories/services/site-approver.service';
-import { SiteAuditorRepositoryService } from '../../repositories/services/site-auditor.service';
-import { SiteManagerRepositoryService } from '../../repositories/services/site-manager.service';
+import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
@@ -33,12 +31,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
         private readonly siteRepositoryService: SiteRepositoryService,
-        private readonly siteManagerRepositoryService: SiteManagerRepositoryService,
-        private readonly siteAuditorRepositoryService: SiteAuditorRepositoryService,
-        private readonly siteApproverRepositoryService: SiteApproverRepositoryService,
     ) {}
 
-    public async execute(command: CreateSiteCommand): Promise<Site> {
+    public async execute(command: CreateSiteCommand): Promise<SiteProcessingResult> {
         const existingSite = await this.getSiteByKey(command.transactionId, command.key);
 
         // For new sites only: fail fast before any BeyondTrust calls.
@@ -82,17 +77,20 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
                 }),
             );
 
-            return createdSite;
+            return {
+                site: createdSite,
+                errorReport: siteWorkflowResult.errorReport,
+            };
         }
 
-        // ── Existing site path (re-ingestion) ────────────────────────────────
-        // Persist only the members that are not already recorded in the DB so
-        // that repeated ingestion runs are safe to call multiple times.
-        await this.syncNewManagers(existingSite, siteWorkflowResult.siteManagers);
-        await this.syncNewAuditors(existingSite, siteWorkflowResult.siteAuditors);
-        await this.syncNewApprovers(existingSite, partialSiteApprovers);
-
-        const updatedSite = await this.getSiteById(command.transactionId, existingSite.id);
+        const updatedSite = await this.updateSite(
+            command.transactionId,
+            existingSite,
+            siteWorkflowResult.siteManagers,
+            siteWorkflowResult.siteAuditors,
+            siteWorkflowResult.siteSupportTeamMembers,
+            partialSiteApprovers,
+        );
 
         this.eventBus.publish(
             new SiteModifiedEvent(command.transactionId, {
@@ -100,7 +98,10 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             }),
         );
 
-        return updatedSite;
+        return {
+            site: updatedSite,
+            errorReport: siteWorkflowResult.errorReport,
+        };
     }
 
     // ── Private query helpers ────────────────────────────────────────────────
@@ -205,70 +206,106 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         return await this.siteRepositoryService.create(siteEntity);
     }
 
-    // ── Sync helpers (re-ingestion path) ─────────────────────────────────────
+    // ── Update helpers ──────────────────────────────────────────────────────
+    private async updateSite(
+        transactionId: string,
+        existingSite: Site,
+        managers: PartialSiteManagerWithUserId[],
+        auditors: PartialSiteAuditorWithUserId[],
+        supportTeamMembers: PartialSiteSupportTeamMemberWithUserId[],
+        approvers: PartialSiteApprover[],
+    ): Promise<Site> {
+        const siteEntity = SiteEntity.createWithId(
+            existingSite.id,
+            existingSite.key,
+            existingSite.name,
+            existingSite.customerKey,
+            this.enrichSiteManagersUsingExistingSiteData(managers, existingSite),
+            this.enrichSiteAuditorsUsingExistingSiteData(auditors, existingSite),
+            this.enrichSiteSupportTeamMembersUsingExistingSiteData(supportTeamMembers, existingSite),
+            this.enrichSiteApproversUsingExistingSiteData(approvers, existingSite),
+        );
 
-    /**
-     * Inserts managers from the workflow result that are not yet recorded in
-     * the DB for this site (deduplicated by userId).
-     */
-    private async syncNewManagers(existingSite: Site, incomingManagers: PartialSiteManagerWithUserId[]): Promise<void> {
-        const existingUserIds = new Set(existingSite.siteManagers.map((m) => m.userId));
+        await this.siteRepositoryService.update(siteEntity);
 
-        for (const manager of incomingManagers) {
-            if (existingUserIds.has(manager.userId)) {
-                continue;
-            }
-
-            const entity = SiteManagerEntity.createWithoutId(
-                existingSite.id,
-                manager.userId,
-                manager.username,
-                manager.email,
-            );
-
-            await this.siteManagerRepositoryService.createOrUpdateById(entity);
-        }
+        return await this.getSiteById(transactionId, existingSite.id);
     }
 
-    /**
-     * Inserts auditors from the workflow result that are not yet recorded in
-     * the DB for this site (deduplicated by userId).
-     */
-    private async syncNewAuditors(existingSite: Site, incomingAuditors: PartialSiteAuditorWithUserId[]): Promise<void> {
-        const existingUserIds = new Set(existingSite.siteAuditors.map((a) => a.userId));
+    private enrichSiteManagersUsingExistingSiteData(
+        siteManagers: PartialSiteManagerWithUserId[],
+        site: Site,
+    ): PartialSiteManagerWithUserId[] {
+        return siteManagers.map((siteManager) => {
+            const existingSiteManager = site.siteManagers.find((m) => m.userId === siteManager.userId);
 
-        for (const auditor of incomingAuditors) {
-            if (existingUserIds.has(auditor.userId)) {
-                continue;
+            if (!existingSiteManager) {
+                return siteManager;
             }
 
-            const entity = SiteAuditorEntity.createWithoutId(
-                existingSite.id,
-                auditor.userId,
-                auditor.username,
-                auditor.email,
-                auditor.isAdminOperator,
-            );
-
-            await this.siteAuditorRepositoryService.createOrUpdateById(entity);
-        }
+            return {
+                ...siteManager,
+                id: existingSiteManager.id,
+                siteId: existingSiteManager.siteId,
+            };
+        });
     }
 
-    /**
-     * Inserts approvers from the command that are not yet recorded in the DB
-     * for this site (deduplicated by email).
-     */
-    private async syncNewApprovers(existingSite: Site, incomingApprovers: PartialSiteApprover[]): Promise<void> {
-        const existingEmails = new Set(existingSite.siteApprovers.map((a) => a.email));
+    private enrichSiteAuditorsUsingExistingSiteData(
+        siteAuditors: PartialSiteAuditorWithUserId[],
+        site: Site,
+    ): PartialSiteAuditorWithUserId[] {
+        return siteAuditors.map((siteAuditor) => {
+            const existingSiteAuditor = site.siteAuditors.find((a) => a.userId === siteAuditor.userId);
 
-        for (const approver of incomingApprovers) {
-            if (existingEmails.has(approver.email)) {
-                continue;
+            if (!existingSiteAuditor) {
+                return siteAuditor;
             }
 
-            const entity = SiteApproverEntity.createWithoutId(existingSite.id, approver.email);
+            return {
+                ...siteAuditor,
+                id: existingSiteAuditor.id,
+                siteId: existingSiteAuditor.siteId,
+            };
+        });
+    }
 
-            await this.siteApproverRepositoryService.createOrUpdateById(entity);
-        }
+    private enrichSiteSupportTeamMembersUsingExistingSiteData(
+        siteSupportTeamMembers: PartialSiteSupportTeamMemberWithUserId[],
+        site: Site,
+    ): PartialSiteSupportTeamMemberWithUserId[] {
+        return siteSupportTeamMembers.map((siteSupportTeamMember) => {
+            const existingSiteSupportTeamMember = site.siteSupportTeamMembers.find(
+                (s) => s.userId === siteSupportTeamMember.userId,
+            );
+
+            if (!existingSiteSupportTeamMember) {
+                return siteSupportTeamMember;
+            }
+
+            return {
+                ...siteSupportTeamMember,
+                id: existingSiteSupportTeamMember.id,
+                siteId: existingSiteSupportTeamMember.siteId,
+            };
+        });
+    }
+
+    private enrichSiteApproversUsingExistingSiteData(
+        siteApprovers: PartialSiteApprover[],
+        site: Site,
+    ): PartialSiteApprover[] {
+        return siteApprovers.map((siteApprover) => {
+            const existingSiteApprover = site.siteApprovers.find((a) => a.email === siteApprover.email);
+
+            if (!existingSiteApprover) {
+                return siteApprover;
+            }
+
+            return {
+                ...siteApprover,
+                id: existingSiteApprover.id,
+                siteId: existingSiteApprover.siteId,
+            };
+        });
     }
 }
