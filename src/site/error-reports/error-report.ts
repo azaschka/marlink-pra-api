@@ -18,6 +18,10 @@ export class ErrorReport {
         }
     }
 
+    public append(otherReport: ErrorReport) {
+        this.errors.push(...otherReport.items);
+    }
+
     public get items() {
         return this.errors;
     }

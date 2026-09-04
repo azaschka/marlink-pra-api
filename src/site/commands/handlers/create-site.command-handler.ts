@@ -4,6 +4,7 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
+import { ErrorReport } from '../../error-reports';
 import { SiteCreatedEvent, SiteModifiedEvent } from '../../events';
 import {
     PartialSiteApprover,
@@ -14,7 +15,10 @@ import {
     PartialSiteSupportTeamMember,
     PartialSiteSupportTeamMemberWithUserId,
     Site,
+    SiteAuditor,
+    SiteManager,
     SiteProcessingResult,
+    SiteSupportTeamMember,
     SiteWorkflowResult,
 } from '../../models';
 import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
@@ -22,6 +26,9 @@ import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
+import { RemoveSiteAuditorCommand } from '../remove-site-auditor.command';
+import { RemoveSiteManagerCommand } from '../remove-site-manager.command';
+import { RemoveSiteSupportTeamMemberCommand } from '../remove-site-support-team-member.command';
 
 @CommandHandler(CreateSiteCommand)
 export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteCommand> {
@@ -57,6 +64,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             customer.name,
             customer.businessUnit,
             customer.beyondtrustInstanceId,
+            existingSite,
         );
 
         if (existingSite === null) {
@@ -162,6 +170,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         customerName: string,
         customerBusinessUnit: BusinessUnit,
         customerBeyondTrustInstanceId: number,
+        existingSite: Site | null,
     ): Promise<SiteWorkflowResult> {
         const siteWorkflow = new SiteWorkflow(
             this.appConfigService,
@@ -179,7 +188,72 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             customerBeyondTrustInstanceId,
         );
 
-        return await siteWorkflow.getOrCreate();
+        const result = await siteWorkflow.getOrCreate();
+
+        if (existingSite) {
+            const siteHandlersRemovalErrorReport = await this.runSiteHandlersRemovalWorkflow(
+                transactionId,
+                existingSite.id,
+                this.filterByRemovedUserIds(existingSite.siteManagers, result.siteManagers),
+                this.filterByRemovedUserIds(existingSite.siteAuditors, result.siteAuditors),
+                this.filterByRemovedUserIds(existingSite.siteSupportTeamMembers, result.siteSupportTeamMembers),
+            );
+
+            result.errorReport.append(siteHandlersRemovalErrorReport);
+        }
+
+        return result;
+    }
+
+    private async runSiteHandlersRemovalWorkflow(
+        transactionId: string,
+        siteId: number,
+        removedSiteManagers: SiteManager[],
+        removedSiteAuditors: SiteAuditor[],
+        removedSiteSupportTeamMembers: SiteSupportTeamMember[],
+    ) {
+        const errorReport = new ErrorReport();
+
+        for (const removedSiteManager of removedSiteManagers) {
+            try {
+                await this.commandBus.execute<RemoveSiteManagerCommand, void>(
+                    new RemoveSiteManagerCommand(transactionId, siteId, removedSiteManager.id),
+                );
+            } catch (error) {
+                errorReport.add(error);
+            }
+        }
+
+        for (const removedSiteAuditor of removedSiteAuditors) {
+            try {
+                await this.commandBus.execute<RemoveSiteAuditorCommand, void>(
+                    new RemoveSiteAuditorCommand(transactionId, siteId, removedSiteAuditor.id),
+                );
+            } catch (error) {
+                errorReport.add(error);
+            }
+        }
+
+        for (const removedSiteSupportTeamMember of removedSiteSupportTeamMembers) {
+            try {
+                await this.commandBus.execute<RemoveSiteSupportTeamMemberCommand, void>(
+                    new RemoveSiteSupportTeamMemberCommand(transactionId, siteId, removedSiteSupportTeamMember.id),
+                );
+            } catch (error) {
+                errorReport.add(error);
+            }
+        }
+
+        return errorReport;
+    }
+
+    private filterByRemovedUserIds<T extends { userId: number }>(
+        existingEntities: T[],
+        newEntities: { userId: number }[],
+    ): T[] {
+        return existingEntities.filter(
+            (existingEntity) => !newEntities.some((newUser) => newUser.userId === existingEntity.userId),
+        );
     }
 
     // ── Creation helper ──────────────────────────────────────────────────────
