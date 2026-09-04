@@ -1,16 +1,44 @@
 import { DataSource } from 'typeorm';
 import { BaseRepositoryService } from '../../../core/services/base-repository.service';
+import { SiteEntity } from '../entities';
+import { SiteApproverRepositoryService } from './site-approver.service';
+import { SiteAuditorRepositoryService } from './site-auditor.service';
+import { SiteManagerRepositoryService } from './site-manager.service';
 import { SiteRepositoryService } from './site-repository.service';
+import { SiteSupportTeamMemberRepositoryService } from './site-support-team-member.service';
 
 describe('SiteRepositoryService', () => {
     let service: SiteRepositoryService;
     let dataSource: DataSource;
+    let siteManagerRepositoryService: SiteManagerRepositoryService;
+    let siteAuditorRepositoryService: SiteAuditorRepositoryService;
+    let siteSupportTeamMemberRepositoryService: SiteSupportTeamMemberRepositoryService;
+    let siteApproverRepositoryService: SiteApproverRepositoryService;
 
     beforeEach(() => {
         jest.clearAllMocks();
 
         dataSource = {} as DataSource;
-        service = new SiteRepositoryService(dataSource);
+        siteManagerRepositoryService = {
+            deleteBySiteIdExceptUserIds: jest.fn(),
+        } as unknown as SiteManagerRepositoryService;
+        siteAuditorRepositoryService = {
+            deleteBySiteIdExceptUserIds: jest.fn(),
+        } as unknown as SiteAuditorRepositoryService;
+        siteSupportTeamMemberRepositoryService = {
+            deleteBySiteIdExceptUserIds: jest.fn(),
+        } as unknown as SiteSupportTeamMemberRepositoryService;
+        siteApproverRepositoryService = {
+            deleteBySiteIdExceptEmails: jest.fn(),
+        } as unknown as SiteApproverRepositoryService;
+
+        service = new SiteRepositoryService(
+            dataSource,
+            siteManagerRepositoryService,
+            siteAuditorRepositoryService,
+            siteSupportTeamMemberRepositoryService,
+            siteApproverRepositoryService,
+        );
     });
 
     describe('createOrUpdateById', () => {
@@ -24,6 +52,54 @@ describe('SiteRepositoryService', () => {
             await service.createOrUpdateById(entity);
 
             expect(baseRepositoryCreateOrUpdateMethod).toHaveBeenCalledWith(entity, expectedConflictPaths);
+        });
+    });
+
+    describe('update', () => {
+        it('should call deleteBySiteIdExceptUserIds for each related entity and then call save', async () => {
+            const siteEntity = {
+                id: 1,
+                siteManagers: [{ userId: 1 }, { userId: 2 }],
+                siteAuditors: [{ userId: 3 }],
+                siteSupportTeamMembers: [{ userId: 4 }],
+                siteApprovers: [{ email: 'approver@example.com' }],
+            } as SiteEntity;
+
+            const siteManagerDeleteBySiteIdExceptUserIdsMethod = jest
+                .spyOn(siteManagerRepositoryService, 'deleteBySiteIdExceptUserIds')
+                .mockReturnValue(Promise.resolve());
+            const siteAuditorDeleteBySiteIdExceptUserIdsMethod = jest
+                .spyOn(siteAuditorRepositoryService, 'deleteBySiteIdExceptUserIds')
+                .mockReturnValue(Promise.resolve());
+            const siteSupportTeamMemberDeleteBySiteIdExceptUserIdsMethod = jest
+                .spyOn(siteSupportTeamMemberRepositoryService, 'deleteBySiteIdExceptUserIds')
+                .mockReturnValue(Promise.resolve());
+            const siteApproverDeleteBySiteIdExceptEmailsMethod = jest
+                .spyOn(siteApproverRepositoryService, 'deleteBySiteIdExceptEmails')
+                .mockReturnValue(Promise.resolve());
+            const baseRepositorySaveMethod = jest
+                .spyOn(BaseRepositoryService.prototype, 'save')
+                .mockReturnValue(Promise.resolve());
+
+            await service.update(siteEntity);
+
+            expect(siteManagerDeleteBySiteIdExceptUserIdsMethod).toHaveBeenCalledWith(
+                siteEntity.id,
+                siteEntity.siteManagers.map((siteManager) => siteManager.userId),
+            );
+            expect(siteAuditorDeleteBySiteIdExceptUserIdsMethod).toHaveBeenCalledWith(
+                siteEntity.id,
+                siteEntity.siteAuditors.map((siteAuditor) => siteAuditor.userId),
+            );
+            expect(siteSupportTeamMemberDeleteBySiteIdExceptUserIdsMethod).toHaveBeenCalledWith(
+                siteEntity.id,
+                siteEntity.siteSupportTeamMembers.map((siteSupportTeamMember) => siteSupportTeamMember.userId),
+            );
+            expect(siteApproverDeleteBySiteIdExceptEmailsMethod).toHaveBeenCalledWith(
+                siteEntity.id,
+                siteEntity.siteApprovers.map((siteApprover) => siteApprover.email),
+            );
+            expect(baseRepositorySaveMethod).toHaveBeenCalledWith(siteEntity);
         });
     });
 
