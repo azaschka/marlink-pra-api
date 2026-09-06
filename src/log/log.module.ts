@@ -12,5 +12,6 @@ import { LogService } from './services/log.service';
     imports: [TypeOrmModule.forFeature([LogEntity]), AppConfigModule],
     controllers: [LogController],
     providers: [LogRepositoryService, LogService, LogFilterService, ...CommandHandlers],
+    exports: [LogService],
 })
 export class LogModule {}

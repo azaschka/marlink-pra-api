@@ -29,6 +29,7 @@ import { JumpPolicyModule } from './jump-policy/jump-policy.module';
 import { JumpointModule } from './jumpoint/jumpoint.module';
 import { LicenseUsageModule } from './license-usage/license-usage.module';
 import { LogModule } from './log/log.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 import { MigrationModule } from './migration/migration.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { SessionPolicyModule } from './session-policy/session-policy.module';
@@ -90,6 +91,7 @@ import { UserModule } from './user/user.module';
         LogModule,
         MonitoringModule,
         DeploymentModule,
+        MaintenanceModule,
     ],
     controllers: [AppController],
     providers: [
