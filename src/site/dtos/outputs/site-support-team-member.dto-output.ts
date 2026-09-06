@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
 import { SiteSupportTeamMember } from '../../models';
 
 export class SiteSupportTeamMemberDtoOutput implements SiteSupportTeamMember {
@@ -23,6 +23,13 @@ export class SiteSupportTeamMemberDtoOutput implements SiteSupportTeamMember {
         description: 'The unique identifier of the user associated with the site support team member.',
     })
     public userId!: number;
+
+    @ApiProperty({
+        required: true,
+        enum: UserSourceType,
+        description: 'The source type of the user associated with the site support team member.',
+    })
+    public sourceType!: UserSourceType;
 
     @ApiProperty({
         required: true,

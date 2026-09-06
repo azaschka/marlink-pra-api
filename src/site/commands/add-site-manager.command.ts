@@ -1,3 +1,5 @@
+import { UserSourceType } from '../enums';
+
 export class AddSiteManagerCommand {
     public readonly commandType = 'add-site-manager';
 
@@ -6,5 +8,6 @@ export class AddSiteManagerCommand {
         public readonly siteId: number,
         public readonly username: string,
         public readonly email: string,
+        public readonly sourceType: UserSourceType,
     ) {}
 }

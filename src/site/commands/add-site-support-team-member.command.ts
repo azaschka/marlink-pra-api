@@ -1,4 +1,4 @@
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../enums';
 
 export class AddSiteSupportTeamMemberCommand {
     public readonly commandType = 'add-site-support-team-member';
@@ -12,5 +12,6 @@ export class AddSiteSupportTeamMemberCommand {
         public readonly supportTeamName: string,
         public readonly supportTeamAccessLevel: SiteSupportTeamAccessLevel,
         public readonly supportTeamTrustLevel: SiteSupportTeamTrustLevel,
+        public readonly sourceType: UserSourceType,
     ) {}
 }

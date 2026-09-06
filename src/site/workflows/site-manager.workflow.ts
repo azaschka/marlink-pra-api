@@ -7,6 +7,8 @@ import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
+import { SiteUserType, UserSourceType } from '../enums';
+import { UserNotFoundException } from '../exceptions';
 import { PartialSiteManager, PartialSiteManagerWithUserId, SiteManager } from '../models';
 import { RetrieveSiteManagersByUserIdQuery } from '../queries';
 import { ManagerAccessGroupPolicyWorkflow, ManagerGroupPolicyWorkflow } from './group-policies';
@@ -48,12 +50,24 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         );
     }
 
+    /**
+     * @throws UserNotFoundException if the site manager user cannot be found
+     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
+     */
     public async getOrCreate(): Promise<PartialSiteManagerWithUserId> {
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
         const managerAccessGroupPolicy = await this.managerAccessGroupPolicyWorkflow.getOrCreate();
-        const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
         const authJumpPolicy = await this.authJumpPolicyWorkflow.getOrCreate();
         const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
+        const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
+
+        if (!siteManagerUser) {
+            throw new UserNotFoundException(
+                SiteUserType.SiteManager,
+                this.siteManager.username,
+                this.siteManager.email,
+            );
+        }
 
         // Assign the site manager user to their group policies:
         //   - MANAGERS_{CUSTOMER}_{SITE}_{SITEKEY}  — site-specific manager group policy
@@ -81,12 +95,25 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         };
     }
 
+    /**
+     * @throws UserNotFoundException if the site manager user cannot be found
+     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
+     */
     public async delete(): Promise<void> {
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
         const managerAccessGroupPolicy = await this.managerAccessGroupPolicyWorkflow.getOrCreate();
-        const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
         const authJumpPolicy = await this.authJumpPolicyWorkflow.getOrCreate();
         const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
+        const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
+
+        if (!siteManagerUser) {
+            throw new UserNotFoundException(
+                SiteUserType.SiteManager,
+                this.siteManager.username,
+                this.siteManager.email,
+            );
+        }
+
         const isSiteManagerAssociatedWithMultipleSites =
             await this.isSiteManagerAssociatedWithMultipleSites(siteManagerUser);
 
@@ -110,8 +137,9 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [], [siteManagerUser.id.toString()]);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
 
-        // The site manager user is only deleted if they are not associated with any other sites.
-        if (!isSiteManagerAssociatedWithMultipleSites) {
+        // The site manager user is only deleted if they are not associated with any other sites and they are an internal user.
+        // External users are not managed by the system, so we don't delete them.
+        if (!isSiteManagerAssociatedWithMultipleSites && this.siteManager.sourceType === UserSourceType.Internal) {
             await this.siteManagerUserWorkflow.delete();
         }
     }

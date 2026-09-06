@@ -16,6 +16,7 @@ import { GroupPolicyTeam } from '../../group-policy-team/models';
 import { RetrieveGroupPolicyTeamsQuery } from '../../group-policy-team/queries';
 import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
+import { ErrorReport } from '../error-reports';
 import {
     PartialSiteApprover,
     PartialSiteAuditor,
@@ -252,6 +253,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             siteManagers: [],
             siteAuditors: [],
             siteSupportTeamMembers: [],
+            errorReport: new ErrorReport(),
         };
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
@@ -276,18 +278,33 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         await this.notifyJumpPolicyWorkflow.getOrCreate();
 
         for (const siteManagerWorkflow of this.siteManagerWorkflows) {
-            const siteManager = await siteManagerWorkflow.getOrCreate();
-            siteWorkflowResult.siteManagers.push(siteManager);
+            try {
+                const siteManager = await siteManagerWorkflow.getOrCreate();
+                siteWorkflowResult.siteManagers.push(siteManager);
+            } catch (error) {
+                console.error(`[${this.transactionId}] Failed to create site manager workflow:`, error);
+                siteWorkflowResult.errorReport.add(error);
+            }
         }
 
         for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
-            const siteAuditor = await siteAuditorWorkflow.getOrCreate();
-            siteWorkflowResult.siteAuditors.push(siteAuditor);
+            try {
+                const siteAuditor = await siteAuditorWorkflow.getOrCreate();
+                siteWorkflowResult.siteAuditors.push(siteAuditor);
+            } catch (error) {
+                console.error(`[${this.transactionId}] Failed to create site auditor workflow:`, error);
+                siteWorkflowResult.errorReport.add(error);
+            }
         }
 
         for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
-            const siteSupportTeamMember = await siteSupportTeamMemberWorkflow.getOrCreate();
-            siteWorkflowResult.siteSupportTeamMembers.push(siteSupportTeamMember);
+            try {
+                const siteSupportTeamMember = await siteSupportTeamMemberWorkflow.getOrCreate();
+                siteWorkflowResult.siteSupportTeamMembers.push(siteSupportTeamMember);
+            } catch (error) {
+                console.error(`[${this.transactionId}] Failed to create site support team member workflow:`, error);
+                siteWorkflowResult.errorReport.add(error);
+            }
         }
 
         // add team to manager group policy as manager
@@ -397,15 +414,27 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
 
             for (const siteManagerWorkflow of this.siteManagerWorkflows) {
-                await siteManagerWorkflow.delete();
+                try {
+                    await siteManagerWorkflow.delete();
+                } catch (error) {
+                    console.error(`[${this.transactionId}] Failed to delete site manager workflow:`, error);
+                }
             }
 
             for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
-                await siteAuditorWorkflow.delete();
+                try {
+                    await siteAuditorWorkflow.delete();
+                } catch (error) {
+                    console.error(`[${this.transactionId}] Failed to delete site auditor workflow:`, error);
+                }
             }
 
             for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
-                await siteSupportTeamMemberWorkflow.delete();
+                try {
+                    await siteSupportTeamMemberWorkflow.delete();
+                } catch (error) {
+                    console.error(`[${this.transactionId}] Failed to delete site support team member workflow:`, error);
+                }
             }
 
             // remove team from manager group policy

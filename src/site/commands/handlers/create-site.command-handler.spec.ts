@@ -4,24 +4,40 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
+import { ErrorReport } from '../../error-reports';
 import { SiteCreatedEvent, SiteModifiedEvent } from '../../events';
 import { PartialSiteApprover, Site, SiteWorkflowResult } from '../../models';
 import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
-import { SiteApproverRepositoryService } from '../../repositories/services/site-approver.service';
-import { SiteAuditorRepositoryService } from '../../repositories/services/site-auditor.service';
-import { SiteManagerRepositoryService } from '../../repositories/services/site-manager.service';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
 import { CreateSiteCommandHandler } from './create-site.command-handler';
 
 class TestHelper {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static mockedErrorReport = new ErrorReport();
+
     public static get mockedSiteWorkflowResult(): SiteWorkflowResult {
         return {
-            siteManagers: [{ userId: 1, username: 'manager-username', email: 'manager-email' }],
-            siteAuditors: [{ userId: 2, username: 'admin-username', email: 'admin-email', isAdminOperator: true }],
+            siteManagers: [
+                {
+                    userId: 1,
+                    username: 'manager-username',
+                    email: 'manager-email',
+                    sourceType: UserSourceType.Internal,
+                },
+            ],
+            siteAuditors: [
+                {
+                    userId: 2,
+                    username: 'admin-username',
+                    email: 'admin-email',
+                    isAdminOperator: true,
+                    sourceType: UserSourceType.Internal,
+                },
+            ],
             siteSupportTeamMembers: [
                 {
                     userId: 3,
@@ -31,8 +47,10 @@ class TestHelper {
                     supportTeamName: 'support-team',
                     supportTeamAccessLevel: SiteSupportTeamAccessLevel.Limited,
                     supportTeamTrustLevel: SiteSupportTeamTrustLevel.NotifyOnly,
+                    sourceType: UserSourceType.Internal,
                 },
             ],
+            errorReport: this.mockedErrorReport,
         };
     }
 }
@@ -43,9 +61,6 @@ describe('CreateSiteCommandHandler', () => {
     let queryBus: QueryBus;
     let eventBus: EventBus;
     let siteRepositoryService: SiteRepositoryService;
-    let siteManagerRepositoryService: SiteManagerRepositoryService;
-    let siteAuditorRepositoryService: SiteAuditorRepositoryService;
-    let siteApproverRepositoryService: SiteApproverRepositoryService;
     let handler: CreateSiteCommandHandler;
 
     beforeEach(() => {
@@ -55,19 +70,7 @@ describe('CreateSiteCommandHandler', () => {
         queryBus = mockQueryBus();
         eventBus = mockEventBus();
         siteRepositoryService = mockSiteRepositoryService();
-        siteManagerRepositoryService = mockSiteManagerRepositoryService();
-        siteAuditorRepositoryService = mockSiteAuditorRepositoryService();
-        siteApproverRepositoryService = mockSiteApproverRepositoryService();
-        handler = new CreateSiteCommandHandler(
-            appConfigService,
-            commandBus,
-            queryBus,
-            eventBus,
-            siteRepositoryService,
-            siteManagerRepositoryService,
-            siteAuditorRepositoryService,
-            siteApproverRepositoryService,
-        );
+        handler = new CreateSiteCommandHandler(appConfigService, commandBus, queryBus, eventBus, siteRepositoryService);
     });
 
     describe('execute', () => {
@@ -84,6 +87,7 @@ describe('CreateSiteCommandHandler', () => {
                     { userId: 2, username: 'existing-auditor', email: 'existing@example.com', isAdminOperator: false },
                 ],
                 siteApprovers: [],
+                siteSupportTeamMembers: [],
             } as unknown as Site;
             const updatedSite = { id: 10, key: 'site-key-1', name: 'site-name-1' } as unknown as Site;
             const customer = {
@@ -99,15 +103,6 @@ describe('CreateSiteCommandHandler', () => {
                 .mockResolvedValueOnce([customer]) // getCustomer
                 .mockResolvedValue(updatedSite); // getSiteById → re-fetch after sync
 
-            const managerCreateOrUpdate = jest
-                .spyOn(siteManagerRepositoryService, 'createOrUpdateById')
-                .mockResolvedValue(undefined);
-            const auditorCreateOrUpdate = jest
-                .spyOn(siteAuditorRepositoryService, 'createOrUpdateById')
-                .mockResolvedValue(undefined);
-            const approverCreateOrUpdate = jest
-                .spyOn(siteApproverRepositoryService, 'createOrUpdateById')
-                .mockResolvedValue(undefined);
             const eventBusPublishMethod = jest.spyOn(eventBus, 'publish');
 
             // Act
@@ -125,12 +120,6 @@ describe('CreateSiteCommandHandler', () => {
             );
 
             // Assert
-            // Manager userId:1 (from workflow) is new → inserted once
-            expect(managerCreateOrUpdate).toHaveBeenCalledTimes(1);
-            // Auditor userId:2 already in DB → skipped
-            expect(auditorCreateOrUpdate).not.toHaveBeenCalled();
-            // Approver email is new → inserted once
-            expect(approverCreateOrUpdate).toHaveBeenCalledTimes(1);
             // Re-fetch called with correct site ID
             expect(queryBusExecuteMethod).toHaveBeenCalledWith(
                 new RetrieveSiteByIdQuery('transaction-1', existingSite.id),
@@ -143,7 +132,10 @@ describe('CreateSiteCommandHandler', () => {
                     payload: { site: updatedSite },
                 }),
             );
-            expect(result).toBe(updatedSite);
+            expect(result).toStrictEqual({
+                site: updatedSite,
+                errorReport: TestHelper.mockedSiteWorkflowResult.errorReport,
+            });
         });
 
         it('should throw ConflictException if a site with the same name already exists', async () => {
@@ -257,7 +249,10 @@ describe('CreateSiteCommandHandler', () => {
                     },
                 }),
             );
-            expect(result).toBe(expectedResult);
+            expect(result).toStrictEqual({
+                site: expectedResult,
+                errorReport: TestHelper.mockedSiteWorkflowResult.errorReport,
+            });
         });
 
         it('should throw an error if the repository fails', async () => {
@@ -319,27 +314,7 @@ function mockEventBus() {
 function mockSiteRepositoryService() {
     const siteRepositoryService = {} as SiteRepositoryService;
     siteRepositoryService.create = jest.fn();
+    siteRepositoryService.update = jest.fn();
 
     return siteRepositoryService;
-}
-
-function mockSiteManagerRepositoryService() {
-    const service = {} as SiteManagerRepositoryService;
-    service.createOrUpdateById = jest.fn();
-
-    return service;
-}
-
-function mockSiteAuditorRepositoryService() {
-    const service = {} as SiteAuditorRepositoryService;
-    service.createOrUpdateById = jest.fn();
-
-    return service;
-}
-
-function mockSiteApproverRepositoryService() {
-    const service = {} as SiteApproverRepositoryService;
-    service.createOrUpdateById = jest.fn();
-
-    return service;
 }

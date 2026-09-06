@@ -89,6 +89,7 @@ export class SiteSupportTeamMemberController {
                 dtoInput.supportTeamName,
                 dtoInput.supportTeamAccessLevel,
                 dtoInput.supportTeamTrustLevel,
+                dtoInput.sourceType,
             ),
         );
 

@@ -11,7 +11,8 @@ import { BaseWorkflow } from '../../shared/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
-import { SiteSupportTeamAccessLevel } from '../enums';
+import { SiteSupportTeamAccessLevel, SiteUserType, UserSourceType } from '../enums';
+import { UserNotFoundException } from '../exceptions';
 import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId, SiteSupportTeamMember } from '../models';
 import { RetrieveSiteSupportTeamMembersByUserIdQuery } from '../queries';
 import {
@@ -91,6 +92,10 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         );
     }
 
+    /**
+     * @throws UserNotFoundException if the site support team member user cannot be found
+     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
+     */
     public async getOrCreate(): Promise<PartialSiteSupportTeamMemberWithUserId> {
         const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
@@ -98,29 +103,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         const limitedAccessGroupPolicy = await this.limitedAccessGroupPolicyWorkflow.getOrCreate();
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const supportTeamJumpGroup = await this.supportTeamJumpGroupWorkflow.getOrCreate();
-        const siteSupportTeamMemberUser = await this.siteSupportTeamMemberUserWorkflow.getOrCreate();
         const jumpoints = await this.jumpointsWorkflow.getOrCreate();
-
-        // Assign the support team member to their group policies:
-        //   - {CUSTOMER}_{SUPPORT_TEAM_NAME}  — site/team-specific support group policy
-        //   - OPERATORS_{CUSTOMER}            — customer-specific operator group policy
-        //   - LIMITED_ACCESS                  — global limited access policy (accessLevel: limited)
-        //   - FULL_ACCESS                     — global full access policy   (accessLevel: full)
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteSupportTeamMemberUser.id,
-                [
-                    supportTeamGroupPolicy.id,
-                    operatorGroupPolicy.id,
-                    this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
-                        ? fullAccessGroupPolicy.id
-                        : limitedAccessGroupPolicy.id,
-                ],
-                [],
-            ),
-        );
 
         // Add jumpoint to the support team group policy
         const groupPolicyJumpoints = await this.getAllGroupPolicyJumpoints(supportTeamGroupPolicy.id);
@@ -167,18 +150,62 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             );
         }
 
+        const siteSupportTeamMemberUser = await this.siteSupportTeamMemberUserWorkflow.getOrCreate();
+
+        if (!siteSupportTeamMemberUser) {
+            throw new UserNotFoundException(
+                SiteUserType.SiteSupportTeamMember,
+                undefined,
+                this.siteSupportTeamMember.email,
+            );
+        }
+
+        // Assign the support team member to their group policies:
+        //   - {CUSTOMER}_{SUPPORT_TEAM_NAME}  — site/team-specific support group policy
+        //   - OPERATORS_{CUSTOMER}            — customer-specific operator group policy
+        //   - LIMITED_ACCESS                  — global limited access policy (accessLevel: limited)
+        //   - FULL_ACCESS                     — global full access policy   (accessLevel: full)
+        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
+            new ModifyUserGroupPoliciesCommand(
+                this.transactionId,
+                this.customerBeyondtrustInstanceId,
+                siteSupportTeamMemberUser.id,
+                [
+                    supportTeamGroupPolicy.id,
+                    operatorGroupPolicy.id,
+                    this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
+                        ? fullAccessGroupPolicy.id
+                        : limitedAccessGroupPolicy.id,
+                ],
+                [],
+            ),
+        );
+
         return {
             ...this.siteSupportTeamMember,
             userId: siteSupportTeamMemberUser.id,
         };
     }
 
+    /**
+     * @throws UserNotFoundException if the site support team member user cannot be found
+     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
+     */
     public async delete(): Promise<void> {
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
         const supportTeamGroupPolicy = await this.supportTeamGroupPolicyWorkflow.getOrCreate();
         const limitedAccessGroupPolicy = await this.limitedAccessGroupPolicyWorkflow.getOrCreate();
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteSupportTeamMemberUser = await this.siteSupportTeamMemberUserWorkflow.getOrCreate();
+
+        if (!siteSupportTeamMemberUser) {
+            throw new UserNotFoundException(
+                SiteUserType.SiteSupportTeamMember,
+                undefined,
+                this.siteSupportTeamMember.email,
+            );
+        }
+
         const isSiteSupportTeamMemberAssociatedWithMultipleSites =
             await this.isSiteSupportTeamMemberAssociatedWithMultipleSites(siteSupportTeamMemberUser);
 
@@ -204,8 +231,12 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             ),
         );
 
-        // The site support team member user is only deleted if they are not associated with any other sites.
-        if (!isSiteSupportTeamMemberAssociatedWithMultipleSites) {
+        // The site support team member user is only deleted if they are not associated with any other sites and they are an internal user.
+        // External users are not managed by the system, so we don't delete them.
+        if (
+            !isSiteSupportTeamMemberAssociatedWithMultipleSites &&
+            this.siteSupportTeamMember.sourceType === UserSourceType.Internal
+        ) {
             await this.siteSupportTeamMemberUserWorkflow.delete();
         }
 

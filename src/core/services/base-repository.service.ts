@@ -125,6 +125,27 @@ export class BaseRepositoryService<T> {
         }
     }
 
+    /**
+     * Use save() instead of upsert() when the entity may contain related entities that also need to be
+     * persisted. save() processes configured cascades and can insert or update related entities,
+     * whereas upsert() only performs an insert/update on the target entity and does not process relations.
+     * await queryRunner.manager.save(this.entity, createdEntity);
+     */
+    public async save(entity: T): Promise<void> {
+        const queryRunner = await this.createQueryRunnerAndConnect();
+        await queryRunner.startTransaction();
+
+        try {
+            await queryRunner.manager.save(entity);
+            await queryRunner.commitTransaction();
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
     private async createQueryRunnerAndConnect() {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();

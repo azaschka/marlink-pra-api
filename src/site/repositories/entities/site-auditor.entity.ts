@@ -4,11 +4,11 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    PrimaryColumn,
     PrimaryGeneratedColumn,
     Unique,
     UpdateDateColumn,
 } from 'typeorm';
+import { UserSourceType } from '../../enums';
 import { SiteAuditor } from '../../models';
 import { SiteEntity } from './site.entity';
 
@@ -18,11 +18,14 @@ export class SiteAuditorEntity implements SiteAuditor {
     @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
     public id!: number;
 
-    @PrimaryColumn({ name: 'site_id', type: 'int' })
+    @Column({ name: 'site_id', type: 'int' })
     public siteId!: number;
 
-    @PrimaryColumn({ name: 'user_id', type: 'int' })
+    @Column({ name: 'user_id', type: 'int' })
     public userId!: number;
+
+    @Column({ name: 'source_type', type: 'enum', enum: UserSourceType })
+    public sourceType!: UserSourceType;
 
     @Column({ name: 'username', type: 'varchar' })
     public username!: string;
@@ -48,6 +51,7 @@ export class SiteAuditorEntity implements SiteAuditor {
     public static createWithoutId(
         siteId: number,
         userId: number,
+        sourceType: UserSourceType,
         username: string,
         email: string,
         isAdminOperator: boolean,
@@ -55,6 +59,7 @@ export class SiteAuditorEntity implements SiteAuditor {
         const entity = new SiteAuditorEntity();
         entity.siteId = siteId;
         entity.userId = userId;
+        entity.sourceType = sourceType;
         entity.username = username;
         entity.email = email;
         entity.isAdminOperator = isAdminOperator;

@@ -30,6 +30,7 @@ export class AddSiteAuditorCommandHandler implements ICommandHandler<AddSiteAudi
             username: command.username,
             email: command.email,
             isAdminOperator: command.isAdminOperator,
+            sourceType: command.sourceType,
         });
 
         this.validateSiteAuditorHasNotAddedToSite(site, siteAuditor);
@@ -38,6 +39,7 @@ export class AddSiteAuditorCommandHandler implements ICommandHandler<AddSiteAudi
             SiteAuditorEntity.createWithoutId(
                 site.id,
                 siteAuditor.userId,
+                siteAuditor.sourceType,
                 siteAuditor.username,
                 siteAuditor.email,
                 siteAuditor.isAdminOperator,

@@ -29,12 +29,19 @@ export class AddSiteManagerCommandHandler implements ICommandHandler<AddSiteMana
         const siteManager = await this.runWorkflow(command.transactionId, customer, site, {
             username: command.username,
             email: command.email,
+            sourceType: command.sourceType,
         });
 
         this.validateSiteManagerHasNotAddedToSite(site, siteManager);
 
         const createdSiteManager = await this.siteManagerRepositoryService.create(
-            SiteManagerEntity.createWithoutId(site.id, siteManager.userId, siteManager.username, siteManager.email),
+            SiteManagerEntity.createWithoutId(
+                site.id,
+                siteManager.userId,
+                siteManager.sourceType,
+                siteManager.username,
+                siteManager.email,
+            ),
         );
 
         const updatedSite = await this.getSite(command.siteId);

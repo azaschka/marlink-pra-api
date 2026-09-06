@@ -1,18 +1,21 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { PasswordGeneratorUtility } from '../../../shared/utilities';
+import { PaginationUtility, PasswordGeneratorUtility } from '../../../shared/utilities';
 import { BaseWorkflow } from '../../../shared/workflows';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../../../user/commands';
 import { User } from '../../../user/models';
 import { RetrieveUsersQuery } from '../../../user/queries';
+import { SiteUserType, UserSourceType } from '../../enums';
+import { MultipleUsersFoundException } from '../../exceptions';
 import { PartialSiteAuditor } from '../../models';
 
-export class SiteAuditorUserWorkflow implements BaseWorkflow<User> {
+export class SiteAuditorUserWorkflow implements BaseWorkflow<User | null> {
     private static readonly PREFERRED_EMAIL_LANGUAGE = 'en-US';
     private static readonly IS_TWO_FACTOR_AUTH_REQUIRED = true;
     private static readonly IS_LOGIN_ALLOWED = true;
     private static readonly FAILED_LOGIN_ATTEMPTS = 0;
     private static readonly MUST_RESET_PASSWORD_ON_NEXT_LOGIN = true;
+    private static readonly MAX_USERS_RETRIEVED_PER_PAGE = 100;
 
     private get userPublicDisplayName(): string {
         return `${this.appConfigService.site.user.siteAuditor.publicDisplayNamePrefix} ${this.customerName.toUpperCase()}`;
@@ -28,7 +31,14 @@ export class SiteAuditorUserWorkflow implements BaseWorkflow<User> {
         private readonly customerBeyondtrustInstanceId: number,
     ) {}
 
-    public async getOrCreate(): Promise<User> {
+    /**
+     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
+     */
+    public async getOrCreate(): Promise<User | null> {
+        if (this.siteAuditor.sourceType === UserSourceType.External) {
+            return await this.get();
+        }
+
         const user = await this.getOrModify();
 
         if (user) {
@@ -91,17 +101,30 @@ export class SiteAuditorUserWorkflow implements BaseWorkflow<User> {
     }
 
     private async get(): Promise<User | null> {
-        const users = await this.queryBus.execute<RetrieveUsersQuery, User[]>(
-            new RetrieveUsersQuery(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                1,
-                1,
-                undefined,
-                this.siteAuditor.username,
-                undefined,
+        const isExternalUser = this.siteAuditor.sourceType === UserSourceType.External;
+
+        const users = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
+            this.queryBus.execute<RetrieveUsersQuery, User[]>(
+                new RetrieveUsersQuery(
+                    this.transactionId,
+                    this.customerBeyondtrustInstanceId,
+                    SiteAuditorUserWorkflow.MAX_USERS_RETRIEVED_PER_PAGE,
+                    pageNumber,
+                    undefined,
+                    isExternalUser ? undefined : this.siteAuditor.username,
+                    isExternalUser ? this.siteAuditor.email : undefined,
+                ),
             ),
         );
+
+        if (users.length > 1) {
+            throw new MultipleUsersFoundException(
+                SiteUserType.SiteAuditor,
+                this.siteAuditor.username,
+                this.siteAuditor.email,
+                users.map((user) => user.id),
+            );
+        }
 
         return users[0] ?? null;
     }
