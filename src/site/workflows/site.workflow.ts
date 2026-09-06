@@ -270,7 +270,9 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         const siteManagerUserIds: string[] = [];
         for (const siteManagerUserWorkflow of this.siteManagerUserWorkflows) {
             const siteManagerUser = await siteManagerUserWorkflow.getOrCreate();
-            siteManagerUserIds.push(siteManagerUser.id.toString());
+            if (siteManagerUser) {
+                siteManagerUserIds.push(siteManagerUser.id.toString());
+            }
         }
 
         await this.authJumpPolicyWorkflow.getOrCreate(siteManagerUserIds);
