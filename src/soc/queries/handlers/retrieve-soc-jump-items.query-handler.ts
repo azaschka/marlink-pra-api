@@ -1,7 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
-import { Customer } from '../../../customer/models';
-import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { JumpClient } from '../../../jump-client/models';
 import { RetrieveJumpClientsQuery } from '../../../jump-client/queries';
 import { JumpGroup } from '../../../jump-group/models';
@@ -21,351 +18,198 @@ import { RetrieveJumpPoliciesQuery } from '../../../jump-policy/queries';
 import { Jumpoint } from '../../../jumpoint/models';
 import { RetrieveJumpointsQuery } from '../../../jumpoint/queries';
 import { PaginationUtility } from '../../../shared/utilities';
-import { Site } from '../../../site/models/site.model';
-import { RetrieveSitesQuery } from '../../../site/queries';
 import { SocJumpItemType } from '../../enums';
-import { SocJumpItem } from '../../models';
-import { SocJumpItemUtility, SocJumpointUtility, SocJumpPolicyUtility } from '../../utilities';
+import { JumpointBoundJumpItem, SocCustomerSiteMapping, SocJumpItem, SocPagedResult } from '../../models';
+import { SocAggregateCacheService, SocCustomerSiteResolverService } from '../../services';
+import { SocCustomerSiteResolver, SocFilterUtility } from '../../utilities';
 import { RetrieveSocJumpItemsQuery } from '../retrieve-soc-jump-items.query';
 
+/** Everything needed to attribute a jump item, loaded once per request. */
+interface AttributionContext {
+    resolver: SocCustomerSiteResolver;
+    jumpointsById: Map<number, Jumpoint>;
+    jumpGroupsById: Map<number, JumpGroup>;
+    jumpPoliciesById: Map<number, JumpPolicy>;
+}
+
+/**
+ * Retrieves every jump item on the platform, regardless of protocol, and attributes each
+ * one to a customer/site.
+ *
+ * Items are loaded per type without any name or group filter and are attributed afterwards
+ * by reversing the naming conventions. This is what makes "get all" possible: items that
+ * follow no convention are still returned, flagged as `Unmapped`.
+ */
 @QueryHandler(RetrieveSocJumpItemsQuery)
 export class RetrieveSocJumpItemsQueryHandler implements IQueryHandler<RetrieveSocJumpItemsQuery> {
     private static readonly PAGE_SIZE = 100;
 
-    constructor(private readonly queryBus: QueryBus) {}
+    constructor(
+        private readonly queryBus: QueryBus,
+        private readonly resolverService: SocCustomerSiteResolverService,
+        private readonly cacheService: SocAggregateCacheService,
+    ) {}
 
-    public async execute(query: RetrieveSocJumpItemsQuery): Promise<SocJumpItem[]> {
-        const socJumpItems: SocJumpItem[] = [];
-
-        for (const { customerKey, siteKey } of query.customerSiteInfo ?? []) {
-            const { customer, site } = await this.retrieveCustomerAndSite(query.transactionId, customerKey, siteKey);
-
-            const jumpointSocJumpItems = await this.retrieveJumpointSocJumpItems(
-                query.tenantId,
-                query.transactionId,
-                customer,
-                site,
-            );
-
-            const jumpClientSocJumpItems = await this.retrieveJumpClientSocJumpItems(
-                query.tenantId,
-                query.transactionId,
-                customer,
-                site,
-            );
-
-            socJumpItems.push(...jumpointSocJumpItems, ...jumpClientSocJumpItems);
-        }
-
-        return socJumpItems;
-    }
-
-    private async retrieveCustomerAndSite(
-        transactionId: string,
-        customerKey: string | undefined,
-        siteKey: string | undefined,
-    ) {
-        let customer = customerKey ? await this.retrieveCustomer(transactionId, customerKey) : undefined;
-        const site = siteKey ? await this.retrieveSite(transactionId, siteKey, customerKey) : undefined;
-
-        if (!customer && site) {
-            customer = await this.retrieveCustomer(transactionId, site.customerKey);
-        }
-        return { customer, site };
-    }
-
-    private async retrieveCustomer(transactionId: string, customerKey: string): Promise<Customer> {
-        const customers = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
-            new RetrieveCustomersQuery(transactionId, 1, 1, customerKey),
+    public async execute(query: RetrieveSocJumpItemsQuery): Promise<SocPagedResult<SocJumpItem>> {
+        // Cached unfiltered, so that one snapshot serves every page and every filter
+        // combination. Scope and filters are applied per request below.
+        const socJumpItems = await this.cacheService.resolve(`soc-jump-items:${query.tenantId}`, () =>
+            this.aggregate(query.transactionId, query.tenantId),
         );
 
-        if (customers.length === 0 || !customers[0]) {
-            throw new NotFoundException(`Customer not found with key: ${customerKey}`);
-        }
-
-        return customers[0];
-    }
-
-    private async retrieveSite(transactionId: string, siteKey: string, customerKey: string | undefined): Promise<Site> {
-        const sites = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
-            new RetrieveSitesQuery(transactionId, 1, 1, siteKey, undefined, customerKey ? [customerKey] : undefined),
-        );
-
-        if (sites.length === 0 || !sites[0]) {
-            throw new NotFoundException(
-                `Site not found with key: ${siteKey} and customer key: ${customerKey ? customerKey : 'undefined'}`,
-            );
-        }
-
-        return sites[0];
-    }
-
-    private async retrieveJumpointSocJumpItems(
-        tenantId: number,
-        transactionId: string,
-        customer: Customer | undefined,
-        site: Site | undefined,
-    ) {
-        const jumpointNamePattern = SocJumpointUtility.generateNamePattern(customer, site);
-        const jumpoints = await this.retrieveJumpoints(transactionId, tenantId, jumpointNamePattern);
-
-        await this.populateJumpointsJumpItems(transactionId, tenantId, jumpoints);
-
-        return SocJumpItemUtility.mapJumpointJumpItemsToSocJumpItems(jumpoints, customer, site);
-    }
-
-    private async retrieveJumpoints(
-        transactionId: string,
-        tenantId: number,
-        jumpointNamePattern: string,
-    ): Promise<Jumpoint[]> {
-        const jumpoints = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-            this.queryBus.execute<RetrieveJumpointsQuery, Jumpoint[]>(
-                new RetrieveJumpointsQuery(
-                    transactionId,
-                    tenantId,
-                    RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                    pageNumber,
-                    undefined, // name
-                    undefined, // publicIp
-                    undefined, // privateIp
-                    undefined, // hostname
-                    undefined, // codeName
-                    [jumpointNamePattern],
-                ),
-            ),
-        );
-
-        return jumpoints;
-    }
-
-    private async populateJumpointsJumpItems(
-        transactionId: string,
-        tenantId: number,
-        jumpoints: Jumpoint[],
-    ): Promise<void> {
-        // Ensure that the jump item arrays are initialized to empty arrays if they are undefined
-        jumpoints.forEach((jumpoint) => {
-            if (jumpoint.protocolTunnelJumps === undefined) {
-                jumpoint.protocolTunnelJumps = [];
-            }
-            if (jumpoint.remoteRdps === undefined) {
-                jumpoint.remoteRdps = [];
-            }
-            if (jumpoint.remoteVncs === undefined) {
-                jumpoint.remoteVncs = [];
-            }
-            if (jumpoint.shellJumps === undefined) {
-                jumpoint.shellJumps = [];
-            }
-            if (jumpoint.webJumps === undefined) {
-                jumpoint.webJumps = [];
-            }
+        const filtered = SocFilterUtility.apply(socJumpItems, {
+            customerKey: query.customerKey,
+            siteKey: query.siteKey,
+            mappingStatus: query.mappingStatus,
+            scopedCustomerKeys: query.scopedCustomerKeys,
         });
 
-        for (const jumpoint of jumpoints) {
-            const protocolTunnelJumps = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-                this.queryBus.execute<RetrieveProtocolTunnelJumpsQuery, ProtocolTunnelJump[]>(
-                    new RetrieveProtocolTunnelJumpsQuery(
-                        transactionId,
-                        tenantId,
-                        RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                        pageNumber,
-                        undefined, // name
-                        undefined, // hostname
-                        undefined, // jumpGroupIds
-                        undefined, // jumpGroupType
-                        jumpoint.id,
-                    ),
-                ),
-            );
-            const remoteRdps = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-                this.queryBus.execute<RetrieveRemoteRdpsQuery, RemoteRdp[]>(
-                    new RetrieveRemoteRdpsQuery(
-                        transactionId,
-                        tenantId,
-                        RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                        pageNumber,
-                        undefined, // name
-                        undefined, // hostname
-                        undefined, // jumpGroupIds
-                        undefined, // jumpGroupType
-                        jumpoint.id,
-                    ),
-                ),
-            );
-            const remoteVncs = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-                this.queryBus.execute<RetrieveRemoteVncsQuery, RemoteVnc[]>(
-                    new RetrieveRemoteVncsQuery(
-                        transactionId,
-                        tenantId,
-                        RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                        pageNumber,
-                        undefined, // name
-                        undefined, // hostname
-                        undefined, // jumpGroupIds
-                        undefined, // jumpGroupType
-                        jumpoint.id,
-                    ),
-                ),
-            );
-            const shellJumps = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-                this.queryBus.execute<RetrieveShellJumpsQuery, ShellJump[]>(
-                    new RetrieveShellJumpsQuery(
-                        transactionId,
-                        tenantId,
-                        RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                        pageNumber,
-                        undefined, // name
-                        undefined, // hostname
-                        undefined, // jumpGroupIds
-                        undefined, // jumpGroupType
-                        jumpoint.id,
-                    ),
-                ),
-            );
-            const webJumps = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-                this.queryBus.execute<RetrieveWebJumpsQuery, WebJump[]>(
-                    new RetrieveWebJumpsQuery(
-                        transactionId,
-                        tenantId,
-                        RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                        pageNumber,
-                        undefined, // name
-                        undefined, // url
-                        undefined, // jumpGroupIds
-                        undefined, // jumpGroupType
-                        jumpoint.id,
-                    ),
-                ),
-            );
-
-            jumpoint.protocolTunnelJumps?.push(...protocolTunnelJumps);
-            jumpoint.remoteRdps?.push(...remoteRdps);
-            jumpoint.remoteVncs?.push(...remoteVncs);
-            jumpoint.shellJumps?.push(...shellJumps);
-            jumpoint.webJumps?.push(...webJumps);
-        }
+        return {
+            items: PaginationUtility.slicePage(filtered, query.pageNumber, query.pageSize),
+            totalCount: filtered.length,
+        };
     }
 
-    private async retrieveJumpClientSocJumpItems(
-        tenantId: number,
-        transactionId: string,
-        customer: Customer | undefined,
-        site: Site | undefined,
-    ): Promise<SocJumpItem[]> {
-        const jumpClients: JumpClient[] = [];
-        const jumpGroups = await this.retrieveJumpGroups(transactionId, tenantId, customer);
-        const jumpPolicies = await this.retrieveJumpPolicies(transactionId, tenantId, customer, site);
+    private async aggregate(transactionId: string, tenantId: number): Promise<SocJumpItem[]> {
+        const [
+            resolver,
+            jumpoints,
+            jumpGroups,
+            jumpPolicies,
+            protocolTunnelJumps,
+            remoteRdps,
+            remoteVncs,
+            shellJumps,
+            webJumps,
+            jumpClients,
+        ] = await Promise.all([
+            this.resolverService.create(transactionId, tenantId),
+            this.retrieveAll<Jumpoint>(
+                (pageNumber) => new RetrieveJumpointsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<JumpGroup>(
+                (pageNumber) => new RetrieveJumpGroupsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<JumpPolicy>(
+                (pageNumber) => new RetrieveJumpPoliciesQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<ProtocolTunnelJump>(
+                (pageNumber) =>
+                    new RetrieveProtocolTunnelJumpsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<RemoteRdp>(
+                (pageNumber) => new RetrieveRemoteRdpsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<RemoteVnc>(
+                (pageNumber) => new RetrieveRemoteVncsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<ShellJump>(
+                (pageNumber) => new RetrieveShellJumpsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<WebJump>(
+                (pageNumber) => new RetrieveWebJumpsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+            this.retrieveAll<JumpClient>(
+                (pageNumber) => new RetrieveJumpClientsQuery(transactionId, tenantId, this.pageSize, pageNumber),
+            ),
+        ]);
 
-        if (jumpGroups.length > 0) {
-            const jumpGroupJumpClients = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-                this.queryBus.execute<RetrieveJumpClientsQuery, JumpClient[]>(
-                    new RetrieveJumpClientsQuery(
-                        transactionId,
-                        tenantId,
-                        RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                        pageNumber,
-                        undefined, // name
-                        undefined, // hostname
-                        undefined, // fqdn
-                        undefined, // tag
-                        jumpGroups.map((jg) => jg.id), // jumpGroupIds
-                        undefined, // jumpGroupType
-                        undefined, // consoleUser
-                        undefined, // publicIp
-                        undefined, // privateIp
-                        undefined, // connectionType
-                    ),
-                ),
-            );
+        const context: AttributionContext = {
+            resolver,
+            jumpointsById: new Map(jumpoints.map((jumpoint) => [jumpoint.id, jumpoint])),
+            jumpGroupsById: new Map(jumpGroups.map((jumpGroup) => [jumpGroup.id, jumpGroup])),
+            jumpPoliciesById: new Map(jumpPolicies.map((jumpPolicy) => [jumpPolicy.id, jumpPolicy])),
+        };
 
-            jumpClients.push(...jumpGroupJumpClients);
-        }
+        return [
+            ...this.mapJumpointBoundItems(protocolTunnelJumps, SocJumpItemType.ProtocolTunnelJump, context),
+            ...this.mapJumpointBoundItems(remoteRdps, SocJumpItemType.RemoteRdp, context),
+            ...this.mapJumpointBoundItems(remoteVncs, SocJumpItemType.RemoteVnc, context),
+            ...this.mapJumpointBoundItems(shellJumps, SocJumpItemType.ShellJump, context),
+            ...this.mapJumpointBoundItems(webJumps, SocJumpItemType.WebJump, context),
+            ...this.mapJumpClients(jumpClients, context),
+        ];
+    }
 
-        if (jumpPolicies.length > 0) {
-            const jumpPolicyJumpClients = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-                this.queryBus.execute<RetrieveJumpClientsQuery, JumpClient[]>(
-                    new RetrieveJumpClientsQuery(
-                        transactionId,
-                        tenantId,
-                        RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                        pageNumber,
-                        undefined, // name
-                        undefined, // hostname
-                        undefined, // fqdn
-                        undefined, // tag
-                        undefined, // jumpGroupIds
-                        undefined, // jumpGroupType
-                        undefined, // consoleUser
-                        undefined, // publicIp
-                        undefined, // privateIp
-                        undefined, // connectionType
-                        jumpPolicies.map((jp) => jp.id), // jumpPolicyIds
-                    ),
-                ),
-            );
+    private get pageSize(): number {
+        return RetrieveSocJumpItemsQueryHandler.PAGE_SIZE;
+    }
 
-            jumpClients.push(...jumpPolicyJumpClients);
-        }
+    private retrieveAll<TResult>(createQuery: (pageNumber: number) => object): Promise<TResult[]> {
+        return PaginationUtility.queryUntilLastPage((pageNumber) =>
+            this.queryBus.execute<object, TResult[]>(createQuery(pageNumber)),
+        );
+    }
 
-        return jumpClients.map((jumpClient) => ({
-            jumpItemType: SocJumpItemType.JumpClient,
-            jumpItem: jumpClient,
-            customerKey: customer?.key,
-            customerName: customer?.name,
-            siteKey: site?.key,
-            siteName: site?.name,
+    private mapJumpointBoundItems(
+        jumpItems: JumpointBoundJumpItem[],
+        jumpItemType: SocJumpItemType,
+        context: AttributionContext,
+    ): SocJumpItem[] {
+        return jumpItems.map((jumpItem) => ({
+            jumpItemType,
+            jumpItem,
+            ...this.attribute(
+                context,
+                context.jumpointsById.get(jumpItem.jumpointId)?.name,
+                jumpItem.jumpPolicyId,
+                jumpItem.jumpGroupId,
+            ),
         }));
     }
 
-    private async retrieveJumpGroups(
-        transactionId: string,
-        tenantId: number,
-        customer: Customer | undefined,
-    ): Promise<JumpGroup[]> {
-        if (!customer) {
-            return [];
-        }
-
-        const jumpGroups = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-            this.queryBus.execute<RetrieveJumpGroupsQuery, JumpGroup[]>(
-                new RetrieveJumpGroupsQuery(
-                    transactionId,
-                    tenantId,
-                    RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                    pageNumber,
-                    undefined, // name
-                    undefined, // codeName
-                    [`${customer.name.toUpperCase()}_%`],
-                ),
-            ),
-        );
-
-        return jumpGroups;
+    private mapJumpClients(jumpClients: JumpClient[], context: AttributionContext): SocJumpItem[] {
+        return jumpClients.map((jumpClient) => ({
+            jumpItemType: SocJumpItemType.JumpClient,
+            jumpItem: jumpClient,
+            // Jump clients are not bound to a jumpoint; their owner is encoded in the
+            // jump policy or, failing that, in the jump group name.
+            ...this.attribute(context, undefined, jumpClient.jumpPolicyId, jumpClient.jumpGroupId),
+        }));
     }
 
-    private async retrieveJumpPolicies(
-        transactionId: string,
-        tenantId: number,
-        customer: Customer | undefined,
-        site: Site | undefined,
-    ): Promise<JumpPolicy[]> {
-        const jumpPolicyNamePattern = SocJumpPolicyUtility.generateNamePattern(customer, site);
+    /**
+     * Attributes an item using the most specific source available, falling back to
+     * progressively coarser ones. Returns `Unmapped` when no source yields a match.
+     */
+    private attribute(
+        context: AttributionContext,
+        jumpointName: string | undefined,
+        jumpPolicyId: number | null | undefined,
+        jumpGroupId: number | undefined,
+    ): SocCustomerSiteMapping {
+        if (jumpointName !== undefined) {
+            const mapping = context.resolver.resolveFromJumpointName(jumpointName);
 
-        const jumpPolicies = await PaginationUtility.queryUntilLastPage((pageNumber) =>
-            this.queryBus.execute<RetrieveJumpPoliciesQuery, JumpPolicy[]>(
-                new RetrieveJumpPoliciesQuery(
-                    transactionId,
-                    tenantId,
-                    RetrieveSocJumpItemsQueryHandler.PAGE_SIZE,
-                    pageNumber,
-                    undefined, // codeName
-                    [jumpPolicyNamePattern],
-                ),
-            ),
-        );
+            if (this.isAttributed(mapping)) {
+                return mapping;
+            }
+        }
 
-        return jumpPolicies;
+        const jumpPolicy = jumpPolicyId ? context.jumpPoliciesById.get(jumpPolicyId) : undefined;
+
+        if (jumpPolicy) {
+            const mapping = context.resolver.resolveFromJumpPolicyDisplayName(jumpPolicy.displayName);
+
+            if (this.isAttributed(mapping)) {
+                return mapping;
+            }
+        }
+
+        const jumpGroup = jumpGroupId ? context.jumpGroupsById.get(jumpGroupId) : undefined;
+
+        if (jumpGroup) {
+            const mapping = context.resolver.resolveFromJumpGroupName(jumpGroup.name);
+
+            if (this.isAttributed(mapping)) {
+                return mapping;
+            }
+        }
+
+        return SocCustomerSiteResolver.unmapped;
+    }
+
+    private isAttributed(mapping: SocCustomerSiteMapping): boolean {
+        return mapping !== SocCustomerSiteResolver.unmapped;
     }
 }

@@ -1,9 +1,6 @@
 import { Jumpoint } from '../../jumpoint/models';
+import { SocCustomerSiteMapping } from './soc-customer-site-mapping.model';
 
-export interface SocJumpoint {
+export interface SocJumpoint extends SocCustomerSiteMapping {
     jumpoint: Jumpoint;
-    customerKey?: string;
-    customerName?: string;
-    siteKey?: string;
-    siteName?: string;
 }

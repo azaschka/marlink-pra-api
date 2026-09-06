@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JumpointRetrievedDtoOutput } from '../../../jumpoint/dtos/outputs';
 import { Jumpoint } from '../../../jumpoint/models';
+import { SocCustomerSiteMappingStatus } from '../../enums';
 import { SocJumpoint } from '../../models';
 
 export class SocJumpointRetrievedDtoOutput implements SocJumpoint {
@@ -29,4 +30,13 @@ export class SocJumpointRetrievedDtoOutput implements SocJumpoint {
         required: false,
     })
     public siteName?: string;
+
+    @ApiProperty({
+        required: true,
+        enum: SocCustomerSiteMappingStatus,
+        description:
+            'States how far this jumpoint could be attributed to a customer/site. ' +
+            '"unmapped" identifies a jumpoint without an identifiable owner.',
+    })
+    public mappingStatus!: SocCustomerSiteMappingStatus;
 }

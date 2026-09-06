@@ -2,6 +2,21 @@ import { ObjectUtility } from './object.utility';
 
 export abstract class PaginationUtility {
     /**
+     * @description Extracts a single page from an already materialised result set.
+     * Use for endpoints that aggregate several upstream sources in memory and therefore
+     * cannot delegate paging to the database.
+     */
+    public static slicePage<T>(items: T[], pageNumber: number, pageSize: number): T[] {
+        if (pageSize <= 0) {
+            return [];
+        }
+
+        const startIndex = (Math.max(1, pageNumber) - 1) * pageSize;
+
+        return items.slice(startIndex, startIndex + pageSize);
+    }
+
+    /**
      * @description Use only for queries that return paginated results and return empty arrays when there are no more results.
      */
     public static async queryUntilLastPage<T>(

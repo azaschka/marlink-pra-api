@@ -412,11 +412,31 @@ export class AppConfigService {
         };
     }
 
+    public get maintenance() {
+        const configuredUsernames = this.configService.get<string>('RESET_ALLOWED_USERNAMES');
+
+        const resetAllowedUsernames = (configuredUsernames ?? DefaultAppConfig.maintenance.resetAllowedUsernames)
+            .split(',')
+            .map((username) => username.trim())
+            .filter((username) => username.length > 0);
+
+        return {
+            resetAllowedUsernames,
+            resetKeepTables: DefaultAppConfig.maintenance.resetKeepTables,
+        };
+    }
+
     public get throttle() {
         return {
             isEnabled: this.configService.get<boolean>('THROTTLE_IS_ENABLED') ?? DefaultAppConfig.throttle.isEnabled,
             ttlInMs: this.configService.get<number>('THROTTLE_TTL_IN_MS') ?? DefaultAppConfig.throttle.ttlInMs,
             limit: this.configService.get<number>('THROTTLE_LIMIT') ?? DefaultAppConfig.throttle.limit,
+        };
+    }
+
+    public get soc() {
+        return {
+            cacheTtlInMs: this.configService.get<number>('SOC_CACHE_TTL_IN_MS') ?? DefaultAppConfig.soc.cacheTtlInMs,
         };
     }
 }

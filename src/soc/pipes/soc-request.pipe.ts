@@ -1,77 +1,38 @@
 import { ArgumentMetadata, ForbiddenException, Inject, Injectable, PipeTransform } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { QueryBus } from '@nestjs/cqrs';
 import { Request } from 'express';
-import { TRANSACTION_ID_HEADER } from '../../core/decorators';
-import { SuperAdminUtility, UuidUtility } from '../../shared/utilities';
-import { Site } from '../../site/models';
-import { RetrieveSitesQuery } from '../../site/queries';
-import { CustomerSiteInfo } from '../models';
+import { SocFilterDtoInput } from '../dtos/inputs';
+import { SocScopeUtility } from '../utilities';
 
+/**
+ * Rejects requests that explicitly ask for a customer the access key may not see.
+ *
+ * Only the explicit filter is validated here. Everything else is enforced by the scope
+ * filter inside the query handlers, which is the authoritative check — this pipe merely
+ * turns an obviously forbidden request into a 403 instead of a silently empty result.
+ */
 @Injectable()
 export class SocRequestPipe implements PipeTransform {
-    constructor(
-        @Inject(REQUEST) private readonly request: Request,
-        private readonly queryBus: QueryBus,
-    ) {}
+    constructor(@Inject(REQUEST) private readonly request: Request) {}
 
-    public async transform(value: unknown, metadata: ArgumentMetadata) {
-        // Skip if this isn't an HTTP request body, query, param.
-        if (metadata.type !== 'query' && metadata.type !== 'body' && metadata.type !== 'param') {
+    public transform(value: unknown, metadata: ArgumentMetadata): unknown {
+        if (metadata.type !== 'query') {
             return value;
         }
 
-        if (!this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()]) {
-            this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();
-        }
+        const { customerKey } = (value ?? {}) as SocFilterDtoInput;
 
-        const transactionId = this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string;
-
-        if (SuperAdminUtility.isSuperAdmin(this.request.authInfo?.access?.value?.businessUnits ?? [])) {
+        if (!customerKey) {
             return value;
         }
 
-        const customerScopes = this.request.customers!;
-        const customerScopeKeys = customerScopes.map((c) => c.key);
+        const scope = SocScopeUtility.resolve(
+            this.request.authInfo?.access?.value?.businessUnits ?? [],
+            this.request.customers ?? [],
+        );
 
-        const customerSiteInfo = (
-            this.request.body as {
-                customerSiteInfo?: CustomerSiteInfo[];
-            }
-        ).customerSiteInfo?.filter((csi) => csi.customerKey !== undefined || csi.siteKey !== undefined);
-
-        // Limit the customerSiteInfo to only those that are within the customer's scope
-        if (!customerSiteInfo || customerSiteInfo.length === 0) {
-            const dto = value as { customerSiteInfo?: CustomerSiteInfo[] };
-            dto.customerSiteInfo = customerScopeKeys.map((customerKey) => ({
-                customerKey,
-                siteKey: undefined,
-            }));
-        } else {
-            for (const { customerKey, siteKey } of customerSiteInfo) {
-                if (customerKey && !customerScopeKeys.includes(customerKey)) {
-                    throw new ForbiddenException(`Forbidden customer access with customer key: ${customerKey}`);
-                }
-
-                if (siteKey) {
-                    const sites = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
-                        new RetrieveSitesQuery(
-                            transactionId,
-                            1,
-                            1,
-                            siteKey,
-                            undefined,
-                            customerKey ? [customerKey] : customerScopeKeys,
-                        ),
-                    );
-
-                    if (sites.length === 0) {
-                        throw new ForbiddenException(
-                            `Site not found or forbidden access to the site with site key: ${siteKey}`,
-                        );
-                    }
-                }
-            }
+        if (!scope.isPlatformWide && !scope.customerKeys.includes(customerKey)) {
+            throw new ForbiddenException(`Forbidden customer access with customer key: ${customerKey}`);
         }
 
         return value;

@@ -45,6 +45,19 @@ export abstract class DefaultAppConfig {
     private static readonly THROTTLE_LIMIT = 1500; // 1500 requests per TTL
     private static readonly THROTTLE_IS_ENABLED = true;
 
+    // SOC endpoints aggregate the whole platform per request, so their result set is cached.
+    // Upper bound: the platform reconciles with BeyondTrust every 30 minutes, so a shorter
+    // TTL adds no meaningful staleness. Lower bound: a full paginated pull must be served
+    // from a single snapshot, otherwise items shift across page boundaries and the consumer
+    // silently misses or duplicates records. Set to 0 to disable caching.
+    private static readonly SOC_CACHE_TTL_IN_MS = 300000; // 5 minutes
+
+    // Maintenance / data reset
+    // Comma-separated list of PRA usernames that are allowed to trigger a full data reset.
+    private static readonly RESET_ALLOWED_USERNAMES = 'a.zaschka@treatec.de';
+    // Tables that must never be truncated by the data reset (everything else is wiped).
+    private static readonly RESET_KEEP_TABLES = ['pra_user', 'pra_access', 'beyondtrust_instances'];
+
     public static get port(): number {
         return DefaultAppConfig.PORT_NUMBER;
     }
@@ -267,6 +280,19 @@ export abstract class DefaultAppConfig {
             isEnabled: DefaultAppConfig.THROTTLE_IS_ENABLED,
             ttlInMs: DefaultAppConfig.THROTTLE_TTL_IN_MS,
             limit: DefaultAppConfig.THROTTLE_LIMIT,
+        };
+    }
+
+    public static get maintenance() {
+        return {
+            resetAllowedUsernames: DefaultAppConfig.RESET_ALLOWED_USERNAMES,
+            resetKeepTables: DefaultAppConfig.RESET_KEEP_TABLES,
+        };
+    }
+
+    public static get soc() {
+        return {
+            cacheTtlInMs: DefaultAppConfig.SOC_CACHE_TTL_IN_MS,
         };
     }
 }

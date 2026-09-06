@@ -11,7 +11,7 @@ import { ShellJumpRetrievedDtoOutput } from '../../../jump-item/shell-jump/dtos/
 import { ShellJump } from '../../../jump-item/shell-jump/models';
 import { WebJumpRetrievedDtoOutput } from '../../../jump-item/web-jump/dtos/outputs';
 import { WebJump } from '../../../jump-item/web-jump/models';
-import { SocJumpItemType } from '../../enums';
+import { SocCustomerSiteMappingStatus, SocJumpItemType } from '../../enums';
 import { SocJumpItem } from '../../models';
 
 export class SocJumpItemRetrievedDtoOutput implements SocJumpItem {
@@ -53,4 +53,13 @@ export class SocJumpItemRetrievedDtoOutput implements SocJumpItem {
         required: false,
     })
     public siteName?: string;
+
+    @ApiProperty({
+        required: true,
+        enum: SocCustomerSiteMappingStatus,
+        description:
+            'States how far this jump item could be attributed to a customer/site. ' +
+            '"unmapped" identifies a remote access path without an identifiable owner.',
+    })
+    public mappingStatus!: SocCustomerSiteMappingStatus;
 }

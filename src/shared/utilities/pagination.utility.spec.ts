@@ -1,6 +1,38 @@
 import { PaginationUtility } from './pagination.utility';
 
 describe('PaginationUtility', () => {
+    describe('slicePage', () => {
+        const items = [1, 2, 3, 4, 5, 6, 7];
+
+        it('should return the first page', () => {
+            expect(PaginationUtility.slicePage(items, 1, 3)).toEqual([1, 2, 3]);
+        });
+
+        it('should return a page from the middle', () => {
+            expect(PaginationUtility.slicePage(items, 2, 3)).toEqual([4, 5, 6]);
+        });
+
+        it('should return a partial last page', () => {
+            expect(PaginationUtility.slicePage(items, 3, 3)).toEqual([7]);
+        });
+
+        it('should return an empty page beyond the end', () => {
+            expect(PaginationUtility.slicePage(items, 4, 3)).toEqual([]);
+        });
+
+        it('should treat page numbers below one as the first page', () => {
+            expect(PaginationUtility.slicePage(items, 0, 3)).toEqual([1, 2, 3]);
+        });
+
+        it('should return nothing for a non-positive page size', () => {
+            expect(PaginationUtility.slicePage(items, 1, 0)).toEqual([]);
+        });
+
+        it('should handle an empty result set', () => {
+            expect(PaginationUtility.slicePage([], 1, 10)).toEqual([]);
+        });
+    });
+
     describe('queryUntilLastPage', () => {
         it('should return all results from paginated queries', async () => {
             const mockQueryFunction = jest

@@ -1,107 +1,70 @@
-import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
-import { Customer } from '../../../customer/models';
-import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { Jumpoint } from '../../../jumpoint/models';
 import { RetrieveJumpointsQuery } from '../../../jumpoint/queries';
 import { PaginationUtility } from '../../../shared/utilities';
-import { Site } from '../../../site/models/site.model';
-import { RetrieveSitesQuery } from '../../../site/queries';
-import { SocJumpoint } from '../../models';
-import { SocJumpointUtility } from '../../utilities';
+import { SocJumpoint, SocPagedResult } from '../../models';
+import { SocAggregateCacheService, SocCustomerSiteResolverService } from '../../services';
+import { SocFilterUtility } from '../../utilities';
 import { RetrieveSocJumpointsQuery } from '../retrieve-soc-jumpoints.query';
 
+/**
+ * Retrieves every jumpoint on the platform and attributes each one to a customer/site.
+ *
+ * Jumpoints are loaded without any name filter, so jumpoints that do not follow the
+ * Marlink naming convention are returned as well — flagged as `Unmapped`.
+ */
 @QueryHandler(RetrieveSocJumpointsQuery)
 export class RetrieveSocJumpointsQueryHandler implements IQueryHandler<RetrieveSocJumpointsQuery> {
     private static readonly PAGE_SIZE = 100;
 
-    constructor(private readonly queryBus: QueryBus) {}
+    constructor(
+        private readonly queryBus: QueryBus,
+        private readonly resolverService: SocCustomerSiteResolverService,
+        private readonly cacheService: SocAggregateCacheService,
+    ) {}
 
-    public async execute(query: RetrieveSocJumpointsQuery): Promise<SocJumpoint[]> {
-        const socJumpoints: SocJumpoint[] = [];
-
-        for (const { customerKey, siteKey } of query.customerSiteInfo ?? []) {
-            const { customer, site } = await this.retrieveCustomerAndSite(query.transactionId, customerKey, siteKey);
-
-            const jumpointNamePattern = SocJumpointUtility.generateNamePattern(customer, site);
-            const jumpoints = await this.retrieveJumpoints(query.transactionId, query.tenantId, jumpointNamePattern);
-
-            socJumpoints.push(
-                ...jumpoints.map((jumpoint) => ({
-                    jumpoint,
-                    customerKey: customer?.key,
-                    customerName: customer?.name,
-                    siteKey: site?.key,
-                    siteName: site?.name,
-                })),
-            );
-        }
-
-        return socJumpoints;
-    }
-
-    private async retrieveCustomerAndSite(
-        transactionId: string,
-        customerKey: string | undefined,
-        siteKey: string | undefined,
-    ) {
-        let customer = customerKey ? await this.retrieveCustomer(transactionId, customerKey) : undefined;
-        const site = siteKey ? await this.retrieveSite(transactionId, siteKey, customerKey) : undefined;
-
-        if (!customer && site) {
-            customer = await this.retrieveCustomer(transactionId, site.customerKey);
-        }
-        return { customer, site };
-    }
-
-    private async retrieveCustomer(transactionId: string, customerKey: string): Promise<Customer> {
-        const customers = await this.queryBus.execute<RetrieveCustomersQuery, Customer[]>(
-            new RetrieveCustomersQuery(transactionId, 1, 1, customerKey),
+    public async execute(query: RetrieveSocJumpointsQuery): Promise<SocPagedResult<SocJumpoint>> {
+        // Cached unfiltered, so that one snapshot serves every page and every filter
+        // combination. Scope and filters are applied per request below.
+        const socJumpoints = await this.cacheService.resolve(`soc-jumpoints:${query.tenantId}`, () =>
+            this.aggregate(query.transactionId, query.tenantId),
         );
 
-        if (customers.length === 0 || !customers[0]) {
-            throw new NotFoundException(`Customer not found with key: ${customerKey}`);
-        }
+        const filtered = SocFilterUtility.apply(socJumpoints, {
+            customerKey: query.customerKey,
+            siteKey: query.siteKey,
+            mappingStatus: query.mappingStatus,
+            scopedCustomerKeys: query.scopedCustomerKeys,
+        });
 
-        return customers[0];
+        return {
+            items: PaginationUtility.slicePage(filtered, query.pageNumber, query.pageSize),
+            totalCount: filtered.length,
+        };
     }
 
-    private async retrieveSite(transactionId: string, siteKey: string, customerKey: string | undefined): Promise<Site> {
-        const sites = await this.queryBus.execute<RetrieveSitesQuery, Site[]>(
-            new RetrieveSitesQuery(transactionId, 1, 1, siteKey, undefined, customerKey ? [customerKey] : undefined),
-        );
+    private async aggregate(transactionId: string, tenantId: number): Promise<SocJumpoint[]> {
+        const [resolver, jumpoints] = await Promise.all([
+            this.resolverService.create(transactionId, tenantId),
+            this.retrieveAllJumpoints(transactionId, tenantId),
+        ]);
 
-        if (sites.length === 0 || !sites[0]) {
-            throw new NotFoundException(
-                `Site not found with key: ${siteKey} and customer key: ${customerKey ? customerKey : 'undefined'}`,
-            );
-        }
-
-        return sites[0];
+        return jumpoints.map((jumpoint) => ({
+            jumpoint,
+            ...resolver.resolveFromJumpointName(jumpoint.name),
+        }));
     }
 
-    private async retrieveJumpoints(
-        transactionId: string,
-        tenantId: number,
-        jumpointNamePattern: string,
-    ): Promise<Jumpoint[]> {
-        const jumpoints = await PaginationUtility.queryUntilLastPage((pageNumber) =>
+    private retrieveAllJumpoints(transactionId: string, tenantId: number): Promise<Jumpoint[]> {
+        return PaginationUtility.queryUntilLastPage((pageNumber) =>
             this.queryBus.execute<RetrieveJumpointsQuery, Jumpoint[]>(
                 new RetrieveJumpointsQuery(
                     transactionId,
                     tenantId,
                     RetrieveSocJumpointsQueryHandler.PAGE_SIZE,
                     pageNumber,
-                    undefined, // name
-                    undefined, // publicIp
-                    undefined, // privateIp
-                    undefined, // hostname
-                    undefined, // codeName
-                    [jumpointNamePattern],
                 ),
             ),
         );
-
-        return jumpoints;
     }
 }

@@ -1,13 +1,4 @@
-import {
-    Body,
-    Controller,
-    Query,
-    QueryMethod,
-    UseGuards,
-    UseInterceptors,
-    UsePipes,
-    ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AccessGuard } from '../../access/guards';
@@ -20,12 +11,15 @@ import {
 } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
+import { PaginationMetaDtoOutput } from '../../shared/dtos/outputs';
 import { UuidUtility } from '../../shared/utilities';
-import { PaginationDtoInput, RetrieveSocJumpItemsDtoInput, RetrieveSocJumpointsDtoInput } from '../dtos/inputs';
-import { SocJumpItemRetrievedDtoOutput, SocJumpointRetrievedDtoOutput } from '../dtos/outputs';
-import { SocJumpItem, SocJumpoint } from '../models';
+import { SocScopeParam } from '../decorators';
+import { SocFilterDtoInput } from '../dtos/inputs';
+import { SocJumpItemsRetrievedDtoOutput, SocJumpointsRetrievedDtoOutput } from '../dtos/outputs';
+import { SocJumpItem, SocJumpoint, SocPagedResult, SocScope } from '../models';
 import { SocRequestPipe } from '../pipes';
 import { RetrieveSocJumpItemsQuery, RetrieveSocJumpointsQuery } from '../queries';
+import { SocScopeUtility } from '../utilities';
 
 @ApiTenantIdHeader()
 @ApiTransactionIdHeader()
@@ -40,45 +34,57 @@ import { RetrieveSocJumpItemsQuery, RetrieveSocJumpointsQuery } from '../queries
 export class SocController {
     constructor(private readonly queryBus: QueryBus) {}
 
-    @QueryMethod('jump-items')
-    @ApiOkResponse({ type: SocJumpItemRetrievedDtoOutput, isArray: true })
+    @Get('jump-items')
+    @ApiOkResponse({ type: SocJumpItemsRetrievedDtoOutput })
     public async retrieveSocJumpItems(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @TenantIdHeader() tenantId: number,
-        @Query() query: PaginationDtoInput,
-        @Body() body: RetrieveSocJumpItemsDtoInput,
-    ): Promise<SocJumpItemRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveSocJumpItemsQuery, SocJumpItem[]>(
+        @Query() query: SocFilterDtoInput,
+        @SocScopeParam() scope: SocScope,
+    ): Promise<SocJumpItemsRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveSocJumpItemsQuery, SocPagedResult<SocJumpItem>>(
             new RetrieveSocJumpItemsQuery(
                 transactionId,
                 tenantId,
                 query.pageSize,
                 query.pageNumber,
-                body.customerSiteInfo,
+                query.customerKey,
+                query.siteKey,
+                query.mappingStatus,
+                SocScopeUtility.toScopedCustomerKeys(scope),
             ),
         );
 
-        return result;
+        return {
+            items: result.items,
+            pagination: PaginationMetaDtoOutput.create(query.pageNumber, query.pageSize, result.totalCount),
+        };
     }
 
-    @QueryMethod('jumpoints')
-    @ApiOkResponse({ type: SocJumpointRetrievedDtoOutput, isArray: true })
+    @Get('jumpoints')
+    @ApiOkResponse({ type: SocJumpointsRetrievedDtoOutput })
     public async retrieveSocJumpoints(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @TenantIdHeader() tenantId: number,
-        @Query() query: PaginationDtoInput,
-        @Body() body: RetrieveSocJumpointsDtoInput,
-    ): Promise<SocJumpointRetrievedDtoOutput[]> {
-        const result = await this.queryBus.execute<RetrieveSocJumpointsQuery, SocJumpoint[]>(
+        @Query() query: SocFilterDtoInput,
+        @SocScopeParam() scope: SocScope,
+    ): Promise<SocJumpointsRetrievedDtoOutput> {
+        const result = await this.queryBus.execute<RetrieveSocJumpointsQuery, SocPagedResult<SocJumpoint>>(
             new RetrieveSocJumpointsQuery(
                 transactionId,
                 tenantId,
                 query.pageSize,
                 query.pageNumber,
-                body.customerSiteInfo,
+                query.customerKey,
+                query.siteKey,
+                query.mappingStatus,
+                SocScopeUtility.toScopedCustomerKeys(scope),
             ),
         );
 
-        return result;
+        return {
+            items: result.items,
+            pagination: PaginationMetaDtoOutput.create(query.pageNumber, query.pageSize, result.totalCount),
+        };
     }
 }

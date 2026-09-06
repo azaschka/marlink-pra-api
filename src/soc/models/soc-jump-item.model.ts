@@ -5,12 +5,12 @@ import { RemoteVnc } from '../../jump-item/remote-vnc/models';
 import { ShellJump } from '../../jump-item/shell-jump/models';
 import { WebJump } from '../../jump-item/web-jump/models';
 import { SocJumpItemType } from '../enums';
+import { SocCustomerSiteMapping } from './soc-customer-site-mapping.model';
 
-export interface SocJumpItem {
+/** A jump item that is bound to a jumpoint, as opposed to a jump client. */
+export type JumpointBoundJumpItem = ProtocolTunnelJump | RemoteRdp | RemoteVnc | ShellJump | WebJump;
+
+export interface SocJumpItem extends SocCustomerSiteMapping {
     jumpItemType: SocJumpItemType;
-    jumpItem: ProtocolTunnelJump | RemoteRdp | RemoteVnc | ShellJump | WebJump | JumpClient;
-    customerKey?: string;
-    customerName?: string;
-    siteKey?: string;
-    siteName?: string;
+    jumpItem: JumpointBoundJumpItem | JumpClient;
 }

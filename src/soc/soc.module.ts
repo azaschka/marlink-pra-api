@@ -6,10 +6,18 @@ import { CustomersScopeInterceptor } from '../customer/interceptors';
 import { SocController } from './controllers/soc.controller';
 import { SocRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
+import { SocAggregateCacheService, SocCustomerSiteResolverService } from './services';
 
 @Module({
     imports: [AppConfigModule, HttpModule],
     controllers: [SocController],
-    providers: [AccessGuard, CustomersScopeInterceptor, SocRequestPipe, ...QueryHandlers],
+    providers: [
+        AccessGuard,
+        CustomersScopeInterceptor,
+        SocRequestPipe,
+        SocCustomerSiteResolverService,
+        SocAggregateCacheService,
+        ...QueryHandlers,
+    ],
 })
 export class SocModule {}
