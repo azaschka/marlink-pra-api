@@ -8,7 +8,7 @@ export abstract class DefaultAppConfig {
     private static readonly AUTH_FALLBACK_ADMIN_USERNAME = 'odin';
     private static readonly AUTH_FALLBACK_ADMIN_PASSWORD_HASH =
         '$2b$10$rZVykVWWxkZMsp1spQKrNOdkZdFXb7H0BLao5Ue1N4WLqIHmjRIoK';
-    private static readonly PRA_ADMIN_CONSOLE_URL = 'https://pra-admin.cdn-vas.net';
+    private static readonly PRA_ADMIN_CONSOLE_URL = 'https://praadmin-mobsat.msappproxy.net/';
     private static readonly BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra.beyondtrustcloud.com/login';
     private static readonly PRA_SYNC_API_BASE_URL = 'http://pra-sync-api:9001';
     // Database connection settings
