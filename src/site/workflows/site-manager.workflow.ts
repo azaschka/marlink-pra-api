@@ -115,12 +115,19 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
         const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
 
+        // R3.2-A003, 3.1(4): removing memberships has to work even when the account behind them is gone.
+        // A non-local user can disappear from BeyondTrust between two runs, and throwing here would leave the
+        // membership permanently undeletable. Everything that is keyed by email is still cleaned up.
         if (!siteManagerUser) {
-            throw new UserNotFoundException(
-                SiteUserType.SiteManager,
-                this.siteManager.username,
-                this.siteManager.email,
+            console.warn(
+                `[${this.transactionId}] Site manager ${this.siteManager.email} no longer exists in BeyondTrust. ` +
+                    'Removing the jump policy entries that are keyed by email and skipping the rest.',
             );
+
+            await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [], [this.siteManager.email]);
+            await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
+
+            return;
         }
 
         const isSiteManagerAssociatedWithMultipleSites =

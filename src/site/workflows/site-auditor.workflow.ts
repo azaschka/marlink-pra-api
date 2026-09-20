@@ -141,12 +141,14 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
 
+        // R3.2-A003, 3.1(4): an account that no longer exists in BeyondTrust holds no memberships to remove.
+        // Throwing here would make the site auditor row permanently undeletable.
         if (!siteAuditorUser) {
-            throw new UserNotFoundException(
-                SiteUserType.SiteAuditor,
-                this.siteAuditor.username,
-                this.siteAuditor.email,
+            console.warn(
+                `[${this.transactionId}] Site auditor ${this.siteAuditor.email} no longer exists in BeyondTrust, nothing to remove.`,
             );
+
+            return;
         }
 
         const isSiteAuditorAssociatedWithMultipleSites =

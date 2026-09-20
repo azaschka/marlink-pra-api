@@ -204,12 +204,14 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteSupportTeamMemberUser = await this.siteSupportTeamMemberUserWorkflow.getOrCreate();
 
+        // R3.2-A003, 3.1(4): an account that no longer exists in BeyondTrust holds no memberships to remove.
+        // Throwing here would make the support team member row permanently undeletable.
         if (!siteSupportTeamMemberUser) {
-            throw new UserNotFoundException(
-                SiteUserType.SiteSupportTeamMember,
-                undefined,
-                this.siteSupportTeamMember.email,
+            console.warn(
+                `[${this.transactionId}] Site support team member ${this.siteSupportTeamMember.email} no longer exists in BeyondTrust, nothing to remove.`,
             );
+
+            return;
         }
 
         const isSiteSupportTeamMemberAssociatedWithMultipleSites =

@@ -40,7 +40,7 @@ import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workfl
 import { TeamWorkflow } from './teams';
 import { SiteManagerUserWorkflow } from './users';
 
-export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
+export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorReport> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow;
@@ -434,7 +434,16 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         return siteWorkflowResult;
     }
 
-    public async delete(): Promise<void> {
+    /**
+     * Removes the site's BeyondTrust artefacts and returns what could not be removed.
+     *
+     * Failures used to be written to the pod log only, so DELETE /site/{id} answered success even when the
+     * memberships of the deleted site were still in place. R3.2-A005 is about cleaning those up, which means
+     * the caller has to learn when the cleanup did not happen.
+     */
+    public async delete(): Promise<ErrorReport> {
+        const errorReport = new ErrorReport();
+
         // Wrap in try-catch to handle cases where BeyondTrust instance no longer exists
         // If tenant doesn't exist (404), there's nothing to delete, so we can safely ignore
         try {
@@ -451,6 +460,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     await siteManagerWorkflow.delete();
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site manager workflow:`, error);
+                    errorReport.add(error);
                 }
             }
 
@@ -459,6 +469,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     await siteAuditorWorkflow.delete();
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site auditor workflow:`, error);
+                    errorReport.add(error);
                 }
             }
 
@@ -467,6 +478,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
                     await siteSupportTeamMemberWorkflow.delete();
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site support team member workflow:`, error);
+                    errorReport.add(error);
                 }
             }
 
@@ -562,11 +574,17 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
 
             if (statusCode === 404) {
                 console.log(`[${this.transactionId}] External resource not found (404) - skipping cleanup`);
-                return;
+
+                return errorReport;
             }
 
-            throw error;
+            // The remaining artefacts could not be cleaned up. The site record is still removed, so the caller
+            // has to be told what is left behind in BeyondTrust rather than receiving a bare success.
+            console.error(`[${this.transactionId}] Failed to delete the site's BeyondTrust artefacts:`, error);
+            errorReport.add(error);
         }
+
+        return errorReport;
     }
 
     private async getAllGroupPolicyTeams(groupPolicyId: number): Promise<GroupPolicyTeam[]> {

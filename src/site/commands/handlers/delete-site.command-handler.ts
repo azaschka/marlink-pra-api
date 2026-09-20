@@ -4,6 +4,7 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
+import { ErrorReport } from '../../error-reports';
 import { SiteDeletedEvent } from '../../events';
 import {
     PartialSiteApprover,
@@ -25,11 +26,11 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
         private readonly siteRepositoryService: SiteRepositoryService,
     ) {}
 
-    public async execute(command: DeleteSiteCommand): Promise<void> {
+    public async execute(command: DeleteSiteCommand): Promise<ErrorReport> {
         const site = await this.getSite(command.id);
         const customer = await this.getCustomer(command.transactionId, site.customerKey);
 
-        await this.runWorkflow(
+        const errorReport = await this.runWorkflow(
             command.transactionId,
             site.name,
             site.key,
@@ -44,6 +45,8 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
         await this.siteRepositoryService.deleteById(command.id);
 
         this.eventBus.publish(new SiteDeletedEvent(command.transactionId, { id: command.id }));
+
+        return errorReport;
     }
 
     private async getSite(siteId: number) {
@@ -79,7 +82,7 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
         customerName: string,
         customerBusinessUnit: BusinessUnit,
         customerBeyondTrustInstanceId: number,
-    ): Promise<void> {
+    ): Promise<ErrorReport> {
         const siteWorkflow = new SiteWorkflow(
             this.appConfigService,
             this.queryBus,
@@ -96,6 +99,6 @@ export class DeleteSiteCommandHandler implements ICommandHandler<DeleteSiteComma
             customerBeyondTrustInstanceId,
         );
 
-        await siteWorkflow.delete();
+        return await siteWorkflow.delete();
     }
 }
