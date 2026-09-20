@@ -764,7 +764,6 @@ describe('AppConfigService', () => {
         it('should ignore environment variables for pool and timeout settings and only use the constants', () => {
             const credentialKeys = ['ENV', 'DB_TYPE', 'DB_HOST', 'DB_PORT', 'DB_USERNAME', 'DB_PASSWORD', 'DB_NAME'];
             const requestedKeys: string[] = [];
-            // Every key except the credentials returns a value that differs from the constants, as if it were set
             configService.get = jest.fn().mockImplementation((key: string) => {
                 requestedKeys.push(key);
                 return credentialKeys.includes(key) ? undefined : 999999;
@@ -787,7 +786,6 @@ describe('AppConfigService', () => {
             expect(database.retryDelay).toBe(constants.retryDelay);
             expect(database.maxQueryExecutionTime).toBe(constants.maxQueryExecutionTime);
             expect(service.databaseMaxConnections).toBe(constants.extra.connectionLimit);
-            // Only the endpoint and the credentials may be read from the environment
             expect(requestedKeys.filter((key) => !credentialKeys.includes(key))).toEqual([]);
         });
     });

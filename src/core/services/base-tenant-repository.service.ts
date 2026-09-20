@@ -158,19 +158,11 @@ export class BaseTenantRepositoryService<T> {
         return allRelationTargets.every((target) => allEntityNames.includes(target));
     }
 
-    /**
-     * Fails fast for an unregistered tenant, before a database connection is taken from the pool.
-     */
     private assertTenantIsRegistered(tenantId: number): void {
         this.getTenantRepository(tenantId);
     }
 
-    /**
-     * When a query runner is passed, the repository is bound to it, so that every statement runs on the
-     * one connection (and transaction) held by that query runner. Without the binding each repository
-     * call takes a second connection from the pool while the query runner keeps its own, which halves the
-     * usable pool and lets concurrent requests wait for each other when the pool is exhausted.
-     */
+    // Bind to the query runner when given, otherwise each call takes a second pooled connection.
     private getTenantRepository(tenantId: number, queryRunner?: QueryRunner) {
         try {
             const entitySchema = this.tenantEntitySchemaFactory.create(tenantId);
@@ -195,7 +187,6 @@ export class BaseTenantRepositoryService<T> {
         }
     }
 
-    // Bounded wait for a pooled connection, see DatabaseConnectionUtility.
     private async createQueryRunnerAndConnect() {
         return DatabaseConnectionUtility.acquireQueryRunner(this.dataSource);
     }

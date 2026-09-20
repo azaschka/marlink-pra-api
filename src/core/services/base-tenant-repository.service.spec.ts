@@ -471,7 +471,6 @@ function mockDataSource(): DataSource {
     dataSource.getRepository = jest.fn().mockReturnValue(repository);
     dataSource.createQueryRunner = jest.fn().mockReturnValue({
         connect: jest.fn(),
-        // The repository bound to the query runner is the same mock, so the existing expectations still hold
         manager: { getRepository: jest.fn().mockReturnValue(repository) },
         startTransaction: jest.fn(),
         commitTransaction: jest.fn(),
