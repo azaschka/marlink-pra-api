@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { NameSanitizerUtility } from '../../../../shared/utilities';
 import { JumpGroupType } from '../../enums';
 
 export class ModifyRemoteVncDtoInput {
@@ -34,6 +36,7 @@ export class ModifyRemoteVncDtoInput {
     public jumpGroupType?: JumpGroupType;
 
     @ApiProperty({ required: false, type: String })
+    @Transform(({ value }) => NameSanitizerUtility.sanitizeTag(value))
     @IsOptional()
     @IsString()
     public tag?: string;

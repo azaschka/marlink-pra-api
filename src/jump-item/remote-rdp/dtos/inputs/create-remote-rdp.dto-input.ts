@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { NameSanitizerUtility } from '../../../../shared/utilities';
 import { JumpGroupType, RdpQualityMode, SecureAppType } from '../../enums';
 
 export class CreateRemoteRdpDtoInput {
@@ -53,6 +55,7 @@ export class CreateRemoteRdpDtoInput {
     public mustIgnoreUntrustedServerCert?: boolean;
 
     @ApiProperty({ required: false, type: String })
+    @Transform(({ value }) => NameSanitizerUtility.sanitizeTag(value))
     @IsOptional()
     @IsString()
     public tag?: string;

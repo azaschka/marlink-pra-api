@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { NameSanitizerUtility } from '../../../shared/utilities';
 import { JumpClientEndpointAgreementPolicyType, JumpClientGroupType } from '../../enums';
 
 export class ModifyJumpClientDtoInput {
@@ -27,6 +29,7 @@ export class ModifyJumpClientDtoInput {
     public name?: string;
 
     @ApiProperty({ required: false, type: String, description: "The Jump Client's tag." })
+    @Transform(({ value }) => NameSanitizerUtility.sanitizeTag(value))
     @IsString()
     @IsOptional()
     public tag?: string;

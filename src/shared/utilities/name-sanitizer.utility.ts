@@ -136,6 +136,20 @@ export abstract class NameSanitizerUtility {
     }
 
     /**
+     * Sanitizes an asset tag (Jump Items, Jump Clients, Jump Client Installers) so that every entry point
+     * (ingestion, manual creation, edit, direct API call) produces the same canonical UPPERCASE value.
+     * Trim -> whitespace runs -> _ -> hyphens -> _ -> SPECIAL_CHAR_MAP -> remove non-[a-zA-Z0-9_] -> UPPERCASE
+     * Must stay in sync with StringSanitizer.sanitizeTag in PRA Console. Idempotent.
+     * Non-string values are returned untouched so optional fields stay optional and @IsString() still rejects them.
+     */
+    public static sanitizeTag(value: unknown): unknown {
+        if (typeof value !== 'string') return value;
+        return applySpecialCharMap(value.trim().replace(/\s+/g, '_').replace(/-/g, '_'))
+            .replace(/[^a-zA-Z0-9_]/g, '')
+            .toUpperCase();
+    }
+
+    /**
      * Sanitizes a key for use as a unique identifier.
      * Trim -> SPECIAL_CHAR_MAP -> remove non-[a-zA-Z0-9_]
      * Note: spaces and hyphens are removed (not replaced) to preserve key uniqueness semantics.

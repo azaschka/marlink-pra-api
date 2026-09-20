@@ -90,4 +90,42 @@ describe('NameSanitizerUtility', () => {
             expect(NameSanitizerUtility.sanitizeKey('')).toBe('');
         });
     });
+
+    describe('sanitizeTag', () => {
+        it('should convert to uppercase', () => {
+            expect(NameSanitizerUtility.sanitizeTag('acme_site')).toBe('ACME_SITE');
+        });
+
+        it('should replace whitespace runs with a single underscore', () => {
+            expect(NameSanitizerUtility.sanitizeTag('acme   site\tone')).toBe('ACME_SITE_ONE');
+        });
+
+        it('should replace hyphens with underscores', () => {
+            expect(NameSanitizerUtility.sanitizeTag('acme-site')).toBe('ACME_SITE');
+        });
+
+        it('should map special characters and remove the remaining ones', () => {
+            expect(NameSanitizerUtility.sanitizeTag('Düsseldorf @ Hafen!')).toBe('DUESSELDORF__HAFEN');
+        });
+
+        it('should trim leading and trailing whitespace', () => {
+            expect(NameSanitizerUtility.sanitizeTag('  acme  ')).toBe('ACME');
+        });
+
+        it('should be idempotent', () => {
+            const once = NameSanitizerUtility.sanitizeTag('Acme Site-01') as string;
+            expect(NameSanitizerUtility.sanitizeTag(once)).toBe(once);
+            expect(once).toBe('ACME_SITE_01');
+        });
+
+        it('should keep an empty string empty', () => {
+            expect(NameSanitizerUtility.sanitizeTag('')).toBe('');
+        });
+
+        it('should return non-string values untouched', () => {
+            expect(NameSanitizerUtility.sanitizeTag(undefined)).toBeUndefined();
+            expect(NameSanitizerUtility.sanitizeTag(null)).toBeNull();
+            expect(NameSanitizerUtility.sanitizeTag(42)).toBe(42);
+        });
+    });
 });
