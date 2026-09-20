@@ -82,10 +82,21 @@ describe('RemoteVncController', () => {
                 hostname: 'hostname-2',
                 jumpGroupId: 3,
                 port: 2000,
+                tag: 'REMOTE_VNC_TAG',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateRemoteVncCommand('uuid-123', 123, 'remote-vnc-2', 2, 'hostname-2', 2000, 3),
+                new CreateRemoteVncCommand(
+                    'uuid-123',
+                    123,
+                    'remote-vnc-2',
+                    2,
+                    'hostname-2',
+                    2000,
+                    3,
+                    undefined,
+                    'REMOTE_VNC_TAG',
+                ),
             );
             expect(result).toBe(expectedResult);
         });

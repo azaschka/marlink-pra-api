@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { NameSanitizerUtility } from '../../../../shared/utilities';
+import { AssetTag } from '../../../../shared/decorators';
 import { JumpGroupType, TunnelType } from '../../enums';
 
 export class ModifyProtocolTunnelJumpDtoInput {
@@ -30,10 +29,7 @@ export class ModifyProtocolTunnelJumpDtoInput {
     @IsEnum(JumpGroupType)
     public jumpGroupType?: JumpGroupType;
 
-    @ApiProperty({ required: false, type: String })
-    @Transform(({ value }) => NameSanitizerUtility.sanitizeTag(value))
-    @IsOptional()
-    @IsString()
+    @AssetTag({ required: false })
     public tag?: string;
 
     @ApiProperty({ required: false, type: String })

@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { NameSanitizerUtility } from '../../../../shared/utilities';
+import { AssetTag } from '../../../../shared/decorators';
 import { JumpGroupType, WebJumpUsernameFormatType } from '../../enums';
 
 export class ModifyWebJumpDtoInput {
@@ -45,10 +44,7 @@ export class ModifyWebJumpDtoInput {
     @IsInt()
     public authenticationTimeoutInSeconds?: number;
 
-    @ApiProperty({ required: false, type: String })
-    @Transform(({ value }) => NameSanitizerUtility.sanitizeTag(value))
-    @IsOptional()
-    @IsString()
+    @AssetTag({ required: false })
     public tag?: string;
 
     @ApiProperty({ required: false, type: String })

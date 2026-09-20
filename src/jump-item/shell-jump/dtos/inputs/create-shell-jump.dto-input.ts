@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { NameSanitizerUtility } from '../../../../shared/utilities';
+import { AssetTag } from '../../../../shared/decorators';
 import { JumpGroupType, ShellJumpProtocolType, ShellJumpTerminalType } from '../../enums';
 
 export class CreateShellJumpDtoInput {
@@ -50,11 +49,8 @@ export class CreateShellJumpDtoInput {
     @IsInt()
     public keepAliveIdleSessionInSeconds?: number;
 
-    @ApiProperty({ required: false, type: String })
-    @Transform(({ value }) => NameSanitizerUtility.sanitizeTag(value))
-    @IsOptional()
-    @IsString()
-    public tag?: string;
+    @AssetTag()
+    public tag!: string;
 
     @ApiProperty({ required: false, type: String })
     @IsOptional()

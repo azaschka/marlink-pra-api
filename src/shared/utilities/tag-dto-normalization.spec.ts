@@ -1,5 +1,10 @@
 import { ArgumentMetadata, ValidationPipe } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
+import { readdirSync, readFileSync } from 'fs';
+import { join } from 'path';
+import { CreateJumpClientInstallerDtoInput } from '../../jump-client/dtos/inputs/create-jump-client-installer.dto-input';
+import { ModifyJumpClientDtoInput } from '../../jump-client/dtos/inputs/modify-jump-client.dto-input';
 import { CreateProtocolTunnelJumpDtoInput } from '../../jump-item/protocol-tunnel-jump/dtos/inputs/create-protocol-tunnel-jump.dto-input';
 import { ModifyProtocolTunnelJumpDtoInput } from '../../jump-item/protocol-tunnel-jump/dtos/inputs/modify-protocol-tunnel-jump.dto-input';
 import { CreateRemoteRdpDtoInput } from '../../jump-item/remote-rdp/dtos/inputs/create-remote-rdp.dto-input';
@@ -10,12 +15,14 @@ import { CreateShellJumpDtoInput } from '../../jump-item/shell-jump/dtos/inputs/
 import { ModifyShellJumpDtoInput } from '../../jump-item/shell-jump/dtos/inputs/modify-shell-jump.dto-input';
 import { CreateWebJumpDtoInput } from '../../jump-item/web-jump/dtos/inputs/create-web-jump.dto-input';
 import { ModifyWebJumpDtoInput } from '../../jump-item/web-jump/dtos/inputs/modify-web-jump.dto-input';
-import { CreateJumpClientInstallerDtoInput } from '../../jump-client/dtos/inputs/create-jump-client-installer.dto-input';
-import { ModifyJumpClientDtoInput } from '../../jump-client/dtos/inputs/modify-jump-client.dto-input';
 
 /**
- * Regression guard for MARLINKPRA-56: every DTO that accepts an asset tag must normalize it to the canonical
- * UPPERCASE form, so that ingestion, manual creation, edit and direct API calls all produce the same value.
+ * Regression guard for MARLINKPRA-56 and MARLINKPRA-71.
+ * Every DTO that accepts an asset tag (create and modify) must
+ * - normalize the tag to the canonical UPPERCASE form (MARLINKPRA-56), and
+ * - reject a tag that is empty after normalization (MARLINKPRA-71).
+ * Create requests additionally require the tag, modify (PATCH) requests may omit it to leave it unchanged.
+ * All rules come from the shared `@AssetTag()` decorator.
  */
 const TAG_DTOS: Array<[string, new () => { tag?: string }]> = [
     ['CreateShellJumpDtoInput', CreateShellJumpDtoInput],
@@ -32,7 +39,23 @@ const TAG_DTOS: Array<[string, new () => { tag?: string }]> = [
     ['ModifyJumpClientDtoInput', ModifyJumpClientDtoInput],
 ];
 
-describe('Asset tag normalization on input DTOs', () => {
+const CREATE_DTOS = TAG_DTOS.filter(([name]) => name.startsWith('Create'));
+const MODIFY_DTOS = TAG_DTOS.filter(([name]) => name.startsWith('Modify'));
+
+/** Validation errors reported for the tag property only, so the other required fields of a DTO do not interfere. */
+function tagErrors(dtoClass: new () => { tag?: string }, payload: Record<string, unknown>) {
+    const dto = plainToInstance(dtoClass, payload);
+    return validateSync(dto as object).filter((error) => error.property === 'tag');
+}
+
+function collectFiles(directory: string): string[] {
+    return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+        const fullPath = join(directory, entry.name);
+        return entry.isDirectory() ? collectFiles(fullPath) : [fullPath];
+    });
+}
+
+describe('Asset tag on input DTOs', () => {
     describe.each(TAG_DTOS)('%s', (_name, dtoClass) => {
         it('should normalize the tag to the canonical UPPERCASE form', () => {
             const dto = plainToInstance(dtoClass, { tag: 'acme site-01' });
@@ -44,9 +67,30 @@ describe('Asset tag normalization on input DTOs', () => {
             expect(dto.tag).toBe('ACME_SITE_01');
         });
 
-        it('should keep the tag undefined when it is not provided', () => {
-            const dto = plainToInstance(dtoClass, {});
-            expect(dto.tag).toBeUndefined();
+        it('should accept a valid tag', () => {
+            expect(tagErrors(dtoClass, { tag: 'acme site-01' })).toHaveLength(0);
+        });
+
+        it.each([
+            ['null', { tag: null }],
+            ['an empty string', { tag: '' }],
+            ['whitespace only', { tag: '   ' }],
+            ['special characters only', { tag: '###' }],
+            ['a number', { tag: 42 }],
+        ])('should reject a tag that is %s', (_case, payload) => {
+            expect(tagErrors(dtoClass, payload)).not.toHaveLength(0);
+        });
+    });
+
+    describe.each(CREATE_DTOS)('%s (create)', (_name, dtoClass) => {
+        it('should reject a missing tag', () => {
+            expect(tagErrors(dtoClass, {})).not.toHaveLength(0);
+        });
+    });
+
+    describe.each(MODIFY_DTOS)('%s (modify)', (_name, dtoClass) => {
+        it('should accept an omitted tag, which leaves the existing tag unchanged', () => {
+            expect(tagErrors(dtoClass, {})).toHaveLength(0);
         });
     });
 
@@ -59,10 +103,45 @@ describe('Asset tag normalization on input DTOs', () => {
         expect(result.tag).toBe('ACME_SITE');
     });
 
-    it('should still reject a non-string tag', async () => {
+    it('should accept a partial modify request without a tag through the ValidationPipe', async () => {
         const pipe = new ValidationPipe({ transform: true });
         const metadata: ArgumentMetadata = { type: 'body', metatype: ModifyShellJumpDtoInput };
 
-        await expect(pipe.transform({ tag: 42 }, metadata)).rejects.toBeDefined();
+        await expect(pipe.transform({ name: 'renamed' }, metadata)).resolves.toBeDefined();
+    });
+
+    it('should reject a modify request that blanks the tag through the ValidationPipe', async () => {
+        const pipe = new ValidationPipe({ transform: true });
+        const metadata: ArgumentMetadata = { type: 'body', metatype: ModifyShellJumpDtoInput };
+
+        await expect(pipe.transform({ tag: null }, metadata)).rejects.toBeDefined();
+        await expect(pipe.transform({ tag: '  ' }, metadata)).rejects.toBeDefined();
+    });
+
+    it('should reject a create request without a tag through the ValidationPipe', async () => {
+        const pipe = new ValidationPipe({ transform: true });
+        const metadata: ArgumentMetadata = { type: 'body', metatype: CreateShellJumpDtoInput };
+
+        await expect(pipe.transform({ name: 'asset' }, metadata)).rejects.toBeDefined();
+    });
+
+    it('should use @AssetTag() on every create and modify input DTO that carries a tag', () => {
+        const srcRoot = join(__dirname, '..', '..');
+        const tagDtoFiles = collectFiles(srcRoot).filter((file) => {
+            if (!/[\\/]dtos[\\/]inputs[\\/](create|modify)-.*\.dto-input\.ts$/.test(file)) return false;
+            return /public tag[?!]?:/.test(readFileSync(file, 'utf8'));
+        });
+
+        expect(tagDtoFiles.length).toBe(TAG_DTOS.length);
+        const withoutDecorator = tagDtoFiles.filter((file) => !readFileSync(file, 'utf8').includes('@AssetTag('));
+        expect(withoutDecorator).toEqual([]);
+
+        // Modify DTOs must stay optional, create DTOs must stay mandatory.
+        const misconfigured = tagDtoFiles.filter((file) => {
+            const isModify = /modify-[^\\/]*$/.test(file);
+            const declaresOptional = /@AssetTag\(\{[^}]*required:\s*false/.test(readFileSync(file, 'utf8'));
+            return isModify !== declaresOptional;
+        });
+        expect(misconfigured).toEqual([]);
     });
 });

@@ -83,10 +83,20 @@ describe('ProtocolTunnelJumpController', () => {
                 jumpointId: 2,
                 hostname: 'hostname-2',
                 jumpGroupId: 3,
+                tag: 'PROTOCOL_TUNNEL_TAG',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateProtocolTunnelJumpCommand('uuid-123', 123, 'protocol-tunnel-jump-2', 2, 'hostname-2', 3),
+                new CreateProtocolTunnelJumpCommand(
+                    'uuid-123',
+                    123,
+                    'protocol-tunnel-jump-2',
+                    2,
+                    'hostname-2',
+                    3,
+                    undefined,
+                    'PROTOCOL_TUNNEL_TAG',
+                ),
             );
             expect(result).toBe(expectedResult);
         });

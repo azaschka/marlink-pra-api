@@ -82,6 +82,7 @@ describe('ShellJumpController', () => {
                 hostname: 'hostname-2',
                 jumpGroupId: 3,
                 protocolType: ShellJumpProtocolType.SSH,
+                tag: 'SHELL_JUMP_TAG',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -94,6 +95,10 @@ describe('ShellJumpController', () => {
                     ShellJumpProtocolType.SSH,
                     undefined,
                     3,
+                    undefined,
+                    undefined,
+                    undefined,
+                    'SHELL_JUMP_TAG',
                 ),
             );
             expect(result).toBe(expectedResult);

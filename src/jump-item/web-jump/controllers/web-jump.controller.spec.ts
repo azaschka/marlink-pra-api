@@ -76,10 +76,23 @@ describe('WebJumpController', () => {
                 jumpointId: 2,
                 url: 'url-2',
                 jumpGroupId: 3,
+                tag: 'WEB_JUMP_TAG',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateWebJumpCommand('uuid-123', 123, 'web-jump-2', 2, 'url-2', 3),
+                new CreateWebJumpCommand(
+                    'uuid-123',
+                    123,
+                    'web-jump-2',
+                    2,
+                    'url-2',
+                    3,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    'WEB_JUMP_TAG',
+                ),
             );
             expect(result).toBe(expectedResult);
         });

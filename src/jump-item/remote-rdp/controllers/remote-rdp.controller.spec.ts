@@ -84,10 +84,23 @@ describe('RemoteRdpController', () => {
                 jumpointId: 2,
                 hostname: 'hostname-2',
                 jumpGroupId: 3,
+                tag: 'REMOTE_RDP_TAG',
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
-                new CreateRemoteRdpCommand('uuid-123', 123, 'remote-rdp-2', 2, 'hostname-2', 3),
+                new CreateRemoteRdpCommand(
+                    'uuid-123',
+                    123,
+                    'remote-rdp-2',
+                    2,
+                    'hostname-2',
+                    3,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    'REMOTE_RDP_TAG',
+                ),
             );
             expect(result).toBe(expectedResult);
         });
@@ -105,6 +118,7 @@ describe('RemoteRdpController', () => {
                 jumpointId: 2,
                 hostname: 'hostname-3',
                 jumpGroupId: 3,
+                tag: 'REMOTE_RDP_TAG',
             });
 
             const dispatchedCommand = commandBusExecuteSpy.mock.calls[0]?.[0] as CreateRemoteRdpCommand;
@@ -121,6 +135,7 @@ describe('RemoteRdpController', () => {
                 hostname: 'hostname-4',
                 jumpGroupId: 3,
                 mustIgnoreUntrustedServerCert: false,
+                tag: 'REMOTE_RDP_TAG',
             });
 
             const dispatchedCommand = commandBusExecuteSpy.mock.calls[0]?.[0] as CreateRemoteRdpCommand;
