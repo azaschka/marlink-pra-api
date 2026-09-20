@@ -4,18 +4,21 @@ import { ModifyJumpPolicyCommand } from '../../jump-policy/commands';
 import { JumpPolicy } from '../../jump-policy/models';
 import { ObjectUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
-import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
-import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { SiteUserType } from '../enums';
 import { UserNotFoundException } from '../exceptions';
 import { PartialSiteManager, PartialSiteManagerWithUserId, SiteManager } from '../models';
 import { RetrieveSiteManagersByUserIdQuery } from '../queries';
-import { ManagerAccessGroupPolicyWorkflow, ManagerGroupPolicyWorkflow } from './group-policies';
+import {
+    ManagerAccessGroupPolicyWorkflow,
+    ManagerGroupPolicyWorkflow,
+    UserGroupPolicyAssignmentWorkflow,
+} from './group-policies';
 import { AuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from './jump-policies';
 import { SiteManagerUserWorkflow } from './users';
 
 export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithUserId> {
+    private readonly userGroupPolicyAssignmentWorkflow: UserGroupPolicyAssignmentWorkflow;
     private readonly siteManagerUserWorkflow: SiteManagerUserWorkflow;
     private readonly managerAccessGroupPolicyWorkflow: ManagerAccessGroupPolicyWorkflow;
 
@@ -31,6 +34,13 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         private readonly authJumpPolicyWorkflow: AuthJumpPolicyWorkflow,
         private readonly notifyJumpPolicyWorkflow: NotifyJumpPolicyWorkflow,
     ) {
+        this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        );
+
         this.siteManagerUserWorkflow = new SiteManagerUserWorkflow(
             this.appConfigService,
             this.queryBus,
@@ -75,14 +85,12 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         //
         // Additionally, the manager's email is registered as a notification recipient and approver
         // on the site's auth jump policy, and as a notification recipient on the notify jump policy.
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteManagerUser.id,
-                [managerGroupPolicy.id, managerAccessGroupPolicy.id],
-                [],
-            ),
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteManager,
+            this.siteManager.sourceType,
+            siteManagerUser,
+            [managerGroupPolicy.id, managerAccessGroupPolicy.id],
+            [],
         );
 
         await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [this.siteManager.email], []);
@@ -121,16 +129,14 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         // MANAGER_ACCESS is global and must only be removed when the user is no longer a manager on any site.
         // If the user is still a manager on other sites, only the site-specific MANAGERS_{CUSTOMER}_{SITE}_{SITEKEY}
         // policy is removed — MANAGER_ACCESS stays in place.
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteManagerUser.id,
-                [],
-                isSiteManagerAssociatedWithMultipleSites
-                    ? [managerGroupPolicy.id]
-                    : [managerGroupPolicy.id, managerAccessGroupPolicy.id],
-            ),
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteManager,
+            this.siteManager.sourceType,
+            siteManagerUser,
+            [],
+            isSiteManagerAssociatedWithMultipleSites
+                ? [managerGroupPolicy.id]
+                : [managerGroupPolicy.id, managerAccessGroupPolicy.id],
         );
 
         await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [], [this.siteManager.email]);

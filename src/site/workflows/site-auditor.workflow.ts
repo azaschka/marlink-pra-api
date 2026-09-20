@@ -1,23 +1,23 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { BaseWorkflow } from '../../shared/workflows';
-import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
-import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { SiteUserType } from '../enums';
 import { UserNotFoundException } from '../exceptions';
 import { PartialSiteAuditor, PartialSiteAuditorWithUserId, SiteAuditor } from '../models';
 import { RetrieveSiteAuditorsByUserIdQuery } from '../queries';
 import {
+    AdminOperatorAccessGroupPolicyWorkflow,
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
-    AdminOperatorAccessGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
+    UserGroupPolicyAssignmentWorkflow,
 } from './group-policies';
 import { SiteAuditorUserWorkflow } from './users';
 
 export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithUserId> {
+    private readonly userGroupPolicyAssignmentWorkflow: UserGroupPolicyAssignmentWorkflow;
     private readonly siteAuditorUserWorkflow: SiteAuditorUserWorkflow;
     private readonly administratorAccessGroupPolicyWorkflow: AdministratorAccessGroupPolicyWorkflow;
     private readonly adminOperatorAccessGroupPolicyWorkflow: AdminOperatorAccessGroupPolicyWorkflow;
@@ -34,6 +34,13 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
     ) {
+        this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        );
+
         this.siteAuditorUserWorkflow = new SiteAuditorUserWorkflow(
             this.appConfigService,
             this.queryBus,
@@ -101,20 +108,18 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         //   - OPERATOR_{CUSTOMER}         — customer-specific operator group policy
         //   - FULL_ACCESS                 — global full access policy
 
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteAuditorUser.id,
-                [
-                    administratorGroupPolicy.id,
-                    this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
-                    this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
-                    this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
-                    this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
-                ].filter((id) => id !== undefined),
-                [],
-            ),
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteAuditor,
+            this.siteAuditor.sourceType,
+            siteAuditorUser,
+            [
+                administratorGroupPolicy.id,
+                this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
+                this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
+                this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
+                this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
+            ].filter((id) => id !== undefined),
+            [],
         );
 
         return {
@@ -150,20 +155,18 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         // If the user is a site auditor on multiple sites, the group policies must remain in place.
         // The same role-based policy split applies here as in getOrCreate() — see above for details.
         if (!isSiteAuditorAssociatedWithMultipleSites) {
-            await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-                new ModifyUserGroupPoliciesCommand(
-                    this.transactionId,
-                    this.customerBeyondtrustInstanceId,
-                    siteAuditorUser.id,
-                    [],
-                    [
-                        administratorGroupPolicy.id,
-                        this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
-                        this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
-                        this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
-                        this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
-                    ].filter((id) => id !== undefined),
-                ),
+            await this.userGroupPolicyAssignmentWorkflow.modify(
+                SiteUserType.SiteAuditor,
+                this.siteAuditor.sourceType,
+                siteAuditorUser,
+                [],
+                [
+                    administratorGroupPolicy.id,
+                    this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
+                    this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
+                    this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
+                    this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
+                ].filter((id) => id !== undefined),
             );
         }
 

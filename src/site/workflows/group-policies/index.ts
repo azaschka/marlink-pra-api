@@ -1,7 +1,7 @@
 export * from './admin-operator-access-group-policy.workflow';
-export * from './bu-support-group-policy.workflow';
 export * from './administrator-access-group-policy.workflow';
 export * from './administrator-group-policy.workflow';
+export * from './bu-support-group-policy.workflow';
 export * from './full-access-group-policy.workflow';
 export * from './limited-access-group-policy.workflow';
 export * from './manager-access-group-policy.workflow';
@@ -10,3 +10,4 @@ export * from './marlink-operator-group-policy.workflow';
 export * from './marlink-superuser-group-policy.workflow';
 export * from './operator-group-policy.workflow';
 export * from './support-team-group-policy.workflow';
+export * from './user-group-policy-assignment.workflow';
