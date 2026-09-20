@@ -1,4 +1,4 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { UnprocessableEntityException, ConflictException, NotFoundException } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
@@ -9,8 +9,9 @@ import { UserSourceType } from '../../../user/enums';
 import { ErrorReport } from '../../error-reports';
 import { SiteCreatedEvent, SiteModifiedEvent } from '../../events';
 import { PartialSiteApprover, Site, SiteWorkflowResult } from '../../models';
-import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
+import { RemoveSiteAuditorCommand } from '../remove-site-auditor.command';
+import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
@@ -138,6 +139,101 @@ describe('CreateSiteCommandHandler', () => {
                 site: updatedSite,
                 errorReport: TestHelper.mockedSiteWorkflowResult.errorReport,
             });
+        });
+
+        it('should reject a new site when no site manager could be processed', async () => {
+            const customer = {
+                name: 'customer-name-1',
+                businessUnit: BusinessUnit.EG,
+                beyondtrustInstanceId: 1,
+            } as Customer;
+
+            jest.spyOn(SiteWorkflow.prototype, 'getOrCreate').mockResolvedValue({
+                ...TestHelper.mockedSiteWorkflowResult,
+                siteManagers: [],
+                unresolvedEmails: {
+                    siteManagers: ['manager-email'],
+                    siteAuditors: [],
+                    siteSupportTeamMembers: [],
+                },
+            });
+
+            jest.spyOn(queryBus, 'execute')
+                .mockReset()
+                .mockResolvedValueOnce([]) // getSiteByKey -> not found
+                .mockResolvedValueOnce([]) // validateSiteNameNotTaken
+                .mockResolvedValueOnce([customer]); // getCustomer
+
+            const siteRepositoryCreateMethod = jest.spyOn(siteRepositoryService, 'create');
+
+            await expect(
+                handler.execute(
+                    new CreateSiteCommand(
+                        'transaction-1',
+                        'site-key-1',
+                        'site-name-1',
+                        'customer-key-1',
+                        [],
+                        [],
+                        [],
+                        [],
+                    ),
+                ),
+            ).rejects.toThrow(UnprocessableEntityException);
+
+            // The site must not be persisted without a manager.
+            expect(siteRepositoryCreateMethod).not.toHaveBeenCalled();
+        });
+
+        it('should keep an existing site user that could not be processed instead of removing it', async () => {
+            const existingSite = {
+                id: 10,
+                key: 'site-key-1',
+                name: 'site-name-1',
+                siteManagers: [{ userId: 1, username: 'manager', email: 'manager-email' }],
+                siteAuditors: [{ userId: 2, username: 'auditor', email: 'auditor-email', isAdminOperator: false }],
+                siteApprovers: [],
+                siteSupportTeamMembers: [],
+            } as unknown as Site;
+            const customer = {
+                name: 'customer-name-1',
+                businessUnit: BusinessUnit.EG,
+                beyondtrustInstanceId: 1,
+            } as Customer;
+
+            // The auditor failed to resolve this run: it is neither in the result nor removed from the sheet.
+            jest.spyOn(SiteWorkflow.prototype, 'getOrCreate').mockResolvedValue({
+                ...TestHelper.mockedSiteWorkflowResult,
+                siteAuditors: [],
+                unresolvedEmails: {
+                    siteManagers: [],
+                    siteAuditors: ['auditor-email'],
+                    siteSupportTeamMembers: [],
+                },
+            });
+
+            jest.spyOn(queryBus, 'execute')
+                .mockReset()
+                .mockResolvedValueOnce([existingSite]) // getSiteByKey
+                .mockResolvedValueOnce([customer]) // getCustomer
+                .mockResolvedValue(existingSite); // getSiteById
+
+            const commandBusExecuteMethod = jest.fn().mockResolvedValue(undefined);
+            commandBus.execute = commandBusExecuteMethod;
+
+            const siteRepositoryUpdateMethod = jest.spyOn(siteRepositoryService, 'update');
+
+            await handler.execute(
+                new CreateSiteCommand('transaction-1', 'site-key-1', 'site-name-1', 'customer-key-1', [], [], [], []),
+            );
+
+            // No removal command was issued for the unresolved auditor.
+            const executedCommands = commandBusExecuteMethod.mock.calls as unknown[][];
+            expect(executedCommands.some((call) => call[0] instanceof RemoveSiteAuditorCommand)).toBe(false);
+
+            // The unresolved auditor is still part of the persisted site, so its row survives.
+            const persistedEntity = siteRepositoryUpdateMethod.mock.calls[0]?.[0];
+            expect(persistedEntity?.siteAuditors.map((siteAuditor) => siteAuditor.email)).toContain('auditor-email');
         });
 
         it('should throw ConflictException if a site with the same name already exists', async () => {
