@@ -7,8 +7,12 @@ import { DefaultAppConfig } from './default-app-config.const';
 describe('DefaultAppConfig database settings', () => {
     // MariaDB target on all environments (wait_timeout = interactive_timeout = 300 s)
     const MARIADB_WAIT_TIMEOUT_IN_MS = 300_000;
-    // MariaDB default that Prod may still run with until the DC team has applied the target values
-    const MARIADB_MIN_MAX_CONNECTIONS = 151;
+    // MariaDB max_connections these pool sizes are sized for (the MariaDB default of 151 is NOT sufficient)
+    const MARIADB_MAX_CONNECTIONS = 300;
+    // Kept free for admin tools, monitoring and migrations
+    const MARIADB_CONNECTION_HEADROOM = 50;
+    // Pool size of the other service. Keep in sync with DB_EXTRA_MAX_CONNECTIONS in pra-sync-api.
+    const OTHER_SERVICE_POOL_SIZE = 50;
 
     const { extra } = DefaultAppConfig.database;
 
@@ -28,9 +32,13 @@ describe('DefaultAppConfig database settings', () => {
         expect(extra.keepAliveInitialDelay).toBeLessThan(extra.idleTimeout);
     });
 
-    it('should keep two services during a rolling update within the smallest MariaDB max_connections', () => {
-        // 2 services x 2 (old and new pods during a rolling update), assuming equal pool sizes
-        expect(extra.connectionLimit * 4).toBeLessThanOrEqual(MARIADB_MIN_MAX_CONNECTIONS);
+    it('should keep both services during a rolling update within max_connections minus the headroom', () => {
+        // Old and new pods run side by side during a rolling update, so both pools count twice
+        const connectionsDuringRollingUpdate = (extra.connectionLimit + OTHER_SERVICE_POOL_SIZE) * 2;
+
+        expect(connectionsDuringRollingUpdate).toBeLessThanOrEqual(
+            MARIADB_MAX_CONNECTIONS - MARIADB_CONNECTION_HEADROOM,
+        );
     });
 
     it('should bound the wait for a pooled connection', () => {
