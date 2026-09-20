@@ -749,14 +749,14 @@ describe('AppConfigService', () => {
                 retryDelay: expected.retryDelayInMs,
                 maxQueryExecutionTime: expected.maxQueryExecutionTimeInMs,
                 extra: {
-                    connectionLimit: 20,
+                    connectionLimit: 30,
                     maxIdle: 10,
                     idleTimeout: 60000,
                     enableKeepAlive: true,
                     keepAliveInitialDelay: 30000,
                     connectTimeout: 10000,
                     waitForConnections: true,
-                    queueLimit: 50,
+                    queueLimit: 100,
                 },
             });
         });

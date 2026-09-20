@@ -19,22 +19,24 @@ export abstract class DefaultAppConfig {
     // constant here and redeploy. Only the connection endpoint and the credentials (DB_TYPE, DB_HOST,
     // DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME) come from the environment.
     //
-    // MariaDB server side target on all environments (tracked in MARLINKPRA-42):
+    // MariaDB server side settings these values are sized for, on all environments (MARLINKPRA-42):
     //   max_connections = 300, wait_timeout = interactive_timeout = 300 s
-    // Until the DC team has applied this on Prod, Prod may still run with the MariaDB defaults
-    // (max_connections = 151, wait_timeout = interactive_timeout = 28800 s). The values below are chosen
-    // to be safe for both, so they must not be tuned against one of the two only.
+    // DEV and Pre-Prod already run with them. The DC team applies them on Prod before this version is
+    // deployed there. Do NOT deploy this version against a database that still runs with the MariaDB
+    // defaults (max_connections = 151, wait_timeout = 28800 s), see the pool sizing below.
     // ------------------------------------------------------------------------------------------------
     private static readonly DB_RETRY_ATTEMPTS = 60;
     private static readonly DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
     private static readonly DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
 
     // Connection pool (mysql2).
-    // Sizing: pool(20) per instance of this service. Together with the other API this is about 40
-    // connections per deployment and about 80 during a rolling update, which fits max_connections = 151
-    // (Prod today) as well as 300. Do not raise the pool size before max_connections = 300 is confirmed
-    // on Prod, because a rolling update briefly doubles the number of open connections.
-    private static readonly DB_EXTRA_MAX_CONNECTIONS = 20;
+    // Sizing: pool(30) per instance of pra-api plus pool(50) per instance of pra-sync-api is 80 connections
+    // per deployment and 160 during a rolling update (old and new pods run side by side). That fits
+    // max_connections = 300 with headroom for admin tools and monitoring, but NOT the MariaDB default of 151.
+    // When changing a pool size, keep the sum of both services (see the pool constant in pra-sync-api)
+    // within max_connections and count the rolling update twice.
+    // pra-api serves short-lived HTTP requests without saga burst patterns, so 30 is sufficient.
+    private static readonly DB_EXTRA_MAX_CONNECTIONS = 30;
 
     // Idle connections above this number are closed by the pool (mysql2 checks once per second).
     // IMPORTANT: mysql2 only runs its idle cleanup when maxIdle < connectionLimit. With the default
@@ -57,7 +59,7 @@ export abstract class DefaultAppConfig {
 
     // Max requests waiting for a free pooled connection before failing (MySQL2 option).
     // This limits the queue depth only, not the time a request waits in the queue.
-    private static readonly DB_QUEUE_LIMIT = 50;
+    private static readonly DB_QUEUE_LIMIT = 100;
 
     // Max time a request waits for a free pooled connection. mysql2 has no acquire timeout of its own, so
     // this is enforced in DatabaseConnectionUtility. After this time the request fails with 503 instead of
