@@ -1,4 +1,5 @@
 import { DataSource, FindOptionsOrder, FindOptionsWhere } from 'typeorm';
+import { DatabaseConnectionUtility } from '../../shared/utilities/database-connection.utility';
 
 export class BaseRepositoryService<T> {
     constructor(
@@ -45,17 +46,13 @@ export class BaseRepositoryService<T> {
     }
 
     public async findOneBy<K extends Extract<keyof T, string>>(where: Pick<T, K>): Promise<T | null> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-
-        try {
+        return DatabaseConnectionUtility.executeRead(this.dataSource, async (queryRunner) => {
             const entity = await queryRunner.manager.findOne(this.entity, {
                 where: where,
             });
 
             return entity as T | null;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async findBy<K extends Extract<keyof T, string>>(
@@ -64,9 +61,7 @@ export class BaseRepositoryService<T> {
         pageSize: number | undefined,
         order?: FindOptionsOrder<() => T>,
     ): Promise<T[]> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-
-        try {
+        return DatabaseConnectionUtility.executeRead(this.dataSource, async (queryRunner) => {
             const entities = await queryRunner.manager.find(this.entity, {
                 where: where,
                 skip: pageNumber && pageSize ? (pageNumber - 1) * pageSize : undefined,
@@ -75,9 +70,7 @@ export class BaseRepositoryService<T> {
             });
 
             return entities as T[];
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async deleteBy<K extends Extract<keyof T, string>>(where: Pick<T, K> | FindOptionsWhere<T>): Promise<void> {
@@ -98,13 +91,9 @@ export class BaseRepositoryService<T> {
     public async countBy<K extends Extract<keyof T, string>>(
         where: Pick<T, K> | FindOptionsWhere<T> | FindOptionsWhere<T>[],
     ): Promise<number> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-
-        try {
-            return await queryRunner.manager.count(this.entity, { where });
-        } finally {
-            await queryRunner.release();
-        }
+        return DatabaseConnectionUtility.executeRead(this.dataSource, (queryRunner) =>
+            queryRunner.manager.count(this.entity, { where }),
+        );
     }
 
     /**
@@ -146,10 +135,8 @@ export class BaseRepositoryService<T> {
         }
     }
 
+    // Bounded wait for a pooled connection, see DatabaseConnectionUtility.
     private async createQueryRunnerAndConnect() {
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-
-        return queryRunner;
+        return DatabaseConnectionUtility.acquireQueryRunner(this.dataSource);
     }
 }

@@ -1,4 +1,5 @@
 import { ConfigService } from '@nestjs/config';
+import { DefaultAppConfig } from '../consts';
 import { AppConfigService } from './app-config.service';
 
 describe('AppConfigService', () => {
@@ -733,6 +734,7 @@ describe('AppConfigService', () => {
 
             expect(service.database).toEqual({
                 type: expected.type,
+                connectorPackage: 'mysql2',
                 host: expected.host,
                 port: expected.port,
                 username: expected.username,
@@ -748,11 +750,45 @@ describe('AppConfigService', () => {
                 maxQueryExecutionTime: expected.maxQueryExecutionTimeInMs,
                 extra: {
                     connectionLimit: 20,
+                    maxIdle: 10,
+                    idleTimeout: 60000,
+                    enableKeepAlive: true,
+                    keepAliveInitialDelay: 30000,
                     connectTimeout: 10000,
                     waitForConnections: true,
                     queueLimit: 50,
                 },
             });
+        });
+
+        it('should ignore environment variables for pool and timeout settings and only use the constants', () => {
+            const credentialKeys = ['ENV', 'DB_TYPE', 'DB_HOST', 'DB_PORT', 'DB_USERNAME', 'DB_PASSWORD', 'DB_NAME'];
+            const requestedKeys: string[] = [];
+            // Every key except the credentials returns a value that differs from the constants, as if it were set
+            configService.get = jest.fn().mockImplementation((key: string) => {
+                requestedKeys.push(key);
+                return credentialKeys.includes(key) ? undefined : 999999;
+            });
+            const constants = DefaultAppConfig.database;
+
+            const database = service.database;
+
+            expect(database.extra).toEqual({
+                connectionLimit: constants.extra.connectionLimit,
+                maxIdle: constants.extra.maxIdle,
+                idleTimeout: constants.extra.idleTimeout,
+                enableKeepAlive: constants.extra.enableKeepAlive,
+                keepAliveInitialDelay: constants.extra.keepAliveInitialDelay,
+                connectTimeout: constants.connectTimeout,
+                waitForConnections: constants.waitForConnections,
+                queueLimit: constants.queueLimit,
+            });
+            expect(database.retryAttempts).toBe(constants.retryAttempts);
+            expect(database.retryDelay).toBe(constants.retryDelay);
+            expect(database.maxQueryExecutionTime).toBe(constants.maxQueryExecutionTime);
+            expect(service.databaseMaxConnections).toBe(constants.extra.connectionLimit);
+            // Only the endpoint and the credentials may be read from the environment
+            expect(requestedKeys.filter((key) => !credentialKeys.includes(key))).toEqual([]);
         });
     });
 

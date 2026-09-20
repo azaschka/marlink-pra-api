@@ -320,6 +320,45 @@ describe('BaseRepositoryService', () => {
             expect(result).toBe(5);
         });
     });
+
+    describe('dead pooled connections', () => {
+        it('should repeat a read once with a fresh connection when the pooled connection was dead and release both', async () => {
+            const {
+                dataSourceQueryRunnerConnectMethod,
+                dataSourceQueryRunnerManagerFindMethod,
+                dataSourceQueryRunnerReleaseMethod,
+            } = spyDataSource(dataSource);
+            dataSourceQueryRunnerManagerFindMethod
+                .mockRejectedValueOnce(
+                    Object.assign(new Error('Connection lost'), { code: 'PROTOCOL_CONNECTION_LOST' }),
+                )
+                .mockResolvedValueOnce([TestHelper.mockRepositoryEntity('entity-1')]);
+
+            const result = await service.findBy({ name: 'entity-1' }, 1, 10);
+
+            expect(result).toHaveLength(1);
+            expect(dataSourceQueryRunnerManagerFindMethod).toHaveBeenCalledTimes(2);
+            expect(dataSourceQueryRunnerConnectMethod).toHaveBeenCalledTimes(2);
+            expect(dataSourceQueryRunnerReleaseMethod).toHaveBeenCalledTimes(2);
+        });
+
+        it('should not repeat a write automatically when the pooled connection was dead', async () => {
+            const {
+                dataSourceQueryRunnerManagerDeleteMethod,
+                dataSourceQueryRunnerRollbackTransactionMethod,
+                dataSourceQueryRunnerReleaseMethod,
+            } = spyDataSource(dataSource);
+            dataSourceQueryRunnerManagerDeleteMethod.mockRejectedValue(
+                Object.assign(new Error('Connection lost'), { code: 'PROTOCOL_CONNECTION_LOST' }),
+            );
+
+            await expect(service.deleteBy({ name: 'entity-1' })).rejects.toThrow('Connection lost');
+
+            expect(dataSourceQueryRunnerManagerDeleteMethod).toHaveBeenCalledTimes(1);
+            expect(dataSourceQueryRunnerRollbackTransactionMethod).toHaveBeenCalledTimes(1);
+            expect(dataSourceQueryRunnerReleaseMethod).toHaveBeenCalledTimes(1);
+        });
+    });
 });
 
 function mockDataSource(): DataSource {
