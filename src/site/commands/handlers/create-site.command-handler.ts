@@ -1,4 +1,4 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
@@ -33,6 +33,8 @@ import { RemoveSiteSupportTeamMemberCommand } from '../remove-site-support-team-
 
 @CommandHandler(CreateSiteCommand)
 export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteCommand> {
+    private static readonly MINIMUM_SITE_MANAGER_COUNT = 1;
+
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly commandBus: CommandBus,
@@ -70,6 +72,8 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
 
         if (existingSite === null) {
             // ── New site path ────────────────────────────────────────────────
+            this.validateMinimumSiteManagerCount(siteWorkflowResult.siteManagers, siteWorkflowResult.errorReport);
+
             const createdSite = await this.createSite(
                 command.key,
                 command.name,
@@ -92,12 +96,30 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             };
         }
 
+        // Rows that could not be processed in this run are carried over unchanged, otherwise the update
+        // would delete them. Only then is the minimum manager count meaningful.
+        const siteManagersToPersist = this.retainUnresolvedSiteUsers(
+            siteWorkflowResult.siteManagers,
+            existingSite.siteManagers,
+            siteWorkflowResult.unresolvedEmails.siteManagers,
+        );
+
+        this.validateMinimumSiteManagerCount(siteManagersToPersist, siteWorkflowResult.errorReport);
+
         const updatedSite = await this.updateSite(
             command.transactionId,
             existingSite,
-            siteWorkflowResult.siteManagers,
-            siteWorkflowResult.siteAuditors,
-            siteWorkflowResult.siteSupportTeamMembers,
+            siteManagersToPersist,
+            this.retainUnresolvedSiteUsers(
+                siteWorkflowResult.siteAuditors,
+                existingSite.siteAuditors,
+                siteWorkflowResult.unresolvedEmails.siteAuditors,
+            ),
+            this.retainUnresolvedSiteUsers(
+                siteWorkflowResult.siteSupportTeamMembers,
+                existingSite.siteSupportTeamMembers,
+                siteWorkflowResult.unresolvedEmails.siteSupportTeamMembers,
+            ),
             partialSiteApprovers,
         );
 
@@ -195,9 +217,21 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             const siteHandlersRemovalErrorReport = await this.runSiteHandlersRemovalWorkflow(
                 transactionId,
                 existingSite.id,
-                this.filterRemovedSiteUsers(existingSite.siteManagers, result.siteManagers),
-                this.filterRemovedSiteUsers(existingSite.siteAuditors, result.siteAuditors),
-                this.filterRemovedSiteUsers(existingSite.siteSupportTeamMembers, result.siteSupportTeamMembers),
+                this.filterRemovedSiteUsers(
+                    existingSite.siteManagers,
+                    result.siteManagers,
+                    result.unresolvedEmails.siteManagers,
+                ),
+                this.filterRemovedSiteUsers(
+                    existingSite.siteAuditors,
+                    result.siteAuditors,
+                    result.unresolvedEmails.siteAuditors,
+                ),
+                this.filterRemovedSiteUsers(
+                    existingSite.siteSupportTeamMembers,
+                    result.siteSupportTeamMembers,
+                    result.unresolvedEmails.siteSupportTeamMembers,
+                ),
             );
 
             result.errorReport.append(siteHandlersRemovalErrorReport);
@@ -257,12 +291,51 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
     private filterRemovedSiteUsers<T extends { email: string }>(
         existingEntities: T[],
         resolvedEntities: { email: string }[],
+        unresolvedEmails: string[],
     ): T[] {
         const resolvedEmails = resolvedEntities.map((resolvedEntity) => resolvedEntity.email);
 
         return existingEntities.filter(
-            (existingEntity) => !EmailUtility.includes(resolvedEmails, existingEntity.email),
+            (existingEntity) =>
+                !EmailUtility.includes(resolvedEmails, existingEntity.email) &&
+                !EmailUtility.includes(unresolvedEmails, existingEntity.email),
         );
+    }
+
+    /**
+     * Keeps site users that exist on the site but could not be processed in this run.
+     *
+     * The persisted list is what decides which rows survive: SiteRepositoryService.update deletes every row
+     * that is not in it. Without this, a transient lookup failure would silently strip a user from the site.
+     */
+    private retainUnresolvedSiteUsers<T extends { email: string }>(
+        resolvedEntities: T[],
+        existingEntities: T[],
+        unresolvedEmails: string[],
+    ): T[] {
+        const retainedEntities = existingEntities.filter((existingEntity) =>
+            EmailUtility.includes(unresolvedEmails, existingEntity.email),
+        );
+
+        return [...resolvedEntities, ...retainedEntities];
+    }
+
+    /**
+     * A site without a manager has nobody to approve its auth jump policy and cannot be maintained.
+     * RemoveSiteManagerCommandHandler enforces the same invariant on the single removal endpoint, and since
+     * user failures are reported instead of thrown, the ingestion path has to enforce it explicitly.
+     *
+     * The error report travels with the response so the caller sees which managers failed and why.
+     */
+    private validateMinimumSiteManagerCount(siteManagers: unknown[], errorReport: ErrorReport): void {
+        if (siteManagers.length >= CreateSiteCommandHandler.MINIMUM_SITE_MANAGER_COUNT) {
+            return;
+        }
+
+        throw new UnprocessableEntityException({
+            message: `Site must have at least ${CreateSiteCommandHandler.MINIMUM_SITE_MANAGER_COUNT} site manager. None of the supplied site managers could be processed.`,
+            errorReport: errorReport.items,
+        });
     }
 
     // ── Creation helper ──────────────────────────────────────────────────────

@@ -253,6 +253,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             siteManagers: [],
             siteAuditors: [],
             siteSupportTeamMembers: [],
+            unresolvedEmails: { siteManagers: [], siteAuditors: [], siteSupportTeamMembers: [] },
             errorReport: new ErrorReport(),
         };
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
@@ -269,9 +270,15 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         // idempotent: SiteManagerWorkflow below fetches the same, already-created users.
         const siteManagerUserIds: string[] = [];
         for (const siteManagerUserWorkflow of this.siteManagerUserWorkflows) {
-            const siteManagerUser = await siteManagerUserWorkflow.getOrCreate();
-            if (siteManagerUser) {
-                siteManagerUserIds.push(siteManagerUser.id.toString());
+            // A single unresolvable manager must not abort the whole ingestion here. The manager loop below
+            // reports it, and the auth jump policy is created with whichever managers could be resolved.
+            try {
+                const siteManagerUser = await siteManagerUserWorkflow.getOrCreate();
+                if (siteManagerUser) {
+                    siteManagerUserIds.push(siteManagerUser.id.toString());
+                }
+            } catch (error) {
+                console.error(`[${this.transactionId}] Failed to resolve a site manager user upfront:`, error);
             }
         }
 
@@ -279,33 +286,57 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         await this.noAuthJumpPolicyWorkflow.getOrCreate();
         await this.notifyJumpPolicyWorkflow.getOrCreate();
 
-        for (const siteManagerWorkflow of this.siteManagerWorkflows) {
+        for (const [index, siteManagerWorkflow] of this.siteManagerWorkflows.entries()) {
+            const siteManager = this.siteManagers[index];
+
             try {
-                const siteManager = await siteManagerWorkflow.getOrCreate();
-                siteWorkflowResult.siteManagers.push(siteManager);
+                siteWorkflowResult.siteManagers.push(await siteManagerWorkflow.getOrCreate());
             } catch (error) {
-                console.error(`[${this.transactionId}] Failed to create site manager workflow:`, error);
+                console.error(`[${this.transactionId}] Failed to process site manager ${siteManager?.email}:`, error);
                 siteWorkflowResult.errorReport.add(error);
+
+                // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
+                // the caller from deleting an existing membership because of a transient failure.
+                if (siteManager) {
+                    siteWorkflowResult.unresolvedEmails.siteManagers.push(siteManager.email);
+                }
             }
         }
 
-        for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
+        for (const [index, siteAuditorWorkflow] of this.siteAuditorWorkflows.entries()) {
+            const siteAuditor = this.siteAuditors[index];
+
             try {
-                const siteAuditor = await siteAuditorWorkflow.getOrCreate();
-                siteWorkflowResult.siteAuditors.push(siteAuditor);
+                siteWorkflowResult.siteAuditors.push(await siteAuditorWorkflow.getOrCreate());
             } catch (error) {
-                console.error(`[${this.transactionId}] Failed to create site auditor workflow:`, error);
+                console.error(`[${this.transactionId}] Failed to process site auditor ${siteAuditor?.email}:`, error);
                 siteWorkflowResult.errorReport.add(error);
+
+                // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
+                // the caller from deleting an existing membership because of a transient failure.
+                if (siteAuditor) {
+                    siteWorkflowResult.unresolvedEmails.siteAuditors.push(siteAuditor.email);
+                }
             }
         }
 
-        for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
+        for (const [index, siteSupportTeamMemberWorkflow] of this.siteSupportTeamMemberWorkflows.entries()) {
+            const siteSupportTeamMember = this.siteSupportTeamMembers[index];
+
             try {
-                const siteSupportTeamMember = await siteSupportTeamMemberWorkflow.getOrCreate();
-                siteWorkflowResult.siteSupportTeamMembers.push(siteSupportTeamMember);
+                siteWorkflowResult.siteSupportTeamMembers.push(await siteSupportTeamMemberWorkflow.getOrCreate());
             } catch (error) {
-                console.error(`[${this.transactionId}] Failed to create site support team member workflow:`, error);
+                console.error(
+                    `[${this.transactionId}] Failed to process site support team member ${siteSupportTeamMember?.email}:`,
+                    error,
+                );
                 siteWorkflowResult.errorReport.add(error);
+
+                // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
+                // the caller from deleting an existing membership because of a transient failure.
+                if (siteSupportTeamMember) {
+                    siteWorkflowResult.unresolvedEmails.siteSupportTeamMembers.push(siteSupportTeamMember.email);
+                }
             }
         }
 

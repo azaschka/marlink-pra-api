@@ -51,6 +51,7 @@ class TestHelper {
                     sourceType: UserSourceType.Internal,
                 },
             ],
+            unresolvedEmails: { siteManagers: [], siteAuditors: [], siteSupportTeamMembers: [] },
             errorReport: this.mockedErrorReport,
         };
     }
