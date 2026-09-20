@@ -1,4 +1,5 @@
-import { DataSource, DeleteResult, EntitySchema, InsertResult, Repository } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
+import { DataSource, DeleteResult, EntityMetadataNotFoundError, EntitySchema, InsertResult, Repository } from 'typeorm';
 import { BaseTenantEntitySchemaFactory } from '../factories';
 import { BaseTenantRepositoryService } from './base-tenant-repository.service';
 
@@ -386,6 +387,65 @@ describe('BaseTenantRepositoryService', () => {
             expect(result).toBe(5);
         });
     });
+
+    describe('connection handling', () => {
+        it.each([
+            {
+                name: 'findBy',
+                call: (service: BaseTenantRepositoryService<MockData>) => service.findBy(123, { name: 'a' }, 1, 10),
+            },
+            {
+                name: 'findOneBy',
+                call: (service: BaseTenantRepositoryService<MockData>) => service.findOneBy(123, { name: 'a' }),
+            },
+            {
+                name: 'countBy',
+                call: (service: BaseTenantRepositoryService<MockData>) => service.countBy(123, { name: 'a' }),
+            },
+            {
+                name: 'deleteBy',
+                call: (service: BaseTenantRepositoryService<MockData>) => service.deleteBy(123, { name: 'a' }),
+            },
+            {
+                name: 'create',
+                call: (service: BaseTenantRepositoryService<MockData>) =>
+                    service.create(123, TestHelper.mockRepositoryData('a')),
+            },
+        ])(
+            'should run $name on the connection of the query runner instead of taking a second one from the pool',
+            async ({ call }) => {
+                const { dataSourceQueryRunnerReleaseMethod } = spyDataSource(dataSource);
+                const createQueryRunnerMethod = jest.spyOn(dataSource, 'createQueryRunner');
+                const queryRunnerManagerGetRepositoryMethod = jest.spyOn(
+                    dataSource.createQueryRunner().manager,
+                    'getRepository',
+                );
+                createQueryRunnerMethod.mockClear();
+                queryRunnerManagerGetRepositoryMethod.mockClear();
+                dataSourceQueryRunnerReleaseMethod.mockClear();
+
+                await call(service);
+
+                expect(createQueryRunnerMethod).toHaveBeenCalledTimes(1);
+                expect(queryRunnerManagerGetRepositoryMethod).toHaveBeenCalledWith(TestHelper.mockEntitySchema());
+                expect(dataSourceQueryRunnerReleaseMethod).toHaveBeenCalledTimes(1);
+            },
+        );
+
+        it('should not take a connection from the pool for an unregistered tenant', async () => {
+            const { dataSourceRepositoryFindMethod } = spyDataSource(dataSource);
+            jest.spyOn(dataSource, 'getRepository').mockImplementation(() => {
+                throw new EntityMetadataNotFoundError('mock-table-name');
+            });
+            const createQueryRunnerMethod = jest.spyOn(dataSource, 'createQueryRunner');
+            createQueryRunnerMethod.mockClear();
+
+            await expect(service.findBy(123, { name: 'a' }, 1, 10)).rejects.toBeInstanceOf(NotFoundException);
+
+            expect(createQueryRunnerMethod).not.toHaveBeenCalled();
+            expect(dataSourceRepositoryFindMethod).not.toHaveBeenCalled();
+        });
+    });
 });
 
 function mockDataSource(): DataSource {
@@ -398,7 +458,7 @@ function mockDataSource(): DataSource {
     // @ts-expect-error
     dataSource.buildMetadatas = jest.fn();
     dataSource.synchronize = jest.fn();
-    dataSource.getRepository = jest.fn().mockReturnValue({
+    const repository = {
         metadata: {},
         create: jest.fn(),
         save: jest.fn(),
@@ -407,9 +467,12 @@ function mockDataSource(): DataSource {
         find: jest.fn(),
         delete: jest.fn(),
         count: jest.fn(),
-    } as unknown as Repository<MockData>);
+    } as unknown as Repository<MockData>;
+    dataSource.getRepository = jest.fn().mockReturnValue(repository);
     dataSource.createQueryRunner = jest.fn().mockReturnValue({
         connect: jest.fn(),
+        // The repository bound to the query runner is the same mock, so the existing expectations still hold
+        manager: { getRepository: jest.fn().mockReturnValue(repository) },
         startTransaction: jest.fn(),
         commitTransaction: jest.fn(),
         rollbackTransaction: jest.fn(),

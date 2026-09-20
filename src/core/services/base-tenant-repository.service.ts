@@ -1,5 +1,13 @@
 import { NotFoundException } from '@nestjs/common';
-import { DataSource, EntityMetadataNotFoundError, EntitySchema, FindOptionsOrder, FindOptionsWhere } from 'typeorm';
+import {
+    DataSource,
+    EntityMetadataNotFoundError,
+    EntitySchema,
+    FindOptionsOrder,
+    FindOptionsWhere,
+    QueryRunner,
+} from 'typeorm';
+import { DatabaseConnectionUtility } from '../../shared/utilities/database-connection.utility';
 import { BaseTenantEntitySchemaFactory } from '../factories';
 
 export class BaseTenantRepositoryService<T> {
@@ -37,7 +45,7 @@ export class BaseTenantRepositoryService<T> {
         await queryRunner.startTransaction();
 
         try {
-            const repository = this.getTenantRepository(tenantId);
+            const repository = this.getTenantRepository(tenantId, queryRunner);
             const createdEntity = repository.create(entity);
             await repository.save(createdEntity);
             await queryRunner.commitTransaction();
@@ -60,7 +68,7 @@ export class BaseTenantRepositoryService<T> {
         await queryRunner.startTransaction();
 
         try {
-            const repository = this.getTenantRepository(tenantId);
+            const repository = this.getTenantRepository(tenantId, queryRunner);
             await repository.upsert(entityOrEntities, {
                 conflictPaths,
             });
@@ -74,18 +82,16 @@ export class BaseTenantRepositoryService<T> {
     }
 
     public async findOneBy<K extends Extract<keyof T, string>>(tenantId: number, where: Pick<T, K>): Promise<T | null> {
-        const repository = this.getTenantRepository(tenantId);
-        const queryRunner = await this.createQueryRunnerAndConnect();
+        this.assertTenantIsRegistered(tenantId);
 
-        try {
+        return DatabaseConnectionUtility.executeRead(this.dataSource, async (queryRunner) => {
+            const repository = this.getTenantRepository(tenantId, queryRunner);
             const entity = await repository.findOne({
                 where: where,
             });
 
             return entity as T | null;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async findBy<K extends Extract<keyof T, string>>(
@@ -95,10 +101,10 @@ export class BaseTenantRepositoryService<T> {
         pageSize: number | undefined,
         order?: FindOptionsOrder<() => T>,
     ): Promise<T[]> {
-        const repository = this.getTenantRepository(tenantId);
-        const queryRunner = await this.createQueryRunnerAndConnect();
+        this.assertTenantIsRegistered(tenantId);
 
-        try {
+        return DatabaseConnectionUtility.executeRead(this.dataSource, async (queryRunner) => {
+            const repository = this.getTenantRepository(tenantId, queryRunner);
             const entities = await repository.find({
                 where: where,
                 skip: pageNumber && pageSize ? (pageNumber - 1) * pageSize : undefined,
@@ -107,20 +113,19 @@ export class BaseTenantRepositoryService<T> {
             });
 
             return entities as T[];
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async deleteBy<K extends Extract<keyof T, string>>(
         tenantId: number,
         where: Pick<T, K> | FindOptionsWhere<T>,
     ): Promise<void> {
-        const repository = this.getTenantRepository(tenantId);
+        this.assertTenantIsRegistered(tenantId);
         const queryRunner = await this.createQueryRunnerAndConnect();
         await queryRunner.startTransaction();
 
         try {
+            const repository = this.getTenantRepository(tenantId, queryRunner);
             await repository.delete(where);
             await queryRunner.commitTransaction();
         } catch (error) {
@@ -135,14 +140,11 @@ export class BaseTenantRepositoryService<T> {
         tenantId: number,
         where: Pick<T, K> | FindOptionsWhere<T>,
     ): Promise<number> {
-        const repository = this.getTenantRepository(tenantId);
-        const queryRunner = await this.createQueryRunnerAndConnect();
+        this.assertTenantIsRegistered(tenantId);
 
-        try {
-            return await repository.count({ where });
-        } finally {
-            await queryRunner.release();
-        }
+        return DatabaseConnectionUtility.executeRead(this.dataSource, (queryRunner) =>
+            this.getTenantRepository(tenantId, queryRunner).count({ where }),
+        );
     }
 
     private canBuildMetadataAndSync(): boolean {
@@ -156,11 +158,26 @@ export class BaseTenantRepositoryService<T> {
         return allRelationTargets.every((target) => allEntityNames.includes(target));
     }
 
-    private getTenantRepository(tenantId: number) {
+    /**
+     * Fails fast for an unregistered tenant, before a database connection is taken from the pool.
+     */
+    private assertTenantIsRegistered(tenantId: number): void {
+        this.getTenantRepository(tenantId);
+    }
+
+    /**
+     * When a query runner is passed, the repository is bound to it, so that every statement runs on the
+     * one connection (and transaction) held by that query runner. Without the binding each repository
+     * call takes a second connection from the pool while the query runner keeps its own, which halves the
+     * usable pool and lets concurrent requests wait for each other when the pool is exhausted.
+     */
+    private getTenantRepository(tenantId: number, queryRunner?: QueryRunner) {
         try {
             const entitySchema = this.tenantEntitySchemaFactory.create(tenantId);
 
-            const repository = this.dataSource.getRepository(entitySchema);
+            const repository = queryRunner
+                ? queryRunner.manager.getRepository(entitySchema)
+                : this.dataSource.getRepository(entitySchema);
 
             // This will trigger EntityMetadataNotFoundError if the repository is not found.
             // The console.log won't be executed but it's there for tslinting purposes.
@@ -178,10 +195,8 @@ export class BaseTenantRepositoryService<T> {
         }
     }
 
+    // Bounded wait for a pooled connection, see DatabaseConnectionUtility.
     private async createQueryRunnerAndConnect() {
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-
-        return queryRunner;
+        return DatabaseConnectionUtility.acquireQueryRunner(this.dataSource);
     }
 }
