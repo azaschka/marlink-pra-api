@@ -1,5 +1,6 @@
 export * from './database-connection.utility';
 export * from './date.utility';
+export * from './email.utility';
 export * from './error-processor.utility';
 export * from './name-sanitizer.utility';
 export * from './object.utility';

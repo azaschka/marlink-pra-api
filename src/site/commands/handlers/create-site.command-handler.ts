@@ -21,6 +21,7 @@ import {
     SiteSupportTeamMember,
     SiteWorkflowResult,
 } from '../../models';
+import { EmailUtility } from '../../../shared/utilities';
 import { RetrieveSiteByIdQuery, RetrieveSitesQuery } from '../../queries';
 import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
@@ -194,9 +195,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             const siteHandlersRemovalErrorReport = await this.runSiteHandlersRemovalWorkflow(
                 transactionId,
                 existingSite.id,
-                this.filterByRemovedUserIds(existingSite.siteManagers, result.siteManagers),
-                this.filterByRemovedUserIds(existingSite.siteAuditors, result.siteAuditors),
-                this.filterByRemovedUserIds(existingSite.siteSupportTeamMembers, result.siteSupportTeamMembers),
+                this.filterRemovedSiteUsers(existingSite.siteManagers, result.siteManagers),
+                this.filterRemovedSiteUsers(existingSite.siteAuditors, result.siteAuditors),
+                this.filterRemovedSiteUsers(existingSite.siteSupportTeamMembers, result.siteSupportTeamMembers),
             );
 
             result.errorReport.append(siteHandlersRemovalErrorReport);
@@ -247,12 +248,20 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         return errorReport;
     }
 
-    private filterByRemovedUserIds<T extends { userId: number }>(
+    /**
+     * Existing site users that the current ingestion run no longer contains.
+     *
+     * Matching is done on email, the business key of a site user. Matching on user id would treat a non-local
+     * user whose BeyondTrust id changed as removed and re-added rather than unchanged.
+     */
+    private filterRemovedSiteUsers<T extends { email: string }>(
         existingEntities: T[],
-        newEntities: { userId: number }[],
+        resolvedEntities: { email: string }[],
     ): T[] {
+        const resolvedEmails = resolvedEntities.map((resolvedEntity) => resolvedEntity.email);
+
         return existingEntities.filter(
-            (existingEntity) => !newEntities.some((newUser) => newUser.userId === existingEntity.userId),
+            (existingEntity) => !EmailUtility.includes(resolvedEmails, existingEntity.email),
         );
     }
 
@@ -310,7 +319,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         site: Site,
     ): PartialSiteManagerWithUserId[] {
         return siteManagers.map((siteManager) => {
-            const existingSiteManager = site.siteManagers.find((m) => m.userId === siteManager.userId);
+            const existingSiteManager = site.siteManagers.find((m) =>
+                EmailUtility.areEqual(m.email, siteManager.email),
+            );
 
             if (!existingSiteManager) {
                 return siteManager;
@@ -329,7 +340,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         site: Site,
     ): PartialSiteAuditorWithUserId[] {
         return siteAuditors.map((siteAuditor) => {
-            const existingSiteAuditor = site.siteAuditors.find((a) => a.userId === siteAuditor.userId);
+            const existingSiteAuditor = site.siteAuditors.find((a) =>
+                EmailUtility.areEqual(a.email, siteAuditor.email),
+            );
 
             if (!existingSiteAuditor) {
                 return siteAuditor;
@@ -348,8 +361,8 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         site: Site,
     ): PartialSiteSupportTeamMemberWithUserId[] {
         return siteSupportTeamMembers.map((siteSupportTeamMember) => {
-            const existingSiteSupportTeamMember = site.siteSupportTeamMembers.find(
-                (s) => s.userId === siteSupportTeamMember.userId,
+            const existingSiteSupportTeamMember = site.siteSupportTeamMembers.find((s) =>
+                EmailUtility.areEqual(s.email, siteSupportTeamMember.email),
             );
 
             if (!existingSiteSupportTeamMember) {
