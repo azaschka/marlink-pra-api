@@ -4,7 +4,8 @@ import { BaseWorkflow } from '../../../shared/workflows';
 import { CreateUserCommand, DeleteUserCommand } from '../../../user/commands';
 import { User } from '../../../user/models';
 import { RetrieveUsersQuery } from '../../../user/queries';
-import { SiteUserType, UserSourceType } from '../../enums';
+import { SiteUserType } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 import { MultipleUsersFoundException } from '../../exceptions';
 import { PartialSiteSupportTeamMember } from '../../models';
 

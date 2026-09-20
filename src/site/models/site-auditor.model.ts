@@ -1,4 +1,4 @@
-import { UserSourceType } from '../enums';
+import { UserSourceType } from '../../user/enums';
 import { BaseSiteUser } from './base-site-user.model';
 
 export interface SiteAuditor extends BaseSiteUser {

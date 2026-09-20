@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 import { SiteSupportTeamMember } from '../../models';
 
 export class SiteSupportTeamMemberDtoOutput implements SiteSupportTeamMember {

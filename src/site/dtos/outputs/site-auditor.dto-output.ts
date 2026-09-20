@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserSourceType } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 import { SiteAuditor } from '../../models';
 
 export class SiteAuditorDtoOutput implements SiteAuditor {

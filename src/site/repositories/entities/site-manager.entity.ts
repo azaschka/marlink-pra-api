@@ -8,7 +8,7 @@ import {
     Unique,
     UpdateDateColumn,
 } from 'typeorm';
-import { UserSourceType } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 import { SiteManager } from '../../models';
 import { SiteEntity } from './site.entity';
 

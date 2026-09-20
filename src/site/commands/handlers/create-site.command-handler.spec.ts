@@ -4,7 +4,8 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 import { ErrorReport } from '../../error-reports';
 import { SiteCreatedEvent, SiteModifiedEvent } from '../../events';
 import { PartialSiteApprover, Site, SiteWorkflowResult } from '../../models';
