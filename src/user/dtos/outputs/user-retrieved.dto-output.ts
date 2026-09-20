@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+    UserSourceType,
     UserAllowedAccessPermissionType,
     UserEndpointAutomationPermissionType,
     UserViewSupportReportsPermissionType,
     UserViewVaultReportsPermissionType,
 } from '../../enums';
 import { User } from '../../models';
+import { UserSourceUtility } from '../../utilities';
 
 export class UserRetrievedDtoOutput implements User {
     @ApiProperty({
@@ -30,6 +32,15 @@ export class UserRetrievedDtoOutput implements User {
             'The unique identifier of the security provider through which this user authenticates. This attribute is read-only.',
     })
     public securityProviderId?: number;
+
+    @ApiProperty({
+        required: true,
+        enum: UserSourceType,
+        description:
+            'Whether the account is local or provisioned by an external identity provider. Derived from the ' +
+            'security provider: a non-local account cannot be deleted here and several properties are read-only on it.',
+    })
+    public sourceType!: UserSourceType;
 
     @ApiProperty({
         required: false,
@@ -373,4 +384,11 @@ export class UserRetrievedDtoOutput implements User {
         description: 'The date which the user was last synchronized with BeyondTrust Privileged Remote Access system.',
     })
     public lastSyncDate!: Date;
+
+    public static create(user: User, localSecurityProviderIds: number[]): UserRetrievedDtoOutput {
+        return {
+            ...user,
+            sourceType: UserSourceUtility.resolveSourceType(user, localSecurityProviderIds),
+        };
+    }
 }

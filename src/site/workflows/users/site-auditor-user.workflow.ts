@@ -15,7 +15,13 @@ export class SiteAuditorUserWorkflow extends BaseSiteUserWorkflow {
         private readonly customerName: string,
         customerBeyondtrustInstanceId: number,
     ) {
-        super(queryBus, commandBus, transactionId, customerBeyondtrustInstanceId);
+        super(
+            queryBus,
+            commandBus,
+            transactionId,
+            customerBeyondtrustInstanceId,
+            appConfigService.user.localSecurityProviderIds,
+        );
     }
 
     protected get siteUserType(): SiteUserType {

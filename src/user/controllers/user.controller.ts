@@ -25,6 +25,7 @@ import {
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { AccessGuard } from '../../access/guards';
+import { AppConfigService } from '../../app-config/services/app-config.service';
 import {
     ApiAccessKeyHeader,
     ApiTenantIdHeader,
@@ -39,7 +40,10 @@ import { UuidUtility } from '../../shared/utilities';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
 import { CreateUserDtoInput, ModifyUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } from '../dtos/outputs';
+import { UserSourceType } from '../enums';
+import { NonLocalUserDeletionException, NonLocalUserModificationException } from '../exceptions';
 import { User } from '../models';
+import { UserSourceUtility } from '../utilities';
 import { UserRequestPipe } from '../pipes';
 import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 
@@ -54,10 +58,32 @@ import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 @UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class UserController {
+    /**
+     * R3.2-A004: properties BeyondTrust only accepts on local accounts. Sending them for a non-local user is
+     * rejected upstream with an opaque error, so they are refused here with a message naming the fields.
+     */
+    private static readonly LOCAL_ONLY_PROPERTIES: (keyof ModifyUserDtoInput)[] = [
+        'username',
+        'password',
+        'passwordExpirationDate',
+        'failedLoginAttempts',
+        'mustResetPasswordOnNextLogin',
+        'regeneratePassword',
+    ];
+
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
+        private readonly appConfigService: AppConfigService,
     ) {}
+
+    private async resolveSourceType(transactionId: string, tenantId: number, id: number): Promise<UserSourceType> {
+        const user = await this.queryBus.execute<RetrieveUserByIdQuery, User>(
+            new RetrieveUserByIdQuery(transactionId, tenantId, id),
+        );
+
+        return UserSourceUtility.resolveSourceType(user, this.appConfigService.user.localSecurityProviderIds);
+    }
 
     @Get(':id')
     @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
@@ -72,7 +98,7 @@ export class UserController {
             new RetrieveUserByIdQuery(transactionId, tenantId, id),
         );
 
-        return result;
+        return UserRetrievedDtoOutput.create(result, this.appConfigService.user.localSecurityProviderIds);
     }
 
     @Get()
@@ -95,7 +121,9 @@ export class UserController {
             ),
         );
 
-        return result;
+        return result.map((user) =>
+            UserRetrievedDtoOutput.create(user, this.appConfigService.user.localSecurityProviderIds),
+        );
     }
 
     @Post()
@@ -149,6 +177,16 @@ export class UserController {
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyUserDtoInput,
     ): Promise<UserModifiedDtoOutput> {
+        if ((await this.resolveSourceType(transactionId, tenantId, id)) === UserSourceType.External) {
+            const rejectedProperties = UserController.LOCAL_ONLY_PROPERTIES.filter(
+                (property) => dtoInput[property] !== undefined,
+            );
+
+            if (rejectedProperties.length > 0) {
+                throw new NonLocalUserModificationException(rejectedProperties);
+            }
+        }
+
         const result = await this.commandBus.execute<ModifyUserCommand, User>(
             new ModifyUserCommand(
                 transactionId,
@@ -184,6 +222,10 @@ export class UserController {
         @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
+        if ((await this.resolveSourceType(transactionId, tenantId, id)) === UserSourceType.External) {
+            throw new NonLocalUserDeletionException(id);
+        }
+
         await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(transactionId, tenantId, id));
     }
 }

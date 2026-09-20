@@ -1,4 +1,5 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { UserSourceType } from '../../../user/enums';
 import { SiteUserType } from '../../enums';
 import { PartialSiteSupportTeamMember } from '../../models';
@@ -6,13 +7,20 @@ import { BaseSiteUserWorkflow } from './base-site-user.workflow';
 
 export class SiteSupportTeamMemberUserWorkflow extends BaseSiteUserWorkflow {
     constructor(
+        appConfigService: AppConfigService,
         queryBus: QueryBus,
         commandBus: CommandBus,
         transactionId: string,
         private readonly siteSupportTeamMember: PartialSiteSupportTeamMember,
         customerBeyondtrustInstanceId: number,
     ) {
-        super(queryBus, commandBus, transactionId, customerBeyondtrustInstanceId);
+        super(
+            queryBus,
+            commandBus,
+            transactionId,
+            customerBeyondtrustInstanceId,
+            appConfigService.user.localSecurityProviderIds,
+        );
     }
 
     protected get siteUserType(): SiteUserType {

@@ -57,6 +57,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         );
 
         this.siteSupportTeamMemberUserWorkflow = new SiteSupportTeamMemberUserWorkflow(
+            this.appConfigService,
             this.queryBus,
             this.commandBus,
             this.transactionId,

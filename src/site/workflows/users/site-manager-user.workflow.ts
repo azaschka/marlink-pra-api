@@ -15,7 +15,13 @@ export class SiteManagerUserWorkflow extends BaseSiteUserWorkflow {
         private readonly siteManager: PartialSiteManager,
         customerBeyondtrustInstanceId: number,
     ) {
-        super(queryBus, commandBus, transactionId, customerBeyondtrustInstanceId);
+        super(
+            queryBus,
+            commandBus,
+            transactionId,
+            customerBeyondtrustInstanceId,
+            appConfigService.user.localSecurityProviderIds,
+        );
     }
 
     protected get siteUserType(): SiteUserType {

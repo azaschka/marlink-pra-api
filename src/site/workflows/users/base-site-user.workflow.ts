@@ -5,6 +5,7 @@ import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../../.
 import { UserSourceType } from '../../../user/enums';
 import { User } from '../../../user/models';
 import { RetrieveUsersQuery } from '../../../user/queries';
+import { UserSourceUtility } from '../../../user/utilities';
 import { SiteUserType } from '../../enums';
 import { MultipleUsersFoundException, SourceTypeMismatchException } from '../../exceptions';
 
@@ -34,6 +35,7 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
         protected readonly commandBus: CommandBus,
         protected readonly transactionId: string,
         protected readonly customerBeyondtrustInstanceId: number,
+        private readonly localSecurityProviderIds: number[],
     ) {}
 
     protected abstract get siteUserType(): SiteUserType;
@@ -88,7 +90,7 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
 
         const user = await this.get();
 
-        if (!user || BaseSiteUserWorkflow.isProvisionedByExternalProvider(user)) {
+        if (!user || UserSourceUtility.isExternal(user, this.localSecurityProviderIds)) {
             return;
         }
 
@@ -144,7 +146,7 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
      * where being wrong actually costs something.
      */
     private verifySourceType(user: User): void {
-        if (this.isExternalUser && !BaseSiteUserWorkflow.isProvisionedByExternalProvider(user)) {
+        if (this.isExternalUser && !UserSourceUtility.isExternal(user, this.localSecurityProviderIds)) {
             throw new SourceTypeMismatchException(
                 this.siteUserType,
                 this.email,
@@ -152,10 +154,6 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
                 UserSourceType.Internal,
             );
         }
-    }
-
-    private static isProvisionedByExternalProvider(user: User): boolean {
-        return user.securityProviderId !== undefined && user.securityProviderId !== null;
     }
 
     /** Keeps the email of a local account in sync with the ingestion data. */

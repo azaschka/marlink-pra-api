@@ -284,6 +284,21 @@ export abstract class DefaultAppConfig {
         };
     }
 
+    public static get user() {
+        return {
+            /**
+             * Ids of the BeyondTrust security providers that hold local accounts.
+             *
+             * BeyondTrust reports a security provider on every user. Whether it also reports one for local
+             * accounts, and with which id, has not been verified against a live instance yet. With the list
+             * empty, a user without a security provider counts as local, which is the assumption the code has
+             * always made. Once the id of the local provider is known it is added here through
+             * USER_LOCAL_SECURITY_PROVIDER_IDS, no code change needed.
+             */
+            localSecurityProviderIds: '',
+        };
+    }
+
     public static get maintenance() {
         return {
             resetAllowedUsernames: DefaultAppConfig.RESET_ALLOWED_USERNAMES,
