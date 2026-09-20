@@ -1,132 +1,40 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
-import { PaginationUtility, PasswordGeneratorUtility } from '../../../shared/utilities';
-import { BaseWorkflow } from '../../../shared/workflows';
-import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../../../user/commands';
-import { User } from '../../../user/models';
-import { RetrieveUsersQuery } from '../../../user/queries';
-import { SiteUserType } from '../../enums';
 import { UserSourceType } from '../../../user/enums';
-import { MultipleUsersFoundException } from '../../exceptions';
+import { SiteUserType } from '../../enums';
 import { PartialSiteAuditor } from '../../models';
+import { BaseSiteUserWorkflow } from './base-site-user.workflow';
 
-export class SiteAuditorUserWorkflow implements BaseWorkflow<User | null> {
-    private static readonly PREFERRED_EMAIL_LANGUAGE = 'en-US';
-    private static readonly IS_TWO_FACTOR_AUTH_REQUIRED = true;
-    private static readonly IS_LOGIN_ALLOWED = true;
-    private static readonly FAILED_LOGIN_ATTEMPTS = 0;
-    private static readonly MUST_RESET_PASSWORD_ON_NEXT_LOGIN = true;
-    private static readonly MAX_USERS_RETRIEVED_PER_PAGE = 100;
-
-    private get userPublicDisplayName(): string {
-        return `${this.appConfigService.site.user.siteAuditor.publicDisplayNamePrefix} ${this.customerName.toUpperCase()}`;
-    }
-
+export class SiteAuditorUserWorkflow extends BaseSiteUserWorkflow {
     constructor(
         private readonly appConfigService: AppConfigService,
-        private readonly queryBus: QueryBus,
-        private readonly commandBus: CommandBus,
-        private readonly transactionId: string,
+        queryBus: QueryBus,
+        commandBus: CommandBus,
+        transactionId: string,
         private readonly siteAuditor: PartialSiteAuditor,
         private readonly customerName: string,
-        private readonly customerBeyondtrustInstanceId: number,
-    ) {}
-
-    /**
-     * @throws MultipleUsersFoundException if more than one user is found with the same email or username
-     */
-    public async getOrCreate(): Promise<User | null> {
-        if (this.siteAuditor.sourceType === UserSourceType.External) {
-            return await this.get();
-        }
-
-        const user = await this.getOrModify();
-
-        if (user) {
-            return user;
-        }
-
-        return await this.commandBus.execute<CreateUserCommand, User>(
-            new CreateUserCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                this.userPublicDisplayName,
-                this.siteAuditor.username,
-                PasswordGeneratorUtility.generate(), // generate password according to Marlink's password policy
-                undefined, // passwordExpirationDate
-                this.siteAuditor.email,
-                SiteAuditorUserWorkflow.PREFERRED_EMAIL_LANGUAGE,
-                SiteAuditorUserWorkflow.IS_TWO_FACTOR_AUTH_REQUIRED,
-                SiteAuditorUserWorkflow.IS_LOGIN_ALLOWED,
-                SiteAuditorUserWorkflow.FAILED_LOGIN_ATTEMPTS,
-                SiteAuditorUserWorkflow.MUST_RESET_PASSWORD_ON_NEXT_LOGIN,
-            ),
-        );
+        customerBeyondtrustInstanceId: number,
+    ) {
+        super(queryBus, commandBus, transactionId, customerBeyondtrustInstanceId);
     }
 
-    public async delete(): Promise<void> {
-        const user = await this.get();
-
-        if (!user) {
-            return;
-        }
-
-        await this.commandBus.execute<DeleteUserCommand, void>(
-            new DeleteUserCommand(this.transactionId, this.customerBeyondtrustInstanceId, user.id),
-        );
+    protected get siteUserType(): SiteUserType {
+        return SiteUserType.SiteAuditor;
     }
 
-    private async getOrModify(): Promise<User | null> {
-        const user = await this.get();
-
-        if (!user) {
-            return null;
-        }
-
-        if (user.email !== this.siteAuditor.email) {
-            return await this.commandBus.execute<ModifyUserCommand, User>(
-                new ModifyUserCommand(
-                    this.transactionId,
-                    this.customerBeyondtrustInstanceId,
-                    user.id,
-                    this.userPublicDisplayName, // publicDisplayName
-                    undefined, // username
-                    undefined, // password
-                    undefined, // passwordExpirationDate
-                    this.siteAuditor.email, // email
-                ),
-            );
-        }
-
-        return user;
+    protected get email(): string {
+        return this.siteAuditor.email;
     }
 
-    private async get(): Promise<User | null> {
-        const isExternalUser = this.siteAuditor.sourceType === UserSourceType.External;
+    protected get sourceType(): UserSourceType {
+        return this.siteAuditor.sourceType;
+    }
 
-        const users = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
-            this.queryBus.execute<RetrieveUsersQuery, User[]>(
-                new RetrieveUsersQuery(
-                    this.transactionId,
-                    this.customerBeyondtrustInstanceId,
-                    SiteAuditorUserWorkflow.MAX_USERS_RETRIEVED_PER_PAGE,
-                    pageNumber,
-                    undefined,
-                    isExternalUser ? undefined : this.siteAuditor.username,
-                    isExternalUser ? this.siteAuditor.email : undefined,
-                ),
-            ),
-        );
+    protected get localUsername(): string {
+        return this.siteAuditor.username;
+    }
 
-        if (users.length > 1) {
-            throw new MultipleUsersFoundException(
-                SiteUserType.SiteAuditor,
-                this.siteAuditor.username,
-                this.siteAuditor.email,
-                users.map((user) => user.id),
-            );
-        }
-
-        return users[0] ?? null;
+    protected get publicDisplayName(): string {
+        return `${this.appConfigService.site.user.siteAuditor.publicDisplayNamePrefix} ${this.customerName.toUpperCase()}`;
     }
 }

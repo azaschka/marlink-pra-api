@@ -5,7 +5,6 @@ import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { SiteUserType } from '../enums';
-import { UserSourceType } from '../../user/enums';
 import { UserNotFoundException } from '../exceptions';
 import { PartialSiteAuditor, PartialSiteAuditorWithUserId, SiteAuditor } from '../models';
 import { RetrieveSiteAuditorsByUserIdQuery } from '../queries';
@@ -168,9 +167,10 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
             );
         }
 
-        // The site auditor user is only deleted if they are not associated with any other sites and they are an internal user.
-        // External users are not managed by the system, so we don't delete them.
-        if (!isSiteAuditorAssociatedWithMultipleSites && this.siteAuditor.sourceType === UserSourceType.Internal) {
+        // The site auditor user is only deleted if they are not associated with any other sites.
+        // SiteAuditorUserWorkflow.delete() additionally refuses to delete a non-local account, so the guard
+        // against removing an externally provisioned identity cannot be forgotten here.
+        if (!isSiteAuditorAssociatedWithMultipleSites) {
             await this.siteAuditorUserWorkflow.delete();
         }
     }

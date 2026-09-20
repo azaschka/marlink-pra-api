@@ -8,7 +8,6 @@ import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { SiteUserType } from '../enums';
-import { UserSourceType } from '../../user/enums';
 import { UserNotFoundException } from '../exceptions';
 import { PartialSiteManager, PartialSiteManagerWithUserId, SiteManager } from '../models';
 import { RetrieveSiteManagersByUserIdQuery } from '../queries';
@@ -138,9 +137,10 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [], [siteManagerUser.id.toString()]);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
 
-        // The site manager user is only deleted if they are not associated with any other sites and they are an internal user.
-        // External users are not managed by the system, so we don't delete them.
-        if (!isSiteManagerAssociatedWithMultipleSites && this.siteManager.sourceType === UserSourceType.Internal) {
+        // The site manager user is only deleted if they are not associated with any other sites.
+        // SiteManagerUserWorkflow.delete() additionally refuses to delete a non-local account, so the guard
+        // against removing an externally provisioned identity cannot be forgotten here.
+        if (!isSiteManagerAssociatedWithMultipleSites) {
             await this.siteManagerUserWorkflow.delete();
         }
     }

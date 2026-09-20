@@ -12,7 +12,6 @@ import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands
 import { UserGroupPolicy } from '../../user-group-policy/models';
 import { User } from '../../user/models';
 import { SiteSupportTeamAccessLevel, SiteUserType } from '../enums';
-import { UserSourceType } from '../../user/enums';
 import { UserNotFoundException } from '../exceptions';
 import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId, SiteSupportTeamMember } from '../models';
 import { RetrieveSiteSupportTeamMembersByUserIdQuery } from '../queries';
@@ -232,12 +231,10 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             ),
         );
 
-        // The site support team member user is only deleted if they are not associated with any other sites and they are an internal user.
-        // External users are not managed by the system, so we don't delete them.
-        if (
-            !isSiteSupportTeamMemberAssociatedWithMultipleSites &&
-            this.siteSupportTeamMember.sourceType === UserSourceType.Internal
-        ) {
+        // The site support team member user is only deleted if they are not associated with any other sites.
+        // SiteSupportTeamMemberUserWorkflow.delete() additionally refuses to delete a non-local account, so the guard
+        // against removing an externally provisioned identity cannot be forgotten here.
+        if (!isSiteSupportTeamMemberAssociatedWithMultipleSites) {
             await this.siteSupportTeamMemberUserWorkflow.delete();
         }
 
