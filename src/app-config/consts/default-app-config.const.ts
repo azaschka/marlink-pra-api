@@ -289,13 +289,14 @@ export abstract class DefaultAppConfig {
             /**
              * Ids of the BeyondTrust security providers that hold local accounts.
              *
-             * BeyondTrust reports a security provider on every user. Whether it also reports one for local
-             * accounts, and with which id, has not been verified against a live instance yet. With the list
-             * empty, a user without a security provider counts as local, which is the assumption the code has
-             * always made. Once the id of the local provider is known it is added here through
-             * USER_LOCAL_SECURITY_PROVIDER_IDS, no code change needed.
+             * BeyondTrust reports a security provider on every user. Local accounts belong to the built-in
+             * provider, which is id 1: it exists before any provider is configured, and every provider added
+             * afterwards increments from there. Verified against the Marlink instance.
+             *
+             * Kept configurable through USER_LOCAL_SECURITY_PROVIDER_IDS for an instance that ended up with a
+             * different id, and so that a second local provider can be added without a code change.
              */
-            localSecurityProviderIds: '',
+            localSecurityProviderIds: '1',
         };
     }
 

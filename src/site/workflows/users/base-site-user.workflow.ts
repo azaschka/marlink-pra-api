@@ -137,22 +137,16 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
     }
 
     /**
-     * A non-local account always belongs to a security provider, so a user supplied as external that has none
-     * is a wrongly flagged ingestion row and must not be processed as if it were an identity we may manage.
-     *
-     * The reverse direction is deliberately not treated as an error here. Whether BeyondTrust reports a
-     * security provider for local accounts as well has not been verified against a live instance yet, so a
-     * hard check in that direction could reject every local user. delete() carries the protection instead,
-     * where being wrong actually costs something.
+     * The source type is declared by the caller and is not otherwise verifiable, so this is the only point at
+     * which a wrongly flagged ingestion row can be caught. Both directions matter: an account flagged external
+     * that is in fact local would never be cleaned up, and an account flagged internal that is in fact
+     * provisioned by an identity provider would be treated as ours to modify and delete.
      */
     private verifySourceType(user: User): void {
-        if (this.isExternalUser && !UserSourceUtility.isExternal(user, this.localSecurityProviderIds)) {
-            throw new SourceTypeMismatchException(
-                this.siteUserType,
-                this.email,
-                UserSourceType.External,
-                UserSourceType.Internal,
-            );
+        const actualSourceType = UserSourceUtility.resolveSourceType(user, this.localSecurityProviderIds);
+
+        if (actualSourceType !== this.sourceType) {
+            throw new SourceTypeMismatchException(this.siteUserType, this.email, this.sourceType, actualSourceType);
         }
     }
 

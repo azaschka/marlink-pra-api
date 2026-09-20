@@ -15,6 +15,8 @@ import { SiteManagerUserWorkflow } from './site-manager-user.workflow';
 describe('BaseSiteUserWorkflow', () => {
     const TRANSACTION_ID = 'transaction-id';
     const BT_INSTANCE_ID = 42;
+    /** BeyondTrust's built-in provider that holds local accounts. */
+    const LOCAL_SECURITY_PROVIDER_ID = 1;
 
     let queryBus: QueryBus;
     let commandBus: CommandBus;
@@ -63,6 +65,15 @@ describe('BaseSiteUserWorkflow', () => {
             expectNoCommandOfType(CreateUserCommand);
         });
 
+        it('should reject a user that belongs to the built-in local security provider', async () => {
+            mockRetrievedUsers([createUser({ securityProviderId: LOCAL_SECURITY_PROVIDER_ID })]);
+
+            await expect(
+                createWorkflow(UserSourceType.External, [LOCAL_SECURITY_PROVIDER_ID]).getOrCreate(),
+            ).rejects.toThrow(SourceTypeMismatchException);
+            expectNoCommandOfType(CreateUserCommand);
+        });
+
         it('should never modify the account of a non-local user', async () => {
             mockRetrievedUsers([createUser({ securityProviderId: 3, email: 'stale@example.com' })]);
 
@@ -95,6 +106,27 @@ describe('BaseSiteUserWorkflow', () => {
             expect(commandOfType(ModifyUserCommand)).toBeDefined();
         });
 
+        it('should reject an account that belongs to an identity provider', async () => {
+            mockRetrievedUsers([createUser({ id: 11, securityProviderId: 3 })]);
+
+            await expect(
+                createWorkflow(UserSourceType.Internal, [LOCAL_SECURITY_PROVIDER_ID]).getOrCreate(),
+            ).rejects.toThrow(SourceTypeMismatchException);
+            expectNoCommandOfType(ModifyUserCommand);
+            expectNoCommandOfType(DeleteUserCommand);
+        });
+
+        it('should accept an account of the built-in local security provider', async () => {
+            mockRetrievedUsers([
+                createUser({ id: 11, securityProviderId: LOCAL_SECURITY_PROVIDER_ID, email: 'manager@example.com' }),
+            ]);
+
+            const result = await createWorkflow(UserSourceType.Internal, [LOCAL_SECURITY_PROVIDER_ID]).getOrCreate();
+
+            expect(result?.id).toBe(11);
+            expectNoCommandOfType(CreateUserCommand);
+        });
+
         it('should leave a matching account untouched', async () => {
             mockRetrievedUsers([createUser({ id: 11, email: 'manager@example.com' })]);
 
@@ -117,8 +149,7 @@ describe('BaseSiteUserWorkflow', () => {
         it('should not delete an account that BeyondTrust reports as externally provisioned', async () => {
             mockRetrievedUsers([createUser({ id: 7, securityProviderId: 3 })]);
 
-            await createWorkflow(UserSourceType.Internal).delete();
-
+            await expect(createWorkflow(UserSourceType.Internal).delete()).rejects.toThrow(SourceTypeMismatchException);
             expectNoCommandOfType(DeleteUserCommand);
         });
 
