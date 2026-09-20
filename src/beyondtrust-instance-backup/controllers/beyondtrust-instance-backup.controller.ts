@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
+import { AccessGuard } from '../../access/guards';
+import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateBeyondtrustInstanceBackupCommand } from '../commands';
@@ -19,8 +20,10 @@ import {
 } from '../queries';
 
 @ApiTransactionIdHeader()
+@ApiAccessKeyHeader()
 @ApiTags('Beyondtrust Instances')
 @Controller('beyondtrust-instances')
+@UseGuards(AccessGuard)
 @UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class BeyondtrustInstanceBackupController {
