@@ -96,7 +96,7 @@ export class SiteController {
             ),
         );
 
-        return result;
+        return SiteProcessingResultDtoOutput.create(result);
     }
 
     @Delete(':id')

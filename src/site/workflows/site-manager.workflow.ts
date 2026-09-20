@@ -88,6 +88,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteManager,
             this.siteManager.sourceType,
+            this.siteManager.email,
             siteManagerUser,
             [managerGroupPolicy.id, managerAccessGroupPolicy.id],
             [],
@@ -132,6 +133,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteManager,
             this.siteManager.sourceType,
+            this.siteManager.email,
             siteManagerUser,
             [],
             isSiteManagerAssociatedWithMultipleSites

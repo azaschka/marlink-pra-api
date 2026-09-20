@@ -1,5 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { SiteUserType } from '../enums';
+import { SiteUserException } from './site-user.exception';
 
 export interface GroupPolicyAssignmentFailure {
     groupPolicyId: number;
@@ -15,20 +16,21 @@ export interface GroupPolicyAssignmentFailure {
  * them at the end keeps the user itself reported as failed, which would be lost if the failures were only
  * logged.
  */
-export class GroupPolicyAssignmentFailedException extends HttpException {
+export class GroupPolicyAssignmentFailedException extends SiteUserException {
     constructor(
-        public readonly siteUserType: SiteUserType,
+        siteUserType: SiteUserType,
+        email: string | undefined,
         public readonly userId: number,
         public readonly failures: GroupPolicyAssignmentFailure[],
     ) {
         super(
+            siteUserType,
+            email,
             `Failed to apply ${failures.length} group policy change(s) for user ${userId}: ` +
                 failures
                     .map((failure) => `${failure.operation} ${failure.groupPolicyId} (${failure.message})`)
                     .join('; '),
             HttpStatus.BAD_GATEWAY,
         );
-        this.name = new.target.name;
-        Object.setPrototypeOf(this, new.target.prototype);
     }
 }

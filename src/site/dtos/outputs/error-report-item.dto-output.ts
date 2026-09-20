@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { SiteUserType } from '../../enums';
 import { ErrorReportItem } from '../../error-reports';
 
 export class ErrorReportItemDtoOutput implements ErrorReportItem {
@@ -18,8 +19,15 @@ export class ErrorReportItemDtoOutput implements ErrorReportItem {
 
     @ApiProperty({
         required: false,
-        type: Object,
-        description: 'The context of the error report item.',
+        enum: SiteUserType,
+        description: 'The role of the site user the error refers to, if the error concerns a specific user.',
     })
-    public context?: Record<string, unknown> | undefined;
+    public siteUserType?: SiteUserType;
+
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'The email of the site user the error refers to, if the error concerns a specific user.',
+    })
+    public email?: string;
 }

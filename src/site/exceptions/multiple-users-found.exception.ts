@@ -1,15 +1,19 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { SiteUserType } from '../enums';
+import { SiteUserException } from './site-user.exception';
 
-export class MultipleUsersFoundException extends HttpException {
+export class MultipleUsersFoundException extends SiteUserException {
     constructor(
-        public readonly siteUserType: SiteUserType,
+        siteUserType: SiteUserType,
         public readonly username: string | undefined,
-        public readonly email: string,
+        email: string,
         public readonly userIds: number[],
     ) {
-        super(`Found ${userIds.length} users.`, HttpStatus.CONFLICT);
-        this.name = new.target.name;
-        Object.setPrototypeOf(this, new.target.prototype);
+        super(
+            siteUserType,
+            email,
+            `Found ${userIds.length} users matching username ${username ?? 'undefined'} or email ${email}.`,
+            HttpStatus.CONFLICT,
+        );
     }
 }

@@ -1,14 +1,18 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { SiteUserType } from '../enums';
+import { SiteUserException } from './site-user.exception';
 
-export class UserNotFoundException extends HttpException {
+export class UserNotFoundException extends SiteUserException {
     constructor(
-        public readonly siteUserType: SiteUserType,
+        siteUserType: SiteUserType,
         public readonly username: string | undefined,
-        public readonly email: string,
+        email: string,
     ) {
-        super(`User with username ${username ?? 'undefined'} and email ${email} not found.`, HttpStatus.NOT_FOUND);
-        this.name = new.target.name;
-        Object.setPrototypeOf(this, new.target.prototype);
+        super(
+            siteUserType,
+            email,
+            `User with username ${username ?? 'undefined'} and email ${email} not found.`,
+            HttpStatus.NOT_FOUND,
+        );
     }
 }

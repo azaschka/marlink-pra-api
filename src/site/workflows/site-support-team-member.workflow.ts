@@ -175,6 +175,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteSupportTeamMember,
             this.siteSupportTeamMember.sourceType,
+            this.siteSupportTeamMember.email,
             siteSupportTeamMemberUser,
             [
                 supportTeamGroupPolicy.id,
@@ -221,6 +222,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteSupportTeamMember,
             this.siteSupportTeamMember.sourceType,
+            this.siteSupportTeamMember.email,
             siteSupportTeamMemberUser,
             [],
             isSiteSupportTeamMemberAssociatedWithMultipleSites

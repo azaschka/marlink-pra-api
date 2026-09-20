@@ -111,6 +111,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteAuditor,
             this.siteAuditor.sourceType,
+            this.siteAuditor.email,
             siteAuditorUser,
             [
                 administratorGroupPolicy.id,
@@ -158,6 +159,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
             await this.userGroupPolicyAssignmentWorkflow.modify(
                 SiteUserType.SiteAuditor,
                 this.siteAuditor.sourceType,
+                this.siteAuditor.email,
                 siteAuditorUser,
                 [],
                 [

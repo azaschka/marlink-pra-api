@@ -42,6 +42,7 @@ export class UserGroupPolicyAssignmentWorkflow {
     public async modify(
         siteUserType: SiteUserType,
         sourceType: UserSourceType,
+        email: string,
         user: User,
         groupPolicyIdsToAdd: number[],
         groupPolicyIdsToRemove: number[],
@@ -75,7 +76,7 @@ export class UserGroupPolicyAssignmentWorkflow {
         }
 
         if (failures.length > 0) {
-            throw new GroupPolicyAssignmentFailedException(siteUserType, user.id, failures);
+            throw new GroupPolicyAssignmentFailedException(siteUserType, email, user.id, failures);
         }
     }
 
