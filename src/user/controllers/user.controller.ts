@@ -58,31 +58,63 @@ import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 @UsePipes(MonitoringRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class UserController {
-    /**
-     * R3.2-A004: properties BeyondTrust only accepts on local accounts. Sending them for a non-local user is
-     * rejected upstream with an opaque error, so they are refused here with a message naming the fields.
-     */
-    private static readonly LOCAL_ONLY_PROPERTIES: (keyof ModifyUserDtoInput)[] = [
-        'username',
-        'password',
-        'passwordExpirationDate',
-        'failedLoginAttempts',
-        'mustResetPasswordOnNextLogin',
-        'regeneratePassword',
-    ];
-
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
         private readonly appConfigService: AppConfigService,
     ) {}
 
-    private async resolveSourceType(transactionId: string, tenantId: number, id: number): Promise<UserSourceType> {
-        const user = await this.queryBus.execute<RetrieveUserByIdQuery, User>(
+    private async loadUser(transactionId: string, tenantId: number, id: number): Promise<User> {
+        return await this.queryBus.execute<RetrieveUserByIdQuery, User>(
             new RetrieveUserByIdQuery(transactionId, tenantId, id),
         );
+    }
 
-        return UserSourceUtility.resolveSourceType(user, this.appConfigService.user.localSecurityProviderIds);
+    private isExternalUser(user: User): boolean {
+        return (
+            UserSourceUtility.resolveSourceType(user, this.appConfigService.user.localSecurityProviderIds) ===
+            UserSourceType.External
+        );
+    }
+
+    /**
+     * R3.2-A004: local-only properties that the request would actually change.
+     *
+     * BeyondTrust only accepts these on local accounts, and forwarding them for a non-local user produces an
+     * opaque upstream error. What counts is whether the request changes them, not whether it mentions them:
+     * the console sends the whole edit form every time, so username arrives on every update and
+     * regeneratePassword arrives as false. Rejecting an unchanged value or a flag that is switched off would
+     * make a non-local user uneditable for no reason, including the display name and email that BeyondTrust
+     * itself decides on.
+     */
+    private findRejectedLocalOnlyProperties(dtoInput: ModifyUserDtoInput, user: User): string[] {
+        const rejectedProperties: string[] = [];
+
+        if (dtoInput.username !== undefined && dtoInput.username !== user.username) {
+            rejectedProperties.push('username');
+        }
+
+        if (dtoInput.password !== undefined) {
+            rejectedProperties.push('password');
+        }
+
+        if (dtoInput.passwordExpirationDate !== undefined) {
+            rejectedProperties.push('passwordExpirationDate');
+        }
+
+        if (dtoInput.failedLoginAttempts !== undefined && dtoInput.failedLoginAttempts !== user.failedLoginAttempts) {
+            rejectedProperties.push('failedLoginAttempts');
+        }
+
+        if (dtoInput.mustResetPasswordOnNextLogin) {
+            rejectedProperties.push('mustResetPasswordOnNextLogin');
+        }
+
+        if (dtoInput.regeneratePassword) {
+            rejectedProperties.push('regeneratePassword');
+        }
+
+        return rejectedProperties;
     }
 
     @Get(':id')
@@ -177,10 +209,10 @@ export class UserController {
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyUserDtoInput,
     ): Promise<UserModifiedDtoOutput> {
-        if ((await this.resolveSourceType(transactionId, tenantId, id)) === UserSourceType.External) {
-            const rejectedProperties = UserController.LOCAL_ONLY_PROPERTIES.filter(
-                (property) => dtoInput[property] !== undefined,
-            );
+        const userToModify = await this.loadUser(transactionId, tenantId, id);
+
+        if (this.isExternalUser(userToModify)) {
+            const rejectedProperties = this.findRejectedLocalOnlyProperties(dtoInput, userToModify);
 
             if (rejectedProperties.length > 0) {
                 throw new NonLocalUserModificationException(rejectedProperties);
@@ -222,7 +254,7 @@ export class UserController {
         @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        if ((await this.resolveSourceType(transactionId, tenantId, id)) === UserSourceType.External) {
+        if (this.isExternalUser(await this.loadUser(transactionId, tenantId, id))) {
             throw new NonLocalUserDeletionException(id);
         }
 

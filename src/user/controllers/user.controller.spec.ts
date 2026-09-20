@@ -146,6 +146,41 @@ describe('UserController', () => {
 
             expect(commandBusExecuteSpy).toHaveBeenCalled();
         });
+
+        // The console sends its whole edit form on every update, so username arrives unchanged and
+        // regeneratePassword arrives as false even when only the display name was edited.
+        it('should accept an edit that mentions local-only properties without changing them', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue({
+                securityProviderId: 7,
+                username: 'existing-username',
+            } as User);
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue({} as User);
+
+            await controller.modifyUser('uuid-100', 123, 1, {
+                publicDisplayName: 'New Display Name',
+                username: 'existing-username',
+                email: 'user@example.com',
+                regeneratePassword: false,
+            });
+
+            expect(commandBusExecuteSpy).toHaveBeenCalled();
+        });
+
+        it('should refuse a password regeneration on a non-local user', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue({
+                securityProviderId: 7,
+                username: 'existing-username',
+            } as User);
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            await expect(
+                controller.modifyUser('uuid-100', 123, 1, {
+                    username: 'existing-username',
+                    regeneratePassword: true,
+                }),
+            ).rejects.toThrow(NonLocalUserModificationException);
+            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+        });
     });
 
     describe('deleteUser', () => {
