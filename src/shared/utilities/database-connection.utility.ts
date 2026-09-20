@@ -2,33 +2,17 @@ import { Logger, ServiceUnavailableException } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 import { DefaultAppConfig } from '../../app-config/consts';
 
-/**
- * Helpers for working with pooled MariaDB connections (MARLINKPRA-42).
- *
- * Why this exists:
- * - mysql2 has no acquire timeout. A request that waits for a free pooled connection waits without a
- *   time limit (the queue limit only bounds the queue depth), so a saturated pool shows up as requests
- *   that hang for minutes. {@link acquireQueryRunner} bounds that wait.
- * - A pooled connection can turn out to be dead when it is handed out (server closed it, network path
- *   dropped it). For read-only queries this is safe to repeat once with a fresh connection, see
- *   {@link executeRead}. Writes are intentionally never repeated here.
- */
 export abstract class DatabaseConnectionUtility {
     private static readonly LOGGER = new Logger('DatabaseConnectionUtility');
 
     private static readonly TRANSIENT_ERROR_CODES: ReadonlySet<string> = new Set([
-        'PROTOCOL_CONNECTION_LOST', // The server closed the connection
-        'ECONNRESET', // The connection was reset by the peer
-        'EPIPE', // Write on a connection that was already closed
+        'PROTOCOL_CONNECTION_LOST',
+        'ECONNRESET',
+        'EPIPE',
     ]);
 
-    // mysql2 raises this (without an error code) when a command is added to an already closed connection.
     private static readonly CLOSED_CONNECTION_MESSAGE = 'connection is in closed state';
 
-    /**
-     * Creates a query runner and waits at most `acquireTimeoutInMs` for a pooled connection.
-     * Fails with 503 (Service Unavailable) when the pool is saturated for longer than that.
-     */
     public static async acquireQueryRunner(
         dataSource: DataSource,
         acquireTimeoutInMs: number = DefaultAppConfig.database.acquireTimeoutInMs,
@@ -52,9 +36,8 @@ export abstract class DatabaseConnectionUtility {
             await Promise.race([connectPromise, timeoutPromise]);
             return queryRunner;
         } catch (error) {
-            // TypeORM's release() does nothing until the pooled connection has actually been handed out. The
-            // request for a connection stays queued in the pool after a timeout, so the connection that
-            // arrives later must be released as soon as it is handed out. Otherwise it would leak from the pool.
+            // The connection request stays queued in the pool after a timeout and TypeORM's release() is a
+            // no-op until it is handed out, so release it once it arrives to avoid leaking it.
             void connectPromise.then(
                 () => queryRunner.release(),
                 () => undefined,
@@ -65,11 +48,6 @@ export abstract class DatabaseConnectionUtility {
         }
     }
 
-    /**
-     * Runs a read-only operation on a pooled connection and always releases the connection.
-     * When the operation fails because the pooled connection was dead, it is repeated with a fresh
-     * connection, up to `maxAttempts` attempts in total. Any other error is thrown immediately.
-     */
     public static async executeRead<R>(
         dataSource: DataSource,
         operation: (queryRunner: QueryRunner) => Promise<R>,
@@ -99,10 +77,6 @@ export abstract class DatabaseConnectionUtility {
         }
     }
 
-    /**
-     * True when the error means that the pooled connection itself is unusable (as opposed to a problem
-     * with the query, such as a syntax error, a constraint violation or a deadlock).
-     */
     public static isTransientConnectionError(error: unknown): boolean {
         const candidates = [
             error,

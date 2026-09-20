@@ -11,63 +11,24 @@ export abstract class DefaultAppConfig {
     private static readonly PRA_ADMIN_CONSOLE_URL = 'https://praadmin-mobsat.msappproxy.net/';
     private static readonly BEYOND_TRUST_CONSOLE_URL = 'https://marlinksra.beyondtrustcloud.com/login';
     private static readonly PRA_SYNC_API_BASE_URL = 'http://pra-sync-api:9001';
-    // ------------------------------------------------------------------------------------------------
-    // Database connection settings (MARLINKPRA-42)
-    //
-    // All values in this section are plain constants on purpose. They are NOT read from environment
-    // variables and cannot be overridden per environment. To tune the database connection, change the
-    // constant here and redeploy. Only the connection endpoint and the credentials (DB_TYPE, DB_HOST,
-    // DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME) come from the environment.
-    //
-    // MariaDB server side settings these values are sized for, on all environments (MARLINKPRA-42):
-    //   max_connections = 300, wait_timeout = interactive_timeout = 300 s
-    // DEV and Pre-Prod already run with them. The DC team applies them on Prod before this version is
-    // deployed there. Do NOT deploy this version against a database that still runs with the MariaDB
-    // defaults (max_connections = 151, wait_timeout = 28800 s), see the pool sizing below.
-    // ------------------------------------------------------------------------------------------------
+    // Database tuning is constant-only; the environment supplies just the endpoint and credentials.
+    // Sized for MariaDB max_connections = 300 and wait_timeout = 300 s. Both service pools, counted twice
+    // for a rolling update, must stay below max_connections (see the spec).
     private static readonly DB_RETRY_ATTEMPTS = 60;
     private static readonly DB_RETRY_DELAY_IN_MS = 8000; // 8 seconds
     private static readonly DB_MAX_QUERY_EXECUTION_TIME_IN_MS = 15000; // 15 seconds
-
-    // Connection pool (mysql2).
-    // Sizing: pool(30) per instance of pra-api plus pool(50) per instance of pra-sync-api is 80 connections
-    // per deployment and 160 during a rolling update (old and new pods run side by side). That fits
-    // max_connections = 300 with headroom for admin tools and monitoring, but NOT the MariaDB default of 151.
-    // When changing a pool size, keep the sum of both services (see the pool constant in pra-sync-api)
-    // within max_connections and count the rolling update twice.
-    // pra-api serves short-lived HTTP requests without saga burst patterns, so 30 is sufficient.
     private static readonly DB_EXTRA_MAX_CONNECTIONS = 30;
-
-    // Idle connections above this number are closed by the pool (mysql2 checks once per second).
-    // IMPORTANT: mysql2 only runs its idle cleanup when maxIdle < connectionLimit. With the default
-    // (maxIdle = connectionLimit) idle connections are never retired and can silently go stale.
+    // Must stay below DB_EXTRA_MAX_CONNECTIONS, otherwise mysql2 never retires idle connections.
     private static readonly DB_POOL_MAX_IDLE = 10;
-
-    // Idle connections older than this are closed by the pool.
-    // Must stay well below the MariaDB wait_timeout (300 s) and below the idle timeout of the network
-    // path between the cluster and the database, so the pool retires a connection before the server or a
-    // firewall silently drops it.
-    private static readonly DB_POOL_IDLE_TIMEOUT_IN_MS = 60000; // 60 seconds
-
-    // TCP keep-alive on pooled sockets. mysql2 enables keep-alive by default but without an initial delay,
-    // which leaves the OS default (typically 2 hours) in place and does not help against idle drops.
+    // Must stay well below the MariaDB wait_timeout.
+    private static readonly DB_POOL_IDLE_TIMEOUT_IN_MS = 60000;
     private static readonly DB_KEEP_ALIVE_ENABLED = true;
-    private static readonly DB_KEEP_ALIVE_INITIAL_DELAY_IN_MS = 30000; // 30 seconds
-
-    private static readonly DB_CONNECT_TIMEOUT_IN_MS = 10000; // 10 seconds to establish a connection
-    private static readonly DB_WAIT_FOR_CONNECTIONS = true; // Wait for a free pooled connection (MySQL2 option)
-
-    // Max requests waiting for a free pooled connection before failing (MySQL2 option).
-    // This limits the queue depth only, not the time a request waits in the queue.
+    private static readonly DB_KEEP_ALIVE_INITIAL_DELAY_IN_MS = 30000;
+    private static readonly DB_CONNECT_TIMEOUT_IN_MS = 10000;
+    private static readonly DB_WAIT_FOR_CONNECTIONS = true;
     private static readonly DB_QUEUE_LIMIT = 100;
-
-    // Max time a request waits for a free pooled connection. mysql2 has no acquire timeout of its own, so
-    // this is enforced in DatabaseConnectionUtility. After this time the request fails with 503 instead of
-    // hanging until the client gives up.
+    // mysql2 has no acquire timeout, it is enforced in DatabaseConnectionUtility.
     private static readonly DB_ACQUIRE_TIMEOUT_IN_MS = 15000;
-
-    // Attempts for read-only queries. A read is repeated once with a fresh connection when the pooled
-    // connection turned out to be dead (connection lost or reset). Writes are never repeated automatically.
     private static readonly DB_READ_MAX_ATTEMPTS = 2;
 
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';

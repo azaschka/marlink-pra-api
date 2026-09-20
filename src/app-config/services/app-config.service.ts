@@ -258,16 +258,10 @@ export class AppConfigService {
         };
     }
 
-    /**
-     * TypeORM database options. Only the connection endpoint and credentials are read from the environment.
-     * Every pool and timeout setting comes from constants in DefaultAppConfig and is deliberately not
-     * overridable via environment variables.
-     */
     public get database(): TypeOrmModuleOptions {
         return {
             type: this.configService.get<'mariadb' | 'mysql'>('DB_TYPE') ?? undefined,
-            // Explicit driver: TypeORM otherwise tries the legacy 'mysql' package first, which would silently
-            // ignore the mysql2 pool options below if it ever became installed.
+            // Pin the driver: TypeORM prefers the legacy 'mysql' package, which ignores the mysql2 pool options.
             connectorPackage: 'mysql2',
             host: this.configService.get<string>('DB_HOST') ?? AppConfigService.DEFAULT_UNDEFINED_STRING,
             port: this.configService.get<number>('DB_PORT') ?? AppConfigService.DEFAULT_UNDEFINED_NUMBER,
@@ -286,18 +280,12 @@ export class AppConfigService {
             maxQueryExecutionTime: DefaultAppConfig.database.maxQueryExecutionTime, // Only applicable to MariaDB and MySQL
             extra: {
                 connectionLimit: this.databaseMaxConnections,
-                // Pool hygiene (mysql2). Idle connections are retired before MariaDB (wait_timeout) or the
-                // network path silently drops them, see DefaultAppConfig for the reasoning and invariants.
                 maxIdle: DefaultAppConfig.database.extra.maxIdle,
                 idleTimeout: DefaultAppConfig.database.extra.idleTimeout,
                 enableKeepAlive: DefaultAppConfig.database.extra.enableKeepAlive,
                 keepAliveInitialDelay: DefaultAppConfig.database.extra.keepAliveInitialDelay,
-                // Connection timeout: abort if a connection cannot be established in time (mysql2 option)
                 connectTimeout: DefaultAppConfig.database.connectTimeout,
-                // Wait for a free pooled connection before failing (mysql2 option)
                 waitForConnections: DefaultAppConfig.database.waitForConnections,
-                // Max requests waiting for a pooled connection (mysql2 option).
-                // Prevents "Queue limit reached" errors during traffic bursts.
                 queueLimit: DefaultAppConfig.database.queueLimit,
             },
         };
