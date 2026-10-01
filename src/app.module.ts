@@ -29,6 +29,7 @@ import { JumpPolicyModule } from './jump-policy/jump-policy.module';
 import { JumpointModule } from './jumpoint/jumpoint.module';
 import { LicenseUsageModule } from './license-usage/license-usage.module';
 import { LogModule } from './log/log.module';
+import { ObservabilityModule } from './observability/observability.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { MigrationModule } from './migration/migration.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
@@ -48,6 +49,7 @@ import { UserModule } from './user/user.module';
             inject: [AppConfigService],
         }),
         CqrsModule.forRoot(),
+        ObservabilityModule,
         ThrottlerModule.forRootAsync({
             imports: [AppConfigModule],
             useFactory: (config: AppConfigService) => [

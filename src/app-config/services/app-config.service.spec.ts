@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DefaultAppConfig } from '../consts';
 import { AppConfigService } from './app-config.service';
@@ -1172,6 +1173,44 @@ describe('AppConfigService', () => {
                 logRetentionDays: expected.logRetentionDays,
             });
         });
+    });
+
+    describe('observability', () => {
+        it('should use the default report interval when nothing is configured', () => {
+            jest.spyOn(configService, 'get').mockReturnValue(undefined);
+
+            expect(service.observability.resourceReportIntervalInMs).toBe(
+                DefaultAppConfig.observability.resourceReportIntervalInMs,
+            );
+        });
+
+        it.each([
+            { input: '60000', expected: 60000 },
+            { input: ' 0 ', expected: 0 },
+            { input: 120000, expected: 120000 },
+        ])('should parse the configured report interval $input', ({ input, expected }) => {
+            const get = jest.spyOn(configService, 'get').mockReturnValue(input);
+
+            expect(service.observability.resourceReportIntervalInMs).toBe(expected);
+            expect(get).toHaveBeenCalledWith('RESOURCE_REPORT_INTERVAL_IN_MS');
+        });
+
+        it.each(['abc', '-1', '1.5', '5m'])(
+            'should fall back to the default for the invalid value %s and report it only once',
+            (input) => {
+                const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+                jest.spyOn(configService, 'get').mockReturnValue(input);
+
+                expect(service.observability.resourceReportIntervalInMs).toBe(
+                    DefaultAppConfig.observability.resourceReportIntervalInMs,
+                );
+                expect(service.observability.resourceReportIntervalInMs).toBe(
+                    DefaultAppConfig.observability.resourceReportIntervalInMs,
+                );
+                expect(warn).toHaveBeenCalledTimes(1);
+                warn.mockRestore();
+            },
+        );
     });
 
     describe('throttle', () => {

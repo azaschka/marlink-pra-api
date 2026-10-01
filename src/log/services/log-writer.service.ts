@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { name as serviceName } from '../../../package.json';
 import { DefaultAppConfig } from '../../app-config/consts';
 import { BufferedEntityWriter, BufferedEntityWriterStats } from '../../core/services/buffered-entity-writer';
+import { ResourceReportRegistry } from '../../observability/services/resource-report-registry.service';
 import { LogActionType } from '../enums';
 import { LogEntity } from '../repositories/entities';
 
@@ -16,7 +17,7 @@ export class LogWriterService implements OnApplicationBootstrap, BeforeApplicati
 
     private readonly writer: BufferedEntityWriter<LogEntity>;
 
-    constructor(dataSource: DataSource) {
+    constructor(dataSource: DataSource, resourceReportRegistry: ResourceReportRegistry) {
         this.writer = new BufferedEntityWriter<LogEntity>(
             dataSource,
             LogEntity,
@@ -37,6 +38,7 @@ export class LogWriterService implements OnApplicationBootstrap, BeforeApplicati
                     }),
                 ),
         );
+        resourceReportRegistry.register('logWriter', () => ({ ...this.writer.stats() }));
     }
 
     public onApplicationBootstrap(): void {

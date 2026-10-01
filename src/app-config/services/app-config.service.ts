@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { resolve } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -8,6 +8,9 @@ import { DefaultAppConfig } from '../consts';
 export class AppConfigService {
     private static readonly DEFAULT_UNDEFINED_STRING = 'unknown';
     private static readonly DEFAULT_UNDEFINED_NUMBER = 0;
+
+    private readonly logger = new Logger(AppConfigService.name);
+    private readonly reportedInvalidKeys = new Set<string>();
 
     constructor(private readonly configService: ConfigService) {}
 
@@ -455,5 +458,43 @@ export class AppConfigService {
         return {
             cacheTtlInMs: this.configService.get<number>('SOC_CACHE_TTL_IN_MS') ?? DefaultAppConfig.soc.cacheTtlInMs,
         };
+    }
+
+    public get observability() {
+        return {
+            resourceReportIntervalInMs: this.integerOrDefault(
+                'RESOURCE_REPORT_INTERVAL_IN_MS',
+                DefaultAppConfig.observability.resourceReportIntervalInMs,
+                0,
+            ),
+        };
+    }
+
+    /**
+     * Reads an integer setting. Environment values arrive as strings; a value that is not an integer or lies
+     * outside [min, max] falls back to the default and is reported once, so a typo cannot silently disable or
+     * overload a mechanism.
+     */
+    private integerOrDefault(key: string, defaultValue: number, min: number, max = Number.MAX_SAFE_INTEGER): number {
+        const raw = this.configService.get<string | number>(key);
+
+        if (raw === undefined || raw === null || String(raw).trim() === '') {
+            return defaultValue;
+        }
+
+        const value = Number(String(raw).trim());
+
+        if (Number.isInteger(value) && value >= min && value <= max) {
+            return value;
+        }
+
+        if (!this.reportedInvalidKeys.has(key)) {
+            this.reportedInvalidKeys.add(key);
+            this.logger.warn(
+                `Ignoring invalid ${key}=${String(raw)} (expected an integer between ${min} and ${max}); using ${defaultValue}.`,
+            );
+        }
+
+        return defaultValue;
     }
 }
