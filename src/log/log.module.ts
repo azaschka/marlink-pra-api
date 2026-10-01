@@ -5,13 +5,14 @@ import { CommandHandlers } from './commands/handlers';
 import { LogController } from './controllers/log.controller';
 import { LogEntity } from './repositories/entities';
 import { LogRepositoryService } from './repositories/services/log-repository.service';
+import { LogBusSubscriberService } from './services/log-bus-subscriber.service';
 import { LogFilterService } from './services/log-filter.service';
 import { LogService } from './services/log.service';
 
 @Module({
     imports: [TypeOrmModule.forFeature([LogEntity]), AppConfigModule],
     controllers: [LogController],
-    providers: [LogRepositoryService, LogService, LogFilterService, ...CommandHandlers],
+    providers: [LogRepositoryService, LogService, LogFilterService, LogBusSubscriberService, ...CommandHandlers],
     exports: [LogService],
 })
 export class LogModule {}
