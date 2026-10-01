@@ -16,6 +16,7 @@ import { GroupPolicyTeam } from '../../group-policy-team/models';
 import { RetrieveGroupPolicyTeamsQuery } from '../../group-policy-team/queries';
 import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
+import { SiteUserType } from '../enums';
 import { ErrorReport } from '../error-reports';
 import {
     PartialSiteApprover,
@@ -293,7 +294,11 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                 siteWorkflowResult.siteManagers.push(await siteManagerWorkflow.getOrCreate());
             } catch (error) {
                 console.error(`[${this.transactionId}] Failed to process site manager ${siteManager?.email}:`, error);
-                siteWorkflowResult.errorReport.add(error);
+                siteWorkflowResult.errorReport.add(error, {
+                    siteUserType: SiteUserType.SiteManager,
+                    email: siteManager?.email,
+                    operation: 'add',
+                });
 
                 // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
                 // the caller from deleting an existing membership because of a transient failure.
@@ -310,7 +315,11 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                 siteWorkflowResult.siteAuditors.push(await siteAuditorWorkflow.getOrCreate());
             } catch (error) {
                 console.error(`[${this.transactionId}] Failed to process site auditor ${siteAuditor?.email}:`, error);
-                siteWorkflowResult.errorReport.add(error);
+                siteWorkflowResult.errorReport.add(error, {
+                    siteUserType: SiteUserType.SiteAuditor,
+                    email: siteAuditor?.email,
+                    operation: 'add',
+                });
 
                 // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
                 // the caller from deleting an existing membership because of a transient failure.
@@ -330,7 +339,11 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     `[${this.transactionId}] Failed to process site support team member ${siteSupportTeamMember?.email}:`,
                     error,
                 );
-                siteWorkflowResult.errorReport.add(error);
+                siteWorkflowResult.errorReport.add(error, {
+                    siteUserType: SiteUserType.SiteSupportTeamMember,
+                    email: siteSupportTeamMember?.email,
+                    operation: 'add',
+                });
 
                 // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
                 // the caller from deleting an existing membership because of a transient failure.
@@ -455,30 +468,42 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
             const marlinkOperatorGroupPolicy = await this.marlinkOperatorGroupPolicyWorkflow.getOrCreate();
             const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
 
-            for (const siteManagerWorkflow of this.siteManagerWorkflows) {
+            for (const [index, siteManagerWorkflow] of this.siteManagerWorkflows.entries()) {
                 try {
                     await siteManagerWorkflow.delete();
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site manager workflow:`, error);
-                    errorReport.add(error);
+                    errorReport.add(error, {
+                        siteUserType: SiteUserType.SiteManager,
+                        email: this.siteManagers[index]?.email,
+                        operation: 'remove',
+                    });
                 }
             }
 
-            for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
+            for (const [index, siteAuditorWorkflow] of this.siteAuditorWorkflows.entries()) {
                 try {
                     await siteAuditorWorkflow.delete();
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site auditor workflow:`, error);
-                    errorReport.add(error);
+                    errorReport.add(error, {
+                        siteUserType: SiteUserType.SiteAuditor,
+                        email: this.siteAuditors[index]?.email,
+                        operation: 'remove',
+                    });
                 }
             }
 
-            for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
+            for (const [index, siteSupportTeamMemberWorkflow] of this.siteSupportTeamMemberWorkflows.entries()) {
                 try {
                     await siteSupportTeamMemberWorkflow.delete();
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site support team member workflow:`, error);
-                    errorReport.add(error);
+                    errorReport.add(error, {
+                        siteUserType: SiteUserType.SiteSupportTeamMember,
+                        email: this.siteSupportTeamMembers[index]?.email,
+                        operation: 'remove',
+                    });
                 }
             }
 

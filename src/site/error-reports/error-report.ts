@@ -1,5 +1,5 @@
 import { SiteUserException } from '../exceptions';
-import { ErrorReportItem } from './error-report-item';
+import { ErrorReportItem, SiteUserErrorContext } from './error-report-item';
 
 export class ErrorReport {
     private readonly errors: ErrorReportItem[] = [];
@@ -11,23 +11,25 @@ export class ErrorReport {
      * internals of HttpException into the API response and made the entry impossible to process
      * programmatically. Failures that concern a site user carry the role and email themselves, which is what
      * R3.2-A003, 3.1(2) asks to be reported per user that cannot be matched.
+     *
+     * Errors that do not know their user (a Sync API timeout during a lookup, a failed removal command) get the
+     * role and email from the context the caller passes, so that every entry produced while processing a user
+     * names that user (EXT-02).
      */
-    public add(error: unknown) {
-        if (error instanceof SiteUserException) {
-            this.errors.push({
-                type: error.name,
-                message: error.message,
-                siteUserType: error.siteUserType,
-                email: error.email,
-            });
-
-            return;
-        }
+    public add(error: unknown, context?: SiteUserErrorContext) {
+        const userFields = {
+            ...(context ? { siteUserType: context.siteUserType, email: context.email } : {}),
+            ...(error instanceof SiteUserException
+                ? { siteUserType: error.siteUserType, email: error.email ?? context?.email }
+                : {}),
+            ...(context ? { operation: context.operation } : {}),
+        };
 
         if (error instanceof Error) {
             this.errors.push({
                 type: error.name,
                 message: error.message,
+                ...userFields,
             });
 
             return;
@@ -36,6 +38,7 @@ export class ErrorReport {
         this.errors.push({
             type: 'UnknownError',
             message: String(error),
+            ...userFields,
         });
     }
 

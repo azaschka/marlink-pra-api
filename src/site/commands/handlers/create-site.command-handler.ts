@@ -283,7 +283,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
                     await remove(siteUser);
                 } catch (error) {
                     console.error(`[${transactionId}] Failed to remove ${siteUserType} ${siteUser.email}:`, error);
-                    errorReport.add(error);
+                    errorReport.add(error, { siteUserType, email: siteUser.email, operation: 'remove' });
                     failed.push(siteUser.email);
                 }
             }
@@ -484,7 +484,9 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         site: Site,
     ): PartialSiteApprover[] {
         return siteApprovers.map((siteApprover) => {
-            const existingSiteApprover = site.siteApprovers.find((a) => a.email === siteApprover.email);
+            const existingSiteApprover = site.siteApprovers.find((a) =>
+                EmailUtility.areEqual(a.email, siteApprover.email),
+            );
 
             if (!existingSiteApprover) {
                 return siteApprover;

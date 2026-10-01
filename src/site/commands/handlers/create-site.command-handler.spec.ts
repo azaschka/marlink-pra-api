@@ -4,7 +4,7 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, SiteUserType } from '../../enums';
 import { UserSourceType } from '../../../user/enums';
 import { ErrorReport } from '../../error-reports';
 import { SiteCreatedEvent, SiteModifiedEvent } from '../../events';
@@ -359,7 +359,14 @@ describe('CreateSiteCommandHandler', () => {
                 expect(update.mock.calls[0]?.[0].siteAuditors.map((auditor) => auditor.email)).toEqual([
                     'gone@example.com',
                 ]);
-                expect(result.errorReport.items.map((item) => item.message)).toContain('BeyondTrust unavailable');
+                expect(result.errorReport.items).toContainEqual(
+                    expect.objectContaining({
+                        message: 'BeyondTrust unavailable',
+                        siteUserType: SiteUserType.SiteAuditor,
+                        email: 'gone@example.com',
+                        operation: 'remove',
+                    }),
+                );
             });
 
             it('should reject the run before removing anything when no site manager would remain', async () => {

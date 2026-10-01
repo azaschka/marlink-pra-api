@@ -2,7 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { ModifyJumpPolicyCommand } from '../../jump-policy/commands';
 import { JumpPolicy } from '../../jump-policy/models';
-import { ObjectUtility } from '../../shared/utilities';
+import { EmailUtility, ObjectUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
 import { User } from '../../user/models';
 import { SiteUserType } from '../enums';
@@ -167,19 +167,14 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
     ): Promise<void> {
         const currentNotificationEmails = authJumpPolicy.notificationEmailAddresses ?? [];
 
-        // Merge, deduplicate, and remove unwanted emails
-        const newNotificationEmails = ObjectUtility.filterUnique(
-            currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
-        );
+        // Merge and remove case-insensitively, as BeyondTrust compares email addresses
+        const newNotificationEmails = EmailUtility.merge(currentNotificationEmails, emailsToAdd, emailsToRemove);
 
         if (newNotificationEmails.length === 0) {
             return; // Site manager's auth jump policy must have at least one notification email
         }
 
-        if (
-            newNotificationEmails.length === currentNotificationEmails.length &&
-            newNotificationEmails.every((email) => currentNotificationEmails.includes(email))
-        ) {
+        if (EmailUtility.haveSameMembers(newNotificationEmails, currentNotificationEmails)) {
             return; // No changes needed
         }
 
@@ -281,19 +276,14 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
     ) {
         const currentNotificationEmails = notifyJumpPolicy.notificationEmailAddresses ?? [];
 
-        // Merge, deduplicate, and remove unwanted emails
-        const newNotificationEmails = ObjectUtility.filterUnique(
-            currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
-        );
+        // Merge and remove case-insensitively, as BeyondTrust compares email addresses
+        const newNotificationEmails = EmailUtility.merge(currentNotificationEmails, emailsToAdd, emailsToRemove);
 
         if (newNotificationEmails.length === 0) {
             return; // Site manager's notify jump policy must have at least one notification email
         }
 
-        if (
-            newNotificationEmails.length === currentNotificationEmails.length &&
-            newNotificationEmails.every((email) => currentNotificationEmails.includes(email))
-        ) {
+        if (EmailUtility.haveSameMembers(newNotificationEmails, currentNotificationEmails)) {
             return; // No changes needed
         }
 
