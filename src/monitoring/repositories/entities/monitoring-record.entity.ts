@@ -12,9 +12,12 @@ export class MonitoringRecordEntity implements MonitoringRecord {
     @CreateDateColumn({ name: 'creation_date', type: 'timestamp' })
     public creationDate!: Date;
 
-    public static createWithoutId(endpointPath: string): MonitoringRecordEntity {
+    public static createWithoutId(endpointPath: string, creationDate?: Date): MonitoringRecordEntity {
         const entity = new MonitoringRecordEntity();
         entity.endpointPath = endpointPath;
+        if (creationDate) {
+            entity.creationDate = creationDate;
+        }
 
         return entity;
     }

@@ -8,6 +8,9 @@ import { AddMonitoringRecordCommand } from '../commands';
 
 @Injectable()
 export class MonitoringRequestPipe implements PipeTransform {
+    // The pipe runs once per decorated handler argument; a request is recorded only once.
+    private static readonly RECORDED_REQUESTS = new WeakSet<Request>();
+
     constructor(
         @Inject(REQUEST) private readonly request: Request,
         private readonly commandBus: CommandBus,
@@ -18,6 +21,12 @@ export class MonitoringRequestPipe implements PipeTransform {
         if (metadata.type !== 'query' && metadata.type !== 'body' && metadata.type !== 'param') {
             return value;
         }
+
+        if (MonitoringRequestPipe.RECORDED_REQUESTS.has(this.request)) {
+            return value;
+        }
+
+        MonitoringRequestPipe.RECORDED_REQUESTS.add(this.request);
 
         if (!this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()]) {
             this.request.headers[TRANSACTION_ID_HEADER.toLowerCase()] = UuidUtility.generate();

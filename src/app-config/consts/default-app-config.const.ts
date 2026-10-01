@@ -31,6 +31,18 @@ export abstract class DefaultAppConfig {
     private static readonly DB_ACQUIRE_TIMEOUT_IN_MS = 15000;
     private static readonly DB_READ_MAX_ATTEMPTS = 2;
 
+    // System log and monitoring records are persisted asynchronously in bounded batches (one connection per
+    // writer). A full buffer drops new rows and documents the gap; see BufferedEntityWriter.
+    private static readonly LOG_WRITER_CAPACITY = 10000;
+    private static readonly LOG_WRITER_BATCH_SIZE = 200;
+    private static readonly LOG_WRITER_FLUSH_INTERVAL_IN_MS = 1000;
+    private static readonly LOG_WRITER_ACQUIRE_TIMEOUT_IN_MS = 5000;
+    private static readonly LOG_WRITER_MAX_BACKOFF_IN_MS = 30000;
+    private static readonly LOG_WRITER_SHUTDOWN_TIMEOUT_IN_MS = 5000;
+    private static readonly LOG_WRITER_DROP_REPORT_INTERVAL_IN_MS = 60000;
+    // Stays below the 65,535 byte limit of the TEXT payload column, measured in bytes (utf8mb4).
+    private static readonly LOG_PAYLOAD_MAX_BYTES = 60000;
+
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
     private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '35 2 * * *'; // At 02:35 AM every day
     private static readonly CRON_JOB_BT_DATA_POPULATION_IF_EMPTY = '0 */3 * * *'; // Every 3 hours
@@ -197,6 +209,22 @@ export abstract class DefaultAppConfig {
                 },
             },
         };
+    }
+
+    public static get logWriter() {
+        return {
+            capacity: DefaultAppConfig.LOG_WRITER_CAPACITY,
+            batchSize: DefaultAppConfig.LOG_WRITER_BATCH_SIZE,
+            flushIntervalInMs: DefaultAppConfig.LOG_WRITER_FLUSH_INTERVAL_IN_MS,
+            acquireTimeoutInMs: DefaultAppConfig.LOG_WRITER_ACQUIRE_TIMEOUT_IN_MS,
+            maxBackoffInMs: DefaultAppConfig.LOG_WRITER_MAX_BACKOFF_IN_MS,
+            shutdownTimeoutInMs: DefaultAppConfig.LOG_WRITER_SHUTDOWN_TIMEOUT_IN_MS,
+            dropReportIntervalInMs: DefaultAppConfig.LOG_WRITER_DROP_REPORT_INTERVAL_IN_MS,
+        };
+    }
+
+    public static get logPayloadMaxBytes(): number {
+        return DefaultAppConfig.LOG_PAYLOAD_MAX_BYTES;
     }
 
     public static get database() {

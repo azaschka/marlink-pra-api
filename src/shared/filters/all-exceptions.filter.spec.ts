@@ -25,7 +25,7 @@ describe('AllExceptionsFilter', () => {
         jest.restoreAllMocks();
     });
 
-    it('does not log conflict exceptions', async () => {
+    it('does not log conflict exceptions', () => {
         const logService = {
             log: jest.fn(),
         };
@@ -43,7 +43,7 @@ describe('AllExceptionsFilter', () => {
 
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-        await filter.catch(exception, host);
+        filter.catch(exception, host);
 
         expect(consoleErrorSpy).not.toHaveBeenCalled();
         expect(logService.log).not.toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('AllExceptionsFilter', () => {
         );
     });
 
-    it('still logs internal server errors', async () => {
+    it('still logs internal server errors', () => {
         const logService = {
             log: jest.fn(),
         };
@@ -71,7 +71,7 @@ describe('AllExceptionsFilter', () => {
 
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-        await filter.catch(exception, host);
+        filter.catch(exception, host);
 
         expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
         expect(logService.log).toHaveBeenCalledTimes(1);
@@ -84,7 +84,7 @@ describe('AllExceptionsFilter', () => {
         );
     });
 
-    it('treats foreign key query failures as conflicts and does not log them', async () => {
+    it('treats foreign key query failures as conflicts and does not log them', () => {
         const logService = {
             log: jest.fn(),
         };
@@ -95,7 +95,7 @@ describe('AllExceptionsFilter', () => {
 
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-        await filter.catch(exception, host);
+        filter.catch(exception, host);
 
         expect(consoleErrorSpy).not.toHaveBeenCalled();
         expect(logService.log).not.toHaveBeenCalled();
@@ -119,12 +119,69 @@ describe('AllExceptionsFilter', () => {
 
         expect(responseBody.message).toContain('a foreign key constraint fails');
     });
+
+    it('sends the response before the error is queued for the log, even when queuing fails', () => {
+        const order: string[] = [];
+        const logService = {
+            log: jest.fn(() => {
+                order.push('log');
+                throw new Error('log failed');
+            }),
+        };
+        const filter = new AllExceptionsFilter(logService as never);
+        const { json, status } = createResponseMocks();
+        json.mockImplementation(() => {
+            order.push('response');
+        });
+        jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        filter.catch(new Error('Boom'), createArgumentsHost({ status, json }));
+
+        expect(order).toEqual(['response', 'log']);
+        expect(status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    });
+
+    it('does not write health responses to the DB log and reports them on stdout at most once per interval', () => {
+        const logService = { log: jest.fn() };
+        const filter = new AllExceptionsFilter(logService as never);
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        const exception = new HttpException({ status: 'error' }, HttpStatus.SERVICE_UNAVAILABLE);
+
+        for (let i = 0; i < 5; i++) {
+            const { json, status } = createResponseMocks();
+            filter.catch(exception, createArgumentsHost({ status, json }, '/health'));
+            expect(status).toHaveBeenCalledWith(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        expect(logService.log).not.toHaveBeenCalled();
+        expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        { name: 'pool queue limit', error: new Error('Queue limit reached.') },
+        {
+            name: 'acquire timeout',
+            error: new Error('Timed out after 15000 ms while waiting for a free database connection.'),
+        },
+        { name: 'lost connection', error: Object.assign(new Error('lost'), { code: 'PROTOCOL_CONNECTION_LOST' }) },
+    ])('does not write database connection failures ($name) to the DB log', ({ error }) => {
+        const logService = { log: jest.fn() };
+        const filter = new AllExceptionsFilter(logService as never);
+        const { json, status } = createResponseMocks();
+        jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+        filter.catch(error, createArgumentsHost({ status, json }));
+
+        expect(logService.log).not.toHaveBeenCalled();
+        expect(status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    });
 });
 
-function createArgumentsHost(responseMocks: ResponseMocks) {
+function createArgumentsHost(responseMocks: ResponseMocks, path = '/jump-items/web-jumps') {
     const request = {
         method: 'POST',
-        originalUrl: '/jump-items/web-jumps',
+        path,
+        originalUrl: path,
         headers: {},
         user: { username: 'tester' },
     };

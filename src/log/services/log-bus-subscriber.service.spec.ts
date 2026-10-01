@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { CommandBus, EventBus, ICommand, IEvent } from '@nestjs/cqrs';
 import { Subject } from 'rxjs';
 import { AddMonitoringRecordCommand } from '../../monitoring/commands';
@@ -15,8 +16,8 @@ describe('LogBusSubscriberService', () => {
         commands$ = new Subject<ICommand>();
         events$ = new Subject<IEvent>();
         logService = {
-            logCommand: jest.fn().mockResolvedValue(undefined),
-            logEvent: jest.fn().mockResolvedValue(undefined),
+            logCommand: jest.fn(),
+            logEvent: jest.fn(),
         };
         service = new LogBusSubscriberService(
             commands$ as unknown as CommandBus,
@@ -55,12 +56,14 @@ describe('LogBusSubscriberService', () => {
         expect(logService.logEvent).not.toHaveBeenCalled();
     });
 
-    it('keeps the subscription alive when persisting a log entry fails', async () => {
-        logService.logCommand.mockRejectedValueOnce(new Error('pool exhausted'));
+    it('keeps the subscription alive when queuing a log entry fails', () => {
+        jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+        logService.logCommand.mockImplementationOnce(() => {
+            throw new TypeError('Converting circular structure to JSON');
+        });
         service.onModuleInit();
 
         commands$.next({ commandType: 'first' } as ICommand);
-        await Promise.resolve();
         commands$.next({ commandType: 'second' } as ICommand);
 
         expect(logService.logCommand).toHaveBeenCalledTimes(2);

@@ -26,8 +26,8 @@ class TestEvent extends BaseEvent {
 describe('LogController request scope', () => {
     let app: INestApplication;
     const logService = {
-        logCommand: jest.fn().mockResolvedValue(undefined),
-        logEvent: jest.fn().mockResolvedValue(undefined),
+        logCommand: jest.fn(),
+        logEvent: jest.fn(),
         retrieveLogs: jest.fn().mockResolvedValue([]),
         countLogs: jest.fn().mockResolvedValue(0),
         clearLogs: jest.fn().mockResolvedValue(undefined),

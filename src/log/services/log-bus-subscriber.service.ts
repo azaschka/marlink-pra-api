@@ -32,21 +32,30 @@ export class LogBusSubscriberService implements OnModuleInit, OnModuleDestroy {
         this.subscriptions.unsubscribe();
     }
 
+    // Logging must never break command or event dispatch, e.g. on a payload that cannot be serialised.
     private onCommand(command: ICommand): void {
         if (this.logFilterService.isExcludedFromLog(command)) {
             return;
         }
 
-        this.logService.logCommand(command).catch((error: unknown) => this.reportFailure('command', error));
+        try {
+            this.logService.logCommand(command);
+        } catch (error) {
+            this.reportFailure('command', error);
+        }
     }
 
     private onEvent(event: IEvent): void {
-        this.logService.logEvent(event).catch((error: unknown) => this.reportFailure('event', error));
+        try {
+            this.logService.logEvent(event);
+        } catch (error) {
+            this.reportFailure('event', error);
+        }
     }
 
     private reportFailure(kind: string, error: unknown): void {
         this.logger.warn(
-            `Failed to persist ${kind} to the system log: ${error instanceof Error ? error.message : String(error)}`,
+            `Failed to queue ${kind} for the system log: ${error instanceof Error ? error.message : String(error)}`,
         );
     }
 }

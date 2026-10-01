@@ -7,10 +7,18 @@ import { MonitoringRequestPipe } from './pipes';
 import { QueryHandlers } from './queries/handlers';
 import { MonitoringRecordEntity } from './repositories/entities';
 import { MonitoringRecordRepositoryService } from './repositories/services/monitoring-record-repository.service';
+import { MonitoringRecordWriterService } from './services';
 
 @Module({
     imports: [TypeOrmModule.forFeature([MonitoringRecordEntity]), AppConfigModule],
     controllers: [MonitoringController],
-    providers: [MonitoringRequestPipe, ...QueryHandlers, ...CommandHandlers, MonitoringRecordRepositoryService],
+    providers: [
+        MonitoringRequestPipe,
+        ...QueryHandlers,
+        ...CommandHandlers,
+        MonitoringRecordRepositoryService,
+        MonitoringRecordWriterService,
+    ],
+    exports: [MonitoringRecordWriterService],
 })
 export class MonitoringModule {}

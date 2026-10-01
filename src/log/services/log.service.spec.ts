@@ -7,6 +7,7 @@ import { LogActionType } from '../enums';
 import { LogEntity } from '../repositories/entities';
 import { LogRepositoryService } from '../repositories/services/log-repository.service';
 import { LogFilterService } from './log-filter.service';
+import { LogWriterService } from './log-writer.service';
 import { LogService } from './log.service';
 
 const mockServiceName = 'test-service';
@@ -18,16 +19,18 @@ describe('LogService', () => {
     let logService: LogService;
     let logFilterService: LogFilterService;
     let logRepositoryService: LogRepositoryService;
+    let logWriterService: LogWriterService;
 
     beforeEach(() => {
         mockDateUtility();
         logRepositoryService = mockLogRepositoryService();
         logFilterService = mockLogFilterService();
-        logService = new LogService(logRepositoryService, logFilterService);
+        logWriterService = { enqueue: jest.fn() } as unknown as LogWriterService;
+        logService = new LogService(logRepositoryService, logFilterService, logWriterService);
     });
 
-    it('should log a command', async () => {
-        const logRepositoryCreateMethod = jest.spyOn(logRepositoryService, 'create');
+    it('should log a command', () => {
+        const logWriterEnqueueMethod = jest.spyOn(logWriterService, 'enqueue');
         const logFilterServiceFilterCommandMethod = jest.spyOn(logFilterService, 'filterCommand');
         const command = {
             commandType: 'TestCommand',
@@ -38,9 +41,9 @@ describe('LogService', () => {
             initiatedBy: 'user-1',
         } as BaseCommand;
 
-        await logService.logCommand(command);
+        logService.logCommand(command);
 
-        expect(logRepositoryCreateMethod).toHaveBeenCalledWith(
+        expect(logWriterEnqueueMethod).toHaveBeenCalledWith(
             expect.objectContaining({
                 serviceName: mockServiceName,
                 actionType: LogActionType.Command,
@@ -54,10 +57,10 @@ describe('LogService', () => {
         expect(logFilterServiceFilterCommandMethod).toHaveBeenCalledWith(command);
     });
 
-    it('should log a query', async () => {
-        const logRepositoryCreateMethod = jest.spyOn(logRepositoryService, 'create');
+    it('should log a query', () => {
+        const logWriterEnqueueMethod = jest.spyOn(logWriterService, 'enqueue');
 
-        await logService.logQuery({
+        logService.logQuery({
             queryType: 'TestQuery',
             transactionId: 'transaction-2',
             data: {
@@ -65,7 +68,7 @@ describe('LogService', () => {
             },
         } as BaseQuery);
 
-        expect(logRepositoryCreateMethod).toHaveBeenCalledWith(
+        expect(logWriterEnqueueMethod).toHaveBeenCalledWith(
             expect.objectContaining({
                 serviceName: mockServiceName,
                 actionType: LogActionType.Query,
@@ -84,10 +87,10 @@ describe('LogService', () => {
         );
     });
 
-    it('should log an event', async () => {
-        const logRepositoryCreateMethod = jest.spyOn(logRepositoryService, 'create');
+    it('should log an event', () => {
+        const logWriterEnqueueMethod = jest.spyOn(logWriterService, 'enqueue');
 
-        await logService.logEvent({
+        logService.logEvent({
             eventType: 'TestEvent',
             transactionId: 'transaction-3',
             eventTime: '2024-01-01T00:00:00Z',
@@ -97,7 +100,7 @@ describe('LogService', () => {
             },
         } as BaseEvent);
 
-        expect(logRepositoryCreateMethod).toHaveBeenCalledWith(
+        expect(logWriterEnqueueMethod).toHaveBeenCalledWith(
             expect.objectContaining({
                 serviceName: mockServiceName,
                 actionType: LogActionType.Event,
@@ -112,12 +115,12 @@ describe('LogService', () => {
         );
     });
 
-    it('should log log data', async () => {
-        const logRepositoryCreateMethod = jest.spyOn(logRepositoryService, 'create');
+    it('should log log data', () => {
+        const logWriterEnqueueMethod = jest.spyOn(logWriterService, 'enqueue');
 
-        await logService.log('CustomAction', 'transaction-4', 'user-2', JSON.stringify({ key: 'value' }));
+        logService.log('CustomAction', 'transaction-4', 'user-2', JSON.stringify({ key: 'value' }));
 
-        expect(logRepositoryCreateMethod).toHaveBeenCalledWith(
+        expect(logWriterEnqueueMethod).toHaveBeenCalledWith(
             expect.objectContaining({
                 serviceName: 'test-service',
                 actionType: LogActionType.System,
@@ -128,6 +131,39 @@ describe('LogService', () => {
                 payload: JSON.stringify({ key: 'value' }),
             }),
         );
+    });
+
+    it('should truncate an action name that exceeds the column length', () => {
+        const enqueue = jest.spyOn(logWriterService, 'enqueue');
+
+        logService.log('x'.repeat(5000), 'transaction-1', undefined, '{}');
+
+        const entry = enqueue.mock.calls[0]?.[0] as LogEntity;
+        expect(entry.actionName.length).toBeLessThanOrEqual(1000);
+        expect(entry.actionName.endsWith('…[truncated]')).toBe(true);
+    });
+
+    it('should truncate a payload to the byte limit of the TEXT column without splitting a character', () => {
+        const enqueue = jest.spyOn(logWriterService, 'enqueue');
+
+        logService.log('action', 'transaction-1', undefined, 'é'.repeat(40000));
+
+        const entry = enqueue.mock.calls[0]?.[0] as LogEntity;
+        expect(Buffer.byteLength(entry.payload, 'utf8')).toBeLessThanOrEqual(60000);
+        expect(entry.payload).not.toContain('\uFFFD');
+        expect(entry.payload.endsWith('…[truncated]')).toBe(true);
+    });
+
+    it('should write durable entries directly and wait for the database', async () => {
+        const create = jest.spyOn(logRepositoryService, 'create');
+        const enqueue = jest.spyOn(logWriterService, 'enqueue');
+
+        await logService.logDurably('RESET', 'transaction-1', 'user-1', '{}');
+
+        expect(create).toHaveBeenCalledWith(
+            expect.objectContaining({ actionType: LogActionType.System, actionName: 'RESET', initiatedBy: 'user-1' }),
+        );
+        expect(enqueue).not.toHaveBeenCalled();
     });
 
     it('should retrieve logs', async () => {

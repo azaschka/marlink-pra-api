@@ -57,7 +57,7 @@ export class DatabaseResetService {
         };
 
         // Written AFTER the truncate so the audit entry survives the wipe of pra_logs.
-        await this.logService.log(
+        await this.logService.logDurably(
             DatabaseResetService.RESET_ACTION_NAME,
             transactionId,
             initiatedBy,
