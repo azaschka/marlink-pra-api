@@ -79,34 +79,57 @@ describe('LogRepositoryService', () => {
         });
     });
 
-    describe('deleteByDateBetween', () => {
-        it('should call deleteBy with the correct parameters (between)', async () => {
-            const from = new Date('2023-04-01');
-            const to = new Date('2023-04-30');
+    describe('deleteByDateBetween (batched)', () => {
+        let query: jest.Mock;
 
-            const spy = jest.spyOn(BaseRepositoryService.prototype, 'deleteBy').mockResolvedValue();
-
-            await service.deleteByDateBetween(from, to);
-
-            expect(spy).toHaveBeenCalledWith({ creationDate: Between(from, to) });
+        beforeEach(() => {
+            query = jest.fn().mockResolvedValue({ affectedRows: 0 });
+            service = new LogRepositoryService({ query } as unknown as DataSource);
         });
 
-        it('should call deleteBy with the correct parameters (more than)', async () => {
-            const from = new Date('2023-05-01');
-            const spy = jest.spyOn(BaseRepositoryService.prototype, 'deleteBy').mockResolvedValue();
+        it.each([
+            {
+                name: 'between (inclusive)',
+                from: new Date('2023-04-01'),
+                to: new Date('2023-04-30'),
+                tenantId: undefined,
+                sql: '`creation_date` BETWEEN ? AND ?',
+                parameters: [new Date('2023-04-01'), new Date('2023-04-30')],
+            },
+            {
+                name: 'more than',
+                from: new Date('2023-05-01'),
+                to: undefined,
+                tenantId: undefined,
+                sql: '`creation_date` > ?',
+                parameters: [new Date('2023-05-01')],
+            },
+            {
+                name: 'less than, for one tenant',
+                from: undefined,
+                to: new Date('2023-05-31'),
+                tenantId: 7,
+                sql: "`creation_date` < ? AND JSON_EXTRACT(`payload`, '$.tenantId') = ?",
+                parameters: [new Date('2023-05-31'), 7],
+            },
+        ])('keeps the conditions ($name)', async ({ from, to, tenantId, sql, parameters }) => {
+            await service.deleteByDateBetween(from, to, tenantId);
 
-            await service.deleteByDateBetween(from, undefined);
-
-            expect(spy).toHaveBeenCalledWith({ creationDate: MoreThan(from) });
+            expect(query).toHaveBeenCalledWith(
+                `DELETE FROM \`pra_logs\` WHERE ${sql} ORDER BY \`creation_date\` LIMIT 5000`,
+                parameters,
+            );
         });
 
-        it('should call deleteBy with the correct parameters (less than)', async () => {
-            const to = new Date('2023-05-31');
-            const spy = jest.spyOn(BaseRepositoryService.prototype, 'deleteBy').mockResolvedValue();
+        it('deletes in batches of 5,000 until a batch is not full', async () => {
+            query
+                .mockResolvedValueOnce({ affectedRows: 5000 })
+                .mockResolvedValueOnce({ affectedRows: 5000 })
+                .mockResolvedValueOnce({ affectedRows: 1234 });
 
-            await service.deleteByDateBetween(undefined, to);
+            await service.deleteByDateBetween(undefined, new Date('2023-05-31'));
 
-            expect(spy).toHaveBeenCalledWith({ creationDate: LessThan(to) });
+            expect(query).toHaveBeenCalledTimes(3);
         });
     });
 });

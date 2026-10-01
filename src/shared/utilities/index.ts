@@ -1,3 +1,4 @@
+export * from './batched-delete.utility';
 export * from './database-connection.utility';
 export * from './date.utility';
 export * from './email.utility';

@@ -1102,6 +1102,40 @@ describe('AppConfigService', () => {
         });
     });
 
+    describe('retention', () => {
+        it('should use the defaults when nothing is configured', () => {
+            configService.get = jest.fn().mockReturnValue(undefined);
+
+            expect(service.retention).toEqual({ monitoringRetentionDays: 90, distributedLockEnabled: true });
+            expect(service.cronJob.logRetentionDays).toBe(90);
+        });
+
+        it('should read configured values', () => {
+            const values = new Map([
+                ['MONITORING_RETENTION_DAYS', '30'],
+                ['RETENTION_DISTRIBUTED_LOCK_ENABLED', 'false'],
+                ['LOG_RETENTION_DAYS', '60'],
+            ]);
+            configService.get = jest.fn().mockImplementation((key: string) => values.get(key));
+
+            expect(service.retention).toEqual({ monitoringRetentionDays: 30, distributedLockEnabled: false });
+            expect(service.cronJob.logRetentionDays).toBe(60);
+        });
+
+        it.each(['abc', '0', '-5', '90d'])(
+            'should fall back to 90 days for the invalid LOG_RETENTION_DAYS value %s instead of an invalid cutoff',
+            (value) => {
+                const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+                configService.get = jest
+                    .fn()
+                    .mockImplementation((key: string) => (key === 'LOG_RETENTION_DAYS' ? value : undefined));
+
+                expect(service.cronJob.logRetentionDays).toBe(90);
+                warn.mockRestore();
+            },
+        );
+    });
+
     describe('cronJob', () => {
         it.each([
             {
@@ -1132,7 +1166,7 @@ describe('AppConfigService', () => {
                     retryDelayInMs: 10000,
                     btInstanceBackup: '35 2 * * *',
                     btDataPopulationIfEmpty: '0 */3 * * *',
-                    logRetention: '15 3 * * *',
+                    logRetention: '17 * * * *',
                     logRetentionDays: 90,
                 },
             },

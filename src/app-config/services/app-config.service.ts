@@ -418,8 +418,22 @@ export class AppConfigService {
                 DefaultAppConfig.cronJob.btDataPopulationIfEmpty,
             logRetention:
                 this.configService.get<string>('CRON_JOB_LOG_RETENTION') ?? DefaultAppConfig.cronJob.logRetention,
-            logRetentionDays:
-                this.configService.get<number>('LOG_RETENTION_DAYS') ?? DefaultAppConfig.cronJob.logRetentionDays,
+            // Validated: an invalid value used to produce an Invalid Date cutoff.
+            logRetentionDays: this.integerOrDefault('LOG_RETENTION_DAYS', DefaultAppConfig.cronJob.logRetentionDays, 1),
+        };
+    }
+
+    public get retention() {
+        return {
+            monitoringRetentionDays: this.integerOrDefault(
+                'MONITORING_RETENTION_DAYS',
+                DefaultAppConfig.retention.monitoringRetentionDays,
+                1,
+            ),
+            distributedLockEnabled: this.booleanOrDefault(
+                'RETENTION_DISTRIBUTED_LOCK_ENABLED',
+                DefaultAppConfig.retention.distributedLockEnabled,
+            ),
         };
     }
 
@@ -474,6 +488,28 @@ export class AppConfigService {
                 0,
             ),
         };
+    }
+
+    /** Reads a boolean setting ("true"/"false", case-insensitive); anything else falls back to the default. */
+    private booleanOrDefault(key: string, defaultValue: boolean): boolean {
+        const raw = this.configService.get<string | boolean>(key);
+
+        if (raw === undefined || raw === null || String(raw).trim() === '') {
+            return defaultValue;
+        }
+
+        const normalized = String(raw).trim().toLowerCase();
+
+        if (normalized === 'true' || normalized === 'false') {
+            return normalized === 'true';
+        }
+
+        if (!this.reportedInvalidKeys.has(key)) {
+            this.reportedInvalidKeys.add(key);
+            this.logger.warn(`Ignoring invalid ${key}=${String(raw)} (expected true or false); using ${defaultValue}.`);
+        }
+
+        return defaultValue;
     }
 
     /**

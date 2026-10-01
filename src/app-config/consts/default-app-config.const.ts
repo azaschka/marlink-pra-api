@@ -49,8 +49,13 @@ export abstract class DefaultAppConfig {
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
     private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '35 2 * * *'; // At 02:35 AM every day
     private static readonly CRON_JOB_BT_DATA_POPULATION_IF_EMPTY = '0 */3 * * *'; // Every 3 hours
-    private static readonly CRON_JOB_LOG_RETENTION = '15 3 * * *'; // Daily at 03:15 AM
+    // Hourly: with a daily run rows reached 91 days and more after a failed run (STAB-08). Minute 17 keeps the
+    // run away from the :00 and :30 scan cycles of the Sync API.
+    private static readonly CRON_JOB_LOG_RETENTION = '17 * * * *';
     private static readonly LOG_RETENTION_DAYS = 90;
+    private static readonly MONITORING_RETENTION_DAYS = 90;
+    // MariaDB GET_LOCK per table so that several replicas never run the retention of a table at the same time.
+    private static readonly RETENTION_DISTRIBUTED_LOCK_ENABLED = true;
     private static readonly THROTTLE_TTL_IN_MS = 60000; // 1 minute
     private static readonly THROTTLE_LIMIT = 1500; // 1500 requests per TTL
     private static readonly THROTTLE_IS_ENABLED = true;
@@ -223,6 +228,13 @@ export abstract class DefaultAppConfig {
             maxBackoffInMs: DefaultAppConfig.LOG_WRITER_MAX_BACKOFF_IN_MS,
             shutdownTimeoutInMs: DefaultAppConfig.LOG_WRITER_SHUTDOWN_TIMEOUT_IN_MS,
             dropReportIntervalInMs: DefaultAppConfig.LOG_WRITER_DROP_REPORT_INTERVAL_IN_MS,
+        };
+    }
+
+    public static get retention() {
+        return {
+            monitoringRetentionDays: DefaultAppConfig.MONITORING_RETENTION_DAYS,
+            distributedLockEnabled: DefaultAppConfig.RETENTION_DISTRIBUTED_LOCK_ENABLED,
         };
     }
 
