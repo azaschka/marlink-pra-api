@@ -16,6 +16,7 @@ import { GroupPolicyTeam } from '../../group-policy-team/models';
 import { RetrieveGroupPolicyTeamsQuery } from '../../group-policy-team/queries';
 import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
+import { SiteUserType } from '../enums';
 import { ErrorReport } from '../error-reports';
 import {
     PartialSiteApprover,
@@ -38,9 +39,9 @@ import { SiteAuditorWorkflow } from './site-auditor.workflow';
 import { SiteManagerWorkflow } from './site-manager.workflow';
 import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workflow';
 import { TeamWorkflow } from './teams';
-import { SiteManagerUserWorkflow } from './users';
+import { RemovedSiteRole, SiteManagerUserWorkflow } from './users';
 
-export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
+export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorReport> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow;
@@ -253,6 +254,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             siteManagers: [],
             siteAuditors: [],
             siteSupportTeamMembers: [],
+            unresolvedEmails: { siteManagers: [], siteAuditors: [], siteSupportTeamMembers: [] },
             errorReport: new ErrorReport(),
         };
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
@@ -269,9 +271,15 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         // idempotent: SiteManagerWorkflow below fetches the same, already-created users.
         const siteManagerUserIds: string[] = [];
         for (const siteManagerUserWorkflow of this.siteManagerUserWorkflows) {
-            const siteManagerUser = await siteManagerUserWorkflow.getOrCreate();
-            if (siteManagerUser) {
-                siteManagerUserIds.push(siteManagerUser.id.toString());
+            // A single unresolvable manager must not abort the whole ingestion here. The manager loop below
+            // reports it, and the auth jump policy is created with whichever managers could be resolved.
+            try {
+                const siteManagerUser = await siteManagerUserWorkflow.getOrCreate();
+                if (siteManagerUser) {
+                    siteManagerUserIds.push(siteManagerUser.id.toString());
+                }
+            } catch (error) {
+                console.error(`[${this.transactionId}] Failed to resolve a site manager user upfront:`, error);
             }
         }
 
@@ -279,33 +287,69 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         await this.noAuthJumpPolicyWorkflow.getOrCreate();
         await this.notifyJumpPolicyWorkflow.getOrCreate();
 
-        for (const siteManagerWorkflow of this.siteManagerWorkflows) {
+        for (const [index, siteManagerWorkflow] of this.siteManagerWorkflows.entries()) {
+            const siteManager = this.siteManagers[index];
+
             try {
-                const siteManager = await siteManagerWorkflow.getOrCreate();
-                siteWorkflowResult.siteManagers.push(siteManager);
+                siteWorkflowResult.siteManagers.push(await siteManagerWorkflow.getOrCreate());
             } catch (error) {
-                console.error(`[${this.transactionId}] Failed to create site manager workflow:`, error);
-                siteWorkflowResult.errorReport.add(error);
+                console.error(`[${this.transactionId}] Failed to process site manager ${siteManager?.email}:`, error);
+                siteWorkflowResult.errorReport.add(error, {
+                    siteUserType: SiteUserType.SiteManager,
+                    email: siteManager?.email,
+                    operation: 'add',
+                });
+
+                // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
+                // the caller from deleting an existing membership because of a transient failure.
+                if (siteManager) {
+                    siteWorkflowResult.unresolvedEmails.siteManagers.push(siteManager.email);
+                }
             }
         }
 
-        for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
+        for (const [index, siteAuditorWorkflow] of this.siteAuditorWorkflows.entries()) {
+            const siteAuditor = this.siteAuditors[index];
+
             try {
-                const siteAuditor = await siteAuditorWorkflow.getOrCreate();
-                siteWorkflowResult.siteAuditors.push(siteAuditor);
+                siteWorkflowResult.siteAuditors.push(await siteAuditorWorkflow.getOrCreate());
             } catch (error) {
-                console.error(`[${this.transactionId}] Failed to create site auditor workflow:`, error);
-                siteWorkflowResult.errorReport.add(error);
+                console.error(`[${this.transactionId}] Failed to process site auditor ${siteAuditor?.email}:`, error);
+                siteWorkflowResult.errorReport.add(error, {
+                    siteUserType: SiteUserType.SiteAuditor,
+                    email: siteAuditor?.email,
+                    operation: 'add',
+                });
+
+                // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
+                // the caller from deleting an existing membership because of a transient failure.
+                if (siteAuditor) {
+                    siteWorkflowResult.unresolvedEmails.siteAuditors.push(siteAuditor.email);
+                }
             }
         }
 
-        for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
+        for (const [index, siteSupportTeamMemberWorkflow] of this.siteSupportTeamMemberWorkflows.entries()) {
+            const siteSupportTeamMember = this.siteSupportTeamMembers[index];
+
             try {
-                const siteSupportTeamMember = await siteSupportTeamMemberWorkflow.getOrCreate();
-                siteWorkflowResult.siteSupportTeamMembers.push(siteSupportTeamMember);
+                siteWorkflowResult.siteSupportTeamMembers.push(await siteSupportTeamMemberWorkflow.getOrCreate());
             } catch (error) {
-                console.error(`[${this.transactionId}] Failed to create site support team member workflow:`, error);
-                siteWorkflowResult.errorReport.add(error);
+                console.error(
+                    `[${this.transactionId}] Failed to process site support team member ${siteSupportTeamMember?.email}:`,
+                    error,
+                );
+                siteWorkflowResult.errorReport.add(error, {
+                    siteUserType: SiteUserType.SiteSupportTeamMember,
+                    email: siteSupportTeamMember?.email,
+                    operation: 'add',
+                });
+
+                // Not resolvable is not the same as removed from the ingestion data. Recording the entry keeps
+                // the caller from deleting an existing membership because of a transient failure.
+                if (siteSupportTeamMember) {
+                    siteWorkflowResult.unresolvedEmails.siteSupportTeamMembers.push(siteSupportTeamMember.email);
+                }
             }
         }
 
@@ -403,7 +447,16 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
         return siteWorkflowResult;
     }
 
-    public async delete(): Promise<void> {
+    /**
+     * Removes the site's BeyondTrust artefacts and returns what could not be removed.
+     *
+     * Failures used to be written to the pod log only, so DELETE /site/{id} answered success even when the
+     * memberships of the deleted site were still in place. R3.2-A005 is about cleaning those up, which means
+     * the caller has to learn when the cleanup did not happen.
+     */
+    public async delete(): Promise<ErrorReport> {
+        const errorReport = new ErrorReport();
+
         // Wrap in try-catch to handle cases where BeyondTrust instance no longer exists
         // If tenant doesn't exist (404), there's nothing to delete, so we can safely ignore
         try {
@@ -415,27 +468,62 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
             const marlinkOperatorGroupPolicy = await this.marlinkOperatorGroupPolicyWorkflow.getOrCreate();
             const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
 
-            for (const siteManagerWorkflow of this.siteManagerWorkflows) {
+            // Every user row of the site goes away together, so none of them counts as a remaining role of an
+            // account that holds several roles on this site (EXT-03).
+            const removedTogether: RemovedSiteRole[] = [
+                ...this.siteManagers.map((row) => ({
+                    siteUserType: SiteUserType.SiteManager,
+                    id: row.id,
+                    siteId: row.siteId,
+                })),
+                ...this.siteAuditors.map((row) => ({
+                    siteUserType: SiteUserType.SiteAuditor,
+                    id: row.id,
+                    siteId: row.siteId,
+                })),
+                ...this.siteSupportTeamMembers.map((row) => ({
+                    siteUserType: SiteUserType.SiteSupportTeamMember,
+                    id: row.id,
+                    siteId: row.siteId,
+                })),
+            ];
+
+            for (const [index, siteManagerWorkflow] of this.siteManagerWorkflows.entries()) {
                 try {
-                    await siteManagerWorkflow.delete();
+                    await siteManagerWorkflow.delete(removedTogether);
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site manager workflow:`, error);
+                    errorReport.add(error, {
+                        siteUserType: SiteUserType.SiteManager,
+                        email: this.siteManagers[index]?.email,
+                        operation: 'remove',
+                    });
                 }
             }
 
-            for (const siteAuditorWorkflow of this.siteAuditorWorkflows) {
+            for (const [index, siteAuditorWorkflow] of this.siteAuditorWorkflows.entries()) {
                 try {
-                    await siteAuditorWorkflow.delete();
+                    await siteAuditorWorkflow.delete(removedTogether);
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site auditor workflow:`, error);
+                    errorReport.add(error, {
+                        siteUserType: SiteUserType.SiteAuditor,
+                        email: this.siteAuditors[index]?.email,
+                        operation: 'remove',
+                    });
                 }
             }
 
-            for (const siteSupportTeamMemberWorkflow of this.siteSupportTeamMemberWorkflows) {
+            for (const [index, siteSupportTeamMemberWorkflow] of this.siteSupportTeamMemberWorkflows.entries()) {
                 try {
-                    await siteSupportTeamMemberWorkflow.delete();
+                    await siteSupportTeamMemberWorkflow.delete(removedTogether);
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site support team member workflow:`, error);
+                    errorReport.add(error, {
+                        siteUserType: SiteUserType.SiteSupportTeamMember,
+                        email: this.siteSupportTeamMembers[index]?.email,
+                        operation: 'remove',
+                    });
                 }
             }
 
@@ -531,11 +619,17 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult> {
 
             if (statusCode === 404) {
                 console.log(`[${this.transactionId}] External resource not found (404) - skipping cleanup`);
-                return;
+
+                return errorReport;
             }
 
-            throw error;
+            // The remaining artefacts could not be cleaned up. The site record is still removed, so the caller
+            // has to be told what is left behind in BeyondTrust rather than receiving a bare success.
+            console.error(`[${this.transactionId}] Failed to delete the site's BeyondTrust artefacts:`, error);
+            errorReport.add(error);
         }
+
+        return errorReport;
     }
 
     private async getAllGroupPolicyTeams(groupPolicyId: number): Promise<GroupPolicyTeam[]> {

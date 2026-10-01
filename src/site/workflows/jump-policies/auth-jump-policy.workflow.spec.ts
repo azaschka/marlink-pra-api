@@ -2,7 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { CreateJumpPolicyCommand, ModifyJumpPolicyCommand } from '../../../jump-policy/commands';
 import { JumpPolicy } from '../../../jump-policy/models';
-import { UserSourceType } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 import { PartialSiteApprover, PartialSiteManager } from '../../models';
 import { AuthJumpPolicyWorkflow } from './auth-jump-policy.workflow';
 

@@ -20,13 +20,13 @@ describe('SiteRepositoryService', () => {
 
         dataSource = {} as DataSource;
         siteManagerRepositoryService = {
-            deleteBySiteIdExceptUserIds: jest.fn(),
+            deleteBySiteIdExceptEmails: jest.fn(),
         } as unknown as SiteManagerRepositoryService;
         siteAuditorRepositoryService = {
-            deleteBySiteIdExceptUserIds: jest.fn(),
+            deleteBySiteIdExceptEmails: jest.fn(),
         } as unknown as SiteAuditorRepositoryService;
         siteSupportTeamMemberRepositoryService = {
-            deleteBySiteIdExceptUserIds: jest.fn(),
+            deleteBySiteIdExceptEmails: jest.fn(),
         } as unknown as SiteSupportTeamMemberRepositoryService;
         siteApproverRepositoryService = {
             deleteBySiteIdExceptEmails: jest.fn(),
@@ -56,23 +56,26 @@ describe('SiteRepositoryService', () => {
     });
 
     describe('update', () => {
-        it('should call deleteBySiteIdExceptUserIds for each related entity and then call save', async () => {
+        it('should call deleteBySiteIdExceptEmails for each related entity and then call save', async () => {
             const siteEntity = {
                 id: 1,
-                siteManagers: [{ userId: 1 }, { userId: 2 }],
-                siteAuditors: [{ userId: 3 }],
-                siteSupportTeamMembers: [{ userId: 4 }],
+                siteManagers: [
+                    { userId: 1, email: 'manager1@example.com' },
+                    { userId: 2, email: 'manager2@example.com' },
+                ],
+                siteAuditors: [{ userId: 3, email: 'auditor@example.com' }],
+                siteSupportTeamMembers: [{ userId: 4, email: 'support@example.com' }],
                 siteApprovers: [{ email: 'approver@example.com' }],
             } as SiteEntity;
 
-            const siteManagerDeleteBySiteIdExceptUserIdsMethod = jest
-                .spyOn(siteManagerRepositoryService, 'deleteBySiteIdExceptUserIds')
+            const siteManagerDeleteBySiteIdExceptEmailsMethod = jest
+                .spyOn(siteManagerRepositoryService, 'deleteBySiteIdExceptEmails')
                 .mockReturnValue(Promise.resolve());
-            const siteAuditorDeleteBySiteIdExceptUserIdsMethod = jest
-                .spyOn(siteAuditorRepositoryService, 'deleteBySiteIdExceptUserIds')
+            const siteAuditorDeleteBySiteIdExceptEmailsMethod = jest
+                .spyOn(siteAuditorRepositoryService, 'deleteBySiteIdExceptEmails')
                 .mockReturnValue(Promise.resolve());
-            const siteSupportTeamMemberDeleteBySiteIdExceptUserIdsMethod = jest
-                .spyOn(siteSupportTeamMemberRepositoryService, 'deleteBySiteIdExceptUserIds')
+            const siteSupportTeamMemberDeleteBySiteIdExceptEmailsMethod = jest
+                .spyOn(siteSupportTeamMemberRepositoryService, 'deleteBySiteIdExceptEmails')
                 .mockReturnValue(Promise.resolve());
             const siteApproverDeleteBySiteIdExceptEmailsMethod = jest
                 .spyOn(siteApproverRepositoryService, 'deleteBySiteIdExceptEmails')
@@ -83,17 +86,17 @@ describe('SiteRepositoryService', () => {
 
             await service.update(siteEntity);
 
-            expect(siteManagerDeleteBySiteIdExceptUserIdsMethod).toHaveBeenCalledWith(
+            expect(siteManagerDeleteBySiteIdExceptEmailsMethod).toHaveBeenCalledWith(
                 siteEntity.id,
-                siteEntity.siteManagers.map((siteManager) => siteManager.userId),
+                siteEntity.siteManagers.map((siteManager) => siteManager.email),
             );
-            expect(siteAuditorDeleteBySiteIdExceptUserIdsMethod).toHaveBeenCalledWith(
+            expect(siteAuditorDeleteBySiteIdExceptEmailsMethod).toHaveBeenCalledWith(
                 siteEntity.id,
-                siteEntity.siteAuditors.map((siteAuditor) => siteAuditor.userId),
+                siteEntity.siteAuditors.map((siteAuditor) => siteAuditor.email),
             );
-            expect(siteSupportTeamMemberDeleteBySiteIdExceptUserIdsMethod).toHaveBeenCalledWith(
+            expect(siteSupportTeamMemberDeleteBySiteIdExceptEmailsMethod).toHaveBeenCalledWith(
                 siteEntity.id,
-                siteEntity.siteSupportTeamMembers.map((siteSupportTeamMember) => siteSupportTeamMember.userId),
+                siteEntity.siteSupportTeamMembers.map((siteSupportTeamMember) => siteSupportTeamMember.email),
             );
             expect(siteApproverDeleteBySiteIdExceptEmailsMethod).toHaveBeenCalledWith(
                 siteEntity.id,

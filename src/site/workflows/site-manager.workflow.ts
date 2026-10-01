@@ -2,20 +2,21 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { ModifyJumpPolicyCommand } from '../../jump-policy/commands';
 import { JumpPolicy } from '../../jump-policy/models';
-import { ObjectUtility } from '../../shared/utilities';
+import { EmailUtility, ObjectUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
-import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
-import { UserGroupPolicy } from '../../user-group-policy/models';
-import { User } from '../../user/models';
-import { SiteUserType, UserSourceType } from '../enums';
+import { SiteUserType } from '../enums';
 import { UserNotFoundException } from '../exceptions';
-import { PartialSiteManager, PartialSiteManagerWithUserId, SiteManager } from '../models';
-import { RetrieveSiteManagersByUserIdQuery } from '../queries';
-import { ManagerAccessGroupPolicyWorkflow, ManagerGroupPolicyWorkflow } from './group-policies';
+import { PartialSiteManager, PartialSiteManagerWithUserId } from '../models';
+import {
+    ManagerAccessGroupPolicyWorkflow,
+    ManagerGroupPolicyWorkflow,
+    UserGroupPolicyAssignmentWorkflow,
+} from './group-policies';
 import { AuthJumpPolicyWorkflow, NotifyJumpPolicyWorkflow } from './jump-policies';
-import { SiteManagerUserWorkflow } from './users';
+import { RemovedSiteRole, SiteGroupPolicyKeys, SiteManagerUserWorkflow, SiteUserReferences } from './users';
 
 export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithUserId> {
+    private readonly userGroupPolicyAssignmentWorkflow: UserGroupPolicyAssignmentWorkflow;
     private readonly siteManagerUserWorkflow: SiteManagerUserWorkflow;
     private readonly managerAccessGroupPolicyWorkflow: ManagerAccessGroupPolicyWorkflow;
 
@@ -31,6 +32,13 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         private readonly authJumpPolicyWorkflow: AuthJumpPolicyWorkflow,
         private readonly notifyJumpPolicyWorkflow: NotifyJumpPolicyWorkflow,
     ) {
+        this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        );
+
         this.siteManagerUserWorkflow = new SiteManagerUserWorkflow(
             this.appConfigService,
             this.queryBus,
@@ -75,14 +83,13 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         //
         // Additionally, the manager's email is registered as a notification recipient and approver
         // on the site's auth jump policy, and as a notification recipient on the notify jump policy.
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteManagerUser.id,
-                [managerGroupPolicy.id, managerAccessGroupPolicy.id],
-                [],
-            ),
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteManager,
+            this.siteManager.sourceType,
+            this.siteManager.email,
+            siteManagerUser,
+            [managerGroupPolicy.id, managerAccessGroupPolicy.id],
+            [],
         );
 
         await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [this.siteManager.email], []);
@@ -99,37 +106,59 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
      * @throws UserNotFoundException if the site manager user cannot be found
      * @throws MultipleUsersFoundException if more than one user is found with the same email or username
      */
-    public async delete(): Promise<void> {
+    /**
+     * @param removedTogether site user rows removed in the same operation, see SiteUserReferences.remainingRoles
+     */
+    public async delete(removedTogether: RemovedSiteRole[] = []): Promise<void> {
         const managerGroupPolicy = await this.managerGroupPolicyWorkflow.getOrCreate();
         const managerAccessGroupPolicy = await this.managerAccessGroupPolicyWorkflow.getOrCreate();
         const authJumpPolicy = await this.authJumpPolicyWorkflow.getOrCreate();
         const notifyJumpPolicy = await this.notifyJumpPolicyWorkflow.getOrCreate();
         const siteManagerUser = await this.siteManagerUserWorkflow.getOrCreate();
 
+        // R3.2-A003, 3.1(4): removing memberships has to work even when the account behind them is gone.
+        // A non-local user can disappear from BeyondTrust between two runs, and throwing here would leave the
+        // membership permanently undeletable. Everything that is keyed by email is still cleaned up.
         if (!siteManagerUser) {
-            throw new UserNotFoundException(
-                SiteUserType.SiteManager,
-                this.siteManager.username,
-                this.siteManager.email,
+            console.warn(
+                `[${this.transactionId}] Site manager ${this.siteManager.email} no longer exists in BeyondTrust. ` +
+                    'Removing the jump policy entries that are keyed by email and skipping the rest.',
             );
+
+            await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [], [this.siteManager.email]);
+            await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
+
+            return;
         }
 
-        const isSiteManagerAssociatedWithMultipleSites =
-            await this.isSiteManagerAssociatedWithMultipleSites(siteManagerUser);
+        // EXT-03: the same account can hold other roles on this and other sites. A group policy is only removed
+        // when none of those roles needs it, and the account is only deleted when no role is left at all.
+        const remainingRoles = await new SiteUserReferences(
+            this.queryBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        ).remainingRoles(
+            siteManagerUser.id,
+            {
+                siteUserType: SiteUserType.SiteManager,
+                id: this.siteManager.id,
+                siteId: this.siteManager.siteId,
+            },
+            removedTogether,
+        );
 
-        // Remove the site manager user from their group policies.
-        // MANAGER_ACCESS is global and must only be removed when the user is no longer a manager on any site.
-        // If the user is still a manager on other sites, only the site-specific MANAGERS_{CUSTOMER}_{SITE}_{SITEKEY}
-        // policy is removed — MANAGER_ACCESS stays in place.
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteManagerUser.id,
-                [],
-                isSiteManagerAssociatedWithMultipleSites
-                    ? [managerGroupPolicy.id]
-                    : [managerGroupPolicy.id, managerAccessGroupPolicy.id],
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteManager,
+            this.siteManager.sourceType,
+            this.siteManager.email,
+            siteManagerUser,
+            [],
+            SiteGroupPolicyKeys.removable(
+                [
+                    [SiteGroupPolicyKeys.siteManagers(this.siteManager.siteId), managerGroupPolicy.id],
+                    [SiteGroupPolicyKeys.MANAGER_ACCESS, managerAccessGroupPolicy.id],
+                ],
+                remainingRoles,
             ),
         );
 
@@ -137,9 +166,10 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [], [siteManagerUser.id.toString()]);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
 
-        // The site manager user is only deleted if they are not associated with any other sites and they are an internal user.
-        // External users are not managed by the system, so we don't delete them.
-        if (!isSiteManagerAssociatedWithMultipleSites && this.siteManager.sourceType === UserSourceType.Internal) {
+        // The account is only deleted when it holds no other site role. SiteManagerUserWorkflow.delete()
+        // additionally refuses to delete a non-local account, so the guard against removing an externally
+        // provisioned identity cannot be forgotten here.
+        if (remainingRoles.length === 0) {
             await this.siteManagerUserWorkflow.delete();
         }
     }
@@ -151,19 +181,14 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
     ): Promise<void> {
         const currentNotificationEmails = authJumpPolicy.notificationEmailAddresses ?? [];
 
-        // Merge, deduplicate, and remove unwanted emails
-        const newNotificationEmails = ObjectUtility.filterUnique(
-            currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
-        );
+        // Merge and remove case-insensitively, as BeyondTrust compares email addresses
+        const newNotificationEmails = EmailUtility.merge(currentNotificationEmails, emailsToAdd, emailsToRemove);
 
         if (newNotificationEmails.length === 0) {
             return; // Site manager's auth jump policy must have at least one notification email
         }
 
-        if (
-            newNotificationEmails.length === currentNotificationEmails.length &&
-            newNotificationEmails.every((email) => currentNotificationEmails.includes(email))
-        ) {
+        if (EmailUtility.haveSameMembers(newNotificationEmails, currentNotificationEmails)) {
             return; // No changes needed
         }
 
@@ -265,19 +290,14 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
     ) {
         const currentNotificationEmails = notifyJumpPolicy.notificationEmailAddresses ?? [];
 
-        // Merge, deduplicate, and remove unwanted emails
-        const newNotificationEmails = ObjectUtility.filterUnique(
-            currentNotificationEmails.concat(emailsToAdd).filter((email) => !emailsToRemove.includes(email)),
-        );
+        // Merge and remove case-insensitively, as BeyondTrust compares email addresses
+        const newNotificationEmails = EmailUtility.merge(currentNotificationEmails, emailsToAdd, emailsToRemove);
 
         if (newNotificationEmails.length === 0) {
             return; // Site manager's notify jump policy must have at least one notification email
         }
 
-        if (
-            newNotificationEmails.length === currentNotificationEmails.length &&
-            newNotificationEmails.every((email) => currentNotificationEmails.includes(email))
-        ) {
+        if (EmailUtility.haveSameMembers(newNotificationEmails, currentNotificationEmails)) {
             return; // No changes needed
         }
 
@@ -313,13 +333,5 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
                 undefined,
             ),
         );
-    }
-
-    private async isSiteManagerAssociatedWithMultipleSites(siteManagerUser: User) {
-        const siteManagers = await this.queryBus.execute<RetrieveSiteManagersByUserIdQuery, SiteManager[]>(
-            new RetrieveSiteManagersByUserIdQuery(this.transactionId, 2, 1, siteManagerUser.id),
-        );
-
-        return siteManagers.length > 1;
     }
 }

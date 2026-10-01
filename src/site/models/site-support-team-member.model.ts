@@ -1,4 +1,4 @@
-import { UserSourceType } from '../enums';
+import { UserSourceType } from '../../user/enums';
 import { SiteSupportTeamAccessLevel } from '../enums/site-support-team-access-level.enum';
 import { SiteSupportTeamTrustLevel } from '../enums/site-support-team-trust-level.enum';
 import { BaseSiteUser } from './base-site-user.model';

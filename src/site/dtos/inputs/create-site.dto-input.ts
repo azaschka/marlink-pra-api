@@ -45,7 +45,8 @@ export class CreateSiteDtoInput {
     @ApiProperty({
         required: false,
         type: [SiteAuditorDtoInput],
-        description: 'The list of site auditors.',
+        description:
+            'The complete list of site auditors. Omit it to keep the existing auditors of an existing site unchanged; an empty list removes them.',
     })
     @IsArray()
     @IsOptional()
@@ -56,7 +57,8 @@ export class CreateSiteDtoInput {
     @ApiProperty({
         required: false,
         type: [SiteSupportTeamMemberDtoInput],
-        description: 'The list of site support team members.',
+        description:
+            'The complete list of site support team members. Omit it to keep the existing members of an existing site unchanged; an empty list removes them.',
     })
     @IsArray()
     @IsOptional()
@@ -67,7 +69,8 @@ export class CreateSiteDtoInput {
     @ApiProperty({
         required: false,
         type: [String],
-        description: 'The list of site approver emails.',
+        description:
+            'The complete list of site approver emails. Omit it to keep the existing approvers of an existing site unchanged; an empty list removes them.',
     })
     @IsArray()
     @ArrayUnique()

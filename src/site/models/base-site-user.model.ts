@@ -1,4 +1,4 @@
-import { UserSourceType } from '../enums';
+import { UserSourceType } from '../../user/enums';
 
 /**
  * Base model for site administrators, managers, and support team members

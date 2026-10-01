@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { UserSourceType } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 
 export class SiteManagerDtoInput {
     @ApiProperty({

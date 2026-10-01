@@ -2,7 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { NameSanitizerUtility } from '../../../shared/utilities';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 
 export class SiteSupportTeamMemberDtoInput {
     @ApiProperty({

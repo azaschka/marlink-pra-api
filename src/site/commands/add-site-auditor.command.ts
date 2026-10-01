@@ -1,4 +1,4 @@
-import { UserSourceType } from '../enums';
+import { UserSourceType } from '../../user/enums';
 
 export class AddSiteAuditorCommand {
     public readonly commandType = 'add-site-auditor';

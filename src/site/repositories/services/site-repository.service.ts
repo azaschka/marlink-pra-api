@@ -32,19 +32,19 @@ export class SiteRepositoryService extends BaseRepositoryService<SiteEntity> {
      * Therefore we manually delete the related entities that are no longer associated with the site entity.
      */
     public async update(entity: SiteEntity): Promise<void> {
-        await this.siteManagerRepositoryService.deleteBySiteIdExceptUserIds(
+        await this.siteManagerRepositoryService.deleteBySiteIdExceptEmails(
             entity.id,
-            entity.siteManagers.map((siteManager) => siteManager.userId),
+            entity.siteManagers.map((siteManager) => siteManager.email),
         );
 
-        await this.siteAuditorRepositoryService.deleteBySiteIdExceptUserIds(
+        await this.siteAuditorRepositoryService.deleteBySiteIdExceptEmails(
             entity.id,
-            entity.siteAuditors.map((siteAuditor) => siteAuditor.userId),
+            entity.siteAuditors.map((siteAuditor) => siteAuditor.email),
         );
 
-        await this.siteSupportTeamMemberRepositoryService.deleteBySiteIdExceptUserIds(
+        await this.siteSupportTeamMemberRepositoryService.deleteBySiteIdExceptEmails(
             entity.id,
-            entity.siteSupportTeamMembers.map((siteSupportTeamMember) => siteSupportTeamMember.userId),
+            entity.siteSupportTeamMembers.map((siteSupportTeamMember) => siteSupportTeamMember.email),
         );
 
         await this.siteApproverRepositoryService.deleteBySiteIdExceptEmails(

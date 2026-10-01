@@ -3,8 +3,6 @@ import {
     Controller,
     Delete,
     Get,
-    HttpCode,
-    HttpStatus,
     Param,
     Post,
     Query,
@@ -17,7 +15,6 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     ApiConflictResponse,
     ApiCreatedResponse,
-    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiParam,
@@ -29,8 +26,9 @@ import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateSiteCommand, DeleteSiteCommand } from '../commands';
+import { ErrorReport } from '../error-reports';
 import { CreateSiteDtoInput, RetrieveSitesDtoInput } from '../dtos/inputs';
-import { SiteProcessingResultDtoOutput, SiteRetrievedDtoOutput } from '../dtos/outputs';
+import { SiteDeletedDtoOutput, SiteProcessingResultDtoOutput, SiteRetrievedDtoOutput } from '../dtos/outputs';
 import { Site, SiteProcessingResult } from '../models';
 import { SiteRequestPipe } from '../pipes';
 import { RetrieveSitesQuery } from '../queries';
@@ -90,24 +88,33 @@ export class SiteController {
                 dtoInput.name,
                 dtoInput.customerKey,
                 dtoInput.siteManagers,
-                dtoInput.siteAuditors ?? [],
-                dtoInput.siteSupportTeamMembers ?? [],
-                dtoInput.siteApprovers ?? [],
+                // EXT-08: an omitted list keeps the existing entries of an existing site; [] removes them.
+                dtoInput.siteAuditors,
+                dtoInput.siteSupportTeamMembers,
+                dtoInput.siteApprovers,
             ),
         );
 
-        return result;
+        return SiteProcessingResultDtoOutput.create(result);
     }
 
     @Delete(':id')
     @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiNoContentResponse({ description: 'Indicates the site was successfully deleted.' })
+    @ApiOkResponse({
+        type: SiteDeletedDtoOutput,
+        description:
+            'Indicates the site was deleted and reports which BeyondTrust artefacts could not be removed. ' +
+            'An empty error report means the cleanup completed.',
+    })
     @ApiNotFoundResponse({ description: 'The specified resource was not found.' })
     public async deleteSite(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @Param('id') id: number,
-    ): Promise<void> {
-        await this.commandBus.execute<DeleteSiteCommand, void>(new DeleteSiteCommand(transactionId, id));
+    ): Promise<SiteDeletedDtoOutput> {
+        const errorReport = await this.commandBus.execute<DeleteSiteCommand, ErrorReport>(
+            new DeleteSiteCommand(transactionId, id),
+        );
+
+        return SiteDeletedDtoOutput.create(errorReport);
     }
 }

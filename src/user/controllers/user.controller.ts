@@ -25,6 +25,7 @@ import {
     ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { AccessGuard } from '../../access/guards';
+import { AppConfigService } from '../../app-config/services/app-config.service';
 import {
     ApiAccessKeyHeader,
     ApiTenantIdHeader,
@@ -39,7 +40,10 @@ import { UuidUtility } from '../../shared/utilities';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
 import { CreateUserDtoInput, ModifyUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } from '../dtos/outputs';
+import { UserSourceType } from '../enums';
+import { NonLocalUserDeletionException, NonLocalUserModificationException } from '../exceptions';
 import { User } from '../models';
+import { UserSourceUtility } from '../utilities';
 import { UserRequestPipe } from '../pipes';
 import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 
@@ -57,7 +61,85 @@ export class UserController {
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
+        private readonly appConfigService: AppConfigService,
     ) {}
+
+    private async loadUser(transactionId: string, tenantId: number, id: number): Promise<User> {
+        return await this.queryBus.execute<RetrieveUserByIdQuery, User>(
+            new RetrieveUserByIdQuery(transactionId, tenantId, id),
+        );
+    }
+
+    private isExternalUser(user: User): boolean {
+        return (
+            UserSourceUtility.resolveSourceType(user, this.appConfigService.user.localSecurityProviderIds) ===
+            UserSourceType.External
+        );
+    }
+
+    /**
+     * R3.2-A004: local-only properties that the request would actually change.
+     *
+     * BeyondTrust only accepts these on local accounts, and forwarding them for a non-local user produces an
+     * opaque upstream error. What counts is whether the request changes them, not whether it mentions them:
+     * the console sends the whole edit form every time, so username arrives on every update and
+     * regeneratePassword arrives as false. Rejecting an unchanged value or a flag that is switched off would
+     * make a non-local user uneditable for no reason, including the display name and email that BeyondTrust
+     * itself decides on.
+     */
+    private findRejectedLocalOnlyProperties(dtoInput: ModifyUserDtoInput, user: User): string[] {
+        const rejectedProperties: string[] = [];
+
+        if (dtoInput.username !== undefined && dtoInput.username !== user.username) {
+            rejectedProperties.push('username');
+        }
+
+        if (dtoInput.password !== undefined) {
+            rejectedProperties.push('password');
+        }
+
+        if (dtoInput.passwordExpirationDate !== undefined) {
+            rejectedProperties.push('passwordExpirationDate');
+        }
+
+        if (dtoInput.failedLoginAttempts !== undefined && dtoInput.failedLoginAttempts !== user.failedLoginAttempts) {
+            rejectedProperties.push('failedLoginAttempts');
+        }
+
+        if (dtoInput.mustResetPasswordOnNextLogin) {
+            rejectedProperties.push('mustResetPasswordOnNextLogin');
+        }
+
+        if (dtoInput.regeneratePassword) {
+            rejectedProperties.push('regeneratePassword');
+        }
+
+        // BeyondTrust supports this flag for local and LDAP users only; it is treated as local-only (decision D-04).
+        if (
+            dtoInput.isTwoFactorAuthRequired !== undefined &&
+            dtoInput.isTwoFactorAuthRequired !== user.isTwoFactorAuthRequired
+        ) {
+            rejectedProperties.push('isTwoFactorAuthRequired');
+        }
+
+        return rejectedProperties;
+    }
+
+    /** True when the command would not change any property, so no request needs to reach BeyondTrust. */
+    private static hasNoChanges(command: ModifyUserCommand): boolean {
+        return [
+            command.publicDisplayName,
+            command.username,
+            command.password,
+            command.passwordExpirationDate,
+            command.email,
+            command.preferredEmailLanguage,
+            command.isTwoFactorAuthRequired,
+            command.isLoginAllowed,
+            command.failedLoginAttempts,
+            command.mustResetPasswordOnNextLogin,
+        ].every((value) => value === undefined);
+    }
 
     @Get(':id')
     @ApiParam({ name: 'id', type: Number, required: true, description: 'Unique identifier for the resource.' })
@@ -72,7 +154,7 @@ export class UserController {
             new RetrieveUserByIdQuery(transactionId, tenantId, id),
         );
 
-        return result;
+        return UserRetrievedDtoOutput.create(result, this.appConfigService.user.localSecurityProviderIds);
     }
 
     @Get()
@@ -95,7 +177,9 @@ export class UserController {
             ),
         );
 
-        return result;
+        return result.map((user) =>
+            UserRetrievedDtoOutput.create(user, this.appConfigService.user.localSecurityProviderIds),
+        );
     }
 
     @Post()
@@ -149,23 +233,41 @@ export class UserController {
         @Param('id') id: number,
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyUserDtoInput,
     ): Promise<UserModifiedDtoOutput> {
-        const result = await this.commandBus.execute<ModifyUserCommand, User>(
-            new ModifyUserCommand(
-                transactionId,
-                tenantId,
-                id,
-                dtoInput.publicDisplayName,
-                dtoInput.username,
-                dtoInput.password,
-                dtoInput.passwordExpirationDate,
-                dtoInput.email,
-                dtoInput.preferredEmailLanguage,
-                dtoInput.isTwoFactorAuthRequired,
-                dtoInput.isLoginAllowed,
-                dtoInput.failedLoginAttempts,
-                dtoInput.mustResetPasswordOnNextLogin || dtoInput.regeneratePassword,
-            ),
+        const userToModify = await this.loadUser(transactionId, tenantId, id);
+        const isExternalUser = this.isExternalUser(userToModify);
+
+        if (isExternalUser) {
+            const rejectedProperties = this.findRejectedLocalOnlyProperties(dtoInput, userToModify);
+
+            if (rejectedProperties.length > 0) {
+                throw new NonLocalUserModificationException(rejectedProperties);
+            }
+        }
+
+        // EXT-05: local-only properties that arrived unchanged are not forwarded for a non-local user. BeyondTrust
+        // treats them as read-only (username) or local-only (password, 2FA, failed logins, reset flag), and sending
+        // them can make the whole update fail even though nothing was meant to change.
+        const command = new ModifyUserCommand(
+            transactionId,
+            tenantId,
+            id,
+            dtoInput.publicDisplayName,
+            isExternalUser ? undefined : dtoInput.username,
+            isExternalUser ? undefined : dtoInput.password,
+            isExternalUser ? undefined : dtoInput.passwordExpirationDate,
+            dtoInput.email,
+            dtoInput.preferredEmailLanguage,
+            isExternalUser ? undefined : dtoInput.isTwoFactorAuthRequired,
+            dtoInput.isLoginAllowed,
+            isExternalUser ? undefined : dtoInput.failedLoginAttempts,
+            isExternalUser ? undefined : dtoInput.mustResetPasswordOnNextLogin || dtoInput.regeneratePassword,
         );
+
+        if (isExternalUser && UserController.hasNoChanges(command)) {
+            return userToModify;
+        }
+
+        const result = await this.commandBus.execute<ModifyUserCommand, User>(command);
 
         return result;
     }
@@ -184,6 +286,10 @@ export class UserController {
         @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
+        if (this.isExternalUser(await this.loadUser(transactionId, tenantId, id))) {
+            throw new NonLocalUserDeletionException(id);
+        }
+
         await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(transactionId, tenantId, id));
     }
 }

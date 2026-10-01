@@ -21,10 +21,14 @@ export class SiteAuditorRepositoryService extends BaseRepositoryService<SiteAudi
         return await super.deleteBy({ id: id });
     }
 
-    public async deleteBySiteIdExceptUserIds(siteId: number, userIds: number[]): Promise<void> {
+    /**
+     * Email, not user id, identifies a site user. A non-local user that was removed and re-created in
+     * BeyondTrust comes back with a new user id, and deleting by user id would leave the previous row behind.
+     */
+    public async deleteBySiteIdExceptEmails(siteId: number, emails: string[]): Promise<void> {
         return await super.deleteBy({
             siteId: siteId,
-            userId: userIds.length > 0 ? Not(In(userIds)) : undefined,
+            email: emails.length > 0 ? Not(In(emails)) : undefined,
         });
     }
 }

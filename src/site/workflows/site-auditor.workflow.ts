@@ -1,23 +1,21 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { BaseWorkflow } from '../../shared/workflows';
-import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
-import { UserGroupPolicy } from '../../user-group-policy/models';
-import { User } from '../../user/models';
-import { SiteUserType, UserSourceType } from '../enums';
+import { SiteUserType } from '../enums';
 import { UserNotFoundException } from '../exceptions';
-import { PartialSiteAuditor, PartialSiteAuditorWithUserId, SiteAuditor } from '../models';
-import { RetrieveSiteAuditorsByUserIdQuery } from '../queries';
+import { PartialSiteAuditor, PartialSiteAuditorWithUserId } from '../models';
 import {
+    AdminOperatorAccessGroupPolicyWorkflow,
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
-    AdminOperatorAccessGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
+    UserGroupPolicyAssignmentWorkflow,
 } from './group-policies';
-import { SiteAuditorUserWorkflow } from './users';
+import { RemovedSiteRole, SiteAuditorUserWorkflow, SiteGroupPolicyKeys, SiteUserReferences } from './users';
 
 export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithUserId> {
+    private readonly userGroupPolicyAssignmentWorkflow: UserGroupPolicyAssignmentWorkflow;
     private readonly siteAuditorUserWorkflow: SiteAuditorUserWorkflow;
     private readonly administratorAccessGroupPolicyWorkflow: AdministratorAccessGroupPolicyWorkflow;
     private readonly adminOperatorAccessGroupPolicyWorkflow: AdminOperatorAccessGroupPolicyWorkflow;
@@ -34,6 +32,13 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
     ) {
+        this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        );
+
         this.siteAuditorUserWorkflow = new SiteAuditorUserWorkflow(
             this.appConfigService,
             this.queryBus,
@@ -101,20 +106,19 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         //   - OPERATOR_{CUSTOMER}         — customer-specific operator group policy
         //   - FULL_ACCESS                 — global full access policy
 
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteAuditorUser.id,
-                [
-                    administratorGroupPolicy.id,
-                    this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
-                    this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
-                    this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
-                    this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
-                ].filter((id) => id !== undefined),
-                [],
-            ),
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteAuditor,
+            this.siteAuditor.sourceType,
+            this.siteAuditor.email,
+            siteAuditorUser,
+            [
+                administratorGroupPolicy.id,
+                this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
+                this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
+                this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
+                this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
+            ].filter((id) => id !== undefined),
+            [],
         );
 
         return {
@@ -127,7 +131,10 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
      * @throws UserNotFoundException if the site auditor user cannot be found
      * @throws MultipleUsersFoundException if more than one user is found with the same email or username
      */
-    public async delete(): Promise<void> {
+    /**
+     * @param removedTogether site user rows removed in the same operation, see SiteUserReferences.remainingRoles
+     */
+    public async delete(removedTogether: RemovedSiteRole[] = []): Promise<void> {
         const administratorGroupPolicy = await this.administratorGroupPolicyWorkflow.getOrCreate();
         const administratorAccessGroupPolicy = await this.administratorAccessGroupPolicyWorkflow.getOrCreate();
         const adminOperatorAccessGroupPolicy = await this.adminOperatorAccessGroupPolicyWorkflow.getOrCreate();
@@ -135,50 +142,59 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteAuditorUser = await this.siteAuditorUserWorkflow.getOrCreate();
 
+        // R3.2-A003, 3.1(4): an account that no longer exists in BeyondTrust holds no memberships to remove.
+        // Throwing here would make the site auditor row permanently undeletable.
         if (!siteAuditorUser) {
-            throw new UserNotFoundException(
-                SiteUserType.SiteAuditor,
-                this.siteAuditor.username,
-                this.siteAuditor.email,
+            console.warn(
+                `[${this.transactionId}] Site auditor ${this.siteAuditor.email} no longer exists in BeyondTrust, nothing to remove.`,
             );
+
+            return;
         }
 
-        const isSiteAuditorAssociatedWithMultipleSites =
-            await this.isSiteAuditorAssociatedWithMultipleSites(siteAuditorUser);
-
-        // Only remove group policy memberships when the user is no longer associated with any other site.
-        // If the user is a site auditor on multiple sites, the group policies must remain in place.
-        // The same role-based policy split applies here as in getOrCreate() — see above for details.
-        if (!isSiteAuditorAssociatedWithMultipleSites) {
-            await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-                new ModifyUserGroupPoliciesCommand(
-                    this.transactionId,
-                    this.customerBeyondtrustInstanceId,
-                    siteAuditorUser.id,
-                    [],
-                    [
-                        administratorGroupPolicy.id,
-                        this.siteAuditor.isAdminOperator ? undefined : administratorAccessGroupPolicy.id,
-                        this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
-                        this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
-                        this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
-                    ].filter((id) => id !== undefined),
-                ),
-            );
-        }
-
-        // The site auditor user is only deleted if they are not associated with any other sites and they are an internal user.
-        // External users are not managed by the system, so we don't delete them.
-        if (!isSiteAuditorAssociatedWithMultipleSites && this.siteAuditor.sourceType === UserSourceType.Internal) {
-            await this.siteAuditorUserWorkflow.delete();
-        }
-    }
-
-    private async isSiteAuditorAssociatedWithMultipleSites(siteAuditorUser: User) {
-        const siteAuditors = await this.queryBus.execute<RetrieveSiteAuditorsByUserIdQuery, SiteAuditor[]>(
-            new RetrieveSiteAuditorsByUserIdQuery(this.transactionId, 2, 1, siteAuditorUser.id),
+        // EXT-03: the same account can hold other roles on this and other sites (customer ADMINISTRATORS, the site
+        // OPERATORS policy and FULL_ACCESS are shared). A group policy is only removed when none of those roles
+        // needs it, and the account is only deleted when no role is left at all.
+        const remainingRoles = await new SiteUserReferences(
+            this.queryBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        ).remainingRoles(
+            siteAuditorUser.id,
+            {
+                siteUserType: SiteUserType.SiteAuditor,
+                id: this.siteAuditor.id,
+                siteId: this.siteAuditor.siteId,
+            },
+            removedTogether,
         );
 
-        return siteAuditors.length > 1;
+        // The same role-based policy split applies here as in getOrCreate(), see above for details.
+        const candidates: [string, number][] = this.siteAuditor.isAdminOperator
+            ? [
+                  [SiteGroupPolicyKeys.customerAdministrators(this.customerName), administratorGroupPolicy.id],
+                  [SiteGroupPolicyKeys.ADMIN_OPERATOR_ACCESS, adminOperatorAccessGroupPolicy.id],
+                  [SiteGroupPolicyKeys.siteOperators(this.siteAuditor.siteId), operatorGroupPolicy.id],
+                  [SiteGroupPolicyKeys.FULL_ACCESS, fullAccessGroupPolicy.id],
+              ]
+            : [
+                  [SiteGroupPolicyKeys.customerAdministrators(this.customerName), administratorGroupPolicy.id],
+                  [SiteGroupPolicyKeys.ADMINISTRATOR_ACCESS, administratorAccessGroupPolicy.id],
+              ];
+
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteAuditor,
+            this.siteAuditor.sourceType,
+            this.siteAuditor.email,
+            siteAuditorUser,
+            [],
+            SiteGroupPolicyKeys.removable(candidates, remainingRoles),
+        );
+
+        // SiteAuditorUserWorkflow.delete() additionally refuses to delete a non-local account, so the guard
+        // against removing an externally provisioned identity cannot be forgotten here.
+        if (remainingRoles.length === 0) {
+            await this.siteAuditorUserWorkflow.delete();
+        }
     }
 }

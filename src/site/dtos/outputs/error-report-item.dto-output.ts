@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ErrorReportItem } from '../../error-reports';
+import { SiteUserType } from '../../enums';
+import { ErrorReportItem, SiteUserOperation } from '../../error-reports';
 
 export class ErrorReportItemDtoOutput implements ErrorReportItem {
     @ApiProperty({
@@ -18,8 +19,22 @@ export class ErrorReportItemDtoOutput implements ErrorReportItem {
 
     @ApiProperty({
         required: false,
-        type: Object,
-        description: 'The context of the error report item.',
+        enum: SiteUserType,
+        description: 'The role of the site user the error refers to, if the error concerns a specific user.',
     })
-    public context?: Record<string, unknown> | undefined;
+    public siteUserType?: SiteUserType;
+
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'The email of the site user the error refers to, if the error concerns a specific user.',
+    })
+    public email?: string;
+
+    @ApiProperty({
+        required: false,
+        enum: ['add', 'remove'],
+        description: 'Whether the error occurred while adding/updating the site user or while removing it.',
+    })
+    public operation?: SiteUserOperation;
 }

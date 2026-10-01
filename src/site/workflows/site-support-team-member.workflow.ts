@@ -8,13 +8,9 @@ import { GroupPolicyJumpoint } from '../../group-policy-jumpoint/models';
 import { RetrieveGroupPolicyJumpointsQuery } from '../../group-policy-jumpoint/queries';
 import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
-import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
-import { UserGroupPolicy } from '../../user-group-policy/models';
-import { User } from '../../user/models';
-import { SiteSupportTeamAccessLevel, SiteUserType, UserSourceType } from '../enums';
+import { SiteSupportTeamAccessLevel, SiteUserType } from '../enums';
 import { UserNotFoundException } from '../exceptions';
-import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId, SiteSupportTeamMember } from '../models';
-import { RetrieveSiteSupportTeamMembersByUserIdQuery } from '../queries';
+import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId } from '../models';
 import {
     AdministratorGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
@@ -22,12 +18,14 @@ import {
     LimitedAccessGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
     SupportTeamGroupPolicyWorkflow,
+    UserGroupPolicyAssignmentWorkflow,
 } from './group-policies';
 import { SupportTeamJumpGroupWorkflow } from './jump-groups';
 import { JumpointsWorkflow } from './jumpoints';
-import { SiteSupportTeamMemberUserWorkflow } from './users';
+import { RemovedSiteRole, SiteGroupPolicyKeys, SiteSupportTeamMemberUserWorkflow, SiteUserReferences } from './users';
 
 export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSupportTeamMemberWithUserId> {
+    private readonly userGroupPolicyAssignmentWorkflow: UserGroupPolicyAssignmentWorkflow;
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
 
     private readonly siteSupportTeamMemberUserWorkflow: SiteSupportTeamMemberUserWorkflow;
@@ -49,7 +47,15 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         private readonly jumpointsWorkflow: JumpointsWorkflow,
         private readonly buSupportGroupPolicyWorkflow: BuSupportGroupPolicyWorkflow,
     ) {
+        this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        );
+
         this.siteSupportTeamMemberUserWorkflow = new SiteSupportTeamMemberUserWorkflow(
+            this.appConfigService,
             this.queryBus,
             this.commandBus,
             this.transactionId,
@@ -165,20 +171,19 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         //   - OPERATORS_{CUSTOMER}            — customer-specific operator group policy
         //   - LIMITED_ACCESS                  — global limited access policy (accessLevel: limited)
         //   - FULL_ACCESS                     — global full access policy   (accessLevel: full)
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteSupportTeamMemberUser.id,
-                [
-                    supportTeamGroupPolicy.id,
-                    operatorGroupPolicy.id,
-                    this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
-                        ? fullAccessGroupPolicy.id
-                        : limitedAccessGroupPolicy.id,
-                ],
-                [],
-            ),
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteSupportTeamMember,
+            this.siteSupportTeamMember.sourceType,
+            this.siteSupportTeamMember.email,
+            siteSupportTeamMemberUser,
+            [
+                supportTeamGroupPolicy.id,
+                operatorGroupPolicy.id,
+                this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
+                    ? fullAccessGroupPolicy.id
+                    : limitedAccessGroupPolicy.id,
+            ],
+            [],
         );
 
         return {
@@ -191,52 +196,73 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
      * @throws UserNotFoundException if the site support team member user cannot be found
      * @throws MultipleUsersFoundException if more than one user is found with the same email or username
      */
-    public async delete(): Promise<void> {
+    /**
+     * @param removedTogether site user rows removed in the same operation, see SiteUserReferences.remainingRoles
+     */
+    public async delete(removedTogether: RemovedSiteRole[] = []): Promise<void> {
         const operatorGroupPolicy = await this.operatorGroupPolicyWorkflow.getOrCreate();
         const supportTeamGroupPolicy = await this.supportTeamGroupPolicyWorkflow.getOrCreate();
         const limitedAccessGroupPolicy = await this.limitedAccessGroupPolicyWorkflow.getOrCreate();
         const fullAccessGroupPolicy = await this.fullAccessGroupPolicyWorkflow.getOrCreate();
         const siteSupportTeamMemberUser = await this.siteSupportTeamMemberUserWorkflow.getOrCreate();
 
+        // R3.2-A003, 3.1(4): an account that no longer exists in BeyondTrust holds no memberships to remove.
+        // Throwing here would make the support team member row permanently undeletable.
         if (!siteSupportTeamMemberUser) {
-            throw new UserNotFoundException(
-                SiteUserType.SiteSupportTeamMember,
-                undefined,
-                this.siteSupportTeamMember.email,
+            console.warn(
+                `[${this.transactionId}] Site support team member ${this.siteSupportTeamMember.email} no longer exists in BeyondTrust, nothing to remove.`,
             );
+
+            return;
         }
 
-        const isSiteSupportTeamMemberAssociatedWithMultipleSites =
-            await this.isSiteSupportTeamMemberAssociatedWithMultipleSites(siteSupportTeamMemberUser);
+        // EXT-03: the same account can hold other roles on this and other sites (the support team policy is shared
+        // by the sites of a customer, the site OPERATORS policy and FULL_ACCESS also by auditor operators). A group
+        // policy is only removed when none of those roles needs it, and the account is only deleted when no role is
+        // left at all.
+        const remainingRoles = await new SiteUserReferences(
+            this.queryBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        ).remainingRoles(
+            siteSupportTeamMemberUser.id,
+            {
+                siteUserType: SiteUserType.SiteSupportTeamMember,
+                id: this.siteSupportTeamMember.id,
+                siteId: this.siteSupportTeamMember.siteId,
+            },
+            removedTogether,
+        );
 
-        // Remove the support team member from their group policies.
-        // If the user belongs to multiple sites, only OPERATORS_{CUSTOMER} is removed (site-specific data stays).
-        // If this is their only site, all three policies are removed: the support team group policy,
-        // OPERATORS_{CUSTOMER}, and whichever access policy (LIMITED_ACCESS or FULL_ACCESS) they held.
-        await this.commandBus.execute<ModifyUserGroupPoliciesCommand, UserGroupPolicy[]>(
-            new ModifyUserGroupPoliciesCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                siteSupportTeamMemberUser.id,
-                [],
-                isSiteSupportTeamMemberAssociatedWithMultipleSites
-                    ? [operatorGroupPolicy.id]
-                    : [
-                          supportTeamGroupPolicy.id,
-                          operatorGroupPolicy.id,
-                          this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
-                              ? fullAccessGroupPolicy.id
-                              : limitedAccessGroupPolicy.id,
-                      ],
+        await this.userGroupPolicyAssignmentWorkflow.modify(
+            SiteUserType.SiteSupportTeamMember,
+            this.siteSupportTeamMember.sourceType,
+            this.siteSupportTeamMember.email,
+            siteSupportTeamMemberUser,
+            [],
+            SiteGroupPolicyKeys.removable(
+                [
+                    [
+                        SiteGroupPolicyKeys.supportTeam(this.customerName, this.siteSupportTeamMember.supportTeamName),
+                        supportTeamGroupPolicy.id,
+                    ],
+                    [SiteGroupPolicyKeys.siteOperators(this.siteSupportTeamMember.siteId), operatorGroupPolicy.id],
+                    [
+                        SiteGroupPolicyKeys.accessForSupportTeamMember(
+                            this.siteSupportTeamMember.supportTeamAccessLevel,
+                        ),
+                        this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
+                            ? fullAccessGroupPolicy.id
+                            : limitedAccessGroupPolicy.id,
+                    ],
+                ],
+                remainingRoles,
             ),
         );
 
-        // The site support team member user is only deleted if they are not associated with any other sites and they are an internal user.
-        // External users are not managed by the system, so we don't delete them.
-        if (
-            !isSiteSupportTeamMemberAssociatedWithMultipleSites &&
-            this.siteSupportTeamMember.sourceType === UserSourceType.Internal
-        ) {
+        // SiteSupportTeamMemberUserWorkflow.delete() additionally refuses to delete a non-local account, so the guard
+        // against removing an externally provisioned identity cannot be forgotten here.
+        if (remainingRoles.length === 0) {
             await this.siteSupportTeamMemberUserWorkflow.delete();
         }
 
@@ -272,14 +298,5 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
                 ),
             ),
         );
-    }
-
-    private async isSiteSupportTeamMemberAssociatedWithMultipleSites(siteSupportTeamMemberUser: User) {
-        const siteSupportTeamMembers = await this.queryBus.execute<
-            RetrieveSiteSupportTeamMembersByUserIdQuery,
-            SiteSupportTeamMember[]
-        >(new RetrieveSiteSupportTeamMembersByUserIdQuery(this.transactionId, 2, 1, siteSupportTeamMemberUser.id));
-
-        return siteSupportTeamMembers.length > 1;
     }
 }

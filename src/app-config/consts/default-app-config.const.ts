@@ -284,6 +284,22 @@ export abstract class DefaultAppConfig {
         };
     }
 
+    public static get user() {
+        return {
+            /**
+             * Ids of the BeyondTrust security providers that hold local accounts.
+             *
+             * BeyondTrust reports a security provider on every user. Local accounts belong to the built-in
+             * provider, which is id 1: it exists before any provider is configured, and every provider added
+             * afterwards increments from there. Verified against the Marlink instance.
+             *
+             * Kept configurable through USER_LOCAL_SECURITY_PROVIDER_IDS for an instance that ended up with a
+             * different id, and so that a second local provider can be added without a code change.
+             */
+            localSecurityProviderIds: '1',
+        };
+    }
+
     public static get maintenance() {
         return {
             resetAllowedUsernames: DefaultAppConfig.RESET_ALLOWED_USERNAMES,

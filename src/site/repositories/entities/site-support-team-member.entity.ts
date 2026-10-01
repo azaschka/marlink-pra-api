@@ -8,7 +8,8 @@ import {
     Unique,
     UpdateDateColumn,
 } from 'typeorm';
-import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, UserSourceType } from '../../enums';
+import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../../enums';
+import { UserSourceType } from '../../../user/enums';
 import { SiteSupportTeamMember } from '../../models';
 import { SiteEntity } from './site.entity';
 
