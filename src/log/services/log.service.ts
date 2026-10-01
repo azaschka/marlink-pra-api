@@ -17,7 +17,7 @@ import { LogWriterService } from './log-writer.service';
 @Injectable()
 export class LogService {
     // Column limits of pra_logs. Entries are truncated instead of being rejected by the database.
-    private static readonly ACTION_NAME_MAX_LENGTH = 255;
+    private static readonly ACTION_NAME_MAX_LENGTH = 1000;
     private static readonly TRUNCATION_MARKER = '…[truncated]';
     private static readonly REDACTED = '[REDACTED]';
     // Keys whose values never reach the system log (compared case-insensitively, exact key match).

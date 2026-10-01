@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { addCnameToBeyondtrustInstances } from './scripts/add-cname-to-beyondtrust-instances.migration';
 import { addDefaultSiteUserSourceType } from './scripts/add-default-site-user-source-type';
+import { alignPraLogsAndAddRetentionIndexes } from './scripts/align-pra-logs-and-add-retention-indexes.migration';
 import { migrateCustomerBUToBTInstanceBU } from './scripts/move-customer-bu-to-bt-instance-bu.migration';
 import { migrateSiteAdministratorsToAuditors } from './scripts/rename-site-administrators-to-auditors.migration';
 
@@ -45,6 +46,9 @@ export async function runMigrationsBeforeStartup(): Promise<void> {
 
         // Add default sourceType column to site users
         await addDefaultSiteUserSourceType(tempDataSource);
+
+        // Align pra_logs with Sync API and add the creation_date indexes for the retention (STAB-08)
+        await alignPraLogsAndAddRetentionIndexes(tempDataSource);
 
         console.log('✅ Pre-startup migrations completed successfully');
     } catch (error) {
