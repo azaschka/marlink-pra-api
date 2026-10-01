@@ -1,10 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosHeaders, AxiosResponse } from 'axios';
-import { catchError, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../../app-config/services/app-config.service';
 import { TENANT_ID_HEADER, TRANSACTION_ID_HEADER } from '../../../core/decorators';
-import { ErrorProcessorUtility, ObjectUtility, UrlUtility } from '../../../shared/utilities';
+import { ErrorProcessorUtility, ObjectUtility, SyncApiDownloadUtility, UrlUtility } from '../../../shared/utilities';
 import { RetrieveJumpointInstallerQuery } from '../retrieve-jumpoint-installer.query';
 
 @QueryHandler(RetrieveJumpointInstallerQuery)
@@ -27,18 +27,18 @@ export class RetrieveJumpointInstallerQueryHandler implements IQueryHandler<Retr
             headers.set(TRANSACTION_ID_HEADER, query.transactionId);
             headers.set(TENANT_ID_HEADER, query.tenantId);
 
-            return firstValueFrom(
-                this.httpService
-                    .get<NodeJS.ReadableStream>(url, {
-                        params: ObjectUtility.stripProperties(query, 'transactionId', 'jumpointId'),
-                        headers,
-                        responseType: 'stream',
-                    })
-                    .pipe(
-                        catchError((error) => {
-                            throw ErrorProcessorUtility.composeError(error);
-                        }),
-                    ),
+            const response = await firstValueFrom(
+                this.httpService.get<NodeJS.ReadableStream>(url, {
+                    params: ObjectUtility.stripProperties(query, 'transactionId', 'jumpointId'),
+                    headers,
+                    responseType: 'stream',
+                }),
+            );
+
+            return SyncApiDownloadUtility.withIdleTimeout(
+                response,
+                this.appConfigService.praSyncApiTimeouts.downloadIdleInMs,
+                `jumpoint installer ${query.jumpointId}`,
             );
         } catch (error) {
             throw ErrorProcessorUtility.composeError(error);

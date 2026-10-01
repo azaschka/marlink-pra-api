@@ -15,6 +15,14 @@ export abstract class ErrorProcessorUtility {
     }
 
     public static composeError(error: unknown) {
+        if (ErrorProcessorUtility.isTimeout(error)) {
+            // No URL or host in the message: it is returned to the client.
+            return new HttpException(
+                `The PRA Sync API did not answer within ${error.config?.timeout ?? 0} ms`,
+                HttpStatusCode.GatewayTimeout,
+            );
+        }
+
         if (error instanceof AxiosError) {
             return new HttpException(
                 error.response?.data ? (error.response?.data as Record<string, unknown>) : error.message,
@@ -23,5 +31,14 @@ export abstract class ErrorProcessorUtility {
         }
 
         return new HttpException(JSON.stringify(error), HttpStatusCode.InternalServerError);
+    }
+
+    /** An outbound call that hit its timeout before any response arrived (axios uses either code). */
+    private static isTimeout(error: unknown): error is AxiosError {
+        return (
+            error instanceof AxiosError &&
+            !error.response &&
+            (error.code === AxiosError.ECONNABORTED || error.code === AxiosError.ETIMEDOUT)
+        );
     }
 }

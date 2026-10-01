@@ -267,6 +267,29 @@ export class AppConfigService {
         };
     }
 
+    /** Timeouts for calls to the Sync API, see DefaultAppConfig.praSyncApiTimeouts. Each between 1 s and 4 h. */
+    public get praSyncApiTimeouts() {
+        const defaults = DefaultAppConfig.praSyncApiTimeouts;
+        const maxInMs = 4 * 60 * 60 * 1000;
+
+        return {
+            defaultInMs: this.integerOrDefault('PRA_SYNC_API_TIMEOUT_IN_MS', defaults.defaultInMs, 1000, maxInMs),
+            scanInMs: this.integerOrDefault('PRA_SYNC_API_SCAN_TIMEOUT_IN_MS', defaults.scanInMs, 1000, maxInMs),
+            fileTransferInMs: this.integerOrDefault(
+                'PRA_SYNC_API_FILE_TRANSFER_TIMEOUT_IN_MS',
+                defaults.fileTransferInMs,
+                1000,
+                maxInMs,
+            ),
+            downloadIdleInMs: this.integerOrDefault(
+                'PRA_SYNC_API_DOWNLOAD_IDLE_TIMEOUT_IN_MS',
+                defaults.downloadIdleInMs,
+                1000,
+                maxInMs,
+            ),
+        };
+    }
+
     public get database(): TypeOrmModuleOptions {
         return {
             type: this.configService.get<'mariadb' | 'mysql'>('DB_TYPE') ?? undefined,

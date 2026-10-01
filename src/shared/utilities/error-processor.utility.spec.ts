@@ -57,6 +57,30 @@ describe('ErrorProcessorUtility', () => {
             expect(result.getStatus()).toBe(400);
         });
 
+        it.each([AxiosError.ECONNABORTED, AxiosError.ETIMEDOUT])(
+            'answers 504 without the target address when an outbound call timed out (%s)',
+            (code) => {
+                const timeoutError = new AxiosError('timeout of 300000ms exceeded', code, {
+                    timeout: 300000,
+                    url: 'http://pra-sync-api:9001/teams',
+                } as never);
+
+                const result = ErrorProcessorUtility.composeError(timeoutError);
+
+                expect(result.getStatus()).toBe(HttpStatusCode.GatewayTimeout);
+                expect(result.getResponse()).toBe('The PRA Sync API did not answer within 300000 ms');
+            },
+        );
+
+        it('keeps the Sync API status when a response arrived, even with a timeout code', () => {
+            const error = new AxiosError('x', AxiosError.ECONNABORTED, undefined, undefined, <AxiosResponse>{
+                status: 503,
+                data: { message: 'busy' },
+            });
+
+            expect(ErrorProcessorUtility.composeError(error).getStatus()).toBe(503);
+        });
+
         it('should return HttpException with stringified error for non-Axios errors', () => {
             const nonAxiosError = new Error('Non-Axios error occurred');
 

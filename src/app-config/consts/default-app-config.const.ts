@@ -219,6 +219,24 @@ export abstract class DefaultAppConfig {
         };
     }
 
+    // Outbound calls to the Sync API. An axios timeout limits the time until the response headers arrive; with the
+    // default transport (follow-redirects) it also ends a body that is idle for the same time. For an ordinary call
+    // it is the longest time without an answer. A streamed download body is guarded by downloadIdleInMs.
+    public static get praSyncApiTimeouts() {
+        return {
+            // Every call without an explicit override. Above the Sync API's own worst case for one BeyondTrust call
+            // (4 attempts with a 60 s read timeout plus backoff, about 250 s), so the Sync API always answers first
+            // and PRA API never reports a timeout for a call that the Sync API then completes.
+            defaultInMs: 300000,
+            // Manual scan per entity type and "sync all external": above the Sync scan budget (20 min).
+            scanInMs: 25 * 60 * 1000,
+            // The Sync API fetches and stores a large file before it answers (BeyondTrust backup, jumpoint node ISO).
+            fileTransferInMs: 30 * 60 * 1000,
+            // A streamed installer download fails when no data arrived for this long.
+            downloadIdleInMs: 120000,
+        };
+    }
+
     public static get logWriter() {
         return {
             capacity: DefaultAppConfig.LOG_WRITER_CAPACITY,

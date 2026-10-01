@@ -1102,6 +1102,39 @@ describe('AppConfigService', () => {
         });
     });
 
+    describe('praSyncApiTimeouts', () => {
+        it('should use the defaults when nothing is configured', () => {
+            configService.get = jest.fn().mockReturnValue(undefined);
+
+            expect(service.praSyncApiTimeouts).toEqual({
+                defaultInMs: 300000,
+                scanInMs: 1500000,
+                fileTransferInMs: 1800000,
+                downloadIdleInMs: 120000,
+            });
+        });
+
+        it('should read configured values and ignore invalid ones', () => {
+            const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+            const values = new Map([
+                ['PRA_SYNC_API_TIMEOUT_IN_MS', '60000'],
+                ['PRA_SYNC_API_SCAN_TIMEOUT_IN_MS', '2400000'],
+                ['PRA_SYNC_API_FILE_TRANSFER_TIMEOUT_IN_MS', '0'], // below 1 s: default
+                ['PRA_SYNC_API_DOWNLOAD_IDLE_TIMEOUT_IN_MS', '2m'], // not an integer: default
+            ]);
+            configService.get = jest.fn().mockImplementation((key: string) => values.get(key));
+
+            expect(service.praSyncApiTimeouts).toEqual({
+                defaultInMs: 60000,
+                scanInMs: 2400000,
+                fileTransferInMs: 1800000,
+                downloadIdleInMs: 120000,
+            });
+            expect(warn).toHaveBeenCalledTimes(2);
+            warn.mockRestore();
+        });
+    });
+
     describe('retention', () => {
         it('should use the defaults when nothing is configured', () => {
             configService.get = jest.fn().mockReturnValue(undefined);
