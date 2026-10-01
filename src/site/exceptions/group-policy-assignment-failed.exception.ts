@@ -2,11 +2,9 @@ import { HttpStatus } from '@nestjs/common';
 import { SiteUserType } from '../enums';
 import { SiteUserException } from './site-user.exception';
 
-export interface GroupPolicyAssignmentFailure {
-    groupPolicyId: number;
-    operation: 'add' | 'remove';
-    message: string;
-}
+import { GroupPolicyMembershipFailure } from '../../group-policy-member/workflows';
+
+export type GroupPolicyAssignmentFailure = GroupPolicyMembershipFailure;
 
 /**
  * Raised after every group policy of a user has been attempted, carrying the ones that failed.

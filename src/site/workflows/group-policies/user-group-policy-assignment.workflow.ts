@@ -1,17 +1,11 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-    AddMemberToGroupPolicyCommand,
-    RemoveMemberFromGroupPolicyCommand,
-} from '../../../group-policy-member/commands';
-import { GroupPolicyMember } from '../../../group-policy-member/models';
-import { RetrieveGroupPolicyMembersQuery } from '../../../group-policy-member/queries';
-import { ErrorProcessorUtility, PaginationUtility } from '../../../shared/utilities';
+import { UserGroupPolicyMembershipWorkflow } from '../../../group-policy-member/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../../user-group-policy/commands';
 import { UserGroupPolicy } from '../../../user-group-policy/models';
 import { UserSourceType } from '../../../user/enums';
 import { User } from '../../../user/models';
 import { SiteUserType } from '../../enums';
-import { GroupPolicyAssignmentFailedException, GroupPolicyAssignmentFailure } from '../../exceptions';
+import { GroupPolicyAssignmentFailedException } from '../../exceptions';
 
 /**
  * Applies group policy memberships for a site user, choosing the API that works for the user's source type.
@@ -27,8 +21,6 @@ import { GroupPolicyAssignmentFailedException, GroupPolicyAssignmentFailure } fr
  * declared source type is a trustworthy signal by the time it arrives here.
  */
 export class UserGroupPolicyAssignmentWorkflow {
-    private static readonly MAX_MEMBERS_RETRIEVED_PER_PAGE = 100;
-
     constructor(
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
@@ -65,99 +57,15 @@ export class UserGroupPolicyAssignmentWorkflow {
             return;
         }
 
-        const failures: GroupPolicyAssignmentFailure[] = [];
+        const outcome = await new UserGroupPolicyMembershipWorkflow(
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customerBeyondtrustInstanceId,
+        ).apply(user, groupPolicyIdsToAdd, groupPolicyIdsToRemove);
 
-        for (const groupPolicyId of groupPolicyIdsToAdd) {
-            await this.tryApply(failures, groupPolicyId, 'add', () => this.addMember(user, groupPolicyId));
+        if (outcome.failures.length > 0) {
+            throw new GroupPolicyAssignmentFailedException(siteUserType, email, user.id, outcome.failures);
         }
-
-        for (const groupPolicyId of groupPolicyIdsToRemove) {
-            await this.tryApply(failures, groupPolicyId, 'remove', () => this.removeMember(user, groupPolicyId));
-        }
-
-        if (failures.length > 0) {
-            throw new GroupPolicyAssignmentFailedException(siteUserType, email, user.id, failures);
-        }
-    }
-
-    private async tryApply(
-        failures: GroupPolicyAssignmentFailure[],
-        groupPolicyId: number,
-        operation: 'add' | 'remove',
-        apply: () => Promise<void>,
-    ): Promise<void> {
-        try {
-            await apply();
-        } catch (error) {
-            console.error(
-                `[${this.transactionId}] Failed to ${operation} group policy ${groupPolicyId} membership:`,
-                error,
-            );
-            failures.push({
-                groupPolicyId: groupPolicyId,
-                operation: operation,
-                message: ErrorProcessorUtility.stringify(error),
-            });
-        }
-    }
-
-    /** Adding an existing membership again would be rejected by BeyondTrust, so it is checked first. */
-    private async addMember(user: User, groupPolicyId: number): Promise<void> {
-        if (await this.findMember(user, groupPolicyId)) {
-            return;
-        }
-
-        if (user.securityProviderId === undefined || user.securityProviderId === null) {
-            throw new Error(
-                `User ${user.id} has no security provider, which is required to add a non-local group policy member.`,
-            );
-        }
-
-        await this.commandBus.execute<AddMemberToGroupPolicyCommand, GroupPolicyMember>(
-            new AddMemberToGroupPolicyCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                groupPolicyId,
-                user.id,
-                user.securityProviderId,
-            ),
-        );
-    }
-
-    /**
-     * Removal is addressed by member id, not by user id, so the membership has to be looked up first. A
-     * membership that is already gone is not an error: repeated ingestion runs must not fail on it.
-     */
-    private async removeMember(user: User, groupPolicyId: number): Promise<void> {
-        const member = await this.findMember(user, groupPolicyId);
-
-        if (!member) {
-            return;
-        }
-
-        await this.commandBus.execute<RemoveMemberFromGroupPolicyCommand, void>(
-            new RemoveMemberFromGroupPolicyCommand(
-                this.transactionId,
-                this.customerBeyondtrustInstanceId,
-                groupPolicyId,
-                member.memberId,
-            ),
-        );
-    }
-
-    private async findMember(user: User, groupPolicyId: number): Promise<GroupPolicyMember | null> {
-        const members = await PaginationUtility.queryUntilLastPage<GroupPolicyMember>((pageNumber) =>
-            this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
-                new RetrieveGroupPolicyMembersQuery(
-                    this.transactionId,
-                    this.customerBeyondtrustInstanceId,
-                    UserGroupPolicyAssignmentWorkflow.MAX_MEMBERS_RETRIEVED_PER_PAGE,
-                    pageNumber,
-                    groupPolicyId,
-                ),
-            ),
-        );
-
-        return members.find((member) => member.userId === user.id) ?? null;
     }
 }
