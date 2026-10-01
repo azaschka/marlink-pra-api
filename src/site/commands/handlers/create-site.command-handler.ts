@@ -27,9 +27,8 @@ import { SiteEntity } from '../../repositories/entities';
 import { SiteRepositoryService } from '../../repositories/services/site-repository.service';
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
-import { RemoveSiteAuditorCommand } from '../remove-site-auditor.command';
-import { RemoveSiteManagerCommand } from '../remove-site-manager.command';
-import { RemoveSiteSupportTeamMemberCommand } from '../remove-site-support-team-member.command';
+import { WorkflowFactory } from '../../workflows/factories';
+import { SiteUserType } from '../../enums';
 
 @CommandHandler(CreateSiteCommand)
 export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteCommand> {
@@ -52,6 +51,7 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         }
 
         const customer = await this.getCustomer(command.transactionId, command.customerKey);
+
         const partialSiteApprovers = command.siteApproverEmails.map((email) => ({ email }));
 
         // SiteWorkflow.getOrCreate() is fully idempotent: it creates BeyondTrust
@@ -67,7 +67,6 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             customer.name,
             customer.businessUnit,
             customer.beyondtrustInstanceId,
-            existingSite,
         );
 
         if (existingSite === null) {
@@ -96,30 +95,55 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             };
         }
 
-        // Rows that could not be processed in this run are carried over unchanged, otherwise the update
-        // would delete them. Only then is the minimum manager count meaningful.
-        const siteManagersToPersist = this.retainUnresolvedSiteUsers(
-            siteWorkflowResult.siteManagers,
-            existingSite.siteManagers,
-            siteWorkflowResult.unresolvedEmails.siteManagers,
+        // ── Existing site path ───────────────────────────────────────────────
+        // Rows that are kept as they are: users that could not be processed in this run. Not resolvable is not the
+        // same as removed from the ingestion data.
+        const keptEmails = siteWorkflowResult.unresolvedEmails;
+
+        // EXT-01: the minimum is checked against the site as it will be after this run, before anything is removed.
+        // Checking it per removal against the stored rows rejected the replacement of the only site manager and
+        // still dropped the row, which left the old manager's BeyondTrust memberships behind for good.
+        this.validateMinimumSiteManagerCount(
+            this.retainSiteUsers(siteWorkflowResult.siteManagers, existingSite.siteManagers, keptEmails.siteManagers),
+            siteWorkflowResult.errorReport,
         );
 
-        this.validateMinimumSiteManagerCount(siteManagersToPersist, siteWorkflowResult.errorReport);
+        const removal = await this.removeSiteUsers(command.transactionId, customer, existingSite, {
+            siteManagers: this.filterRemovedSiteUsers(
+                existingSite.siteManagers,
+                siteWorkflowResult.siteManagers,
+                keptEmails.siteManagers,
+            ),
+            siteAuditors: this.filterRemovedSiteUsers(
+                existingSite.siteAuditors,
+                siteWorkflowResult.siteAuditors,
+                keptEmails.siteAuditors,
+            ),
+            siteSupportTeamMembers: this.filterRemovedSiteUsers(
+                existingSite.siteSupportTeamMembers,
+                siteWorkflowResult.siteSupportTeamMembers,
+                keptEmails.siteSupportTeamMembers,
+            ),
+        });
+        siteWorkflowResult.errorReport.append(removal.errorReport);
 
+        // A user whose removal failed stays on the site, so the next run retries the removal instead of forgetting
+        // the memberships that are still in place.
         const updatedSite = await this.updateSite(
             command.transactionId,
             existingSite,
-            siteManagersToPersist,
-            this.retainUnresolvedSiteUsers(
-                siteWorkflowResult.siteAuditors,
-                existingSite.siteAuditors,
-                siteWorkflowResult.unresolvedEmails.siteAuditors,
-            ),
-            this.retainUnresolvedSiteUsers(
-                siteWorkflowResult.siteSupportTeamMembers,
-                existingSite.siteSupportTeamMembers,
-                siteWorkflowResult.unresolvedEmails.siteSupportTeamMembers,
-            ),
+            this.retainSiteUsers(siteWorkflowResult.siteManagers, existingSite.siteManagers, [
+                ...keptEmails.siteManagers,
+                ...removal.failedEmails.siteManagers,
+            ]),
+            this.retainSiteUsers(siteWorkflowResult.siteAuditors, existingSite.siteAuditors, [
+                ...keptEmails.siteAuditors,
+                ...removal.failedEmails.siteAuditors,
+            ]),
+            this.retainSiteUsers(siteWorkflowResult.siteSupportTeamMembers, existingSite.siteSupportTeamMembers, [
+                ...keptEmails.siteSupportTeamMembers,
+                ...removal.failedEmails.siteSupportTeamMembers,
+            ]),
             partialSiteApprovers,
         );
 
@@ -193,7 +217,6 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         customerName: string,
         customerBusinessUnit: BusinessUnit,
         customerBeyondTrustInstanceId: number,
-        existingSite: Site | null,
     ): Promise<SiteWorkflowResult> {
         const siteWorkflow = new SiteWorkflow(
             this.appConfigService,
@@ -211,75 +234,75 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             customerBeyondTrustInstanceId,
         );
 
-        const result = await siteWorkflow.getOrCreate();
-
-        if (existingSite) {
-            const siteHandlersRemovalErrorReport = await this.runSiteHandlersRemovalWorkflow(
-                transactionId,
-                existingSite.id,
-                this.filterRemovedSiteUsers(
-                    existingSite.siteManagers,
-                    result.siteManagers,
-                    result.unresolvedEmails.siteManagers,
-                ),
-                this.filterRemovedSiteUsers(
-                    existingSite.siteAuditors,
-                    result.siteAuditors,
-                    result.unresolvedEmails.siteAuditors,
-                ),
-                this.filterRemovedSiteUsers(
-                    existingSite.siteSupportTeamMembers,
-                    result.siteSupportTeamMembers,
-                    result.unresolvedEmails.siteSupportTeamMembers,
-                ),
-            );
-
-            result.errorReport.append(siteHandlersRemovalErrorReport);
-        }
-
-        return result;
+        return await siteWorkflow.getOrCreate();
     }
 
-    private async runSiteHandlersRemovalWorkflow(
+    /**
+     * Removes the BeyondTrust memberships of site users that the ingestion data no longer contains.
+     *
+     * The role workflows are called directly instead of through the Remove*Command handlers: those check the
+     * minimum manager count against the stored rows and delete the row themselves, while this path has already
+     * validated the resulting site and persists all rows in one update afterwards (EXT-01).
+     */
+    private async removeSiteUsers(
         transactionId: string,
-        siteId: number,
-        removedSiteManagers: SiteManager[],
-        removedSiteAuditors: SiteAuditor[],
-        removedSiteSupportTeamMembers: SiteSupportTeamMember[],
-    ) {
+        customer: Customer,
+        site: Site,
+        removed: {
+            siteManagers: SiteManager[];
+            siteAuditors: SiteAuditor[];
+            siteSupportTeamMembers: SiteSupportTeamMember[];
+        },
+    ): Promise<{
+        errorReport: ErrorReport;
+        failedEmails: { siteManagers: string[]; siteAuditors: string[]; siteSupportTeamMembers: string[] };
+    }> {
         const errorReport = new ErrorReport();
+        const failedEmails = {
+            siteManagers: [] as string[],
+            siteAuditors: [] as string[],
+            siteSupportTeamMembers: [] as string[],
+        };
+        const workflowFactory = WorkflowFactory.create(
+            this.appConfigService,
+            this.queryBus,
+            this.commandBus,
+            transactionId,
+            customer,
+            site,
+        );
 
-        for (const removedSiteManager of removedSiteManagers) {
-            try {
-                await this.commandBus.execute<RemoveSiteManagerCommand, void>(
-                    new RemoveSiteManagerCommand(transactionId, siteId, removedSiteManager.id),
-                );
-            } catch (error) {
-                errorReport.add(error);
+        const removeEach = async <T extends { email: string }>(
+            siteUsers: T[],
+            siteUserType: SiteUserType,
+            failed: string[],
+            remove: (siteUser: T) => Promise<void>,
+        ) => {
+            for (const siteUser of siteUsers) {
+                try {
+                    await remove(siteUser);
+                } catch (error) {
+                    console.error(`[${transactionId}] Failed to remove ${siteUserType} ${siteUser.email}:`, error);
+                    errorReport.add(error);
+                    failed.push(siteUser.email);
+                }
             }
-        }
+        };
 
-        for (const removedSiteAuditor of removedSiteAuditors) {
-            try {
-                await this.commandBus.execute<RemoveSiteAuditorCommand, void>(
-                    new RemoveSiteAuditorCommand(transactionId, siteId, removedSiteAuditor.id),
-                );
-            } catch (error) {
-                errorReport.add(error);
-            }
-        }
+        await removeEach(removed.siteManagers, SiteUserType.SiteManager, failedEmails.siteManagers, (siteManager) =>
+            workflowFactory.createSiteManagerWorkflow(siteManager).delete(),
+        );
+        await removeEach(removed.siteAuditors, SiteUserType.SiteAuditor, failedEmails.siteAuditors, (siteAuditor) =>
+            workflowFactory.createSiteAuditorWorkflow(siteAuditor).delete(),
+        );
+        await removeEach(
+            removed.siteSupportTeamMembers,
+            SiteUserType.SiteSupportTeamMember,
+            failedEmails.siteSupportTeamMembers,
+            (member) => workflowFactory.createSiteSupportTeamMemberWorkflow(member).delete(),
+        );
 
-        for (const removedSiteSupportTeamMember of removedSiteSupportTeamMembers) {
-            try {
-                await this.commandBus.execute<RemoveSiteSupportTeamMemberCommand, void>(
-                    new RemoveSiteSupportTeamMemberCommand(transactionId, siteId, removedSiteSupportTeamMember.id),
-                );
-            } catch (error) {
-                errorReport.add(error);
-            }
-        }
-
-        return errorReport;
+        return { errorReport, failedEmails };
     }
 
     /**
@@ -291,30 +314,36 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
     private filterRemovedSiteUsers<T extends { email: string }>(
         existingEntities: T[],
         resolvedEntities: { email: string }[],
-        unresolvedEmails: string[],
+        keptEmails: string[],
     ): T[] {
         const resolvedEmails = resolvedEntities.map((resolvedEntity) => resolvedEntity.email);
 
         return existingEntities.filter(
             (existingEntity) =>
                 !EmailUtility.includes(resolvedEmails, existingEntity.email) &&
-                !EmailUtility.includes(unresolvedEmails, existingEntity.email),
+                !EmailUtility.includes(keptEmails, existingEntity.email),
         );
     }
 
     /**
-     * Keeps site users that exist on the site but could not be processed in this run.
+     * The users to persist: the ones processed in this run plus the existing rows listed in keptEmails (not
+     * processable in this run, omitted role list, or failed removal).
      *
      * The persisted list is what decides which rows survive: SiteRepositoryService.update deletes every row
      * that is not in it. Without this, a transient lookup failure would silently strip a user from the site.
      */
-    private retainUnresolvedSiteUsers<T extends { email: string }>(
+    private retainSiteUsers<T extends { email: string }>(
         resolvedEntities: T[],
         existingEntities: T[],
-        unresolvedEmails: string[],
+        keptEmails: string[],
     ): T[] {
-        const retainedEntities = existingEntities.filter((existingEntity) =>
-            EmailUtility.includes(unresolvedEmails, existingEntity.email),
+        const retainedEntities = existingEntities.filter(
+            (existingEntity) =>
+                EmailUtility.includes(keptEmails, existingEntity.email) &&
+                !EmailUtility.includes(
+                    resolvedEntities.map((resolvedEntity) => resolvedEntity.email),
+                    existingEntity.email,
+                ),
         );
 
         return [...resolvedEntities, ...retainedEntities];
