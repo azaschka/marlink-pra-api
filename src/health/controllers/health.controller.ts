@@ -1,101 +1,47 @@
-import { Controller, Get, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import {
-    DiskHealthIndicator,
-    HealthCheck,
-    HealthCheckResult,
-    HealthCheckService,
-    HttpHealthIndicator,
-    MemoryHealthIndicator,
-    TypeOrmHealthIndicator,
-} from '@nestjs/terminus';
-import { AppConfigService } from '../../app-config/services/app-config.service';
-import { MonitoringRequestPipe } from '../../monitoring/pipes';
+import { Controller, Get, Res } from '@nestjs/common';
+import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { HealthService } from '../services/health.service';
 
+/**
+ * Health contract (see the R3.2 stability plan, section 4):
+ * - GET /health/live: process answers (liveness and startup probes)
+ * - GET /health/ready: database reachable (readiness probe); 503 otherwise
+ * - GET /health: diagnostics with overallStatus healthy, degraded or unavailable; 503 only when unavailable
+ * Responses are sent with their status code directly, without the exception filter, and are never written to
+ * the system log or the monitoring tables.
+ */
 @ApiTags('Health')
 @Controller('health')
-@UsePipes(MonitoringRequestPipe)
-@UsePipes(new ValidationPipe({ transform: true }))
 export class HealthController {
-    constructor(
-        private readonly appConfigService: AppConfigService,
-        private readonly healthCheckService: HealthCheckService,
-        private readonly typeOrmHealthIndicator: TypeOrmHealthIndicator,
-        private readonly diskHealthIndicator: DiskHealthIndicator,
-        private readonly memoryHealthIndicator: MemoryHealthIndicator,
-        private readonly httpHealthIndicator: HttpHealthIndicator,
-    ) {}
+    constructor(private readonly healthService: HealthService) {}
 
     @Get()
-    @HealthCheck()
-    public async checkHealth(): Promise<HealthCheckResult> {
-        try {
-            return await this.healthCheckService.check([
-                // Database check - critical for operation
-                async () => this.typeOrmHealthIndicator.pingCheck('database', { timeout: 5000 }),
+    @ApiOkResponse({ description: 'healthy or degraded' })
+    @ApiServiceUnavailableResponse({ description: 'unavailable: the database is down or the service shuts down' })
+    public async checkHealth(@Res({ passthrough: true }) response: Response) {
+        const { httpStatus, body } = await this.healthService.report();
+        response.status(httpStatus);
 
-                // Disk storage check - warn if usage is high
-                async () =>
-                    this.diskHealthIndicator.checkStorage('storage', {
-                        thresholdPercent: this.appConfigService.health.diskStorageUsageThresholdInPercent / 100,
-                        path: '/',
-                    }),
-
-                // Memory heap check - warn if memory usage is high
-                async () =>
-                    this.memoryHealthIndicator.checkHeap(
-                        'memoryHeap',
-                        this.appConfigService.health.memoryHeapUsageThresholdInMB * 1024 * 1024,
-                    ),
-
-                // External API check - graceful degradation if unavailable
-                async () => {
-                    try {
-                        return await this.httpHealthIndicator.pingCheck(
-                            'praSyncApi',
-                            this.appConfigService.health.pingCheckPraSyncApiUrl,
-                            { timeout: 3000 },
-                        );
-                    } catch (error) {
-                        // Don't fail health check if external API is down
-                        console.warn('⚠️  PRA Sync API health check failed (non-critical):', error);
-                        return {
-                            praSyncApi: {
-                                status: 'down',
-                                message: 'External API unavailable',
-                            },
-                        };
-                    }
-                },
-            ]);
-        } catch (error) {
-            console.error('❌ Health check failed:', error);
-            throw error;
-        }
+        return body;
     }
 
     @Get('ready')
-    public async checkReadiness(): Promise<{ status: string }> {
-        // Readiness probe - checks if app can handle traffic
-        try {
-            await this.typeOrmHealthIndicator.pingCheck('database', { timeout: 3000 });
-            return { status: 'ready' };
-        } catch (error) {
-            console.error('❌ Readiness check failed:', error);
-            throw error;
-        }
+    @ApiOkResponse({ description: 'ready to serve requests' })
+    @ApiServiceUnavailableResponse({ description: 'the database is not reachable' })
+    public async checkReadiness(@Res({ passthrough: true }) response: Response) {
+        const { httpStatus, body } = await this.healthService.ready();
+        response.status(httpStatus);
+
+        return body;
     }
 
     @Get('live')
-    public checkLiveness(): { status: string; uptime: number; memory: { used: number; total: number } } {
-        // Liveness probe - checks if app is alive (lightweight)
-        return {
-            status: 'alive',
-            uptime: process.uptime(),
-            memory: {
-                used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-                total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-            },
-        };
+    @ApiOkResponse({ description: 'the process answers' })
+    public checkLiveness(@Res({ passthrough: true }) response: Response) {
+        const { httpStatus, body } = this.healthService.live();
+        response.status(httpStatus);
+
+        return body;
     }
 }
