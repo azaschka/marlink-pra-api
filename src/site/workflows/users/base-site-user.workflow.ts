@@ -70,6 +70,8 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
             return null;
         }
 
+        await this.assertEmailIsNotTakenByNonLocalAccount();
+
         return await this.createLocalUser();
     }
 
@@ -147,6 +149,38 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
 
         if (actualSourceType !== this.sourceType) {
             throw new SourceTypeMismatchException(this.siteUserType, this.email, this.sourceType, actualSourceType);
+        }
+    }
+
+    /**
+     * EXT-07: a local user is looked up by username. A person who exists only as an externally provisioned account
+     * has a username owned by the identity provider, so a row wrongly declared as local would not find it and would
+     * get a second, local account. Before creating one, the email is checked across all security providers.
+     *
+     * @throws SourceTypeMismatchException if a non-local account already uses the email
+     */
+    private async assertEmailIsNotTakenByNonLocalAccount(): Promise<void> {
+        const usersWithEmail = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
+            this.queryBus.execute<RetrieveUsersQuery, User[]>(
+                new RetrieveUsersQuery(
+                    this.transactionId,
+                    this.customerBeyondtrustInstanceId,
+                    BaseSiteUserWorkflow.MAX_USERS_RETRIEVED_PER_PAGE,
+                    pageNumber,
+                    undefined, // securityProviderId
+                    undefined, // username
+                    this.email,
+                ),
+            ),
+        );
+
+        if (usersWithEmail.some((user) => UserSourceUtility.isExternal(user, this.localSecurityProviderIds))) {
+            throw new SourceTypeMismatchException(
+                this.siteUserType,
+                this.email,
+                UserSourceType.Internal,
+                UserSourceType.External,
+            );
         }
     }
 

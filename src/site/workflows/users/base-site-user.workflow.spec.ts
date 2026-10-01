@@ -93,6 +93,36 @@ describe('BaseSiteUserWorkflow', () => {
             expect(commandOfType(CreateUserCommand)).toBeDefined();
         });
 
+        it('should not create a local account when the email belongs to a non-local account (EXT-07)', async () => {
+            (queryBus.execute as jest.Mock)
+                .mockResolvedValueOnce([]) // lookup by username: nothing
+                .mockResolvedValueOnce([createUser({ id: 7, username: 'entra-upn', securityProviderId: 3 })]) // by email
+                .mockResolvedValue([]);
+
+            await expect(
+                createWorkflow(UserSourceType.Internal, [LOCAL_SECURITY_PROVIDER_ID]).getOrCreate(),
+            ).rejects.toThrow(SourceTypeMismatchException);
+
+            const emailQuery = ((queryBus.execute as jest.Mock).mock.calls as unknown[][])
+                .map((call) => call[0] as RetrieveUsersQuery)
+                .find((query) => query.email !== undefined);
+            expect(emailQuery?.email).toBe('manager@example.com');
+            expect(emailQuery?.username).toBeUndefined();
+            expectNoCommandOfType(CreateUserCommand);
+        });
+
+        it('should create the local account when only local accounts use the email', async () => {
+            (queryBus.execute as jest.Mock)
+                .mockResolvedValueOnce([]) // lookup by username: nothing
+                .mockResolvedValueOnce([createUser({ id: 8, username: 'other-local', securityProviderId: 1 })])
+                .mockResolvedValue([]);
+            (commandBus.execute as jest.Mock).mockResolvedValue(createUser({ id: 11 }));
+
+            await createWorkflow(UserSourceType.Internal, [LOCAL_SECURITY_PROVIDER_ID]).getOrCreate();
+
+            expect(commandOfType(CreateUserCommand)).toBeDefined();
+        });
+
         it('should look the user up by username so a changed email does not create a duplicate', async () => {
             mockRetrievedUsers([createUser({ id: 11, email: 'outdated@example.com' })]);
             (commandBus.execute as jest.Mock).mockResolvedValue(createUser({ id: 11 }));
