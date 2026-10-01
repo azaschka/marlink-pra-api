@@ -8,41 +8,23 @@ export class BaseRepositoryService<T> {
     ) {}
 
     public async create(entity: T): Promise<T> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-        await queryRunner.startTransaction();
-
-        try {
+        return DatabaseConnectionUtility.executeInTransaction(this.dataSource, async (queryRunner) => {
             const createdEntity = queryRunner.manager.create(this.entity, entity);
             await queryRunner.manager.save(createdEntity);
-            await queryRunner.commitTransaction();
 
             return createdEntity;
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async createOrUpdate<K extends Extract<keyof T, string>>(
         entityOrEntities: Partial<T> | Partial<T>[],
         conflictPaths: K[],
     ): Promise<void> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-        await queryRunner.startTransaction();
-
-        try {
+        await DatabaseConnectionUtility.executeInTransaction(this.dataSource, async (queryRunner) => {
             await queryRunner.manager.upsert(this.entity, entityOrEntities, {
                 conflictPaths,
             });
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async findOneBy<K extends Extract<keyof T, string>>(where: Pick<T, K>): Promise<T | null> {
@@ -74,18 +56,9 @@ export class BaseRepositoryService<T> {
     }
 
     public async deleteBy<K extends Extract<keyof T, string>>(where: Pick<T, K> | FindOptionsWhere<T>): Promise<void> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-        await queryRunner.startTransaction();
-
-        try {
+        await DatabaseConnectionUtility.executeInTransaction(this.dataSource, async (queryRunner) => {
             await queryRunner.manager.delete(this.entity, where);
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async countBy<K extends Extract<keyof T, string>>(
@@ -121,18 +94,9 @@ export class BaseRepositoryService<T> {
      * await queryRunner.manager.save(this.entity, createdEntity);
      */
     public async save(entity: T): Promise<void> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-        await queryRunner.startTransaction();
-
-        try {
+        await DatabaseConnectionUtility.executeInTransaction(this.dataSource, async (queryRunner) => {
             await queryRunner.manager.save(entity);
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     private async createQueryRunnerAndConnect() {

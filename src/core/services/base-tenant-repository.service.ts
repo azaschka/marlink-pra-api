@@ -11,6 +11,14 @@ import { DatabaseConnectionUtility } from '../../shared/utilities/database-conne
 import { BaseTenantEntitySchemaFactory } from '../factories';
 
 export class BaseTenantRepositoryService<T> {
+    /**
+     * The entity schema each tenant was registered with. TypeORM caches repositories by the identity of the
+     * target object, so every lookup must use the very schema object that was registered. Creating a new
+     * schema per call adds a permanent repository cache entry per call. Only registered tenants are kept,
+     * so the map is bounded by the number of registered BeyondTrust instances.
+     */
+    private readonly registeredSchemas = new Map<number, EntitySchema<T>>();
+
     constructor(
         protected readonly dataSource: DataSource,
         private readonly tenantEntitySchemaFactory: BaseTenantEntitySchemaFactory<T>,
@@ -18,14 +26,16 @@ export class BaseTenantRepositoryService<T> {
 
     public async createAndConnectTable(tenantId: number): Promise<{ tableName: string }> {
         const entitySchema = this.tenantEntitySchemaFactory.create(tenantId);
+        const registeredSchema = this.findRegisteredSchema(entitySchema.options.name);
+
+        if (registeredSchema) {
+            this.registeredSchemas.set(tenantId, registeredSchema);
+
+            return { tableName: registeredSchema.options.name };
+        }
 
         // Dynamically register the entity if not already registered
-        if (
-            Array.isArray(this.dataSource.options.entities) &&
-            !this.dataSource.options.entities
-                .map((e) => (e as EntitySchema<T>).options?.name)
-                .includes(entitySchema.options.name)
-        ) {
+        if (Array.isArray(this.dataSource.options.entities)) {
             this.dataSource.options.entities.push(entitySchema);
 
             // Since we're using 1 db = 1 data source, we can safely check relations for all entities here.
@@ -35,28 +45,21 @@ export class BaseTenantRepositoryService<T> {
                 await this.dataSource.buildMetadatas();
                 await this.dataSource.synchronize(false); // dropBeforeSync = false
             }
+
+            this.registeredSchemas.set(tenantId, entitySchema);
         }
 
         return { tableName: entitySchema.options.name };
     }
 
     public async create(tenantId: number, entity: Partial<T>): Promise<T> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-        await queryRunner.startTransaction();
-
-        try {
+        return DatabaseConnectionUtility.executeInTransaction(this.dataSource, async (queryRunner) => {
             const repository = this.getTenantRepository(tenantId, queryRunner);
             const createdEntity = repository.create(entity);
             await repository.save(createdEntity);
-            await queryRunner.commitTransaction();
 
             return createdEntity as T;
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async createOrUpdate<K extends Extract<keyof T, string>>(
@@ -64,21 +67,12 @@ export class BaseTenantRepositoryService<T> {
         entityOrEntities: Partial<T> | Partial<T>[],
         conflictPaths: K[],
     ): Promise<void> {
-        const queryRunner = await this.createQueryRunnerAndConnect();
-        await queryRunner.startTransaction();
-
-        try {
+        await DatabaseConnectionUtility.executeInTransaction(this.dataSource, async (queryRunner) => {
             const repository = this.getTenantRepository(tenantId, queryRunner);
             await repository.upsert(entityOrEntities, {
                 conflictPaths,
             });
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async findOneBy<K extends Extract<keyof T, string>>(tenantId: number, where: Pick<T, K>): Promise<T | null> {
@@ -121,19 +115,11 @@ export class BaseTenantRepositoryService<T> {
         where: Pick<T, K> | FindOptionsWhere<T>,
     ): Promise<void> {
         this.assertTenantIsRegistered(tenantId);
-        const queryRunner = await this.createQueryRunnerAndConnect();
-        await queryRunner.startTransaction();
 
-        try {
+        await DatabaseConnectionUtility.executeInTransaction(this.dataSource, async (queryRunner) => {
             const repository = this.getTenantRepository(tenantId, queryRunner);
             await repository.delete(where);
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        });
     }
 
     public async countBy<K extends Extract<keyof T, string>>(
@@ -158,15 +144,20 @@ export class BaseTenantRepositoryService<T> {
         return allRelationTargets.every((target) => allEntityNames.includes(target));
     }
 
+    // Fails fast before a pooled connection is taken. Neither creates a repository nor a cache entry.
     private assertTenantIsRegistered(tenantId: number): void {
-        this.getTenantRepository(tenantId);
+        const entitySchema = this.resolveRegisteredSchema(tenantId);
+
+        if (!this.dataSource.hasMetadata(entitySchema.options.name)) {
+            throw this.tenantNotRegistered(tenantId);
+        }
     }
 
     // Bind to the query runner when given, otherwise each call takes a second pooled connection.
     private getTenantRepository(tenantId: number, queryRunner?: QueryRunner) {
-        try {
-            const entitySchema = this.tenantEntitySchemaFactory.create(tenantId);
+        const entitySchema = this.resolveRegisteredSchema(tenantId);
 
+        try {
             const repository = queryRunner
                 ? queryRunner.manager.getRepository(entitySchema)
                 : this.dataSource.getRepository(entitySchema);
@@ -180,14 +171,47 @@ export class BaseTenantRepositoryService<T> {
             return repository;
         } catch (error) {
             if (error instanceof EntityMetadataNotFoundError) {
-                throw new NotFoundException(`Tenant with ID ${tenantId} is not registered.`);
+                throw this.tenantNotRegistered(tenantId);
             }
 
             throw error;
         }
     }
 
-    private async createQueryRunnerAndConnect() {
-        return DatabaseConnectionUtility.acquireQueryRunner(this.dataSource);
+    /**
+     * Returns the schema the tenant was registered with. A schema registered by another instance of the same
+     * repository service is adopted; an unknown tenant is rejected without caching anything for it.
+     */
+    private resolveRegisteredSchema(tenantId: number): EntitySchema<T> {
+        const cachedSchema = this.registeredSchemas.get(tenantId);
+
+        if (cachedSchema) {
+            return cachedSchema;
+        }
+
+        const expectedName = this.tenantEntitySchemaFactory.create(tenantId).options.name;
+        const registeredSchema = this.findRegisteredSchema(expectedName);
+
+        if (!registeredSchema) {
+            throw this.tenantNotRegistered(tenantId);
+        }
+
+        this.registeredSchemas.set(tenantId, registeredSchema);
+
+        return registeredSchema;
+    }
+
+    private findRegisteredSchema(name: string): EntitySchema<T> | undefined {
+        const entities = this.dataSource.options.entities;
+
+        if (!Array.isArray(entities)) {
+            return undefined;
+        }
+
+        return entities.find((entity): entity is EntitySchema<T> => (entity as EntitySchema<T>).options?.name === name);
+    }
+
+    private tenantNotRegistered(tenantId: number): NotFoundException {
+        return new NotFoundException(`Tenant with ID ${tenantId} is not registered.`);
     }
 }

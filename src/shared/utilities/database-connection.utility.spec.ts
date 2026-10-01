@@ -1,4 +1,4 @@
-import { ServiceUnavailableException } from '@nestjs/common';
+import { Logger, ServiceUnavailableException } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 import { DatabaseConnectionUtility } from './database-connection.utility';
 
@@ -127,6 +127,75 @@ describe('DatabaseConnectionUtility', () => {
             await expect(DatabaseConnectionUtility.executeRead(dataSource, operation, 1)).rejects.toBe(error);
 
             expect(operation).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('executeInTransaction', () => {
+        function mockTransactionalDataSource() {
+            const mocks = mockDataSource([Promise.resolve()]);
+            const startTransaction = jest.fn().mockResolvedValue(undefined);
+            const commitTransaction = jest.fn().mockResolvedValue(undefined);
+            const rollbackTransaction = jest.fn().mockResolvedValue(undefined);
+            Object.assign(mocks.queryRunner, { startTransaction, commitTransaction, rollbackTransaction });
+
+            return { ...mocks, startTransaction, commitTransaction, rollbackTransaction };
+        }
+
+        it('should commit, release the connection and return the result', async () => {
+            const { dataSource, queryRunner, commitTransaction, rollbackTransaction, release } =
+                mockTransactionalDataSource();
+            const operation = jest.fn().mockResolvedValue('result');
+
+            const result = await DatabaseConnectionUtility.executeInTransaction(dataSource, operation);
+
+            expect(result).toBe('result');
+            expect(operation).toHaveBeenCalledWith(queryRunner);
+            expect(commitTransaction).toHaveBeenCalledTimes(1);
+            expect(rollbackTransaction).not.toHaveBeenCalled();
+            expect(release).toHaveBeenCalledTimes(1);
+        });
+
+        it('should release the connection when START TRANSACTION fails and not attempt a rollback', async () => {
+            const error = new Error('start failed');
+            const { dataSource, startTransaction, rollbackTransaction, release } = mockTransactionalDataSource();
+            startTransaction.mockRejectedValue(error);
+            const operation = jest.fn();
+
+            await expect(DatabaseConnectionUtility.executeInTransaction(dataSource, operation)).rejects.toBe(error);
+
+            expect(operation).not.toHaveBeenCalled();
+            expect(rollbackTransaction).not.toHaveBeenCalled();
+            expect(release).toHaveBeenCalledTimes(1);
+        });
+
+        it.each([
+            { name: 'the operation', failOperation: true },
+            { name: 'COMMIT', failOperation: false },
+        ])('should roll back and release the connection when $name fails', async ({ failOperation }) => {
+            const error = new Error('failed');
+            const { dataSource, commitTransaction, rollbackTransaction, release } = mockTransactionalDataSource();
+            const operation = failOperation ? jest.fn().mockRejectedValue(error) : jest.fn().mockResolvedValue('x');
+            if (!failOperation) {
+                commitTransaction.mockRejectedValue(error);
+            }
+
+            await expect(DatabaseConnectionUtility.executeInTransaction(dataSource, operation)).rejects.toBe(error);
+
+            expect(rollbackTransaction).toHaveBeenCalledTimes(1);
+            expect(release).toHaveBeenCalledTimes(1);
+        });
+
+        it('should keep the original error when the rollback fails as well', async () => {
+            const error = new Error('operation failed');
+            const { dataSource, rollbackTransaction, release } = mockTransactionalDataSource();
+            rollbackTransaction.mockRejectedValue(new Error('rollback failed'));
+            jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+
+            await expect(
+                DatabaseConnectionUtility.executeInTransaction(dataSource, jest.fn().mockRejectedValue(error)),
+            ).rejects.toBe(error);
+
+            expect(release).toHaveBeenCalledTimes(1);
         });
     });
 

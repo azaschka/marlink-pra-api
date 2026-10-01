@@ -77,6 +77,36 @@ export abstract class DatabaseConnectionUtility {
         }
     }
 
+    /**
+     * Runs the operation inside a transaction on its own pooled connection. The connection is released on every
+     * path, including a failing START TRANSACTION, and a rollback is only attempted once a transaction was started.
+     * A failing rollback does not hide the original error.
+     */
+    public static async executeInTransaction<R>(
+        dataSource: DataSource,
+        operation: (queryRunner: QueryRunner) => Promise<R>,
+    ): Promise<R> {
+        const queryRunner = await DatabaseConnectionUtility.acquireQueryRunner(dataSource);
+        let transactionStarted = false;
+
+        try {
+            await queryRunner.startTransaction();
+            transactionStarted = true;
+            const result = await operation(queryRunner);
+            await queryRunner.commitTransaction();
+
+            return result;
+        } catch (error) {
+            if (transactionStarted) {
+                await DatabaseConnectionUtility.rollbackQuietly(queryRunner);
+            }
+
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
     public static isTransientConnectionError(error: unknown): boolean {
         const candidates = [
             error,
@@ -97,5 +127,17 @@ export abstract class DatabaseConnectionUtility {
                     message.toLowerCase().includes(DatabaseConnectionUtility.CLOSED_CONNECTION_MESSAGE))
             );
         });
+    }
+
+    private static async rollbackQuietly(queryRunner: QueryRunner): Promise<void> {
+        try {
+            await queryRunner.rollbackTransaction();
+        } catch (rollbackError) {
+            DatabaseConnectionUtility.LOGGER.warn(
+                `Rollback failed, the connection is released anyway: ${
+                    rollbackError instanceof Error ? rollbackError.message : String(rollbackError)
+                }`,
+            );
+        }
     }
 }
