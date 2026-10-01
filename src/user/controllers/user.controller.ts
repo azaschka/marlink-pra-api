@@ -114,7 +114,31 @@ export class UserController {
             rejectedProperties.push('regeneratePassword');
         }
 
+        // BeyondTrust supports this flag for local and LDAP users only; it is treated as local-only (decision D-04).
+        if (
+            dtoInput.isTwoFactorAuthRequired !== undefined &&
+            dtoInput.isTwoFactorAuthRequired !== user.isTwoFactorAuthRequired
+        ) {
+            rejectedProperties.push('isTwoFactorAuthRequired');
+        }
+
         return rejectedProperties;
+    }
+
+    /** True when the command would not change any property, so no request needs to reach BeyondTrust. */
+    private static hasNoChanges(command: ModifyUserCommand): boolean {
+        return [
+            command.publicDisplayName,
+            command.username,
+            command.password,
+            command.passwordExpirationDate,
+            command.email,
+            command.preferredEmailLanguage,
+            command.isTwoFactorAuthRequired,
+            command.isLoginAllowed,
+            command.failedLoginAttempts,
+            command.mustResetPasswordOnNextLogin,
+        ].every((value) => value === undefined);
     }
 
     @Get(':id')
@@ -210,8 +234,9 @@ export class UserController {
         @Body(new NonEmptyBodyPipe()) dtoInput: ModifyUserDtoInput,
     ): Promise<UserModifiedDtoOutput> {
         const userToModify = await this.loadUser(transactionId, tenantId, id);
+        const isExternalUser = this.isExternalUser(userToModify);
 
-        if (this.isExternalUser(userToModify)) {
+        if (isExternalUser) {
             const rejectedProperties = this.findRejectedLocalOnlyProperties(dtoInput, userToModify);
 
             if (rejectedProperties.length > 0) {
@@ -219,23 +244,30 @@ export class UserController {
             }
         }
 
-        const result = await this.commandBus.execute<ModifyUserCommand, User>(
-            new ModifyUserCommand(
-                transactionId,
-                tenantId,
-                id,
-                dtoInput.publicDisplayName,
-                dtoInput.username,
-                dtoInput.password,
-                dtoInput.passwordExpirationDate,
-                dtoInput.email,
-                dtoInput.preferredEmailLanguage,
-                dtoInput.isTwoFactorAuthRequired,
-                dtoInput.isLoginAllowed,
-                dtoInput.failedLoginAttempts,
-                dtoInput.mustResetPasswordOnNextLogin || dtoInput.regeneratePassword,
-            ),
+        // EXT-05: local-only properties that arrived unchanged are not forwarded for a non-local user. BeyondTrust
+        // treats them as read-only (username) or local-only (password, 2FA, failed logins, reset flag), and sending
+        // them can make the whole update fail even though nothing was meant to change.
+        const command = new ModifyUserCommand(
+            transactionId,
+            tenantId,
+            id,
+            dtoInput.publicDisplayName,
+            isExternalUser ? undefined : dtoInput.username,
+            isExternalUser ? undefined : dtoInput.password,
+            isExternalUser ? undefined : dtoInput.passwordExpirationDate,
+            dtoInput.email,
+            dtoInput.preferredEmailLanguage,
+            isExternalUser ? undefined : dtoInput.isTwoFactorAuthRequired,
+            dtoInput.isLoginAllowed,
+            isExternalUser ? undefined : dtoInput.failedLoginAttempts,
+            isExternalUser ? undefined : dtoInput.mustResetPasswordOnNextLogin || dtoInput.regeneratePassword,
         );
+
+        if (isExternalUser && UserController.hasNoChanges(command)) {
+            return userToModify;
+        }
+
+        const result = await this.commandBus.execute<ModifyUserCommand, User>(command);
 
         return result;
     }

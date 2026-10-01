@@ -166,6 +166,63 @@ describe('UserController', () => {
             expect(commandBusExecuteSpy).toHaveBeenCalled();
         });
 
+        it('should not forward unchanged local-only properties of a non-local user (EXT-05)', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue({
+                securityProviderId: 7,
+                username: 'existing-username',
+            } as User);
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue({} as User);
+
+            await controller.modifyUser('uuid-100', 123, 1, {
+                publicDisplayName: 'New Display Name',
+                username: 'existing-username',
+                email: 'user@example.com',
+                regeneratePassword: false,
+            });
+
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(
+                new ModifyUserCommand(
+                    'uuid-100',
+                    123,
+                    1,
+                    'New Display Name',
+                    undefined,
+                    undefined,
+                    undefined,
+                    'user@example.com',
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                ),
+            );
+        });
+
+        it('should not call BeyondTrust when nothing but unchanged local-only properties remain', async () => {
+            const existingUser = { securityProviderId: 7, username: 'existing-username' } as User;
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingUser);
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            const result = await controller.modifyUser('uuid-100', 123, 1, {
+                username: 'existing-username',
+                regeneratePassword: false,
+            });
+
+            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+            expect(result).toBe(existingUser);
+        });
+
+        it('should refuse to change the two-factor requirement of a non-local user', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue({ securityProviderId: 7 } as User);
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            await expect(controller.modifyUser('uuid-100', 123, 1, { isTwoFactorAuthRequired: true })).rejects.toThrow(
+                NonLocalUserModificationException,
+            );
+            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+        });
+
         it('should refuse a password regeneration on a non-local user', async () => {
             jest.spyOn(queryBus, 'execute').mockResolvedValue({
                 securityProviderId: 7,
