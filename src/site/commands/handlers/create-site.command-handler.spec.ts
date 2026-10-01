@@ -416,6 +416,111 @@ describe('CreateSiteCommandHandler', () => {
             });
         });
 
+        describe('omitted role lists (EXT-08)', () => {
+            const customer = {
+                name: 'customer-name-1',
+                businessUnit: BusinessUnit.EG,
+                beyondtrustInstanceId: 1,
+            } as Customer;
+            const existingSite = {
+                id: 10,
+                key: 'site-key-1',
+                name: 'site-name-1',
+                siteManagers: [{ id: 100, userId: 1, username: 'manager-email', email: 'manager-email' }],
+                siteAuditors: [
+                    {
+                        id: 200,
+                        userId: 2,
+                        username: 'auditor@example.com',
+                        email: 'auditor@example.com',
+                        isAdminOperator: false,
+                    },
+                ],
+                siteApprovers: [{ id: 300, email: 'approver@example.com' }],
+                siteSupportTeamMembers: [{ id: 400, userId: 3, email: 'member@example.com', supportTeamName: 'TEAM' }],
+            } as unknown as Site;
+
+            beforeEach(() => {
+                jest.spyOn(queryBus, 'execute')
+                    .mockReset()
+                    .mockResolvedValueOnce([existingSite]) // getSiteByKey
+                    .mockResolvedValueOnce([customer]) // getCustomer
+                    .mockResolvedValue(existingSite); // getSiteById
+            });
+
+            it('should keep auditors, support team members and approvers of an existing site when their lists are omitted', async () => {
+                const getOrCreate = jest.spyOn(SiteWorkflow.prototype, 'getOrCreate').mockResolvedValue({
+                    ...TestHelper.mockedSiteWorkflowResult,
+                    siteAuditors: [],
+                    siteSupportTeamMembers: [],
+                    errorReport: new ErrorReport(),
+                });
+                const auditorDelete = jest.fn();
+                const memberDelete = jest.fn();
+                jest.spyOn(WorkflowFactory, 'create').mockReturnValue({
+                    createSiteManagerWorkflow: () => ({ delete: jest.fn() }),
+                    createSiteAuditorWorkflow: () => ({ delete: auditorDelete }),
+                    createSiteSupportTeamMemberWorkflow: () => ({ delete: memberDelete }),
+                } as unknown as WorkflowFactory);
+                const update = jest.spyOn(siteRepositoryService, 'update');
+
+                await handler.execute(
+                    new CreateSiteCommand(
+                        'transaction-1',
+                        'site-key-1',
+                        'site-name-1',
+                        'customer-key-1',
+                        [],
+                        undefined,
+                        undefined,
+                        undefined,
+                    ),
+                );
+
+                expect(getOrCreate).toHaveBeenCalled();
+                expect(auditorDelete).not.toHaveBeenCalled();
+                expect(memberDelete).not.toHaveBeenCalled();
+                const persisted = update.mock.calls[0]?.[0];
+                expect(persisted?.siteAuditors.map((auditor) => auditor.email)).toEqual(['auditor@example.com']);
+                expect(persisted?.siteSupportTeamMembers.map((member) => member.email)).toEqual(['member@example.com']);
+                expect(persisted?.siteApprovers.map((approver) => approver.email)).toEqual(['approver@example.com']);
+            });
+
+            it('should still remove everything for an explicitly empty list', async () => {
+                jest.spyOn(SiteWorkflow.prototype, 'getOrCreate').mockResolvedValue({
+                    ...TestHelper.mockedSiteWorkflowResult,
+                    siteAuditors: [],
+                    siteSupportTeamMembers: [],
+                    errorReport: new ErrorReport(),
+                });
+                const auditorDelete = jest.fn().mockResolvedValue(undefined);
+                jest.spyOn(WorkflowFactory, 'create').mockReturnValue({
+                    createSiteManagerWorkflow: () => ({ delete: jest.fn() }),
+                    createSiteAuditorWorkflow: () => ({ delete: auditorDelete }),
+                    createSiteSupportTeamMemberWorkflow: () => ({ delete: jest.fn().mockResolvedValue(undefined) }),
+                } as unknown as WorkflowFactory);
+                const update = jest.spyOn(siteRepositoryService, 'update');
+
+                await handler.execute(
+                    new CreateSiteCommand(
+                        'transaction-1',
+                        'site-key-1',
+                        'site-name-1',
+                        'customer-key-1',
+                        [],
+                        [],
+                        [],
+                        [],
+                    ),
+                );
+
+                expect(auditorDelete).toHaveBeenCalledTimes(1);
+                const persisted = update.mock.calls[0]?.[0];
+                expect(persisted?.siteAuditors).toEqual([]);
+                expect(persisted?.siteApprovers).toEqual([]);
+            });
+        });
+
         it('should throw ConflictException if a site with the same name already exists', async () => {
             // Arrange
             const existingSite = { id: 1, key: 'site-key-1', name: 'site-name-1' } as SiteEntity;

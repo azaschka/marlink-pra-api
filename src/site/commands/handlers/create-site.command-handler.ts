@@ -52,7 +52,16 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
 
         const customer = await this.getCustomer(command.transactionId, command.customerKey);
 
-        const partialSiteApprovers = command.siteApproverEmails.map((email) => ({ email }));
+        // EXT-08: an omitted list keeps what the existing site has; it never means "remove everything".
+        const partialSiteApprovers = (
+            command.siteApproverEmails ??
+            existingSite?.siteApprovers.map((approver) => approver.email) ??
+            []
+        ).map((email) => ({ email }));
+        const keepExisting = {
+            siteAuditors: existingSite !== null && command.siteAuditors === undefined,
+            siteSupportTeamMembers: existingSite !== null && command.siteSupportTeamMembers === undefined,
+        };
 
         // SiteWorkflow.getOrCreate() is fully idempotent: it creates BeyondTrust
         // users/group-policies/jump-policies only if they don't exist yet.
@@ -61,8 +70,8 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             command.name,
             command.key,
             command.siteManagers,
-            command.siteAuditors,
-            command.siteSupportTeamMembers,
+            command.siteAuditors ?? [],
+            command.siteSupportTeamMembers ?? [],
             partialSiteApprovers,
             customer.name,
             customer.businessUnit,
@@ -96,9 +105,17 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         }
 
         // ── Existing site path ───────────────────────────────────────────────
-        // Rows that are kept as they are: users that could not be processed in this run. Not resolvable is not the
-        // same as removed from the ingestion data.
-        const keptEmails = siteWorkflowResult.unresolvedEmails;
+        // Rows that are kept as they are: users that could not be processed in this run (not resolvable is not the
+        // same as removed from the ingestion data), and every row of a role whose list was omitted from the request.
+        const keptEmails = {
+            siteManagers: siteWorkflowResult.unresolvedEmails.siteManagers,
+            siteAuditors: keepExisting.siteAuditors
+                ? existingSite.siteAuditors.map((siteAuditor) => siteAuditor.email)
+                : siteWorkflowResult.unresolvedEmails.siteAuditors,
+            siteSupportTeamMembers: keepExisting.siteSupportTeamMembers
+                ? existingSite.siteSupportTeamMembers.map((member) => member.email)
+                : siteWorkflowResult.unresolvedEmails.siteSupportTeamMembers,
+        };
 
         // EXT-01: the minimum is checked against the site as it will be after this run, before anything is removed.
         // Checking it per removal against the stored rows rejected the replacement of the only site manager and

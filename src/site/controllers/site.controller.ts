@@ -88,9 +88,10 @@ export class SiteController {
                 dtoInput.name,
                 dtoInput.customerKey,
                 dtoInput.siteManagers,
-                dtoInput.siteAuditors ?? [],
-                dtoInput.siteSupportTeamMembers ?? [],
-                dtoInput.siteApprovers ?? [],
+                // EXT-08: an omitted list keeps the existing entries of an existing site; [] removes them.
+                dtoInput.siteAuditors,
+                dtoInput.siteSupportTeamMembers,
+                dtoInput.siteApprovers,
             ),
         );
 

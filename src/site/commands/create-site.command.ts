@@ -9,8 +9,12 @@ export class CreateSiteCommand {
         public readonly name: string,
         public readonly customerKey: string,
         public readonly siteManagers: PartialSiteManager[],
-        public readonly siteAuditors: PartialSiteAuditor[],
-        public readonly siteSupportTeamMembers: PartialSiteSupportTeamMember[],
-        public readonly siteApproverEmails: string[],
+        /**
+         * Omitted (undefined) means "leave the existing site auditors unchanged"; an empty list removes them all.
+         * The same applies to support team members and approver emails (EXT-08).
+         */
+        public readonly siteAuditors: PartialSiteAuditor[] | undefined,
+        public readonly siteSupportTeamMembers: PartialSiteSupportTeamMember[] | undefined,
+        public readonly siteApproverEmails: string[] | undefined,
     ) {}
 }
