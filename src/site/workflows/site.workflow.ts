@@ -39,7 +39,7 @@ import { SiteAuditorWorkflow } from './site-auditor.workflow';
 import { SiteManagerWorkflow } from './site-manager.workflow';
 import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workflow';
 import { TeamWorkflow } from './teams';
-import { SiteManagerUserWorkflow } from './users';
+import { RemovedSiteRole, SiteManagerUserWorkflow } from './users';
 
 export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorReport> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
@@ -468,9 +468,29 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
             const marlinkOperatorGroupPolicy = await this.marlinkOperatorGroupPolicyWorkflow.getOrCreate();
             const marlinkSuperuserGroupPolicy = await this.marlinkSuperuserGroupPolicyWorkflow.getOrCreate();
 
+            // Every user row of the site goes away together, so none of them counts as a remaining role of an
+            // account that holds several roles on this site (EXT-03).
+            const removedTogether: RemovedSiteRole[] = [
+                ...this.siteManagers.map((row) => ({
+                    siteUserType: SiteUserType.SiteManager,
+                    id: row.id,
+                    siteId: row.siteId,
+                })),
+                ...this.siteAuditors.map((row) => ({
+                    siteUserType: SiteUserType.SiteAuditor,
+                    id: row.id,
+                    siteId: row.siteId,
+                })),
+                ...this.siteSupportTeamMembers.map((row) => ({
+                    siteUserType: SiteUserType.SiteSupportTeamMember,
+                    id: row.id,
+                    siteId: row.siteId,
+                })),
+            ];
+
             for (const [index, siteManagerWorkflow] of this.siteManagerWorkflows.entries()) {
                 try {
-                    await siteManagerWorkflow.delete();
+                    await siteManagerWorkflow.delete(removedTogether);
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site manager workflow:`, error);
                     errorReport.add(error, {
@@ -483,7 +503,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
 
             for (const [index, siteAuditorWorkflow] of this.siteAuditorWorkflows.entries()) {
                 try {
-                    await siteAuditorWorkflow.delete();
+                    await siteAuditorWorkflow.delete(removedTogether);
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site auditor workflow:`, error);
                     errorReport.add(error, {
@@ -496,7 +516,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
 
             for (const [index, siteSupportTeamMemberWorkflow] of this.siteSupportTeamMemberWorkflows.entries()) {
                 try {
-                    await siteSupportTeamMemberWorkflow.delete();
+                    await siteSupportTeamMemberWorkflow.delete(removedTogether);
                 } catch (error) {
                     console.error(`[${this.transactionId}] Failed to delete site support team member workflow:`, error);
                     errorReport.add(error, {

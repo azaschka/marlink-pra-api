@@ -28,6 +28,7 @@ import { SiteRepositoryService } from '../../repositories/services/site-reposito
 import { SiteWorkflow } from '../../workflows';
 import { CreateSiteCommand } from '../create-site.command';
 import { WorkflowFactory } from '../../workflows/factories';
+import { RemovedSiteRole } from '../../workflows/users';
 import { SiteUserType } from '../../enums';
 
 @CommandHandler(CreateSiteCommand)
@@ -280,6 +281,25 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
             siteAuditors: [] as string[],
             siteSupportTeamMembers: [] as string[],
         };
+        // Users that left the ingestion data in this run go away together; a person removed from two roles at
+        // once must not keep the shared memberships or the account because of the other removed role (EXT-03).
+        const removedTogether: RemovedSiteRole[] = [
+            ...removed.siteManagers.map((row) => ({
+                siteUserType: SiteUserType.SiteManager,
+                id: row.id,
+                siteId: row.siteId,
+            })),
+            ...removed.siteAuditors.map((row) => ({
+                siteUserType: SiteUserType.SiteAuditor,
+                id: row.id,
+                siteId: row.siteId,
+            })),
+            ...removed.siteSupportTeamMembers.map((row) => ({
+                siteUserType: SiteUserType.SiteSupportTeamMember,
+                id: row.id,
+                siteId: row.siteId,
+            })),
+        ];
         const workflowFactory = WorkflowFactory.create(
             this.appConfigService,
             this.queryBus,
@@ -307,16 +327,16 @@ export class CreateSiteCommandHandler implements ICommandHandler<CreateSiteComma
         };
 
         await removeEach(removed.siteManagers, SiteUserType.SiteManager, failedEmails.siteManagers, (siteManager) =>
-            workflowFactory.createSiteManagerWorkflow(siteManager).delete(),
+            workflowFactory.createSiteManagerWorkflow(siteManager).delete(removedTogether),
         );
         await removeEach(removed.siteAuditors, SiteUserType.SiteAuditor, failedEmails.siteAuditors, (siteAuditor) =>
-            workflowFactory.createSiteAuditorWorkflow(siteAuditor).delete(),
+            workflowFactory.createSiteAuditorWorkflow(siteAuditor).delete(removedTogether),
         );
         await removeEach(
             removed.siteSupportTeamMembers,
             SiteUserType.SiteSupportTeamMember,
             failedEmails.siteSupportTeamMembers,
-            (member) => workflowFactory.createSiteSupportTeamMemberWorkflow(member).delete(),
+            (member) => workflowFactory.createSiteSupportTeamMemberWorkflow(member).delete(removedTogether),
         );
 
         return { errorReport, failedEmails };
