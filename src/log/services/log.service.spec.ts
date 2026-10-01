@@ -166,6 +166,43 @@ describe('LogService', () => {
         expect(enqueue).not.toHaveBeenCalled();
     });
 
+    it('should redact secrets in command payloads at any depth', () => {
+        const enqueue = jest.spyOn(logWriterService, 'enqueue');
+
+        logService.logCommand({
+            commandType: 'create-beyondtrust-instance',
+            transactionId: 'transaction-1',
+            authClientId: 'client-id',
+            authClientSecret: 'super-secret',
+            nested: { password: 'p4ss', accessToken: 'token-value', tokenType: 'Bearer' },
+        } as unknown as BaseCommand);
+
+        const entry = enqueue.mock.calls[0]?.[0] as LogEntity;
+        expect(entry.payload).not.toContain('super-secret');
+        expect(entry.payload).not.toContain('p4ss');
+        expect(entry.payload).not.toContain('token-value');
+        expect(JSON.parse(entry.payload)).toMatchObject({
+            authClientId: 'client-id',
+            authClientSecret: '[REDACTED]',
+            nested: { password: '[REDACTED]', accessToken: '[REDACTED]', tokenType: 'Bearer' },
+        });
+    });
+
+    it('should redact secrets in event payloads', () => {
+        const enqueue = jest.spyOn(logWriterService, 'enqueue');
+
+        logService.logEvent({
+            eventType: 'beyondtrust-instance-created',
+            transactionId: 'transaction-1',
+            eventTime: '2025-01-01T00:00:00Z',
+            payload: { beyondtrustInstance: { id: 1, authClientSecret: 'super-secret' } },
+        } as unknown as BaseEvent);
+
+        const entry = enqueue.mock.calls[0]?.[0] as LogEntity;
+        expect(entry.payload).not.toContain('super-secret');
+        expect(JSON.parse(entry.payload)).toEqual({ beyondtrustInstance: { id: 1, authClientSecret: '[REDACTED]' } });
+    });
+
     it('should retrieve logs', async () => {
         const expectedResults = [{ id: 1 } as LogEntity];
         const logRepositoryServiceFindByDateBetweenMethod = jest

@@ -19,6 +19,23 @@ export class LogService {
     // Column limits of pra_logs. Entries are truncated instead of being rejected by the database.
     private static readonly ACTION_NAME_MAX_LENGTH = 255;
     private static readonly TRUNCATION_MARKER = '…[truncated]';
+    private static readonly REDACTED = '[REDACTED]';
+    // Keys whose values never reach the system log (compared case-insensitively, exact key match).
+    private static readonly SECRET_KEYS: ReadonlySet<string> = new Set([
+        'password',
+        'newpassword',
+        'oldpassword',
+        'currentpassword',
+        'authclientsecret',
+        'clientsecret',
+        'secret',
+        'accesstoken',
+        'refreshtoken',
+        'token',
+        'apikey',
+        'x-api-key',
+        'authorization',
+    ]);
 
     constructor(
         private readonly logRepositoryService: LogRepositoryService,
@@ -166,10 +183,20 @@ export class LogService {
             transactionId,
             initiatedBy,
             creationDate,
-            LogService.truncateBytes(
-                typeof payload === 'string' ? payload : JSON.stringify(payload),
-                DefaultAppConfig.logPayloadMaxBytes,
-            ),
+            LogService.truncateBytes(LogService.serialize(payload), DefaultAppConfig.logPayloadMaxBytes),
+        );
+    }
+
+    // Pre-serialised strings are stored as given; objects are serialised with secrets redacted.
+    private static serialize(payload: unknown): string {
+        if (typeof payload === 'string') {
+            return payload;
+        }
+
+        return JSON.stringify(payload, (key: string, value: unknown) =>
+            value !== undefined && value !== null && LogService.SECRET_KEYS.has(key.toLowerCase())
+                ? LogService.REDACTED
+                : value,
         );
     }
 
