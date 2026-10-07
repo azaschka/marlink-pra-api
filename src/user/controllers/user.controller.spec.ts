@@ -3,7 +3,7 @@ import { AppConfigService } from '../../app-config/services/app-config.service';
 import { UuidUtility } from '../../shared/utilities';
 import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../commands';
 import { UserSourceType } from '../enums';
-import { NonLocalUserDeletionException, NonLocalUserModificationException } from '../exceptions';
+import { NonLocalUserModificationException } from '../exceptions';
 import { User } from '../models';
 import { RetrieveUserByIdQuery, RetrieveUsersQuery } from '../queries';
 import { UserController } from './user.controller';
@@ -241,12 +241,24 @@ describe('UserController', () => {
     });
 
     describe('deleteUser', () => {
-        it('should refuse to delete a non-local user', async () => {
-            jest.spyOn(queryBus, 'execute').mockResolvedValue({ securityProviderId: 7 } as User);
+        it('should delete a non-local user like a local one, without looking the account up first', async () => {
+            const queryBusExecuteSpy = jest
+                .spyOn(queryBus, 'execute')
+                .mockResolvedValue({ securityProviderId: 7 } as User);
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
 
-            await expect(controller.deleteUser(undefined, 123, 1)).rejects.toThrow(NonLocalUserDeletionException);
-            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+            await controller.deleteUser('uuid-100', 123, 1);
+
+            expect(commandBusExecuteSpy).toHaveBeenCalledTimes(1);
+            expect(commandBusExecuteSpy).toHaveBeenCalledWith(new DeleteUserCommand('uuid-100', 123, 1));
+            expect(queryBusExecuteSpy).not.toHaveBeenCalled();
+        });
+
+        it('should pass a failed deletion on to the caller', async () => {
+            const failure = new Error('BeyondTrust refused to delete the user');
+            jest.spyOn(commandBus, 'execute').mockRejectedValue(failure);
+
+            await expect(controller.deleteUser('uuid-100', 123, 1)).rejects.toBe(failure);
         });
 
         it('should execute the command bus with the correct parameters', async () => {

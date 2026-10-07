@@ -41,7 +41,7 @@ import { CreateUserCommand, DeleteUserCommand, ModifyUserCommand } from '../comm
 import { CreateUserDtoInput, ModifyUserDtoInput, RetrieveUsersDtoInput } from '../dtos/inputs';
 import { UserCreatedDtoOutput, UserModifiedDtoOutput, UserRetrievedDtoOutput } from '../dtos/outputs';
 import { UserSourceType } from '../enums';
-import { NonLocalUserDeletionException, NonLocalUserModificationException } from '../exceptions';
+import { NonLocalUserModificationException } from '../exceptions';
 import { User } from '../models';
 import { UserSourceUtility } from '../utilities';
 import { UserRequestPipe } from '../pipes';
@@ -286,10 +286,8 @@ export class UserController {
         @TenantIdHeader() tenantId: number,
         @Param('id') id: number,
     ): Promise<void> {
-        if (this.isExternalUser(await this.loadUser(transactionId, tenantId, id))) {
-            throw new NonLocalUserDeletionException(id);
-        }
-
+        // R3.2-A004: local and non-local accounts are deleted alike. BeyondTrust creates a non-local account again
+        // at the user's next login through the identity provider, without the direct memberships it had.
         await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(transactionId, tenantId, id));
     }
 }

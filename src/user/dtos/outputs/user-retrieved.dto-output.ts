@@ -38,7 +38,8 @@ export class UserRetrievedDtoOutput implements User {
         enum: UserSourceType,
         description:
             'Whether the account is local or provisioned by an external identity provider. Derived from the ' +
-            'security provider: a non-local account cannot be deleted here and several properties are read-only on it.',
+            'security provider: several properties are read-only on a non-local account, and BeyondTrust creates a ' +
+            'deleted non-local account again at the next login through the identity provider.',
     })
     public sourceType!: UserSourceType;
 
