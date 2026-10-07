@@ -125,6 +125,11 @@ export class SiteUserReferences {
         private readonly beyondtrustInstanceId: number,
     ) {}
 
+    /** Every site role the account holds on this BeyondTrust instance. */
+    public async roles(userId: number): Promise<RemainingSiteRole[]> {
+        return await this.collectRoles(userId, () => false);
+    }
+
     /**
      * @param removed the role row being removed
      * @param removedTogether rows removed in the same operation (all rows of a deleted site, every row that left the
@@ -134,6 +139,20 @@ export class SiteUserReferences {
         userId: number,
         removed: RemovedSiteRole,
         removedTogether: RemovedSiteRole[] = [],
+    ): Promise<RemainingSiteRole[]> {
+        return await this.collectRoles(
+            userId,
+            (siteUserType, row) =>
+                SiteUserReferences.isRemovedRow(siteUserType, row, removed) ||
+                removedTogether.some(
+                    (other) => other.id !== undefined && SiteUserReferences.isRemovedRow(siteUserType, row, other),
+                ),
+        );
+    }
+
+    private async collectRoles(
+        userId: number,
+        isExcluded: (siteUserType: SiteUserType, row: { id: number; siteId: number }) => boolean,
     ): Promise<RemainingSiteRole[]> {
         const [siteManagers, siteAuditors, siteSupportTeamMembers] = await Promise.all([
             this.queryAll<SiteManager>((pageNumber) =>
@@ -177,12 +196,7 @@ export class SiteUserReferences {
         const remaining: RemainingSiteRole[] = [];
 
         for (const { siteUserType, row } of rows) {
-            if (
-                SiteUserReferences.isRemovedRow(siteUserType, row, removed) ||
-                removedTogether.some(
-                    (other) => other.id !== undefined && SiteUserReferences.isRemovedRow(siteUserType, row, other),
-                )
-            ) {
+            if (isExcluded(siteUserType, row)) {
                 continue;
             }
 

@@ -8,12 +8,14 @@ import { GroupPolicy } from '../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
 import { GroupPolicyMember } from '../../group-policy-member/models';
 import { RetrieveGroupPolicyMembersQuery } from '../../group-policy-member/queries/retrieve-group-policy-members.query';
+import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
-import { SiteAuditor } from '../../site/models';
-import { RetrieveSiteAuditorsByUserIdQuery } from '../../site/queries';
+import { SiteUserReferences } from '../../site/workflows/users/site-user-references';
 import { DeleteUserCommand } from '../../user/commands';
 
 export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolicy> {
+    private static readonly MAX_MEMBERS_RETRIEVED_PER_PAGE = 100;
+
     private get groupPolicyName(): string {
         return `${this.appConfigService.customer.groupPolicy.administratorPrefix}${this.customerName.toUpperCase()}`;
     }
@@ -67,26 +69,43 @@ export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolic
         }
     }
 
+    /**
+     * Deletes the BeyondTrust accounts, local and non-local, that are direct members of the customer's
+     * administrators group policy and hold no site role any more (EXT-19).
+     *
+     * An account is kept while it is a site manager, site auditor or site support team member of any site on the
+     * same BeyondTrust instance. Looking at auditor rows only, as before, deleted accounts that were still in use
+     * in another role. Members that are identity provider groups carry no user id and are left alone.
+     */
     private async deleteOrphanedUsers(groupPolicyId: number): Promise<void> {
-        const members = await this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
-            new RetrieveGroupPolicyMembersQuery(
-                this.transactionId,
-                this.customerBeyondTrustInstanceId,
-                100,
-                1,
-                groupPolicyId,
+        const members = await PaginationUtility.queryUntilLastPage<GroupPolicyMember>((pageNumber) =>
+            this.queryBus.execute<RetrieveGroupPolicyMembersQuery, GroupPolicyMember[]>(
+                new RetrieveGroupPolicyMembersQuery(
+                    this.transactionId,
+                    this.customerBeyondTrustInstanceId,
+                    AdministratorGroupPolicyWorkflow.MAX_MEMBERS_RETRIEVED_PER_PAGE,
+                    pageNumber,
+                    groupPolicyId,
+                ),
             ),
+        );
+        const siteUserReferences = new SiteUserReferences(
+            this.queryBus,
+            this.transactionId,
+            this.customerBeyondTrustInstanceId,
         );
 
         for (const member of members) {
-            try {
-                const siteAuditors = await this.queryBus.execute<RetrieveSiteAuditorsByUserIdQuery, SiteAuditor[]>(
-                    new RetrieveSiteAuditorsByUserIdQuery(this.transactionId, 1, 1, member.userId),
-                );
+            if (member.userId === undefined || member.userId === null) {
+                continue;
+            }
 
-                if (siteAuditors.length > 0) {
+            try {
+                const siteRoles = await siteUserReferences.roles(member.userId);
+
+                if (siteRoles.length > 0) {
                     console.log(
-                        `[${this.transactionId}] User ${member.userId} still associated with ${siteAuditors.length} site(s) - skipping deletion`,
+                        `[${this.transactionId}] User ${member.userId} still holds ${siteRoles.length} site role(s) - skipping deletion`,
                     );
                     continue;
                 }

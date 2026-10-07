@@ -159,4 +159,27 @@ describe('SiteUserReferences (EXT-03)', () => {
 
         expect(remaining.length).toBe(1);
     });
+
+    it('should list every role of the account on this instance when nothing is being removed (EXT-19)', async () => {
+        const queryBus = mockQueryBus({
+            managers: [
+                { id: 1, siteId: 10, userId: 7 },
+                { id: 4, siteId: 11, userId: 7 },
+            ],
+            auditors: [{ id: 2, siteId: 10, userId: 7, isAdminOperator: false }],
+            members: [{ id: 3, siteId: 10, userId: 7, supportTeamName: 'TEAM_A' }],
+        });
+
+        const roles = await new SiteUserReferences(queryBus, 'tx', 1).roles(7);
+
+        expect(roles.map((role) => role.siteUserType)).toEqual([
+            SiteUserType.SiteManager,
+            SiteUserType.SiteAuditor,
+            SiteUserType.SiteSupportTeamMember,
+        ]);
+    });
+
+    it('should list no role for an account without site rows', async () => {
+        expect(await new SiteUserReferences(mockQueryBus({}), 'tx', 1).roles(7)).toEqual([]);
+    });
 });
