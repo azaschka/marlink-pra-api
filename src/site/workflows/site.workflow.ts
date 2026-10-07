@@ -16,8 +16,10 @@ import { GroupPolicyTeam } from '../../group-policy-team/models';
 import { RetrieveGroupPolicyTeamsQuery } from '../../group-policy-team/queries';
 import { PaginationUtility } from '../../shared/utilities';
 import { BaseWorkflow } from '../../shared/workflows';
+import { UserSourceType } from '../../user/enums';
 import { SiteUserType } from '../enums';
 import { ErrorReport } from '../error-reports';
+import { BuSamlDefaultGroupPolicyNotFoundException } from '../exceptions';
 import {
     PartialSiteApprover,
     PartialSiteAuditor,
@@ -27,6 +29,7 @@ import {
 } from '../models';
 import {
     AdministratorGroupPolicyWorkflow,
+    BuSamlDefaultGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
     MarlinkOperatorGroupPolicyWorkflow,
@@ -59,6 +62,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
     private readonly marlinkOperatorGroupPolicyWorkflow: MarlinkOperatorGroupPolicyWorkflow;
     private readonly marlinkSuperuserGroupPolicyWorkflow: MarlinkSuperuserGroupPolicyWorkflow;
     private readonly buSupportGroupPolicyWorkflow: BuSupportGroupPolicyWorkflow;
+    private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow;
 
     constructor(
         private readonly appConfigService: AppConfigService,
@@ -187,6 +191,13 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
             this.customerBeyondtrustInstanceId,
         );
 
+        this.buSamlDefaultGroupPolicyWorkflow = new BuSamlDefaultGroupPolicyWorkflow(
+            this.queryBus,
+            this.transactionId,
+            this.customerBusinessUnit,
+            this.customerBeyondtrustInstanceId,
+        );
+
         this.siteManagerUserWorkflows = this.siteManagers.map(
             (siteManager) =>
                 new SiteManagerUserWorkflow(
@@ -213,6 +224,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.managerGroupPolicyWorkflow,
                     this.authJumpPolicyWorkflow,
                     this.notifyJumpPolicyWorkflow,
+                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
 
@@ -228,6 +240,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.customerBeyondtrustInstanceId,
                     this.administratorGroupPolicyWorkflow,
                     this.operatorGroupPolicyWorkflow,
+                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
 
@@ -245,6 +258,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.operatorGroupPolicyWorkflow,
                     this.jumpointsWorkflow,
                     this.buSupportGroupPolicyWorkflow,
+                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
     }
@@ -352,6 +366,8 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                 }
             }
         }
+
+        await this.reportMissingBuSamlDefaultGroupPolicy(siteWorkflowResult.errorReport);
 
         // add team to manager group policy as manager
         // add team to operator group policy as member
@@ -630,6 +646,43 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
         }
 
         return errorReport;
+    }
+
+    /**
+     * EXT-21: external site users are added to the SAML default policy of the customer's Business Unit. The policy
+     * is created manually in BeyondTrust. When it is missing, the users are processed without it, and the gap is
+     * reported once per run so that it does not go unnoticed. A failed lookup is not reported here: it already
+     * failed the external users individually.
+     */
+    private async reportMissingBuSamlDefaultGroupPolicy(errorReport: ErrorReport): Promise<void> {
+        const hasExternalUser = [...this.siteManagers, ...this.siteAuditors, ...this.siteSupportTeamMembers].some(
+            (siteUser) => siteUser.sourceType === UserSourceType.External,
+        );
+
+        if (!hasExternalUser) {
+            return;
+        }
+
+        try {
+            if (await this.buSamlDefaultGroupPolicyWorkflow.get()) {
+                return;
+            }
+        } catch (error) {
+            console.error(`[${this.transactionId}] Failed to look up the BU SAML default group policy:`, error);
+
+            return;
+        }
+
+        console.warn(
+            `[${this.transactionId}] BU SAML default group policy "${this.buSamlDefaultGroupPolicyWorkflow.groupPolicyName}" not found on instance ${this.customerBeyondtrustInstanceId}. External users were processed without it.`,
+        );
+        errorReport.add(
+            new BuSamlDefaultGroupPolicyNotFoundException(
+                this.buSamlDefaultGroupPolicyWorkflow.groupPolicyName,
+                this.customerBusinessUnit,
+                this.customerBeyondtrustInstanceId,
+            ),
+        );
     }
 
     private async getAllGroupPolicyTeams(groupPolicyId: number): Promise<GroupPolicyTeam[]> {

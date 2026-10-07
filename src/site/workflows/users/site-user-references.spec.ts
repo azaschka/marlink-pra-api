@@ -1,5 +1,7 @@
 import { QueryBus } from '@nestjs/cqrs';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
+import { UserSourceType } from '../../../user/enums';
 import { SiteSupportTeamAccessLevel, SiteUserType } from '../../enums';
 import {
     RetrieveSiteAuditorsByUserIdQuery,
@@ -84,10 +86,66 @@ describe('SiteGroupPolicyKeys.removable (EXT-03)', () => {
     });
 });
 
+describe('SiteGroupPolicyKeys for the BU SAML default policy (EXT-21)', () => {
+    const maritimeDefault: [string, number][] = [[SiteGroupPolicyKeys.buSamlDefault(BusinessUnit.MT), 30]];
+    const managerRole = (overrides: Partial<RemainingSiteRole>): RemainingSiteRole => ({
+        siteUserType: SiteUserType.SiteManager,
+        siteId: 11,
+        customerName: 'other',
+        ...overrides,
+    });
+
+    it('should keep the policy while an external role in the same Business Unit remains', () => {
+        const remaining = [managerRole({ sourceType: UserSourceType.External, businessUnit: BusinessUnit.MT })];
+
+        expect(SiteGroupPolicyKeys.removable(maritimeDefault, remaining)).toEqual([]);
+    });
+
+    it('should keep it for every role type of an external user', () => {
+        for (const siteUserType of [SiteUserType.SiteAuditor, SiteUserType.SiteSupportTeamMember]) {
+            const remaining = [
+                managerRole({
+                    siteUserType: siteUserType,
+                    sourceType: UserSourceType.External,
+                    businessUnit: BusinessUnit.MT,
+                }),
+            ];
+
+            expect(SiteGroupPolicyKeys.removable(maritimeDefault, remaining)).toEqual([]);
+        }
+    });
+
+    it('should remove the policy when the remaining external roles are in another Business Unit', () => {
+        const remaining = [managerRole({ sourceType: UserSourceType.External, businessUnit: BusinessUnit.OA })];
+
+        expect(SiteGroupPolicyKeys.removable(maritimeDefault, remaining)).toEqual([30]);
+    });
+
+    it('should not let a local role keep the policy', () => {
+        const remaining = [
+            managerRole({ sourceType: UserSourceType.Internal, businessUnit: BusinessUnit.MT }),
+            managerRole({ businessUnit: BusinessUnit.MT }),
+        ];
+
+        expect(SiteGroupPolicyKeys.removable(maritimeDefault, remaining)).toEqual([30]);
+    });
+
+    it('should keep the policy when the Business Unit of a remaining external role is unknown (fail-safe)', () => {
+        const remaining = [managerRole({ sourceType: UserSourceType.External, businessUnit: undefined })];
+
+        expect(SiteGroupPolicyKeys.removable(maritimeDefault, remaining)).toEqual([]);
+    });
+
+    it('should offer the policy for removal only when it exists', () => {
+        expect(SiteGroupPolicyKeys.buSamlDefaultCandidate(BusinessUnit.MT, { id: 30 })).toEqual(maritimeDefault);
+        expect(SiteGroupPolicyKeys.buSamlDefaultCandidate(BusinessUnit.MT, null)).toEqual([]);
+    });
+});
+
 describe('SiteUserReferences (EXT-03)', () => {
     const SITES: Record<string, { customerKey: string }> = { s10: { customerKey: 'C1' }, s11: { customerKey: 'C2' } };
-    const CUSTOMERS: Record<string, { name: string; beyondtrustInstanceId: number }> = {
-        C1: { name: 'ACME', beyondtrustInstanceId: 1 },
+    const CUSTOMERS: Record<string, { name: string; beyondtrustInstanceId: number; businessUnit?: BusinessUnit }> = {
+        C1: { name: 'ACME', beyondtrustInstanceId: 1, businessUnit: BusinessUnit.TE },
         C2: { name: 'OTHER_TENANT', beyondtrustInstanceId: 2 },
     };
 
@@ -176,6 +234,20 @@ describe('SiteUserReferences (EXT-03)', () => {
             SiteUserType.SiteManager,
             SiteUserType.SiteAuditor,
             SiteUserType.SiteSupportTeamMember,
+        ]);
+    });
+
+    it('should report the source type of a role and the Business Unit of its customer (EXT-21)', async () => {
+        const queryBus = mockQueryBus({
+            managers: [{ id: 1, siteId: 10, userId: 7, sourceType: UserSourceType.External }],
+            auditors: [{ id: 2, siteId: 404, userId: 7, sourceType: UserSourceType.External }],
+        });
+
+        const roles = await new SiteUserReferences(queryBus, 'tx', 1).roles(7);
+
+        expect(roles).toEqual([
+            expect.objectContaining({ sourceType: UserSourceType.External, businessUnit: BusinessUnit.TE }),
+            expect.objectContaining({ sourceType: UserSourceType.External, businessUnit: undefined }),
         ]);
     });
 

@@ -8,6 +8,7 @@ import {
     AdminOperatorAccessGroupPolicyWorkflow,
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
+    BuSamlDefaultGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
     UserGroupPolicyAssignmentWorkflow,
@@ -31,6 +32,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         private readonly customerBeyondtrustInstanceId: number,
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
+        private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow,
     ) {
         this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
             this.queryBus,
@@ -105,6 +107,12 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         //   - ADMIN_OPERATOR_ACCESS       — global operator-level access policy (replaces ADMINISTRATOR_ACCESS)
         //   - OPERATOR_{CUSTOMER}         — customer-specific operator group policy
         //   - FULL_ACCESS                 — global full access policy
+        //
+        // External users of both kinds additionally (EXT-21):
+        //   - GP_{BU}_SAML_DEFAULT        — Business Unit default policy
+        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
+            this.siteAuditor.sourceType,
+        );
 
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteAuditor,
@@ -117,6 +125,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
                 this.siteAuditor.isAdminOperator ? adminOperatorAccessGroupPolicy.id : undefined,
                 this.siteAuditor.isAdminOperator ? operatorGroupPolicy.id : undefined,
                 this.siteAuditor.isAdminOperator ? fullAccessGroupPolicy.id : undefined,
+                buSamlDefaultGroupPolicy?.id,
             ].filter((id) => id !== undefined),
             [],
         );
@@ -169,8 +178,12 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
             removedTogether,
         );
 
+        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
+            this.siteAuditor.sourceType,
+        );
+
         // The same role-based policy split applies here as in getOrCreate(), see above for details.
-        const candidates: [string, number][] = this.siteAuditor.isAdminOperator
+        const roleCandidates: [string, number][] = this.siteAuditor.isAdminOperator
             ? [
                   [SiteGroupPolicyKeys.customerAdministrators(this.customerName), administratorGroupPolicy.id],
                   [SiteGroupPolicyKeys.ADMIN_OPERATOR_ACCESS, adminOperatorAccessGroupPolicy.id],
@@ -181,6 +194,13 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
                   [SiteGroupPolicyKeys.customerAdministrators(this.customerName), administratorGroupPolicy.id],
                   [SiteGroupPolicyKeys.ADMINISTRATOR_ACCESS, administratorAccessGroupPolicy.id],
               ];
+        const candidates: [string, number][] = [
+            ...roleCandidates,
+            ...SiteGroupPolicyKeys.buSamlDefaultCandidate(
+                this.buSamlDefaultGroupPolicyWorkflow.businessUnit,
+                buSamlDefaultGroupPolicy,
+            ),
+        ];
 
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteAuditor,

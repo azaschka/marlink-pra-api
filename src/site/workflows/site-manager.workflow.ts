@@ -8,6 +8,7 @@ import { SiteUserType } from '../enums';
 import { UserNotFoundException } from '../exceptions';
 import { PartialSiteManager, PartialSiteManagerWithUserId } from '../models';
 import {
+    BuSamlDefaultGroupPolicyWorkflow,
     ManagerAccessGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
     UserGroupPolicyAssignmentWorkflow,
@@ -31,6 +32,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow,
         private readonly authJumpPolicyWorkflow: AuthJumpPolicyWorkflow,
         private readonly notifyJumpPolicyWorkflow: NotifyJumpPolicyWorkflow,
+        private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow,
     ) {
         this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
             this.queryBus,
@@ -77,9 +79,14 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             );
         }
 
+        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
+            this.siteManager.sourceType,
+        );
+
         // Assign the site manager user to their group policies:
         //   - MANAGERS_{CUSTOMER}_{SITE}_{SITEKEY}  — site-specific manager group policy
         //   - MANAGER_ACCESS                        — global BeyondTrust manager access policy
+        //   - GP_{BU}_SAML_DEFAULT                  — Business Unit default policy, external users only (EXT-21)
         //
         // Additionally, the manager's email is registered as a notification recipient and approver
         // on the site's auth jump policy, and as a notification recipient on the notify jump policy.
@@ -88,7 +95,11 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             this.siteManager.sourceType,
             this.siteManager.email,
             siteManagerUser,
-            [managerGroupPolicy.id, managerAccessGroupPolicy.id],
+            [
+                managerGroupPolicy.id,
+                managerAccessGroupPolicy.id,
+                ...(buSamlDefaultGroupPolicy ? [buSamlDefaultGroupPolicy.id] : []),
+            ],
             [],
         );
 
@@ -146,6 +157,9 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
             },
             removedTogether,
         );
+        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
+            this.siteManager.sourceType,
+        );
 
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteManager,
@@ -157,6 +171,10 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
                 [
                     [SiteGroupPolicyKeys.siteManagers(this.siteManager.siteId), managerGroupPolicy.id],
                     [SiteGroupPolicyKeys.MANAGER_ACCESS, managerAccessGroupPolicy.id],
+                    ...SiteGroupPolicyKeys.buSamlDefaultCandidate(
+                        this.buSamlDefaultGroupPolicyWorkflow.businessUnit,
+                        buSamlDefaultGroupPolicy,
+                    ),
                 ],
                 remainingRoles,
             ),

@@ -1,7 +1,9 @@
 import { QueryBus } from '@nestjs/cqrs';
+import { BusinessUnit } from '../../../beyondtrust-instance/enums';
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { PaginationUtility } from '../../../shared/utilities';
+import { UserSourceType } from '../../../user/enums';
 import { SiteSupportTeamAccessLevel, SiteUserType } from '../../enums';
 import { Site, SiteAuditor, SiteManager, SiteSupportTeamMember } from '../../models';
 import {
@@ -19,6 +21,10 @@ export interface RemainingSiteRole {
     isAdminOperator?: boolean;
     supportTeamName?: string;
     supportTeamAccessLevel?: SiteSupportTeamAccessLevel;
+    /** Source type stored with the role row. */
+    sourceType?: UserSourceType;
+    /** Business Unit of the site's customer; undefined when the customer cannot be resolved. */
+    businessUnit?: BusinessUnit;
 }
 
 /** The role row that is being removed; it must not count as a remaining reference to itself. */
@@ -66,8 +72,43 @@ export abstract class SiteGroupPolicyKeys {
             : SiteGroupPolicyKeys.LIMITED_ACCESS;
     }
 
+    /** SAML default policy of a Business Unit, held by every external site user of that Business Unit (EXT-21). */
+    public static buSamlDefault(businessUnit: BusinessUnit): string {
+        return `SAML_DEFAULT@bu:${businessUnit}`;
+    }
+
+    /**
+     * Removal candidate for the SAML default policy of a role being removed: empty when the role's user is local
+     * or the policy does not exist, because no membership was created then.
+     */
+    public static buSamlDefaultCandidate(
+        businessUnit: BusinessUnit,
+        groupPolicy: { id: number } | null,
+    ): [key: string, groupPolicyId: number][] {
+        return groupPolicy ? [[SiteGroupPolicyKeys.buSamlDefault(businessUnit), groupPolicy.id]] : [];
+    }
+
     /** Keys of every group policy the given remaining role needs. */
     public static requiredBy(role: RemainingSiteRole): string[] {
+        return [...SiteGroupPolicyKeys.requiredByRoleType(role), ...SiteGroupPolicyKeys.requiredBySourceType(role)];
+    }
+
+    /**
+     * An external user keeps the SAML default policy of a Business Unit while it holds any role there. When the
+     * Business Unit of a remaining role is unknown, the default policy of every Business Unit counts as required:
+     * keeping a membership too long is recoverable, removing one that is still needed is not.
+     */
+    private static requiredBySourceType(role: RemainingSiteRole): string[] {
+        if (role.sourceType !== UserSourceType.External) {
+            return [];
+        }
+
+        const businessUnits = role.businessUnit ? [role.businessUnit] : Object.values(BusinessUnit);
+
+        return businessUnits.map((businessUnit) => SiteGroupPolicyKeys.buSamlDefault(businessUnit));
+    }
+
+    private static requiredByRoleType(role: RemainingSiteRole): string[] {
         switch (role.siteUserType) {
             case SiteUserType.SiteManager:
                 return [SiteGroupPolicyKeys.siteManagers(role.siteId), SiteGroupPolicyKeys.MANAGER_ACCESS];
@@ -215,6 +256,8 @@ export class SiteUserReferences {
                 isAdminOperator: (row as SiteAuditor).isAdminOperator,
                 supportTeamName: (row as SiteSupportTeamMember).supportTeamName,
                 supportTeamAccessLevel: (row as SiteSupportTeamMember).supportTeamAccessLevel,
+                sourceType: row.sourceType,
+                businessUnit: customer?.businessUnit,
             });
         }
 
