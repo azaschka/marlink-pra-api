@@ -2,7 +2,7 @@
 
 Management API of the Marlink PRA Platform (NestJS 11, TypeScript 5, CQRS, TypeORM, MariaDB). Public contract for the PRA Console and the SOC integration; delegates every BeyondTrust operation to pra-sync-api.
 
-Last reviewed: 2026-10-01
+Last reviewed: 2026-10-07
 
 ## Read first
 
@@ -29,7 +29,12 @@ Last reviewed: 2026-10-01
 - Response DTOs are consumed by the console and by SOC consumers: additive changes only unless a breaking change is approved and versioned.
 - Schema changes: hand-written, idempotent, re-runnable scripts in `src/migration/scripts/`, registered in `src/migration/run-migrations-before-startup.ts`. pra-sync-api owns the shared base schema; local-only columns here need a reason. TypeORM `synchronize` is active whenever `ENV` is not `production`.
 - Configuration is read through `AppConfigService` (env var first, then `src/app-config/consts/default-app-config.const.ts`). Environment values for DEV, PP, PROD are not in this repository.
-- Site ingestion (`src/site/`) and BeyondTrust users (`src/user/`): read `../docs/knowledge/domains/site-ingestion.md` and `../docs/knowledge/domains/external-users.md` before changing them. Invariants: never create local accounts for unresolved non-local users, never delete non-local accounts, retain site users that could not be processed.
+- Site ingestion (`src/site/`) and BeyondTrust users (`src/user/`): read `../docs/knowledge/domains/site-ingestion.md` and `../docs/knowledge/domains/external-users.md` before changing them. Invariants:
+  - Never create a local account for an unresolved non-local user.
+  - Delete a BeyondTrust account, local or non-local, only when it holds no other site role on the same BeyondTrust instance. Use `SiteUserReferences` (`src/site/workflows/users/`) for that check; it covers site managers, auditors and support team members.
+  - Remove a group policy membership only when no remaining role of the account needs it (`SiteGroupPolicyKeys`).
+  - Retain site users that could not be processed.
+  - Group policies that exist once per Business Unit are found, never created (`BuGroupPolicyLookupWorkflow`). External site users are members of `GP_<BU>_SAML_DEFAULT`; the name map `BU_SAML_DEFAULT_GP_MAP` is mirrored in pra-console (`src/app/shared/helpers/pra-data-filter.ts`) and both have to change together.
 - Tests: every behaviour change comes with a unit test next to the changed file (`*.spec.ts`). Keep the 3.1 console payload pin in `src/site/dtos/inputs/create-site.dto-input.spec.ts` green.
 
 ## Documentation duty
