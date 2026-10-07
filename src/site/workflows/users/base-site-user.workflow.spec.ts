@@ -168,11 +168,46 @@ describe('BaseSiteUserWorkflow', () => {
     });
 
     describe('delete', () => {
-        it('should never delete a non-local account', async () => {
+        it('should delete a non-local account (EXT-18)', async () => {
             mockRetrievedUsers([createUser({ id: 7, securityProviderId: 3 })]);
 
             await createWorkflow(UserSourceType.External).delete();
 
+            expect(commandOfType(DeleteUserCommand)).toEqual(new DeleteUserCommand(TRANSACTION_ID, BT_INSTANCE_ID, 7));
+        });
+
+        it('should look a non-local account up by email before deleting it', async () => {
+            mockRetrievedUsers([createUser({ id: 7, securityProviderId: 3 })]);
+
+            await createWorkflow(UserSourceType.External).delete();
+
+            const query = firstRetrieveUsersQuery();
+            expect(query.username).toBeUndefined();
+            expect(query.email).toBe('manager@example.com');
+        });
+
+        it('should do nothing when the non-local account no longer exists', async () => {
+            mockRetrievedUsers([]);
+
+            await createWorkflow(UserSourceType.External).delete();
+
+            expectNoCommandOfType(DeleteUserCommand);
+        });
+
+        it('should not delete an account stored as non-local that BeyondTrust reports as local', async () => {
+            mockRetrievedUsers([createUser({ id: 7, securityProviderId: undefined })]);
+
+            await expect(createWorkflow(UserSourceType.External).delete()).rejects.toThrow(SourceTypeMismatchException);
+            expectNoCommandOfType(DeleteUserCommand);
+        });
+
+        it('should not delete anything when the email matches more than one account', async () => {
+            mockRetrievedUsers([
+                createUser({ id: 1, securityProviderId: 3 }),
+                createUser({ id: 2, securityProviderId: 4 }),
+            ]);
+
+            await expect(createWorkflow(UserSourceType.External).delete()).rejects.toThrow(MultipleUsersFoundException);
             expectNoCommandOfType(DeleteUserCommand);
         });
 

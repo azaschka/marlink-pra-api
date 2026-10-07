@@ -260,8 +260,7 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             ),
         );
 
-        // SiteSupportTeamMemberUserWorkflow.delete() additionally refuses to delete a non-local account, so the guard
-        // against removing an externally provisioned identity cannot be forgotten here.
+        // The account, local or non-local, is only deleted when it holds no other site role (EXT-18).
         if (remainingRoles.length === 0) {
             await this.siteSupportTeamMemberUserWorkflow.delete();
         }

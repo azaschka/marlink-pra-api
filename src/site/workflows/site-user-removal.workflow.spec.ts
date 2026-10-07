@@ -1,11 +1,13 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
 import { RetrieveCustomersQuery } from '../../customer/queries';
+import { UserGroupPolicyMembershipWorkflow } from '../../group-policy-member/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { DeleteUserCommand } from '../../user/commands';
 import { UserSourceType } from '../../user/enums';
 import { RetrieveUsersQuery } from '../../user/queries';
 import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel, SiteUserType } from '../enums';
+import { GroupPolicyAssignmentFailedException } from '../exceptions';
 import {
     RetrieveSiteAuditorsByUserIdQuery,
     RetrieveSiteByIdQuery,
@@ -64,11 +66,14 @@ describe('Site user removal across roles (EXT-03)', () => {
 
     afterEach(() => jest.restoreAllMocks());
 
-    function mockRows(rows: { managers?: object[]; auditors?: object[]; members?: object[] }): void {
+    function mockRows(
+        rows: { managers?: object[]; auditors?: object[]; members?: object[] },
+        account: object = ACCOUNT,
+    ): void {
         queryBus = {
             execute: jest.fn().mockImplementation((query: { pageNumber?: number }) => {
                 const firstPage = <T>(items: T[]) => Promise.resolve(query.pageNumber === 1 ? items : []);
-                if (query instanceof RetrieveUsersQuery) return firstPage([ACCOUNT]);
+                if (query instanceof RetrieveUsersQuery) return firstPage([account]);
                 if (query instanceof RetrieveSiteManagersByUserIdQuery) return firstPage(rows.managers ?? []);
                 if (query instanceof RetrieveSiteAuditorsByUserIdQuery) return firstPage(rows.auditors ?? []);
                 if (query instanceof RetrieveSiteSupportTeamMembersByUserIdQuery) return firstPage(rows.members ?? []);
@@ -226,5 +231,93 @@ describe('Site user removal across roles (EXT-03)', () => {
 
         expect(removedGroupPolicyIds()).toEqual([16, 11, 14]);
         expect(executedCommands.some((command) => command instanceof DeleteUserCommand)).toBe(true);
+    });
+
+    /** EXT-18: a non-local account follows the same rule as a local one. */
+    describe('non-local accounts (EXT-18)', () => {
+        const EXTERNAL_ACCOUNT = { id: 9, username: 'idp-9', email: 'p@example.com', securityProviderId: 3 };
+        const externalAuditor = {
+            id: 2,
+            siteId: SITE_ID,
+            username: 'p@example.com',
+            email: 'p@example.com',
+            isAdminOperator: false,
+            sourceType: UserSourceType.External,
+        };
+        let applyMemberships: jest.SpyInstance;
+
+        function createAuditorWorkflow(): SiteAuditorWorkflow {
+            return new SiteAuditorWorkflow(
+                appConfigService,
+                queryBus,
+                commandBus,
+                'tx',
+                externalAuditor,
+                'ACME',
+                1,
+                { getOrCreate: () => Promise.resolve({ id: 10 }) } as unknown as AdministratorGroupPolicyWorkflow,
+                { getOrCreate: () => Promise.resolve({ id: 11 }) } as unknown as OperatorGroupPolicyWorkflow,
+            );
+        }
+
+        beforeEach(() => {
+            applyMemberships = jest
+                .spyOn(UserGroupPolicyMembershipWorkflow.prototype, 'apply')
+                .mockImplementation((_user, _toAdd, toRemove) =>
+                    Promise.resolve({ addedGroupPolicyIds: [], removedGroupPolicyIds: toRemove, failures: [] }),
+                );
+        });
+
+        it('should delete the non-local account when no other role is left', async () => {
+            mockRows({ auditors: [{ id: 2, siteId: SITE_ID, userId: 9, isAdminOperator: false }] }, EXTERNAL_ACCOUNT);
+
+            await createAuditorWorkflow().delete();
+
+            expect(applyMemberships).toHaveBeenCalledWith(EXTERNAL_ACCOUNT, [], [10, 12]);
+            expect(executedCommands).toContainEqual(new DeleteUserCommand('tx', 1, 9));
+        });
+
+        it('should keep the non-local account that is still the site manager of the same site', async () => {
+            mockRows(
+                {
+                    managers: [{ id: 1, siteId: SITE_ID, userId: 9 }],
+                    auditors: [{ id: 2, siteId: SITE_ID, userId: 9, isAdminOperator: false }],
+                },
+                EXTERNAL_ACCOUNT,
+            );
+
+            await createAuditorWorkflow().delete();
+
+            expect(applyMemberships).toHaveBeenCalledWith(EXTERNAL_ACCOUNT, [], [10, 12]);
+            expect(executedCommands.some((command) => command instanceof DeleteUserCommand)).toBe(false);
+        });
+
+        it('should keep the non-local account that still holds a role on another site', async () => {
+            mockRows(
+                {
+                    auditors: [
+                        { id: 2, siteId: SITE_ID, userId: 9, isAdminOperator: false },
+                        { id: 8, siteId: 6, userId: 9, isAdminOperator: false },
+                    ],
+                },
+                EXTERNAL_ACCOUNT,
+            );
+
+            await createAuditorWorkflow().delete();
+
+            expect(executedCommands.some((command) => command instanceof DeleteUserCommand)).toBe(false);
+        });
+
+        it('should not delete the non-local account when a membership could not be removed', async () => {
+            mockRows({ auditors: [{ id: 2, siteId: SITE_ID, userId: 9, isAdminOperator: false }] }, EXTERNAL_ACCOUNT);
+            applyMemberships.mockResolvedValue({
+                addedGroupPolicyIds: [],
+                removedGroupPolicyIds: [10],
+                failures: [{ groupPolicyId: 12, operation: 'remove', message: 'BeyondTrust unavailable' }],
+            });
+
+            await expect(createAuditorWorkflow().delete()).rejects.toThrow(GroupPolicyAssignmentFailedException);
+            expect(executedCommands.some((command) => command instanceof DeleteUserCommand)).toBe(false);
+        });
     });
 });

@@ -166,9 +166,7 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [], [siteManagerUser.id.toString()]);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [], [this.siteManager.email]);
 
-        // The account is only deleted when it holds no other site role. SiteManagerUserWorkflow.delete()
-        // additionally refuses to delete a non-local account, so the guard against removing an externally
-        // provisioned identity cannot be forgotten here.
+        // The account, local or non-local, is only deleted when it holds no other site role (EXT-18).
         if (remainingRoles.length === 0) {
             await this.siteManagerUserWorkflow.delete();
         }

@@ -76,23 +76,21 @@ export abstract class BaseSiteUserWorkflow implements BaseWorkflow<User | null> 
     }
 
     /**
-     * Deletes the BeyondTrust account, but only when it is a local one.
+     * Deletes the BeyondTrust account behind the role, local and non-local alike (EXT-18).
      *
-     * Deleting an account is the only irreversible operation in this workflow, so it is guarded twice: by the
-     * source type the caller supplied, and by what BeyondTrust reports for the resolved account. A user that
-     * belongs to a security provider is never deleted, even if the ingestion data claims it is local.
+     * Callers invoke this only when the account holds no other site role. Deleting an account is the only
+     * irreversible operation in this workflow, so the account is resolved through get() first: an ambiguous
+     * match, or an account whose actual source type differs from the one stored with the role, is raised to the
+     * caller and nothing is deleted. BeyondTrust creates a non-local account again at the user's next login
+     * through the identity provider, with a new user id and without the direct memberships it had.
      *
      * @throws MultipleUsersFoundException if more than one user matches
      * @throws SourceTypeMismatchException if the resolved user is not of the supplied source type
      */
     public async delete(): Promise<void> {
-        if (this.isExternalUser) {
-            return;
-        }
-
         const user = await this.get();
 
-        if (!user || UserSourceUtility.isExternal(user, this.localSecurityProviderIds)) {
+        if (!user) {
             return;
         }
 
