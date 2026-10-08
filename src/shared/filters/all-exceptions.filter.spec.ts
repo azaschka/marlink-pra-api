@@ -171,7 +171,7 @@ describe('AllExceptionsFilter', () => {
             'EXCEPTION POST /jump-items/web-jumps',
             'n/a',
             'tester',
-            expect.stringContaining('connect ECONNREFUSED 10.0.0.5:9001'),
+            expect.objectContaining({ status: 500, message: 'connect ECONNREFUSED 10.0.0.5:9001' }),
         );
     });
 

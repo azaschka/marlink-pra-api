@@ -91,8 +91,11 @@ export class LogService {
         );
     }
 
-    /** Queues a system entry. Never waits for the database. */
-    public log(actionName: string, transactionId: string, initiatedBy: string | undefined, payload: string): void {
+    /**
+     * Queues a system entry. Never waits for the database. An object payload is serialised with secrets
+     * redacted; a string is stored as given.
+     */
+    public log(actionName: string, transactionId: string, initiatedBy: string | undefined, payload: unknown): void {
         this.logWriterService.enqueue(
             this.createEntry(
                 LogActionType.System,

@@ -69,12 +69,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 (req.headers[TRANSACTION_ID_HEADER.toLowerCase()] as string) ??
                     AllExceptionsFilter.DEFAULT_TRANSACTION_ID,
                 (req.user as { username?: string })?.username ?? AllExceptionsFilter.DEFAULT_INITIATED_BY,
-                JSON.stringify({
+                // Passed as object, so that secrets in a downstream error body are redacted like in commands.
+                {
                     status,
                     message,
                     stack: exception instanceof Error ? exception.stack : undefined,
                     originalUrl: req.originalUrl,
-                }),
+                },
             );
         } catch (logError) {
             console.error('⚠️  Failed to queue exception for the DB log:', logError);

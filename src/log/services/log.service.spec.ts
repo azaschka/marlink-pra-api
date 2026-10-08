@@ -1,3 +1,8 @@
+import {
+    CreateBeyondtrustInstanceCommand,
+    ModifyBeyondtrustInstanceCommand,
+} from '../../beyondtrust-instance/commands';
+import { BillingType } from '../../beyondtrust-instance/enums';
 import { BaseCommand } from '../../core/commands';
 import { BaseEvent } from '../../core/events';
 import { BaseQuery } from '../../core/queries';
@@ -186,6 +191,47 @@ describe('LogService', () => {
             authClientSecret: '[REDACTED]',
             nested: { password: '[REDACTED]', accessToken: '[REDACTED]', tokenType: 'Bearer' },
         });
+    });
+
+    it.each([
+        new CreateBeyondtrustInstanceCommand(
+            'transaction-1',
+            'Instance',
+            'client-id',
+            'super-secret',
+            'https://bt.example/oauth2/token',
+            'https://bt.example/api',
+            BillingType.User,
+            null,
+            'bt',
+        ),
+        new ModifyBeyondtrustInstanceCommand('transaction-1', 7, undefined, 'client-id', 'super-secret'),
+    ])('should redact the client secret of the real $commandType command', (command) => {
+        const enqueue = jest.spyOn(logWriterService, 'enqueue');
+
+        logService.logCommand(command);
+
+        const entry = enqueue.mock.calls[0]?.[0] as LogEntity;
+        expect(entry.payload).not.toContain('super-secret');
+        expect(JSON.parse(entry.payload)).toMatchObject({ authClientId: 'client-id', authClientSecret: '[REDACTED]' });
+    });
+
+    it('should redact secrets in an object payload of a system entry, and keep a string payload as given', () => {
+        const enqueue = jest.spyOn(logWriterService, 'enqueue');
+
+        logService.log('EXCEPTION POST /x', 'transaction-1', 'user-1', {
+            status: 502,
+            message: { response: { token: 'token-value', detail: 'upstream failed' } },
+        });
+        logService.log('SYSTEM', 'transaction-1', undefined, '{"token":"kept-as-given"}');
+
+        const [objectEntry, stringEntry] = enqueue.mock.calls.map(([entry]) => entry);
+        expect(objectEntry?.payload).not.toContain('token-value');
+        expect(JSON.parse(objectEntry?.payload ?? '{}')).toEqual({
+            status: 502,
+            message: { response: { token: '[REDACTED]', detail: 'upstream failed' } },
+        });
+        expect(stringEntry?.payload).toBe('{"token":"kept-as-given"}');
     });
 
     it('should redact secrets in event payloads', () => {
