@@ -72,6 +72,38 @@ describe('ErrorProcessorUtility', () => {
             },
         );
 
+        it('answers 504 without the target address for a connect timeout of the operating system', () => {
+            const error = new AxiosError('connect ETIMEDOUT 10.0.0.5:9001', AxiosError.ETIMEDOUT);
+
+            const result = ErrorProcessorUtility.composeError(error);
+
+            expect(result.getStatus()).toBe(HttpStatusCode.GatewayTimeout);
+            expect(result.getResponse()).toBe('The PRA Sync API could not be reached in time');
+            expect(ErrorProcessorUtility.isResponseTimeout(result)).toBe(false);
+        });
+
+        it('keeps the original error as cause and recognises a response timeout through it', () => {
+            const timeoutError = new AxiosError('timeout of 300ms exceeded', AxiosError.ECONNABORTED, {
+                timeout: 300,
+            } as never);
+            const gatewayTimeoutFromSync = new AxiosError('x', 'ERR_BAD_RESPONSE', undefined, undefined, <
+                AxiosResponse
+            >{
+                status: 504,
+                data: { message: 'Gateway Timeout' },
+            });
+
+            const composed = ErrorProcessorUtility.composeError(timeoutError);
+
+            expect(composed.cause).toBe(timeoutError);
+            expect(ErrorProcessorUtility.isResponseTimeout(composed)).toBe(true);
+            expect(ErrorProcessorUtility.isResponseTimeout(timeoutError)).toBe(true);
+            expect(
+                ErrorProcessorUtility.isResponseTimeout(ErrorProcessorUtility.composeError(gatewayTimeoutFromSync)),
+            ).toBe(false);
+            expect(ErrorProcessorUtility.isResponseTimeout(new Error('timeout of 1ms exceeded'))).toBe(false);
+        });
+
         it('keeps the Sync API status when a response arrived, even with a timeout code', () => {
             const error = new AxiosError('x', AxiosError.ECONNABORTED, undefined, undefined, <AxiosResponse>{
                 status: 503,

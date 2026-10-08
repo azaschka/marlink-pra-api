@@ -224,9 +224,10 @@ export abstract class DefaultAppConfig {
     // it is the longest time without an answer. A streamed download body is guarded by downloadIdleInMs.
     public static get praSyncApiTimeouts() {
         return {
-            // Every call without an explicit override. Above the Sync API's own worst case for one BeyondTrust call
-            // (4 attempts with a 60 s read timeout plus backoff, about 250 s), so the Sync API always answers first
-            // and PRA API never reports a timeout for a call that the Sync API then completes.
+            // Every call without an explicit override. Above the Sync API's worst case for one BeyondTrust read
+            // (4 attempts with a 60 s read timeout plus backoff, about 250 s) and for one write (3 min client
+            // timeout). Composite Sync operations can take longer (a create followed by a lookup: about 430 s), so
+            // a 504 after a write means that its outcome is unknown; the next run finds the result.
             defaultInMs: 300000,
             // Manual scan per entity type and "sync all external": above the Sync scan budget (20 min).
             scanInMs: 25 * 60 * 1000,
