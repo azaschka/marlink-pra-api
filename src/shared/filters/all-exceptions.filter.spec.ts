@@ -157,6 +157,24 @@ describe('AllExceptionsFilter', () => {
         expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('writes a Sync API outage (connection refused, composed as HttpException) to the DB log', () => {
+        const logService = { log: jest.fn() };
+        const filter = new AllExceptionsFilter(logService as never);
+        const { json, status } = createResponseMocks();
+        jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        const exception = new HttpException('connect ECONNREFUSED 10.0.0.5:9001', HttpStatus.INTERNAL_SERVER_ERROR);
+
+        filter.catch(exception, createArgumentsHost({ status, json }));
+
+        expect(logService.log).toHaveBeenCalledTimes(1);
+        expect(logService.log).toHaveBeenCalledWith(
+            'EXCEPTION POST /jump-items/web-jumps',
+            'n/a',
+            'tester',
+            expect.stringContaining('connect ECONNREFUSED 10.0.0.5:9001'),
+        );
+    });
+
     it.each([
         { name: 'pool queue limit', error: new Error('Queue limit reached.') },
         {

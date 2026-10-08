@@ -13,7 +13,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     private static readonly ACTION_NAME_PREFIX = 'EXCEPTION';
     private static readonly HEALTH_PATH_PREFIX = '/health';
     // Failures of the database connection itself: writing them to the database only adds load to the
-    // resource that is already exhausted, so they go to stdout only.
+    // resource that is already exhausted, so they go to stdout only. Matched on raw driver and pool errors
+    // only, never on an HttpException: those also carry downstream failures such as an unreachable Sync API
+    // ("connect ECONNREFUSED" composed by ErrorProcessorUtility), which belong in the system log.
     private static readonly INFRASTRUCTURE_FAILURE_MESSAGES = [
         'queue limit reached',
         'waiting for a free database connection',
@@ -104,6 +106,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     private expectedFailureKind(req: Request, exception: unknown): 'health' | 'infrastructure' | undefined {
         if ((req.path ?? req.originalUrl ?? '').startsWith(AllExceptionsFilter.HEALTH_PATH_PREFIX)) {
             return 'health';
+        }
+
+        if (exception instanceof HttpException) {
+            return undefined;
         }
 
         const text = (exception instanceof Error ? exception.message : String(exception)).toLowerCase();
