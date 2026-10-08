@@ -1,4 +1,5 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ResourceReportRegistry } from '../../observability/services/resource-report-registry.service';
 import { DiscrepancyScanStatus, ScanEntityTypeFailureDtoOutput, ScanStatusDtoOutput } from '../dtos/outputs';
 
 interface TrackedScan {
@@ -9,6 +10,8 @@ interface TrackedScan {
 /**
  * Status of manual "scan all" runs, kept in memory.
  *
+ * - Tenant-scoped: a status is stored and read per tenant (X-Tenant-Id) and scan ID. A scan ID is a transaction
+ *   ID that also appears in logs and payloads; it does not give access to the status of another tenant.
  * - At most one manual scan per tenant: begin() returns the scan that is already running for the tenant instead of
  *   starting a second one, so repeated clicks no longer start parallel full scans.
  * - Bounded: a finished status is kept for one hour, and at most MAX_ENTRIES statuses are kept (the oldest finished
@@ -27,6 +30,10 @@ export class DiscrepancyScanStatusService {
     private readonly scans = new Map<string, TrackedScan>();
     private readonly runningByTenant = new Map<number, string>();
 
+    constructor(resourceReportRegistry: ResourceReportRegistry) {
+        resourceReportRegistry.register('manualScans', () => this.stats());
+    }
+
     /**
      * Starts tracking a manual scan for the tenant, or returns the scan that is already running for it.
      * `started` tells whether the caller has to run the scan.
@@ -38,19 +45,14 @@ export class DiscrepancyScanStatusService {
             return { scanId: runningScanId, started: false };
         }
 
-        const existing = this.scans.get(scanId);
-
-        if (existing && existing.status.completedAt === undefined) {
-            throw new ConflictException(`Scan ID "${scanId}" is already in use by a running scan.`);
-        }
-
         const status = new ScanStatusDtoOutput();
         status.scanId = scanId;
         status.status = DiscrepancyScanStatus.Running;
         status.startedAt = now;
-        // A re-used transaction ID replaces its earlier, finished status.
-        this.scans.delete(scanId);
-        this.scans.set(scanId, { tenantId, status });
+        const key = DiscrepancyScanStatusService.key(tenantId, scanId);
+        // A re-used transaction ID replaces the earlier, finished status of the same tenant.
+        this.scans.delete(key);
+        this.scans.set(key, { tenantId, status });
         this.runningByTenant.set(tenantId, scanId);
         this.prune(now.getTime());
 
@@ -62,12 +64,13 @@ export class DiscrepancyScanStatusService {
      * type succeeded.
      */
     public complete(
+        tenantId: number,
         scanId: string,
         scannedEntityTypes: number,
         failedEntityTypes: ScanEntityTypeFailureDtoOutput[],
         now = new Date(),
     ): void {
-        const status = this.finish(scanId, now);
+        const status = this.finish(tenantId, scanId, now);
 
         if (!status) {
             return;
@@ -79,14 +82,14 @@ export class DiscrepancyScanStatusService {
 
         if (scannedEntityTypes > 0 && failedEntityTypes.length >= scannedEntityTypes) {
             status.status = DiscrepancyScanStatus.Failed;
-            status.error = `All ${scannedEntityTypes} entity types failed`;
+            status.error = `None of the ${scannedEntityTypes} entity types was scanned successfully`;
         } else {
             status.status = DiscrepancyScanStatus.Completed;
         }
     }
 
-    public fail(scanId: string, error: unknown, now = new Date()): void {
-        const status = this.finish(scanId, now);
+    public fail(tenantId: number, scanId: string, error: unknown, now = new Date()): void {
+        const status = this.finish(tenantId, scanId, now);
 
         if (!status) {
             return;
@@ -96,9 +99,10 @@ export class DiscrepancyScanStatusService {
         status.error = error instanceof Error ? error.message : String(error);
     }
 
-    public get(scanId: string, now = new Date()): ScanStatusDtoOutput {
+    /** The status of a scan of this tenant; a scan of another tenant is reported as not found. */
+    public get(tenantId: number, scanId: string, now = new Date()): ScanStatusDtoOutput {
         this.prune(now.getTime());
-        const scan = this.scans.get(scanId);
+        const scan = this.scans.get(DiscrepancyScanStatusService.key(tenantId, scanId));
 
         if (!scan) {
             throw new NotFoundException(`Scan with ID "${scanId}" not found.`);
@@ -111,15 +115,15 @@ export class DiscrepancyScanStatusService {
         return { tracked: this.scans.size, running: this.runningByTenant.size };
     }
 
-    private finish(scanId: string, now: Date): ScanStatusDtoOutput | undefined {
-        const scan = this.scans.get(scanId);
+    private finish(tenantId: number, scanId: string, now: Date): ScanStatusDtoOutput | undefined {
+        const scan = this.scans.get(DiscrepancyScanStatusService.key(tenantId, scanId));
 
         if (!scan) {
             return undefined;
         }
 
-        if (this.runningByTenant.get(scan.tenantId) === scanId) {
-            this.runningByTenant.delete(scan.tenantId);
+        if (this.runningByTenant.get(tenantId) === scanId) {
+            this.runningByTenant.delete(tenantId);
         }
 
         scan.status.completedAt = now;
@@ -129,11 +133,11 @@ export class DiscrepancyScanStatusService {
 
     /** Drops finished statuses older than the TTL, then the oldest finished ones above the cap. */
     private prune(now: number): void {
-        for (const [scanId, scan] of this.scans) {
+        for (const [key, scan] of this.scans) {
             const completedAt = scan.status.completedAt?.getTime();
 
             if (completedAt !== undefined && now - completedAt > DiscrepancyScanStatusService.FINISHED_TTL_IN_MS) {
-                this.scans.delete(scanId);
+                this.scans.delete(key);
             }
         }
 
@@ -142,14 +146,18 @@ export class DiscrepancyScanStatusService {
         }
 
         // Map order is insertion order, i.e. oldest scans first.
-        for (const [scanId, scan] of this.scans) {
+        for (const [key, scan] of this.scans) {
             if (this.scans.size <= DiscrepancyScanStatusService.MAX_ENTRIES) {
                 return;
             }
 
             if (scan.status.completedAt !== undefined) {
-                this.scans.delete(scanId);
+                this.scans.delete(key);
             }
         }
+    }
+
+    private static key(tenantId: number, scanId: string): string {
+        return `${tenantId}:${scanId}`;
     }
 }
