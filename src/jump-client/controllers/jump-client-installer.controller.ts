@@ -6,6 +6,7 @@ import {
     HttpCode,
     HttpException,
     HttpStatus,
+    Logger,
     Param,
     Post,
     Query,
@@ -39,7 +40,7 @@ import {
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { JumpGroupsScopeInterceptor } from '../../jump-group/interceptors';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
-import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
+import { ErrorProcessorUtility, SyncApiDownloadUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpClientInstallerCommand, DeleteJumpClientInstallerCommand } from '../commands';
 import { CreateJumpClientInstallerDtoInput, RetrieveJumpClientInstallersDtoInput } from '../dtos/inputs';
 import { JumpClientInstallerCreatedDtoOutput, JumpClientInstallerRetrievedDtoOutput } from '../dtos/outputs';
@@ -63,6 +64,8 @@ import {
 @UsePipes(JumpClientInstallerRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpClientInstallerController {
+    private static readonly LOGGER = new Logger(JumpClientInstallerController.name);
+
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
@@ -204,7 +207,12 @@ export class JumpClientInstallerController {
                 res.setHeader('Content-Length', response.headers['content-length']);
             }
 
-            response.data.pipe(res);
+            await SyncApiDownloadUtility.forward(
+                response.data,
+                res,
+                JumpClientInstallerController.LOGGER,
+                'Jump client installer download',
+            );
         } catch (error) {
             if (error instanceof HttpException) {
                 res.status(error.getStatus()).json({

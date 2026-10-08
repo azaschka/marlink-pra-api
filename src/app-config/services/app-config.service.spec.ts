@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DefaultAppConfig } from '../consts';
 import { AppConfigService } from './app-config.service';
@@ -1101,6 +1102,73 @@ describe('AppConfigService', () => {
         });
     });
 
+    describe('praSyncApiTimeouts', () => {
+        it('should use the defaults when nothing is configured', () => {
+            configService.get = jest.fn().mockReturnValue(undefined);
+
+            expect(service.praSyncApiTimeouts).toEqual({
+                defaultInMs: 300000,
+                scanInMs: 1500000,
+                fileTransferInMs: 1800000,
+                downloadIdleInMs: 120000,
+            });
+        });
+
+        it('should read configured values and ignore invalid ones', () => {
+            const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+            const values = new Map([
+                ['PRA_SYNC_API_TIMEOUT_IN_MS', '60000'],
+                ['PRA_SYNC_API_SCAN_TIMEOUT_IN_MS', '2400000'],
+                ['PRA_SYNC_API_FILE_TRANSFER_TIMEOUT_IN_MS', '0'], // below 1 s: default
+                ['PRA_SYNC_API_DOWNLOAD_IDLE_TIMEOUT_IN_MS', '2m'], // not an integer: default
+            ]);
+            configService.get = jest.fn().mockImplementation((key: string) => values.get(key));
+
+            expect(service.praSyncApiTimeouts).toEqual({
+                defaultInMs: 60000,
+                scanInMs: 2400000,
+                fileTransferInMs: 1800000,
+                downloadIdleInMs: 120000,
+            });
+            expect(warn).toHaveBeenCalledTimes(2);
+            warn.mockRestore();
+        });
+    });
+
+    describe('retention', () => {
+        it('should use the defaults when nothing is configured', () => {
+            configService.get = jest.fn().mockReturnValue(undefined);
+
+            expect(service.retention).toEqual({ monitoringRetentionDays: 90, distributedLockEnabled: true });
+            expect(service.cronJob.logRetentionDays).toBe(90);
+        });
+
+        it('should read configured values', () => {
+            const values = new Map([
+                ['MONITORING_RETENTION_DAYS', '30'],
+                ['RETENTION_DISTRIBUTED_LOCK_ENABLED', 'false'],
+                ['LOG_RETENTION_DAYS', '60'],
+            ]);
+            configService.get = jest.fn().mockImplementation((key: string) => values.get(key));
+
+            expect(service.retention).toEqual({ monitoringRetentionDays: 30, distributedLockEnabled: false });
+            expect(service.cronJob.logRetentionDays).toBe(60);
+        });
+
+        it.each(['abc', '0', '-5', '90d'])(
+            'should fall back to 90 days for the invalid LOG_RETENTION_DAYS value %s instead of an invalid cutoff',
+            (value) => {
+                const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+                configService.get = jest
+                    .fn()
+                    .mockImplementation((key: string) => (key === 'LOG_RETENTION_DAYS' ? value : undefined));
+
+                expect(service.cronJob.logRetentionDays).toBe(90);
+                warn.mockRestore();
+            },
+        );
+    });
+
     describe('cronJob', () => {
         it.each([
             {
@@ -1131,7 +1199,7 @@ describe('AppConfigService', () => {
                     retryDelayInMs: 10000,
                     btInstanceBackup: '35 2 * * *',
                     btDataPopulationIfEmpty: '0 */3 * * *',
-                    logRetention: '15 3 * * *',
+                    logRetention: '17 * * * *',
                     logRetentionDays: 90,
                 },
             },
@@ -1172,6 +1240,44 @@ describe('AppConfigService', () => {
                 logRetentionDays: expected.logRetentionDays,
             });
         });
+    });
+
+    describe('observability', () => {
+        it('should use the default report interval when nothing is configured', () => {
+            jest.spyOn(configService, 'get').mockReturnValue(undefined);
+
+            expect(service.observability.resourceReportIntervalInMs).toBe(
+                DefaultAppConfig.observability.resourceReportIntervalInMs,
+            );
+        });
+
+        it.each([
+            { input: '60000', expected: 60000 },
+            { input: ' 0 ', expected: 0 },
+            { input: 120000, expected: 120000 },
+        ])('should parse the configured report interval $input', ({ input, expected }) => {
+            const get = jest.spyOn(configService, 'get').mockReturnValue(input);
+
+            expect(service.observability.resourceReportIntervalInMs).toBe(expected);
+            expect(get).toHaveBeenCalledWith('RESOURCE_REPORT_INTERVAL_IN_MS');
+        });
+
+        it.each(['abc', '-1', '1.5', '5m'])(
+            'should fall back to the default for the invalid value %s and report it only once',
+            (input) => {
+                const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+                jest.spyOn(configService, 'get').mockReturnValue(input);
+
+                expect(service.observability.resourceReportIntervalInMs).toBe(
+                    DefaultAppConfig.observability.resourceReportIntervalInMs,
+                );
+                expect(service.observability.resourceReportIntervalInMs).toBe(
+                    DefaultAppConfig.observability.resourceReportIntervalInMs,
+                );
+                expect(warn).toHaveBeenCalledTimes(1);
+                warn.mockRestore();
+            },
+        );
     });
 
     describe('throttle', () => {

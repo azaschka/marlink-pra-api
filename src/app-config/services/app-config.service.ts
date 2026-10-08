@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { resolve } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -8,6 +8,9 @@ import { DefaultAppConfig } from '../consts';
 export class AppConfigService {
     private static readonly DEFAULT_UNDEFINED_STRING = 'unknown';
     private static readonly DEFAULT_UNDEFINED_NUMBER = 0;
+
+    private readonly logger = new Logger(AppConfigService.name);
+    private readonly reportedInvalidKeys = new Set<string>();
 
     constructor(private readonly configService: ConfigService) {}
 
@@ -23,14 +26,20 @@ export class AppConfigService {
         return this.configService.get<number>('PORT') ?? DefaultAppConfig.port;
     }
 
+    // Validated: a value like "512Mi" used to turn the threshold into NaN and silently disable the check.
     public get health() {
         return {
-            diskStorageUsageThresholdInPercent:
-                this.configService.get<number>('HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT') ??
+            diskStorageUsageThresholdInPercent: this.integerOrDefault(
+                'HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT',
                 DefaultAppConfig.health.diskStorageUsageThresholdInPercent,
-            memoryHeapUsageThresholdInMB:
-                this.configService.get<number>('HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB') ??
+                1,
+                100,
+            ),
+            memoryHeapUsageThresholdInMB: this.integerOrDefault(
+                'HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB',
                 DefaultAppConfig.health.memoryHeapUsageThresholdInMB,
+                1,
+            ),
             pingCheckPraSyncApiUrl:
                 this.configService.get<string>('HEALTH_PING_CHECK_PRA_SYNC_API_URL') ??
                 DefaultAppConfig.health.pingCheckPraSyncApiUrl,
@@ -258,6 +267,29 @@ export class AppConfigService {
         };
     }
 
+    /** Timeouts for calls to the Sync API, see DefaultAppConfig.praSyncApiTimeouts. Each between 1 s and 4 h. */
+    public get praSyncApiTimeouts() {
+        const defaults = DefaultAppConfig.praSyncApiTimeouts;
+        const maxInMs = 4 * 60 * 60 * 1000;
+
+        return {
+            defaultInMs: this.integerOrDefault('PRA_SYNC_API_TIMEOUT_IN_MS', defaults.defaultInMs, 1000, maxInMs),
+            scanInMs: this.integerOrDefault('PRA_SYNC_API_SCAN_TIMEOUT_IN_MS', defaults.scanInMs, 1000, maxInMs),
+            fileTransferInMs: this.integerOrDefault(
+                'PRA_SYNC_API_FILE_TRANSFER_TIMEOUT_IN_MS',
+                defaults.fileTransferInMs,
+                1000,
+                maxInMs,
+            ),
+            downloadIdleInMs: this.integerOrDefault(
+                'PRA_SYNC_API_DOWNLOAD_IDLE_TIMEOUT_IN_MS',
+                defaults.downloadIdleInMs,
+                1000,
+                maxInMs,
+            ),
+        };
+    }
+
     public get database(): TypeOrmModuleOptions {
         return {
             type: this.configService.get<'mariadb' | 'mysql'>('DB_TYPE') ?? undefined,
@@ -409,8 +441,22 @@ export class AppConfigService {
                 DefaultAppConfig.cronJob.btDataPopulationIfEmpty,
             logRetention:
                 this.configService.get<string>('CRON_JOB_LOG_RETENTION') ?? DefaultAppConfig.cronJob.logRetention,
-            logRetentionDays:
-                this.configService.get<number>('LOG_RETENTION_DAYS') ?? DefaultAppConfig.cronJob.logRetentionDays,
+            // Validated: an invalid value used to produce an Invalid Date cutoff.
+            logRetentionDays: this.integerOrDefault('LOG_RETENTION_DAYS', DefaultAppConfig.cronJob.logRetentionDays, 1),
+        };
+    }
+
+    public get retention() {
+        return {
+            monitoringRetentionDays: this.integerOrDefault(
+                'MONITORING_RETENTION_DAYS',
+                DefaultAppConfig.retention.monitoringRetentionDays,
+                1,
+            ),
+            distributedLockEnabled: this.booleanOrDefault(
+                'RETENTION_DISTRIBUTED_LOCK_ENABLED',
+                DefaultAppConfig.retention.distributedLockEnabled,
+            ),
         };
     }
 
@@ -455,5 +501,65 @@ export class AppConfigService {
         return {
             cacheTtlInMs: this.configService.get<number>('SOC_CACHE_TTL_IN_MS') ?? DefaultAppConfig.soc.cacheTtlInMs,
         };
+    }
+
+    public get observability() {
+        return {
+            resourceReportIntervalInMs: this.integerOrDefault(
+                'RESOURCE_REPORT_INTERVAL_IN_MS',
+                DefaultAppConfig.observability.resourceReportIntervalInMs,
+                0,
+            ),
+        };
+    }
+
+    /** Reads a boolean setting ("true"/"false", case-insensitive); anything else falls back to the default. */
+    private booleanOrDefault(key: string, defaultValue: boolean): boolean {
+        const raw = this.configService.get<string | boolean>(key);
+
+        if (raw === undefined || raw === null || String(raw).trim() === '') {
+            return defaultValue;
+        }
+
+        const normalized = String(raw).trim().toLowerCase();
+
+        if (normalized === 'true' || normalized === 'false') {
+            return normalized === 'true';
+        }
+
+        if (!this.reportedInvalidKeys.has(key)) {
+            this.reportedInvalidKeys.add(key);
+            this.logger.warn(`Ignoring invalid ${key}=${String(raw)} (expected true or false); using ${defaultValue}.`);
+        }
+
+        return defaultValue;
+    }
+
+    /**
+     * Reads an integer setting. Environment values arrive as strings; a value that is not an integer or lies
+     * outside [min, max] falls back to the default and is reported once, so a typo cannot silently disable or
+     * overload a mechanism.
+     */
+    private integerOrDefault(key: string, defaultValue: number, min: number, max = Number.MAX_SAFE_INTEGER): number {
+        const raw = this.configService.get<string | number>(key);
+
+        if (raw === undefined || raw === null || String(raw).trim() === '') {
+            return defaultValue;
+        }
+
+        const value = Number(String(raw).trim());
+
+        if (Number.isInteger(value) && value >= min && value <= max) {
+            return value;
+        }
+
+        if (!this.reportedInvalidKeys.has(key)) {
+            this.reportedInvalidKeys.add(key);
+            this.logger.warn(
+                `Ignoring invalid ${key}=${String(raw)} (expected an integer between ${min} and ${max}); using ${defaultValue}.`,
+            );
+        }
+
+        return defaultValue;
     }
 }

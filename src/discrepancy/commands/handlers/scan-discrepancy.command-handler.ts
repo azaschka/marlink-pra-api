@@ -31,6 +31,8 @@ export class ScanDiscrepancyCommandHandler implements ICommandHandler<ScanDiscre
             const response = await firstValueFrom(
                 this.httpService.post<Discrepancy>(url, ObjectUtility.stripProperties(command, 'transactionId'), {
                     headers: headers,
+                    // The Sync API answers when the scan of this type is done, bounded by its scan budget.
+                    timeout: this.appConfigService.praSyncApiTimeouts.scanInMs,
                 }),
             );
 

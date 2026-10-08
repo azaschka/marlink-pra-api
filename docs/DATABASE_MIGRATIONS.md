@@ -218,6 +218,17 @@ WHERE table_name = 'pra_customers';
     - Set `long_query_time = 1` to log queries > 1 second
     - Review logs regularly
 
+## Pre-startup scripts relevant for operations
+
+`src/migration/scripts/align-pra-logs-and-add-retention-indexes.migration.ts` (run by `src/migration/run-migrations-before-startup.ts`) widens `pra_logs.action_name` to `varchar(1000)` with `MODIFY` (values kept) and creates `IDX_pra_logs_creation_date` and `IDX_pra_monitorings_creation_date` online if missing. The index build takes time proportional to the table size and delays the startup. On large tables create the indexes beforehand in a quiet period:
+
+```sql
+CREATE INDEX IDX_pra_logs_creation_date ON pra_logs (creation_date) ALGORITHM=INPLACE LOCK=NONE;
+CREATE INDEX IDX_pra_monitorings_creation_date ON pra_monitorings (creation_date) ALGORITHM=INPLACE LOCK=NONE;
+```
+
+Failures are logged and do not stop the startup; check the startup log after each deployment. Deploy pra-api before pra-sync-api when the table still has the old `varchar(255)` column: the Sync API's schema synchronisation would otherwise replace the column once and lose its values.
+
 ## Deployment Checklist
 
 - [ ] Set `NODE_ENV=production`

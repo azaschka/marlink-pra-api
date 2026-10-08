@@ -93,6 +93,8 @@ describe('BaseTenantRepositoryService', () => {
     });
 
     describe('create', () => {
+        beforeEach(() => registerMockTenant(dataSource));
+
         it('should connect to db, start transaction, create and save the entity, commit the transaction, release the connection and return the value', async () => {
             const expectedEntityId = 123;
             const entity = TestHelper.mockRepositoryData('entity-1');
@@ -159,6 +161,8 @@ describe('BaseTenantRepositoryService', () => {
     });
 
     describe('createOrUpdate', () => {
+        beforeEach(() => registerMockTenant(dataSource));
+
         it('should connect to db, start transaction, upsert the entity, commit the transaction, release the connection and return the value', async () => {
             const entity = TestHelper.mockRepositoryData('entity-1');
             const {
@@ -209,6 +213,8 @@ describe('BaseTenantRepositoryService', () => {
     });
 
     describe('findOneBy', () => {
+        beforeEach(() => registerMockTenant(dataSource));
+
         it.each([TestHelper.mockRepositoryData('entity-1'), null])(
             'should connect to db, find the entity and return the value',
             async (dbEntity) => {
@@ -250,6 +256,8 @@ describe('BaseTenantRepositoryService', () => {
     });
 
     describe('findBy', () => {
+        beforeEach(() => registerMockTenant(dataSource));
+
         it.each([
             {
                 input: {
@@ -325,6 +333,8 @@ describe('BaseTenantRepositoryService', () => {
     });
 
     describe('deleteBy', () => {
+        beforeEach(() => registerMockTenant(dataSource));
+
         it('should connect to db, start transaction, delete the entity, commit the transaction, release the connection and return the value', async () => {
             const {
                 dataSourceQueryRunnerConnectMethod,
@@ -371,6 +381,8 @@ describe('BaseTenantRepositoryService', () => {
     });
 
     describe('countBy', () => {
+        beforeEach(() => registerMockTenant(dataSource));
+
         it('should connect, count entities and return the value', async () => {
             const {
                 dataSourceQueryRunnerConnectMethod,
@@ -389,6 +401,8 @@ describe('BaseTenantRepositoryService', () => {
     });
 
     describe('connection handling', () => {
+        beforeEach(() => registerMockTenant(dataSource));
+
         it.each([
             {
                 name: 'findBy',
@@ -432,11 +446,9 @@ describe('BaseTenantRepositoryService', () => {
             },
         );
 
-        it('should not take a connection from the pool for an unregistered tenant', async () => {
+        it('should not take a connection from the pool for a tenant whose metadata is not built', async () => {
             const { dataSourceRepositoryFindMethod } = spyDataSource(dataSource);
-            jest.spyOn(dataSource, 'getRepository').mockImplementation(() => {
-                throw new EntityMetadataNotFoundError('mock-table-name');
-            });
+            jest.spyOn(dataSource, 'hasMetadata').mockReturnValue(false);
             const createQueryRunnerMethod = jest.spyOn(dataSource, 'createQueryRunner');
             createQueryRunnerMethod.mockClear();
 
@@ -444,6 +456,29 @@ describe('BaseTenantRepositoryService', () => {
 
             expect(createQueryRunnerMethod).not.toHaveBeenCalled();
             expect(dataSourceRepositoryFindMethod).not.toHaveBeenCalled();
+        });
+
+        it('should not take a connection from the pool for a tenant that was never registered', async () => {
+            const { dataSourceRepositoryFindMethod } = spyDataSource(dataSource);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            dataSource.options.entities = [];
+            const createQueryRunnerMethod = jest.spyOn(dataSource, 'createQueryRunner');
+            createQueryRunnerMethod.mockClear();
+
+            await expect(service.findBy(123, { name: 'a' }, 1, 10)).rejects.toBeInstanceOf(NotFoundException);
+
+            expect(createQueryRunnerMethod).not.toHaveBeenCalled();
+            expect(dataSourceRepositoryFindMethod).not.toHaveBeenCalled();
+        });
+
+        it('should translate missing repository metadata into a not registered tenant', async () => {
+            spyDataSource(dataSource);
+            jest.spyOn(dataSource.createQueryRunner().manager, 'getRepository').mockImplementation(() => {
+                throw new EntityMetadataNotFoundError('mock-table-name');
+            });
+
+            await expect(service.findBy(123, { name: 'a' }, 1, 10)).rejects.toBeInstanceOf(NotFoundException);
         });
     });
 });
@@ -469,6 +504,7 @@ function mockDataSource(): DataSource {
         count: jest.fn(),
     } as unknown as Repository<MockData>;
     dataSource.getRepository = jest.fn().mockReturnValue(repository);
+    dataSource.hasMetadata = jest.fn().mockReturnValue(true);
     dataSource.createQueryRunner = jest.fn().mockReturnValue({
         connect: jest.fn(),
         manager: { getRepository: jest.fn().mockReturnValue(repository) },
@@ -534,6 +570,12 @@ function spyDataSource(dataSource: DataSource) {
         dataSourceQueryRunnerRollbackTransactionMethod,
         dataSourceQueryRunnerReleaseMethod,
     };
+}
+
+function registerMockTenant(dataSource: DataSource): void {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    dataSource.options.entities = [TestHelper.mockEntitySchema()];
 }
 
 function mockBaseTenantEntitySchemaFactory(): BaseTenantEntitySchemaFactory<MockData> {

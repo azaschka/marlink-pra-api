@@ -31,6 +31,8 @@ export class DownloadJumpointNodeIsoCommandHandler implements ICommandHandler<Do
             const response = await firstValueFrom(
                 this.httpService.post<JumpointNode>(url, ObjectUtility.stripProperties(command, 'transactionId'), {
                     headers: headers,
+                    // The Sync API downloads and stores the whole ISO before it answers.
+                    timeout: this.appConfigService.praSyncApiTimeouts.fileTransferInMs,
                 }),
             );
 

@@ -2,12 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { Between, DataSource, FindOptionsWhere, LessThan, Like, MoreThan, Raw } from 'typeorm';
 import { BaseRepositoryService } from '../../../core/services/base-repository.service';
 import { SortOrderType } from '../../../shared/enums';
+import { BatchedDeleteOptions, BatchedDeleteUtility } from '../../../shared/utilities/batched-delete.utility';
 import { LogEntity } from '../entities';
 
 @Injectable()
 export class LogRepositoryService extends BaseRepositoryService<LogEntity> {
-    constructor(dataSource: DataSource) {
-        super(dataSource, LogEntity);
+    private static readonly CLEAR_DELETE_OPTIONS: BatchedDeleteOptions = {
+        batchSize: 5000,
+        pauseInMs: 20,
+        maxDurationInMs: 0,
+    };
+
+    constructor(private readonly logDataSource: DataSource) {
+        super(logDataSource, LogEntity);
     }
 
     public async findByDateBetween(
@@ -86,21 +93,37 @@ export class LogRepositoryService extends BaseRepositoryService<LogEntity> {
         return super.countBy(where);
     }
 
+    /**
+     * "Clear system log": deletes in batches of 5,000 rows (each committed on its own) instead of one DELETE in one
+     * long transaction that blocks concurrent log inserts. Same conditions as before: from and to inclusive
+     * (BETWEEN), from alone exclusive, to alone exclusive.
+     */
     public async deleteByDateBetween(creationDateFrom?: Date, creationDateTo?: Date, tenantId?: number): Promise<void> {
-        const where: FindOptionsWhere<LogEntity> = {};
+        const conditions: string[] = [];
+        const parameters: unknown[] = [];
 
         if (creationDateFrom && creationDateTo) {
-            where.creationDate = Between(creationDateFrom, creationDateTo);
+            conditions.push('`creation_date` BETWEEN ? AND ?');
+            parameters.push(creationDateFrom, creationDateTo);
         } else if (creationDateFrom) {
-            where.creationDate = MoreThan(creationDateFrom);
+            conditions.push('`creation_date` > ?');
+            parameters.push(creationDateFrom);
         } else if (creationDateTo) {
-            where.creationDate = LessThan(creationDateTo);
+            conditions.push('`creation_date` < ?');
+            parameters.push(creationDateTo);
         }
 
         if (tenantId !== undefined) {
-            where.payload = Raw((alias) => `JSON_EXTRACT(${alias}, '$.tenantId') = :tenantId`, { tenantId });
+            conditions.push("JSON_EXTRACT(`payload`, '$.tenantId') = ?");
+            parameters.push(tenantId);
         }
 
-        await super.deleteBy(where);
+        await BatchedDeleteUtility.deleteInBatches(
+            this.logDataSource,
+            'pra_logs',
+            { sql: conditions.length > 0 ? conditions.join(' AND ') : '1 = 1', parameters },
+            'creation_date',
+            LogRepositoryService.CLEAR_DELETE_OPTIONS,
+        );
     }
 }

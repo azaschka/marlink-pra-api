@@ -33,6 +33,8 @@ export class CreateBeyondtrustInstanceBackupCommandHandler implements ICommandHa
                     ObjectUtility.stripProperties(command, 'transactionId', 'beyondtrustInstanceId'),
                     {
                         headers: headers,
+                        // The Sync API downloads and stores the whole backup before it answers.
+                        timeout: this.appConfigService.praSyncApiTimeouts.fileTransferInMs,
                     },
                 ),
             );

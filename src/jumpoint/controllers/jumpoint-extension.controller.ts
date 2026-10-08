@@ -3,6 +3,7 @@ import {
     Get,
     HttpException,
     HttpStatus,
+    Logger,
     Query,
     Res,
     UseGuards,
@@ -18,7 +19,7 @@ import { AccessGuard } from '../../access/guards';
 import { ApiAccessKeyHeader, ApiTransactionIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
-import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
+import { ErrorProcessorUtility, SyncApiDownloadUtility, UuidUtility } from '../../shared/utilities';
 import { RetrieveJumpointInstallerByCustomerAndSiteDtoInput } from '../dtos/inputs';
 import { JumpointExtensionRequestPipe } from '../pipes';
 import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
@@ -33,6 +34,8 @@ import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
 @UsePipes(JumpointExtensionRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointExtensionController {
+    private static readonly LOGGER = new Logger(JumpointExtensionController.name);
+
     constructor(private readonly queryBus: QueryBus) {}
 
     @Get('installers')
@@ -68,7 +71,12 @@ export class JumpointExtensionController {
                 res.setHeader('Content-Length', response.headers['content-length']);
             }
 
-            response.data.pipe(res);
+            await SyncApiDownloadUtility.forward(
+                response.data,
+                res,
+                JumpointExtensionController.LOGGER,
+                'Jumpoint installer download',
+            );
         } catch (error) {
             if (error instanceof HttpException) {
                 res.status(error.getStatus()).json({

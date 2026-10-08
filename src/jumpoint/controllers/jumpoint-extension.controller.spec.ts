@@ -1,6 +1,7 @@
 import { QueryBus } from '@nestjs/cqrs';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
+import { Readable, Writable } from 'stream';
 import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { UuidUtility } from '../../shared/utilities';
 import { RetrieveJumpointInstallerByCustomerAndSiteQuery } from '../queries';
@@ -29,9 +30,7 @@ describe('JumpointExtensionController', () => {
                     // eslint-disable-next-line @typescript-eslint/naming-convention
                     'content-length': '12345',
                 },
-                data: {
-                    pipe: jest.fn(), // Mocking the pipe method
-                } as unknown as NodeJS.ReadableStream,
+                data: Readable.from([Buffer.from('installer-'), Buffer.from('bytes')]),
             } as unknown as AxiosResponse<NodeJS.ReadableStream>;
             const queryBusExecuteSpy = jest.spyOn(queryBus, 'execute').mockResolvedValue(expectedResult);
             const res = mockResponse();
@@ -52,6 +51,7 @@ describe('JumpointExtensionController', () => {
                 expectedResult.headers['content-disposition'],
             );
             expect(setHeaderMethod).toHaveBeenCalledWith('Content-Length', expectedResult.headers['content-length']);
+            expect(res.body()).toBe('installer-bytes');
         });
     });
 });
@@ -63,11 +63,21 @@ function mockQueryBus() {
     return queryBus;
 }
 
-function mockResponse(): Response {
-    const res: Partial<Response> = {};
+/** A writable response, so that the download body is really forwarded (pipeline). */
+function mockResponse(): Response & { body: () => string } {
+    const chunks: Buffer[] = [];
+    const res = new Writable({
+        write(chunk: Buffer, _encoding, callback) {
+            chunks.push(chunk);
+            callback();
+        },
+    }) as unknown as Response & { body: () => string };
     res.set = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
+    res.status = jest.fn().mockReturnValue(res);
+    res.json = jest.fn().mockReturnValue(res);
+    res.body = () => Buffer.concat(chunks).toString();
 
-    return res as Response;
+    return res;
 }

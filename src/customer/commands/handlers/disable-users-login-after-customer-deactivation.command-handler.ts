@@ -4,7 +4,7 @@ import { GroupPolicyMember } from '../../../group-policy-member/models';
 import { RetrieveGroupPolicyMembersQuery } from '../../../group-policy-member/queries';
 import { GroupPolicy } from '../../../group-policy/models';
 import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
-import { ErrorProcessorUtility, PaginationUtility } from '../../../shared/utilities';
+import { ConcurrencyUtility, ErrorProcessorUtility, PaginationUtility } from '../../../shared/utilities';
 import { Site, SiteAuditor, SiteManager, SiteSupportTeamMember } from '../../../site/models';
 import {
     RetrieveSiteAuditorsByUserIdQuery,
@@ -21,6 +21,7 @@ import { DisableUsersLoginAfterCustomerDeactivationCommand } from '../disable-us
 @CommandHandler(DisableUsersLoginAfterCustomerDeactivationCommand)
 export class DisableUsersLoginAfterCustomerDeactivationCommandHandler implements ICommandHandler<DisableUsersLoginAfterCustomerDeactivationCommand> {
     private static readonly MAX_PAGE_RETRIEVAL_SIZE = 100;
+    private static readonly SITE_LOOKUP_CONCURRENCY = 5;
 
     constructor(
         private readonly commandBus: CommandBus,
@@ -102,21 +103,10 @@ export class DisableUsersLoginAfterCustomerDeactivationCommandHandler implements
                     ),
                 ),
             );
-            const siteAuditorCustomerKeys = (
-                await Promise.all(
-                    siteAuditors.map(async (siteAuditor) => {
-                        try {
-                            const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
-                                new RetrieveSiteByIdQuery(transactionId, siteAuditor.siteId),
-                            );
-
-                            return site.customerKey;
-                        } catch {
-                            return undefined;
-                        }
-                    }),
-                )
-            ).filter((value) => value !== undefined);
+            const siteAuditorCustomerKeys = await this.customerKeysOfSites(
+                transactionId,
+                siteAuditors.map((siteAuditor) => siteAuditor.siteId),
+            );
 
             // Site manager
             const siteManagers = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
@@ -129,21 +119,10 @@ export class DisableUsersLoginAfterCustomerDeactivationCommandHandler implements
                     ),
                 ),
             );
-            const siteManagerCustomerKeys = (
-                await Promise.all(
-                    siteManagers.map(async (siteManager) => {
-                        try {
-                            const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
-                                new RetrieveSiteByIdQuery(transactionId, siteManager.siteId),
-                            );
-
-                            return site.customerKey;
-                        } catch {
-                            return undefined;
-                        }
-                    }),
-                )
-            ).filter((value) => value !== undefined);
+            const siteManagerCustomerKeys = await this.customerKeysOfSites(
+                transactionId,
+                siteManagers.map((siteManager) => siteManager.siteId),
+            );
 
             // Support team member
             const siteSupportTeamMembers = await PaginationUtility.queryUntilLastPage((pageNumber: number) =>
@@ -156,21 +135,10 @@ export class DisableUsersLoginAfterCustomerDeactivationCommandHandler implements
                     ),
                 ),
             );
-            const siteSupportTeamMemberCustomerKeys = (
-                await Promise.all(
-                    siteSupportTeamMembers.map(async (siteSupportTeamMember) => {
-                        try {
-                            const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
-                                new RetrieveSiteByIdQuery(transactionId, siteSupportTeamMember.siteId),
-                            );
-
-                            return site.customerKey;
-                        } catch {
-                            return undefined;
-                        }
-                    }),
-                )
-            ).filter((value) => value !== undefined);
+            const siteSupportTeamMemberCustomerKeys = await this.customerKeysOfSites(
+                transactionId,
+                siteSupportTeamMembers.map((siteSupportTeamMember) => siteSupportTeamMember.siteId),
+            );
 
             // TODO handle case where user is associated with other customer but other customer is also being deactivated
             if (siteAuditorCustomerKeys.length > 0 && siteAuditorCustomerKeys.some((key) => key !== customer.key)) {
@@ -192,6 +160,30 @@ export class DisableUsersLoginAfterCustomerDeactivationCommandHandler implements
         }
 
         return exclusiveUserIds;
+    }
+
+    /**
+     * Customer keys of the given sites; sites that cannot be read are left out. At most
+     * SITE_LOOKUP_CONCURRENCY lookups run at the same time (before: all at once, one per site assignment).
+     */
+    private async customerKeysOfSites(transactionId: string, siteIds: number[]): Promise<string[]> {
+        const customerKeys = await ConcurrencyUtility.mapWithLimit(
+            siteIds,
+            DisableUsersLoginAfterCustomerDeactivationCommandHandler.SITE_LOOKUP_CONCURRENCY,
+            async (siteId) => {
+                try {
+                    const site = await this.queryBus.execute<RetrieveSiteByIdQuery, Site>(
+                        new RetrieveSiteByIdQuery(transactionId, siteId),
+                    );
+
+                    return site.customerKey;
+                } catch {
+                    return undefined;
+                }
+            },
+        );
+
+        return customerKeys.filter((value): value is string => value !== undefined);
     }
 
     private async getCustomerAssociatedGroupPolicies(transactionId: string, customer: Customer) {

@@ -10,7 +10,9 @@ AppModule (Root)
 │   ├── TypeOrmModule (Database)
 │   ├── CqrsModule (Command/Query separation)
 │   ├── ThrottlerModule (Rate limiting)
-│   └── HttpModule (External API calls)
+│   ├── HttpModule (External API calls)
+│   ├── OutboundHttpModule (default timeout of every outbound call)
+│   └── ObservabilityModule (global: resource report, health contributors)
 │
 ├── Foundation Modules
 │   ├── AppConfigModule ──────────────┐
@@ -90,6 +92,8 @@ AppModule (Root)
 │   │   └── Handles MJML templates
 │   ├── JobModule
 │   │   └── Cron job management
+│   ├── RetentionModule
+│   │   └── Hourly retention of pra_logs and pra_monitorings
 │   └── LicenseUsageModule
 │
 └── Utilities
@@ -106,6 +110,8 @@ These are foundational NestJS modules that provide system-wide functionality:
 - **CqrsModule**: Command Query Responsibility Segregation pattern
 - **ThrottlerModule**: Global rate limiting (1500 requests per minute)
 - **HttpModule**: HTTP client for external API calls
+- **OutboundHttpModule**: sets the default timeout (`PRA_SYNC_API_TIMEOUT_IN_MS`, 300 s) on the shared axios instance of the plain `HttpModule` at bootstrap. Long-running calls pass their own timeout (`AppConfigService.praSyncApiTimeouts`): manual scan and "sync all external" 25 min, backup creation and jumpoint node ISO download 30 min. Installer downloads fail after 120 s without data (`SyncApiDownloadUtility`). A timeout answers `504`.
+- **ObservabilityModule** (global): `ResourceReporterService` writes one JSON line (`ResourceReport` logger) every `RESOURCE_REPORT_INTERVAL_IN_MS` (5 min, 0 disables it) with heap, RSS, repository cache, pool figures and the figures that modules register through `ResourceReportRegistry` (`logWriter`, `monitoringWriter`, `manualScans`). `HealthContributorRegistry` collects the diagnostic checks that modules contribute (`praSyncApi`, `retention`).
 
 ### 2. Foundation Modules
 
@@ -153,22 +159,26 @@ These are foundational NestJS modules that provide system-wide functionality:
 #### HealthModule
 
 - **Endpoints**:
-    - `/health` - Full health check
-    - `/health/ready` - Readiness probe (database only)
+    - `/health` - Diagnostic contract: legacy Terminus fields plus `overallStatus` (`healthy`, `degraded`, `unavailable`), `service`, `version`, `checkedAt` and `checks.<name>` (`status` up, warning or down, `critical`, measured values). HTTP 503 only when the database is down or the service shuts down.
+    - `/health/ready` - Readiness probe (database only, 503 when it is down)
     - `/health/live` - Liveness probe (no external deps)
-- **Features**: Graceful degradation for external API checks
+- **Features**: `praSyncApi` is non-critical (a Sync API warning or outage makes PRA API `degraded`, never 503) and understands old and new Sync answers; database, storage and Sync checks are bounded and cached; `memoryHeap` warns on sustained usage (minimum over 300 s). Health requests are not recorded as monitoring records.
 
 #### MonitoringModule
 
 - **Purpose**: Track all endpoint access for analytics
 - **Database**: `pra_monitorings` table
-- **Pipe**: `MonitoringRequestPipe` automatically logs all requests
+- **Pipe**: `MonitoringRequestPipe` queues one record per request through a bounded asynchronous writer; it never waits for the database
 
 #### LogModule
 
-- **Purpose**: Exception and audit logging
-- **Database**: `pra_exception_logs` table
-- **Features**: Logs all exceptions with transaction IDs
+- **Purpose**: System log of commands, events and server errors
+- **Database**: `pra_logs` table (shared with pra-sync-api, identical `LogEntity` in both services)
+- **Features**:
+    - `LogBusSubscriberService` (singleton) subscribes to the command and event buses once per process.
+    - `LogWriterService` writes through `BufferedEntityWriter`: bounded buffer, multi-row INSERTs, at most one statement in flight, backoff; under overload rows are dropped, counted and documented by a `LOG_ENTRIES_DROPPED` entry; shutdown is bounded.
+    - Secrets are redacted before persisting (deny-list in `LogService`, any depth).
+    - `AllExceptionsFilter` responds first, then queues the entry; health responses and raw database connection failures go to stdout only.
 
 ### 5. Domain Modules (Multi-Tenant)
 
@@ -300,7 +310,8 @@ These are foundational NestJS modules that provide system-wide functionality:
 
 - **Purpose**: Sync discrepancies between DB and BeyondTrust API
 - **Features**:
-    - Scan all entities for discrepancies
+    - Scan all entities for discrepancies: `ScanAllDiscrepanciesCommand` starts `ManualDiscrepancyScanService` in the background, one manual scan per tenant; the status (`RetrieveDiscrepancyScanStatusQuery`) is per tenant, kept 1 h, at most 200, with `failedEntityTypes`. After a Sync API timeout the remaining types are not attempted.
+    - Overviews carry the optional `state` and `failureKind` of the Sync API (3.2 and later)
     - Sync operations with batched processing
     - 250ms delays between API calls
 
@@ -318,6 +329,12 @@ These are foundational NestJS modules that provide system-wide functionality:
 - **Jobs**:
     - BeyondTrust instance backup (daily at 02:35 AM)
     - BT data population if empty (every 3 hours)
+    - Retention (`CRON_JOB_LOG_RETENTION`, default `17 * * * *`): dispatches `EnforceRetentionCommand`
+
+#### RetentionModule
+
+- **Purpose**: no row of `pra_logs` or `pra_monitorings` older than `LOG_RETENTION_DAYS` / `MONITORING_RETENTION_DAYS` (90) plus at most 2 hours
+- **Mechanism**: `RetentionService` deletes in batches of 5,000 rows (`BatchedDeleteUtility`, 100 ms pause, at most 10 min per table and run), never twice at the same time (in process and `GET_LOCK('pra:retention:<table>', 0)`, switch `RETENTION_DISTRIBUTED_LOCK_ENABLED`, off on Galera), one summary line per run, backlog reported as the non-critical check `retention`
 
 #### LicenseUsageModule
 
@@ -424,6 +441,7 @@ Each domain module has a request pipe that:
 
 - **BeyondTrust PRA Sync API** for user/team/jump management
 - **HTTP module** with connection pooling (50 sockets)
+- **Timeouts**: default and overrides set by `OutboundHttpModule` (see Core Infrastructure Modules)
 - **Retry logic** via `RetryUtility`
 
 ### Event-Driven Communication

@@ -27,7 +27,14 @@ export class SyncAllExternalDiscrepanciesCommandHandler implements ICommandHandl
             headers.set(TRANSACTION_ID_HEADER, command.transactionId);
             headers.set(TENANT_ID_HEADER, command.tenantId);
 
-            const response = await firstValueFrom(this.httpService.post<SyncAllExternalResult>(url, {}, { headers }));
+            const response = await firstValueFrom(
+                this.httpService.post<SyncAllExternalResult>(
+                    url,
+                    {},
+                    // Synchronises every external discrepancy of the tenant before answering.
+                    { headers, timeout: this.appConfigService.praSyncApiTimeouts.scanInMs },
+                ),
+            );
 
             return response.data;
         } catch (error) {

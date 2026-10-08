@@ -31,11 +31,31 @@ export abstract class DefaultAppConfig {
     private static readonly DB_ACQUIRE_TIMEOUT_IN_MS = 15000;
     private static readonly DB_READ_MAX_ATTEMPTS = 2;
 
+    // System log and monitoring records are persisted asynchronously in bounded batches (one connection per
+    // writer). A full buffer drops new rows and documents the gap; see BufferedEntityWriter.
+    private static readonly LOG_WRITER_CAPACITY = 10000;
+    private static readonly LOG_WRITER_BATCH_SIZE = 200;
+    private static readonly LOG_WRITER_FLUSH_INTERVAL_IN_MS = 1000;
+    private static readonly LOG_WRITER_ACQUIRE_TIMEOUT_IN_MS = 5000;
+    private static readonly LOG_WRITER_MAX_BACKOFF_IN_MS = 30000;
+    private static readonly LOG_WRITER_SHUTDOWN_TIMEOUT_IN_MS = 5000;
+    private static readonly LOG_WRITER_DROP_REPORT_INTERVAL_IN_MS = 60000;
+    // Stays below the 65,535 byte limit of the TEXT payload column, measured in bytes (utf8mb4).
+    private static readonly LOG_PAYLOAD_MAX_BYTES = 60000;
+
+    // One JSON line with memory, pool and background work figures per interval; 0 disables the report.
+    private static readonly RESOURCE_REPORT_INTERVAL_IN_MS = 300000; // 5 minutes
+
     private static readonly CRON_JOB_TIMEZONE = 'Europe/Berlin';
     private static readonly CRON_JOB_BT_INSTANCE_BACKUP = '35 2 * * *'; // At 02:35 AM every day
     private static readonly CRON_JOB_BT_DATA_POPULATION_IF_EMPTY = '0 */3 * * *'; // Every 3 hours
-    private static readonly CRON_JOB_LOG_RETENTION = '15 3 * * *'; // Daily at 03:15 AM
+    // Hourly: with a daily run rows reached 91 days and more after a failed run (STAB-08). Minute 17 keeps the
+    // run away from the :00 and :30 scan cycles of the Sync API.
+    private static readonly CRON_JOB_LOG_RETENTION = '17 * * * *';
     private static readonly LOG_RETENTION_DAYS = 90;
+    private static readonly MONITORING_RETENTION_DAYS = 90;
+    // MariaDB GET_LOCK per table so that several replicas never run the retention of a table at the same time.
+    private static readonly RETENTION_DISTRIBUTED_LOCK_ENABLED = true;
     private static readonly THROTTLE_TTL_IN_MS = 60000; // 1 minute
     private static readonly THROTTLE_LIMIT = 1500; // 1500 requests per TTL
     private static readonly THROTTLE_IS_ENABLED = true;
@@ -196,6 +216,54 @@ export abstract class DefaultAppConfig {
                     allExternal: '/all-external',
                 },
             },
+        };
+    }
+
+    // Outbound calls to the Sync API. An axios timeout limits the time until the response headers arrive; with the
+    // default transport (follow-redirects) it also ends a body that is idle for the same time. For an ordinary call
+    // it is the longest time without an answer. A streamed download body is guarded by downloadIdleInMs.
+    public static get praSyncApiTimeouts() {
+        return {
+            // Every call without an explicit override. Above the Sync API's worst case for one BeyondTrust read
+            // (4 attempts with a 60 s read timeout plus backoff, about 250 s) and for one write (3 min client
+            // timeout). Composite Sync operations can take longer (a create followed by a lookup: about 430 s), so
+            // a 504 after a write means that its outcome is unknown; the next run finds the result.
+            defaultInMs: 300000,
+            // Manual scan per entity type and "sync all external": above the Sync scan budget (20 min).
+            scanInMs: 25 * 60 * 1000,
+            // The Sync API fetches and stores a large file before it answers (BeyondTrust backup, jumpoint node ISO).
+            fileTransferInMs: 30 * 60 * 1000,
+            // A streamed installer download fails when no data arrived for this long.
+            downloadIdleInMs: 120000,
+        };
+    }
+
+    public static get logWriter() {
+        return {
+            capacity: DefaultAppConfig.LOG_WRITER_CAPACITY,
+            batchSize: DefaultAppConfig.LOG_WRITER_BATCH_SIZE,
+            flushIntervalInMs: DefaultAppConfig.LOG_WRITER_FLUSH_INTERVAL_IN_MS,
+            acquireTimeoutInMs: DefaultAppConfig.LOG_WRITER_ACQUIRE_TIMEOUT_IN_MS,
+            maxBackoffInMs: DefaultAppConfig.LOG_WRITER_MAX_BACKOFF_IN_MS,
+            shutdownTimeoutInMs: DefaultAppConfig.LOG_WRITER_SHUTDOWN_TIMEOUT_IN_MS,
+            dropReportIntervalInMs: DefaultAppConfig.LOG_WRITER_DROP_REPORT_INTERVAL_IN_MS,
+        };
+    }
+
+    public static get retention() {
+        return {
+            monitoringRetentionDays: DefaultAppConfig.MONITORING_RETENTION_DAYS,
+            distributedLockEnabled: DefaultAppConfig.RETENTION_DISTRIBUTED_LOCK_ENABLED,
+        };
+    }
+
+    public static get logPayloadMaxBytes(): number {
+        return DefaultAppConfig.LOG_PAYLOAD_MAX_BYTES;
+    }
+
+    public static get observability() {
+        return {
+            resourceReportIntervalInMs: DefaultAppConfig.RESOURCE_REPORT_INTERVAL_IN_MS,
         };
     }
 

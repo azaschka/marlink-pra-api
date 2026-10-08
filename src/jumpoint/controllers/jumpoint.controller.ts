@@ -6,6 +6,7 @@ import {
     HttpCode,
     HttpException,
     HttpStatus,
+    Logger,
     Param,
     Patch,
     Post,
@@ -39,7 +40,7 @@ import {
 import { CustomersScopeInterceptor } from '../../customer/interceptors';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { NonEmptyBodyPipe } from '../../shared/pipes';
-import { ErrorProcessorUtility, UuidUtility } from '../../shared/utilities';
+import { ErrorProcessorUtility, SyncApiDownloadUtility, UuidUtility } from '../../shared/utilities';
 import { CreateJumpointCommand, DeleteJumpointCommand, ModifyJumpointCommand } from '../commands';
 import {
     CreateJumpointDtoInput,
@@ -73,6 +74,8 @@ import {
 @UsePipes(JumpointRequestPipe)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class JumpointController {
+    private static readonly LOGGER = new Logger(JumpointController.name);
+
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
@@ -269,7 +272,12 @@ export class JumpointController {
                 res.setHeader('Content-Length', response.headers['content-length']);
             }
 
-            response.data.pipe(res);
+            await SyncApiDownloadUtility.forward(
+                response.data,
+                res,
+                JumpointController.LOGGER,
+                'Jumpoint installer download',
+            );
         } catch (error) {
             if (error instanceof HttpException) {
                 res.status(error.getStatus()).json({

@@ -13,7 +13,7 @@ import { Discrepancy } from '../../discrepancy/models';
 import { RetrieveDiscrepanciesQuery } from '../../discrepancy/queries';
 import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
 import { PaginationUtility, UuidUtility } from '../../shared/utilities';
-import { ClearExpiredLogsCommand } from '../../log/commands';
+import { EnforceRetentionCommand } from '../../retention/commands';
 import { RetrieveUsersQuery } from '../../user/queries';
 
 @Controller('job')
@@ -149,10 +149,9 @@ export class JobController implements OnModuleInit {
         }
     }
 
+    // System log and monitoring records, hourly by default (CRON_JOB_LOG_RETENTION), batched and guarded.
     private async clearExpiredLogs() {
-        await this.commandBus.execute<ClearExpiredLogsCommand, void>(
-            new ClearExpiredLogsCommand(UuidUtility.generate(), this.appConfigService.cronJob.logRetentionDays),
-        );
+        await this.commandBus.execute<EnforceRetentionCommand>(new EnforceRetentionCommand(UuidUtility.generate()));
     }
 
     private async getAllBTInstances(transactionId: string) {

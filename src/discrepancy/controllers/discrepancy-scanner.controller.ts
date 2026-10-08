@@ -14,13 +14,12 @@ import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiTenantIdHeader, TenantIdHeader, TransactionIdHeader } from '../../core/decorators';
 import { MonitoringRequestPipe } from '../../monitoring/pipes';
 import { UuidUtility } from '../../shared/utilities';
-import { ScanDiscrepancyCommand } from '../commands';
+import { ScanAllDiscrepanciesCommand, ScanDiscrepancyCommand } from '../commands';
 import { RetrieveDiscrepanciesDtoInput } from '../dtos/inputs';
 import { DiscrepancyDtoOutput, DiscrepancyOverviewDtoOutput, ScanStatusDtoOutput } from '../dtos/outputs';
 import { DiscrepancyEntityType } from '../enums';
 import { Discrepancy, DiscrepancyOverview } from '../models';
-import { RetrieveDiscrepanciesQuery } from '../queries';
-import { DiscrepancyScanStatusService } from '../services/discrepancy-scan-status.service';
+import { RetrieveDiscrepanciesQuery, RetrieveDiscrepancyScanStatusQuery } from '../queries';
 
 @ApiTenantIdHeader()
 @ApiTags('Discrepancies')
@@ -30,7 +29,6 @@ export class DiscrepancyScannerController {
     constructor(
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
-        private readonly scanStatusService: DiscrepancyScanStatusService,
     ) {}
 
     @Get()
@@ -54,60 +52,33 @@ export class DiscrepancyScannerController {
         return result;
     }
 
+    /**
+     * Starts a scan of all entity types in the background and returns its ID. While a manual scan of the tenant is
+     * running, the ID of that scan is returned instead of starting a second one.
+     */
     @Post('/scan/all')
     @ApiOkResponse({ type: ScanStatusDtoOutput })
     @HttpCode(HttpStatus.ACCEPTED)
-    public scanAllDiscrepancies(
+    public async scanAllDiscrepancies(
         @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
         @TenantIdHeader() tenantId: number,
-    ): Pick<ScanStatusDtoOutput, 'scanId'> {
-        this.scanStatusService.start(transactionId);
-        void this.runAllScans(transactionId, tenantId);
-        return { scanId: transactionId };
+    ): Promise<Pick<ScanStatusDtoOutput, 'scanId'>> {
+        return this.commandBus.execute<ScanAllDiscrepanciesCommand, { scanId: string }>(
+            new ScanAllDiscrepanciesCommand(transactionId, tenantId),
+        );
     }
 
     @Get('/scan/status/:scanId')
     @ApiParam({ name: 'scanId', type: String, required: true })
     @ApiOkResponse({ type: ScanStatusDtoOutput })
-    public getScanStatus(@Param('scanId') scanId: string): ScanStatusDtoOutput {
-        return this.scanStatusService.get(scanId);
-    }
-
-    private async runAllScans(transactionId: string, tenantId: number): Promise<void> {
-        const entityTypeOrder = [
-            DiscrepancyEntityType.User,
-            DiscrepancyEntityType.GroupPolicy,
-            DiscrepancyEntityType.Team,
-            DiscrepancyEntityType.Jumpoint,
-            DiscrepancyEntityType.JumpPolicy,
-            DiscrepancyEntityType.SessionPolicy,
-            DiscrepancyEntityType.JumpGroup,
-            DiscrepancyEntityType.JumpItemProtocolTunnelJump,
-            DiscrepancyEntityType.JumpItemRemoteRdp,
-            DiscrepancyEntityType.JumpItemRemoteVnc,
-            DiscrepancyEntityType.JumpItemShellJump,
-            DiscrepancyEntityType.JumpItemWebJump,
-            DiscrepancyEntityType.JumpClient,
-            DiscrepancyEntityType.JumpClientInstaller,
-        ];
-
-        try {
-            for (const entityType of entityTypeOrder) {
-                try {
-                    console.log(`[${transactionId}] Starting discrepancy scan for ${entityType}.`);
-
-                    await this.scanDiscrepancies(transactionId, tenantId, entityType);
-                } catch (error) {
-                    console.error(`[${transactionId}] Discrepancy scan failed for ${entityType}:`, error);
-                }
-            }
-
-            console.log(`[${transactionId}] All discrepancy scans completed.`);
-            this.scanStatusService.complete(transactionId);
-        } catch (error) {
-            console.error(`[${transactionId}] Unexpected error during discrepancy scan:`, error);
-            this.scanStatusService.fail(transactionId, error);
-        }
+    public async getScanStatus(
+        @TransactionIdHeader() transactionId: string = UuidUtility.generate(),
+        @TenantIdHeader() tenantId: number,
+        @Param('scanId') scanId: string,
+    ): Promise<ScanStatusDtoOutput> {
+        return this.queryBus.execute<RetrieveDiscrepancyScanStatusQuery, ScanStatusDtoOutput>(
+            new RetrieveDiscrepancyScanStatusQuery(transactionId, tenantId, scanId),
+        );
     }
 
     @Post('/scan/:entityType')

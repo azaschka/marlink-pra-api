@@ -6,10 +6,11 @@ import { DiscrepancyScannerController } from './controllers/discrepancy-scanner.
 import { DiscrepancySyncController } from './controllers/discrepancy-sync.controller';
 import { QueryHandlers } from './queries/handlers';
 import { DiscrepancyScanStatusService } from './services/discrepancy-scan-status.service';
+import { ManualDiscrepancyScanService } from './services/manual-discrepancy-scan.service';
 
 @Module({
     imports: [AppConfigModule, HttpModule],
     controllers: [DiscrepancyScannerController, DiscrepancySyncController],
-    providers: [...QueryHandlers, ...CommandHandlers, DiscrepancyScanStatusService],
+    providers: [...QueryHandlers, ...CommandHandlers, DiscrepancyScanStatusService, ManualDiscrepancyScanService],
 })
 export class DiscrepancyModule {}
