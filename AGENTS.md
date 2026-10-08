@@ -2,7 +2,7 @@
 
 Management API of the Marlink PRA Platform (NestJS 11, TypeScript 5, CQRS, TypeORM, MariaDB). Public contract for the PRA Console and the SOC integration; delegates every BeyondTrust operation to pra-sync-api.
 
-Last reviewed: 2026-10-07
+Last reviewed: 2026-10-08
 
 ## Read first
 
@@ -35,6 +35,12 @@ Last reviewed: 2026-10-07
   - Remove a group policy membership only when no remaining role of the account needs it (`SiteGroupPolicyKeys`).
   - Retain site users that could not be processed.
   - Group policies that exist once per Business Unit are found, never created (`BuGroupPolicyLookupWorkflow`). External site users are members of `GP_<BU>_SAML_DEFAULT`; the name map `BU_SAML_DEFAULT_GP_MAP` is mirrored in pra-console (`src/app/shared/helpers/pra-data-filter.ts`) and both have to change together.
+- Stability invariants (release 3.2, see `../docs/knowledge/investigations/r3.2-stability/`):
+  - System log and monitoring rows are written only through `LogService` and `MonitoringRecordWriterService`, which queue them in a bounded `BufferedEntityWriter`. Never insert into `pra_logs` or the monitoring tables on a request path and never wait for the database to log. Pass payloads as objects, so `LogService` redacts secrets.
+  - Database access goes through the repository services and `DatabaseConnectionUtility` (bounded connection acquire, query runner released in `finally`).
+  - Every call to pra-sync-api sets a timeout from `AppConfigService.praSyncApiTimeouts`. A timeout after a write means the outcome is unknown: report it, never repeat the write automatically.
+  - Health: `/health/live` (process), `/health/ready` (database only), `/health` (diagnostics). pra-sync-api is a non-critical check; readiness never depends on it.
+  - The manual scan status is tenant-scoped and in memory (`DiscrepancyScanStatusService`); writes go through commands, also for jobs (`EnforceRetentionCommand`).
 - Tests: every behaviour change comes with a unit test next to the changed file (`*.spec.ts`). Keep the 3.1 console payload pin in `src/site/dtos/inputs/create-site.dto-input.spec.ts` green.
 
 ## Documentation duty
