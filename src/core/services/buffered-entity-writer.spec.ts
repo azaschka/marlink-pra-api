@@ -191,6 +191,40 @@ describe('BufferedEntityWriter', () => {
         expect(writer.stats()).toMatchObject({ buffered: 0, written: 0, dropped: 3 });
     });
 
+    it('ends stop() at the shutdown deadline while an INSERT hangs (half-open connection)', async () => {
+        const { dataSource, inserts } = mockDataSource(() => new Promise<void>(() => undefined)); // never answers
+        const writer = new BufferedEntityWriter<Row>(dataSource, 'Row', { ...OPTIONS, shutdownTimeoutInMs: 200 });
+
+        rows(6).forEach((row) => writer.enqueue(row)); // reaches the batch size: a flush is in flight
+        const startedAt = Date.now();
+        await writer.stop();
+
+        expect(Date.now() - startedAt).toBeGreaterThanOrEqual(150);
+        expect(Date.now() - startedAt).toBeLessThan(1000);
+        expect(inserts).toHaveLength(1); // the hanging batch; nothing is started after the deadline
+        expect(writer.stats()).toMatchObject({ buffered: 0, written: 0, dropped: 2 });
+        expect((Logger.prototype.warn as jest.Mock).mock.calls.flat()).toContainEqual(
+            expect.stringContaining('did not finish within the shutdown timeout'),
+        );
+    });
+
+    it('ends stop() at the deadline when the hanging INSERT starts during shutdown', async () => {
+        let hang = false;
+        const { dataSource, inserts } = mockDataSource(() =>
+            hang ? new Promise<void>(() => undefined) : Promise.resolve(),
+        );
+        const writer = new BufferedEntityWriter<Row>(dataSource, 'Row', { ...OPTIONS, shutdownTimeoutInMs: 200 });
+
+        rows(3).forEach((row) => writer.enqueue(row)); // below the batch size: nothing in flight yet
+        hang = true;
+        const startedAt = Date.now();
+        await writer.stop();
+
+        expect(Date.now() - startedAt).toBeLessThan(1000);
+        expect(inserts).toHaveLength(1);
+        expect(writer.stats()).toMatchObject({ buffered: 0, written: 0 });
+    });
+
     it('flushes on its own interval once started', async () => {
         jest.useFakeTimers();
         const { dataSource, inserts } = mockDataSource(() => Promise.resolve());

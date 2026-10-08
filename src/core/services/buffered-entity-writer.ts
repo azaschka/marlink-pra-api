@@ -38,7 +38,8 @@ export type DroppedRowsMarkerFactory<E> = (droppedRows: number, firstDroppedAt: 
  *   marker row that documents the gap, if a marker factory is given.
  * - Rows rejected by the database for deterministic reasons (data too long, invalid value) are dropped
  *   individually instead of blocking the whole batch.
- * - stop() writes what is buffered within the shutdown timeout; the rest is reported as discarded.
+ * - stop() writes what is buffered within the shutdown timeout, also while an INSERT hangs; the rest is reported
+ *   as discarded.
  */
 export class BufferedEntityWriter<E extends ObjectLiteral> {
     private static readonly DETERMINISTIC_ERROR_CODES: ReadonlySet<string> = new Set([
@@ -61,6 +62,7 @@ export class BufferedEntityWriter<E extends ObjectLiteral> {
     private nextAttemptAt = 0;
     private backoffInMs = 0;
     private stopped = false;
+    private stopDeadline = Number.POSITIVE_INFINITY;
     private pendingGap: { rows: number; first: Date; last: Date } | undefined;
     private droppedSinceReport = 0;
     private lastDropReportAt = 0;
@@ -117,21 +119,32 @@ export class BufferedEntityWriter<E extends ObjectLiteral> {
         return this.flushIfDue(true);
     }
 
+    /**
+     * Writes what is buffered within the shutdown timeout and discards the rest. Bounded even while an INSERT
+     * hangs (for example on a half-open connection after a database failover): the hanging statement is left
+     * behind and its rows count as not written.
+     */
     public async stop(): Promise<void> {
         this.stopped = true;
         clearInterval(this.timer);
         this.timer = undefined;
+        this.stopDeadline = Date.now() + this.options.shutdownTimeoutInMs;
 
-        const deadline = Date.now() + this.options.shutdownTimeoutInMs;
+        let finishedInTime = !this.flushInFlight || (await this.settlesBeforeStopDeadline(this.flushInFlight));
 
-        if (this.flushInFlight) {
-            await this.flushInFlight;
-        }
+        while (finishedInTime && (this.buffer.length > 0 || this.hasPendingGap()) && !this.isPastStopDeadline()) {
+            const write = this.writeNextBatch();
+            finishedInTime = await this.settlesBeforeStopDeadline(write);
 
-        while ((this.buffer.length > 0 || this.hasPendingGap()) && Date.now() < deadline) {
-            if (!(await this.writeNextBatch())) {
+            if (finishedInTime && !(await write)) {
                 break;
             }
+        }
+
+        if (!finishedInTime) {
+            this.logger.warn(
+                `A write did not finish within the shutdown timeout of ${this.options.shutdownTimeoutInMs} ms; its rows may be lost.`,
+            );
         }
 
         if (this.buffer.length > 0) {
@@ -162,10 +175,35 @@ export class BufferedEntityWriter<E extends ObjectLiteral> {
     }
 
     private async drain(): Promise<void> {
-        while (this.buffer.length > 0 || this.hasPendingGap()) {
+        // After stop() the loop ends at the shutdown deadline; stop() reports what is left.
+        while ((this.buffer.length > 0 || this.hasPendingGap()) && !this.isPastStopDeadline()) {
             if (!(await this.writeNextBatch())) {
                 return;
             }
+        }
+    }
+
+    private isPastStopDeadline(): boolean {
+        return Date.now() >= this.stopDeadline;
+    }
+
+    /** True when the promise settled before the shutdown deadline. */
+    private async settlesBeforeStopDeadline(promise: Promise<unknown>): Promise<boolean> {
+        let timer: NodeJS.Timeout | undefined;
+        const deadlineReached = new Promise<false>((resolve) => {
+            timer = setTimeout(() => resolve(false), Math.max(0, this.stopDeadline - Date.now()));
+        });
+
+        try {
+            return await Promise.race([
+                promise.then(
+                    () => true as const,
+                    () => true as const,
+                ),
+                deadlineReached,
+            ]);
+        } finally {
+            clearTimeout(timer);
         }
     }
 
