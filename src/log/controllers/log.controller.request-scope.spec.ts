@@ -54,7 +54,7 @@ describe('LogController request scope', () => {
     });
 
     afterAll(async () => {
-        await app.close();
+        await app.close(); // a second close after the last test is a no-op
     });
 
     beforeEach(() => {
@@ -81,5 +81,14 @@ describe('LogController request scope', () => {
         app.get(EventBus).publish(new TestEvent());
 
         expect(logService.logEvent).toHaveBeenCalledTimes(1);
+    });
+
+    it('logs nothing once the application is closed', async () => {
+        const eventBus = app.get(EventBus);
+        await app.close();
+
+        eventBus.publish(new TestEvent());
+
+        expect(logService.logEvent).not.toHaveBeenCalled();
     });
 });

@@ -5,7 +5,6 @@ import {
 import { BillingType } from '../../beyondtrust-instance/enums';
 import { BaseCommand } from '../../core/commands';
 import { BaseEvent } from '../../core/events';
-import { BaseQuery } from '../../core/queries';
 import { SortOrderType } from '../../shared/enums';
 import { DateUtility } from '../../shared/utilities';
 import { LogActionType } from '../enums';
@@ -60,36 +59,6 @@ describe('LogService', () => {
             }),
         );
         expect(logFilterServiceFilterCommandMethod).toHaveBeenCalledWith(command);
-    });
-
-    it('should log a query', () => {
-        const logWriterEnqueueMethod = jest.spyOn(logWriterService, 'enqueue');
-
-        logService.logQuery({
-            queryType: 'TestQuery',
-            transactionId: 'transaction-2',
-            data: {
-                someData: 'test',
-            },
-        } as BaseQuery);
-
-        expect(logWriterEnqueueMethod).toHaveBeenCalledWith(
-            expect.objectContaining({
-                serviceName: mockServiceName,
-                actionType: LogActionType.Query,
-                actionName: 'TestQuery',
-                transactionId: 'transaction-2',
-                initiatedBy: undefined,
-                creationDate: new Date('2025-01-01T00:00:00Z'),
-                payload: JSON.stringify({
-                    queryType: 'TestQuery',
-                    transactionId: 'transaction-2',
-                    data: {
-                        someData: 'test',
-                    },
-                }),
-            }),
-        );
     });
 
     it('should log an event', () => {

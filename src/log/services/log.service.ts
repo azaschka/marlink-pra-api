@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ICommand, IEvent, IQuery } from '@nestjs/cqrs';
+import { ICommand, IEvent } from '@nestjs/cqrs';
 import { name as serviceName } from '../../../package.json';
 import { DefaultAppConfig } from '../../app-config/consts';
 import { BaseCommand } from '../../core/commands';
 import { BaseEvent } from '../../core/events';
-import { BaseQuery } from '../../core/queries';
 import { SortOrderType } from '../../shared/enums';
 import { DateUtility } from '../../shared/utilities';
 import { LogActionType } from '../enums';
@@ -55,22 +54,6 @@ export class LogService {
                 commandData.initiatedBy,
                 DateUtility.getCurrentUtcDate(),
                 commandData,
-            ),
-        );
-    }
-
-    /** Queues the query for the system log. Never waits for the database. */
-    public logQuery(query: IQuery): void {
-        const queryData = query as BaseQuery;
-
-        this.logWriterService.enqueue(
-            this.createEntry(
-                LogActionType.Query,
-                queryData.queryType,
-                queryData.transactionId,
-                queryData.initiatedBy,
-                DateUtility.getCurrentUtcDate(),
-                queryData,
             ),
         );
     }
