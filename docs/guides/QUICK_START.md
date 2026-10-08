@@ -67,7 +67,24 @@ SMTP_PASSWORD=your-smtp-password
 THROTTLE_IS_ENABLED=true
 THROTTLE_TTL_IN_MS=60000
 THROTTLE_LIMIT=1500
+
+# Calls to the Sync API (optional, defaults shown)
+PRA_SYNC_API_TIMEOUT_IN_MS=300000
+PRA_SYNC_API_SCAN_TIMEOUT_IN_MS=1500000
+PRA_SYNC_API_FILE_TRANSFER_TIMEOUT_IN_MS=1800000
+PRA_SYNC_API_DOWNLOAD_IDLE_TIMEOUT_IN_MS=120000
+
+# Retention and observability (optional, defaults shown)
+LOG_RETENTION_DAYS=90
+MONITORING_RETENTION_DAYS=90
+CRON_JOB_LOG_RETENTION=17 * * * *
+RETENTION_DISTRIBUTED_LOCK_ENABLED=true
+RESOURCE_REPORT_INTERVAL_IN_MS=300000
+HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB=512
+HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT=80
 ```
+
+All numeric values are validated at startup; an invalid value falls back to the default and is reported once. Set `RETENTION_DISTRIBUTED_LOCK_ENABLED=false` on Galera (no `GET_LOCK`). Keep `CRON_JOB_LOG_RETENTION` hourly: a daily schedule lets rows reach 91 days.
 
 ### 4. Start Local Database
 
@@ -194,18 +211,27 @@ Configured via environment variables - see Emergency Access section below.
 curl -X GET http://localhost:9000/health
 ```
 
-Expected response:
+Expected response (shortened; the legacy `status`, `info`, `error` and `details` fields are kept for older consumers):
 
 ```json
 {
     "status": "ok",
-    "info": {
+    "details": {
         "database": { "status": "up" },
-        "disk": { "status": "up" },
-        "memory": { "status": "up" }
+        "storage": { "status": "up" },
+        "memoryHeap": { "status": "up" },
+        "praSyncApi": { "status": "up" }
+    },
+    "overallStatus": "healthy",
+    "service": "pra-api",
+    "checks": {
+        "database": { "status": "up", "critical": true, "latencyMs": 3 },
+        "praSyncApi": { "status": "up", "critical": false, "reachable": true, "remoteOverallStatus": "healthy" }
     }
 }
 ```
+
+`overallStatus` is `degraded` (HTTP 200) for a warning or a non-critical failure, for example an unreachable Sync API, and `unavailable` (HTTP 503) only when the database is down. Probes: liveness `/health/live`, readiness `/health/ready`.
 
 ### Example: Create a Customer (Business Unit Scoped)
 
