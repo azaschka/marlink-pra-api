@@ -5,11 +5,13 @@ import { BuGroupPolicyLookupWorkflow } from './bu-group-policy-lookup.workflow';
 
 /**
  * Maps each Business Unit to the default group policy of its externally provisioned (SAML) users. These policies
- * are created manually on each BeyondTrust appliance.
+ * are created manually on each BeyondTrust appliance, and BeyondTrust adds a user of an identity provider to the
+ * policy of its Business Unit when the user signs in for the first time. The platform never adds members.
  *
- * The membership marks an external user as belonging to the Business Unit: the PRA Console shows a BeyondTrust
- * user to a BU Admin when one of the user's group policies belongs to that Business Unit, and uses the same
- * names for it (pra-console, BU_SAML_DEFAULT_GP_MAP in shared/helpers/pra-data-filter.ts). Keep both in sync.
+ * The membership lets a BU Admin find a new external user that has no site role yet: the PRA Console shows a
+ * BeyondTrust user to a BU Admin when one of the user's group policies belongs to that Business Unit, and uses
+ * the same names for it (pra-console, BU_SAML_DEFAULT_GP_MAP in shared/helpers/pra-data-filter.ts). Keep both in
+ * sync.
  */
 export const BU_SAML_DEFAULT_GP_MAP: Record<BusinessUnit, string> = {
     [BusinessUnit.OA]: 'GP_OMNIACCESS_SAML_DEFAULT',
@@ -20,10 +22,10 @@ export const BU_SAML_DEFAULT_GP_MAP: Record<BusinessUnit, string> = {
 };
 
 /**
- * Finds (never creates) the SAML default group policy of the customer's Business Unit (EXT-21).
+ * Finds (never creates) the SAML default group policy of the customer's Business Unit (EXT-21, EXT-24).
  *
- * Site ingestion adds every externally provisioned site user to it, next to the role-specific policies. Local
- * users are not members: their policies already identify the Business Unit through the customer name.
+ * Local users are never members: BeyondTrust only adds users of an identity provider, and their site policies
+ * identify the Business Unit through the customer name.
  */
 export class BuSamlDefaultGroupPolicyWorkflow extends BuGroupPolicyLookupWorkflow {
     public get groupPolicyName(): string | undefined {
@@ -35,9 +37,8 @@ export class BuSamlDefaultGroupPolicyWorkflow extends BuGroupPolicyLookupWorkflo
     }
 
     /**
-     * The policy a site user of the given source type has to be a member of: the Business Unit's SAML default
-     * policy for an external user, none for a local user. Null as well when the policy does not exist on the
-     * BeyondTrust instance; SiteWorkflow reports that once per ingestion run instead of failing every user.
+     * The Business Unit's SAML default policy for an external user, none for a local user. Null as well when the
+     * policy does not exist on the BeyondTrust instance.
      */
     public async getFor(sourceType: UserSourceType): Promise<GroupPolicy | null> {
         if (sourceType !== UserSourceType.External) {

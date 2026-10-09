@@ -1,6 +1,5 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AppConfigService } from '../../app-config/services/app-config.service';
-import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { RetrieveCustomersQuery } from '../../customer/queries';
 import { UserGroupPolicyMembershipWorkflow } from '../../group-policy-member/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
@@ -19,7 +18,6 @@ import {
     AdminOperatorAccessGroupPolicyWorkflow,
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
-    BuSamlDefaultGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     LimitedAccessGroupPolicyWorkflow,
@@ -38,11 +36,6 @@ import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workfl
 describe('Site user removal across roles (EXT-03)', () => {
     const SITE_ID = 5;
     const ACCOUNT = { id: 7, username: 'p@example.com', email: 'p@example.com', securityProviderId: 1 };
-    /** The SAML default policy of the Business Unit is covered by its own spec (EXT-21); here it does not exist. */
-    const NO_BU_SAML_DEFAULT = {
-        businessUnit: BusinessUnit.MT,
-        getFor: () => Promise.resolve(null),
-    } as unknown as BuSamlDefaultGroupPolicyWorkflow;
     let queryBus: QueryBus;
     let commandBus: CommandBus;
     let executedCommands: unknown[];
@@ -125,7 +118,6 @@ describe('Site user removal across roles (EXT-03)', () => {
             1,
             { getOrCreate: () => Promise.resolve({ id: 10 }) } as unknown as AdministratorGroupPolicyWorkflow,
             { getOrCreate: () => Promise.resolve({ id: 11 }) } as unknown as OperatorGroupPolicyWorkflow,
-            NO_BU_SAML_DEFAULT,
         ).delete();
 
         expect(executedCommands.some((command) => command instanceof DeleteUserCommand)).toBe(false);
@@ -152,7 +144,6 @@ describe('Site user removal across roles (EXT-03)', () => {
             1,
             { getOrCreate: () => Promise.resolve({ id: 10 }) } as unknown as AdministratorGroupPolicyWorkflow,
             { getOrCreate: () => Promise.resolve({ id: 11 }) } as unknown as OperatorGroupPolicyWorkflow,
-            NO_BU_SAML_DEFAULT,
         ).delete();
 
         expect(executedCommands.some((command) => command instanceof DeleteUserCommand)).toBe(true);
@@ -194,7 +185,6 @@ describe('Site user removal across roles (EXT-03)', () => {
             { getOrCreate: () => Promise.resolve({ id: 11 }) } as unknown as OperatorGroupPolicyWorkflow,
             {} as JumpointsWorkflow,
             {} as BuSupportGroupPolicyWorkflow,
-            NO_BU_SAML_DEFAULT,
         ).delete();
 
         expect(removedGroupPolicyIds()).toEqual([16]);
@@ -237,7 +227,6 @@ describe('Site user removal across roles (EXT-03)', () => {
             { getOrCreate: () => Promise.resolve({ id: 11 }) } as unknown as OperatorGroupPolicyWorkflow,
             {} as JumpointsWorkflow,
             {} as BuSupportGroupPolicyWorkflow,
-            NO_BU_SAML_DEFAULT,
         ).delete([{ siteUserType: SiteUserType.SiteAuditor, id: 2, siteId: SITE_ID }]);
 
         expect(removedGroupPolicyIds()).toEqual([16, 11, 14]);
@@ -268,7 +257,6 @@ describe('Site user removal across roles (EXT-03)', () => {
                 1,
                 { getOrCreate: () => Promise.resolve({ id: 10 }) } as unknown as AdministratorGroupPolicyWorkflow,
                 { getOrCreate: () => Promise.resolve({ id: 11 }) } as unknown as OperatorGroupPolicyWorkflow,
-                NO_BU_SAML_DEFAULT,
             );
         }
 

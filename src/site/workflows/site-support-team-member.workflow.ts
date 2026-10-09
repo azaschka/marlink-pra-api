@@ -13,7 +13,6 @@ import { UserNotFoundException } from '../exceptions';
 import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId } from '../models';
 import {
     AdministratorGroupPolicyWorkflow,
-    BuSamlDefaultGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     LimitedAccessGroupPolicyWorkflow,
@@ -47,7 +46,6 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
         private readonly jumpointsWorkflow: JumpointsWorkflow,
         private readonly buSupportGroupPolicyWorkflow: BuSupportGroupPolicyWorkflow,
-        private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow,
     ) {
         this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
             this.queryBus,
@@ -173,11 +171,6 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         //   - OPERATORS_{CUSTOMER}            — customer-specific operator group policy
         //   - LIMITED_ACCESS                  — global limited access policy (accessLevel: limited)
         //   - FULL_ACCESS                     — global full access policy   (accessLevel: full)
-        //   - GP_{BU}_SAML_DEFAULT            — Business Unit default policy, external users only (EXT-21)
-        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
-            this.siteSupportTeamMember.sourceType,
-        );
-
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteSupportTeamMember,
             this.siteSupportTeamMember.sourceType,
@@ -189,7 +182,6 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
                 this.siteSupportTeamMember.supportTeamAccessLevel === SiteSupportTeamAccessLevel.Full
                     ? fullAccessGroupPolicy.id
                     : limitedAccessGroupPolicy.id,
-                ...(buSamlDefaultGroupPolicy ? [buSamlDefaultGroupPolicy.id] : []),
             ],
             [],
         );
@@ -241,9 +233,6 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             },
             removedTogether,
         );
-        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
-            this.siteSupportTeamMember.sourceType,
-        );
 
         await this.userGroupPolicyAssignmentWorkflow.modify(
             SiteUserType.SiteSupportTeamMember,
@@ -266,10 +255,6 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
                             ? fullAccessGroupPolicy.id
                             : limitedAccessGroupPolicy.id,
                     ],
-                    ...SiteGroupPolicyKeys.buSamlDefaultCandidate(
-                        this.buSamlDefaultGroupPolicyWorkflow.businessUnit,
-                        buSamlDefaultGroupPolicy,
-                    ),
                 ],
                 remainingRoles,
             ),
