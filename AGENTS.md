@@ -2,7 +2,7 @@
 
 Management API of the Marlink PRA Platform (NestJS 11, TypeScript 5, CQRS, TypeORM, MariaDB). Public contract for the PRA Console and the SOC integration; delegates every BeyondTrust operation to pra-sync-api.
 
-Last reviewed: 2026-10-08
+Last reviewed: 2026-10-09
 
 ## Read first
 
@@ -34,7 +34,9 @@ Last reviewed: 2026-10-08
   - Delete a BeyondTrust account, local or non-local, only when it holds no other site role on the same BeyondTrust instance. Use `SiteUserReferences` (`src/site/workflows/users/`) for that check; it covers site managers, auditors and support team members.
   - Remove a group policy membership only when no remaining role of the account needs it (`SiteGroupPolicyKeys`).
   - Retain site users that could not be processed.
-  - Group policies that exist once per Business Unit are found, never created (`BuGroupPolicyLookupWorkflow`). External site users are members of `GP_<BU>_SAML_DEFAULT`; the name map `BU_SAML_DEFAULT_GP_MAP` is mirrored in pra-console (`src/app/shared/helpers/pra-data-filter.ts`) and both have to change together.
+  - Group policies that exist once per Business Unit are found, never created (`BuGroupPolicyLookupWorkflow`). BeyondTrust adds a new external user to `GP_<BU>_SAML_DEFAULT` at the first sign-in; the role workflows remove an external site user from the policy of the customer's Business Unit as their last step, after the role policies are assigned. The platform never adds that membership, and role removal does not touch it. The name map `BU_SAML_DEFAULT_GP_MAP` is mirrored in pra-console (`src/app/shared/helpers/pra-data-filter.ts`) and both have to change together.
+  - Names of the policies the ingestion creates come from the static `groupPolicyNameFor()` of their workflows (`src/site/workflows/group-policies/`, `src/customer/workflows/`). Never rebuild such a name elsewhere. A `LIKE` pattern with a customer name may narrow a search but never decides that an object belongs to the customer: longer customer names match too, and `_` is a wildcard. Known open exception: `SupportTeamArtifactsWorkflow` (customer deletion, see `../docs/knowledge/domains/external-users.md`).
+- Customer deactivation and reactivation change the login only of the users chosen by `CustomerExclusiveUsersWorkflow` (`src/customer/workflows/`): direct members of the customer's own policies whose site roles on the same instance all belong to the customer. A user whose roles cannot be read is reported and left unchanged.
 - Stability invariants (release 3.2, see `../docs/knowledge/investigations/r3.2-stability/`):
   - System log and monitoring rows are written only through `LogService` and `MonitoringRecordWriterService`, which queue them in a bounded `BufferedEntityWriter`. Never insert into `pra_logs` or the monitoring tables on a request path and never wait for the database to log. Pass payloads as objects, so `LogService` redacts secrets.
   - Database access goes through the repository services and `DatabaseConnectionUtility` (bounded connection acquire, query runner released in `finally`).
