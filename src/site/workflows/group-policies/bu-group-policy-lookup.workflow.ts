@@ -59,6 +59,12 @@ export abstract class BuGroupPolicyLookupWorkflow {
 
         this.cachedGroupPolicy = groupPolicies[0] ?? null;
 
+        if (!this.cachedGroupPolicy) {
+            console.warn(
+                `[${this.transactionId}] ${this.description} "${groupPolicyName}" not found on BeyondTrust instance ${this.customerBeyondtrustInstanceId}. Skipping it.`,
+            );
+        }
+
         return this.cachedGroupPolicy;
     }
 }

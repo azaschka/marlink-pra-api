@@ -8,6 +8,7 @@ import {
     AdminOperatorAccessGroupPolicyWorkflow,
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
+    BuSamlDefaultGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
     UserGroupPolicyAssignmentWorkflow,
@@ -31,6 +32,7 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
         private readonly customerBeyondtrustInstanceId: number,
         private readonly administratorGroupPolicyWorkflow: AdministratorGroupPolicyWorkflow,
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
+        private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow,
     ) {
         this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
             this.queryBus,
@@ -120,6 +122,25 @@ export class SiteAuditorWorkflow implements BaseWorkflow<PartialSiteAuditorWithU
             ].filter((id) => id !== undefined),
             [],
         );
+
+        // EXT-25: BeyondTrust adds a user of an identity provider to the SAML default policy of its Business Unit at
+        // the first sign-in, so that a BU Admin can find the user. Once the policies of the role are assigned, the user
+        // leaves it, for the customer's Business Unit only. This is the last step: when it fails, the user is reported
+        // with everything else of the role already in place, and the next import tries again.
+        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
+            this.siteAuditor.sourceType,
+        );
+
+        if (buSamlDefaultGroupPolicy) {
+            await this.userGroupPolicyAssignmentWorkflow.modify(
+                SiteUserType.SiteAuditor,
+                this.siteAuditor.sourceType,
+                this.siteAuditor.email,
+                siteAuditorUser,
+                [],
+                [buSamlDefaultGroupPolicy.id],
+            );
+        }
 
         return {
             ...this.siteAuditor,

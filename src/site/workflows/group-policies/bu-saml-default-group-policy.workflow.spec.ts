@@ -5,7 +5,7 @@ import { UserSourceType } from '../../../user/enums';
 import { BU_SAML_DEFAULT_GP_MAP, BuSamlDefaultGroupPolicyWorkflow } from './bu-saml-default-group-policy.workflow';
 import { BuSupportGroupPolicyWorkflow } from './bu-support-group-policy.workflow';
 
-describe('BuSamlDefaultGroupPolicyWorkflow (EXT-21)', () => {
+describe('BuSamlDefaultGroupPolicyWorkflow (EXT-21, EXT-25)', () => {
     const TRANSACTION_ID = 'tx';
     const BT_INSTANCE_ID = 4;
     const GROUP_POLICY = { id: 30, name: 'GP_MARITIME_SAML_DEFAULT' };
@@ -48,10 +48,23 @@ describe('BuSamlDefaultGroupPolicyWorkflow (EXT-21)', () => {
         expect(execute).not.toHaveBeenCalled();
     });
 
-    it('should return null when the policy does not exist on the BeyondTrust instance', async () => {
+    it('should return null and log the name once when the policy does not exist on the BeyondTrust instance', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
         execute.mockResolvedValue([]);
+        const workflow = createWorkflow();
 
-        expect(await createWorkflow().getFor(UserSourceType.External)).toBeNull();
+        expect(await workflow.getFor(UserSourceType.External)).toBeNull();
+        expect(await workflow.getFor(UserSourceType.External)).toBeNull();
+        expect(warn).toHaveBeenCalledTimes(1);
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('"GP_MARITIME_SAML_DEFAULT" not found'));
+    });
+
+    it('should not log anything when the policy exists', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+        await createWorkflow().getFor(UserSourceType.External);
+
+        expect(warn).not.toHaveBeenCalled();
     });
 
     it('should return null without a lookup for a Business Unit that has no mapping', async () => {
@@ -64,6 +77,7 @@ describe('BuSamlDefaultGroupPolicyWorkflow (EXT-21)', () => {
     });
 
     it('should look the policy up once per workflow instance, also when it does not exist', async () => {
+        jest.spyOn(console, 'warn').mockImplementation(() => undefined);
         const workflow = createWorkflow();
 
         await workflow.getFor(UserSourceType.External);
