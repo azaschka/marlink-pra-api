@@ -16,6 +16,8 @@ export interface RemainingSiteRole {
     siteUserType: SiteUserType;
     siteId: number;
     customerName: string;
+    /** Key of the site's customer; undefined when the site or its customer cannot be read. */
+    customerKey?: string;
     isAdminOperator?: boolean;
     supportTeamName?: string;
     supportTeamAccessLevel?: SiteSupportTeamAccessLevel;
@@ -212,6 +214,7 @@ export class SiteUserReferences {
                 siteUserType,
                 siteId: row.siteId,
                 customerName: customer?.name ?? '',
+                customerKey: customer?.key,
                 isAdminOperator: (row as SiteAuditor).isAdminOperator,
                 supportTeamName: (row as SiteSupportTeamMember).supportTeamName,
                 supportTeamAccessLevel: (row as SiteSupportTeamMember).supportTeamAccessLevel,

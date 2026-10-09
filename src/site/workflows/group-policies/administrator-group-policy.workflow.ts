@@ -6,8 +6,13 @@ import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
 import { BaseWorkflow } from '../../../shared/workflows';
 
 export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolicy> {
+    /** Name of the policy for a customer; also used to recognise it (EXT-27). */
+    public static groupPolicyNameFor(appConfigService: AppConfigService, customerName: string): string {
+        return `${appConfigService.site.groupPolicy.administratorPrefix}${customerName.toUpperCase()}`;
+    }
+
     private get groupPolicyName(): string {
-        return `${this.appConfigService.site.groupPolicy.administratorPrefix}${this.customerName.toUpperCase()}`;
+        return AdministratorGroupPolicyWorkflow.groupPolicyNameFor(this.appConfigService, this.customerName);
     }
 
     constructor(

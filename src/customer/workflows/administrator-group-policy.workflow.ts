@@ -16,8 +16,13 @@ import { DeleteUserCommand } from '../../user/commands';
 export class AdministratorGroupPolicyWorkflow implements BaseWorkflow<GroupPolicy> {
     private static readonly MAX_MEMBERS_RETRIEVED_PER_PAGE = 100;
 
+    /** Name of the policy for a customer; also used to recognise it (EXT-27). */
+    public static groupPolicyNameFor(appConfigService: AppConfigService, customerName: string): string {
+        return `${appConfigService.customer.groupPolicy.administratorPrefix}${customerName.toUpperCase()}`;
+    }
+
     private get groupPolicyName(): string {
-        return `${this.appConfigService.customer.groupPolicy.administratorPrefix}${this.customerName.toUpperCase()}`;
+        return AdministratorGroupPolicyWorkflow.groupPolicyNameFor(this.appConfigService, this.customerName);
     }
 
     constructor(

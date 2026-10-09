@@ -6,8 +6,16 @@ import { BaseWorkflow } from '../../../shared/workflows';
 import { PartialSiteSupportTeamMember } from '../../models';
 
 export class SupportTeamGroupPolicyWorkflow implements BaseWorkflow<GroupPolicy> {
+    /** Name of the policy of a support team, shared by the sites of a customer; also used to recognise it (EXT-27). */
+    public static groupPolicyNameFor(customerName: string, supportTeamName: string): string {
+        return `${customerName.toUpperCase()}_${supportTeamName.toUpperCase()}`;
+    }
+
     private get groupPolicyName(): string {
-        return `${this.customerName.toUpperCase()}_${this.siteSupportTeamMember.supportTeamName.toUpperCase()}`;
+        return SupportTeamGroupPolicyWorkflow.groupPolicyNameFor(
+            this.customerName,
+            this.siteSupportTeamMember.supportTeamName,
+        );
     }
 
     constructor(
