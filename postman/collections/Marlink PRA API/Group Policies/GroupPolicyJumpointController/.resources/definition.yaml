@@ -1,0 +1,4 @@
+$kind: collection
+id: 5bcbb9be-8505-5032-a3cc-b402998f67f4
+description: "Operations of `GroupPolicyJumpointController` (module `GroupPolicyJumpointModule`). Source: `src/group-policy-jumpoint/controllers/group-policy-jumpoint.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 5000

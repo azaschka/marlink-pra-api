@@ -1,0 +1,4 @@
+$kind: collection
+id: edffd3c0-da75-5cbb-b5a8-ecf88268f5ae
+description: "Operations of `ProtocolTunnelJumpController` (module `ProtocolTunnelJumpModule`). Source: `src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 5000

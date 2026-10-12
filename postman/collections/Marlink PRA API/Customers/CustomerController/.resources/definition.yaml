@@ -1,0 +1,4 @@
+$kind: collection
+id: 01ad2e21-573f-5020-a248-96c4885e436a
+description: "Operations of `CustomerController` (module `CustomerModule`). Source: `src/customer/controllers/customer.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

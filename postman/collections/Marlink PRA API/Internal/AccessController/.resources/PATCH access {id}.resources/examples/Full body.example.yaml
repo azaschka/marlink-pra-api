@@ -1,0 +1,23 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/access/:id"
+  method: PATCH
+  body:
+    type: json
+    content: |-
+      {
+        "key": "EXAMPLE_KEY",
+        "name": "Example name",
+        "value": {
+          "businessUnits": [
+            "MT"
+          ]
+        }
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

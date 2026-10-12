@@ -1,0 +1,18 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/maintenance/reset-data"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "dryRun": true,
+        "confirm": "replace-with-confirmation-phrase"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

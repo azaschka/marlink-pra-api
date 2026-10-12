@@ -1,0 +1,28 @@
+$kind: http-request
+id: 5e6c2e58-93ea-5364-ae5e-1d861e9c4957
+name: GET /health/ready - Check readiness
+description: |-
+  Check readiness.
+
+  | | |
+  |---|---|
+  | Source | `HealthController.checkReadiness()` in `src/health/controllers/health.controller.ts` (module `HealthModule`) |
+  | Authentication | None. The route has no authentication guard. |
+  | Swagger | documented in /open-api |
+  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+
+  **Responses**
+
+  - 200: ready to serve requests
+  - 503: the database is not reachable
+
+  **Notes**
+
+  - Response status: 200 when the database is reachable, 503 otherwise.
+
+  **Contract notes** (effective behaviour in code versus Swagger metadata)
+
+  - No authentication guard: the route is reachable without credentials (code-verified).
+url: "{{baseUrl}}/health/ready"
+method: GET
+order: 2000

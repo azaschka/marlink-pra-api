@@ -1,0 +1,23 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites/:id/support-team-members"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "firstname": "Example firstname",
+        "lastname": "Example lastname",
+        "email": "user@example.com",
+        "supportTeamName": "Example support team name",
+        "supportTeamAccessLevel": "full",
+        "supportTeamTrustLevel": "require-auth",
+        "sourceType": "internal"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

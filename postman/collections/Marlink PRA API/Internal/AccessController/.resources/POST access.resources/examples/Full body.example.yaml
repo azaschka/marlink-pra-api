@@ -1,0 +1,23 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/access"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "key": "EXAMPLE_KEY",
+        "name": "Example name",
+        "value": {
+          "businessUnits": [
+            "MT"
+          ]
+        }
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

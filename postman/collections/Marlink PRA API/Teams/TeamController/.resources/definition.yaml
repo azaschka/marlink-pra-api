@@ -1,0 +1,4 @@
+$kind: collection
+id: 4b7b1964-9f5c-5d68-9992-4608aa62a815
+description: "Operations of `TeamController` (module `TeamModule`). Source: `src/team/controllers/team.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

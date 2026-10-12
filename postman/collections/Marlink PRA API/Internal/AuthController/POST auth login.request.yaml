@@ -1,0 +1,53 @@
+$kind: http-request
+id: d0c92f0d-bf9a-588d-b363-5cfc0b903ad6
+name: POST /auth/login - Login
+description: |-
+  Login.
+
+  | | |
+  |---|---|
+  | Source | `AuthController.login()` in `src/auth/controllers/auth.controller.ts` (module `AuthModule`) |
+  | Authentication | X-API-Key header (`{{apiKey}}`, static internal key) and username and password in the JSON body |
+  | Swagger | excluded (`@ApiExcludeController` or `@ApiExcludeEndpoint`) |
+  | Customer export | not included. Internal: protected by the static X-API-Key (ApiKeyAuthGuard). |
+
+  **Authorisation and scope**
+
+  - Username and password of a PRA Console user, read from the JSON body (passport-local defaults).
+
+  **Body** (`application/json`, `passport-local credentials`, NOT validated on this route)
+
+  | Field | Type | Required | Null accepted | Details |
+  |---|---|---|---|---|
+  | `username` | string | yes | no | Username of a PRA Console user. Rules: not empty. |
+  | `password` | string | yes | no | Password of that user. Never store it in the collection; type it into the request locally. Rules: not empty. |
+
+  - The request body is the minimal valid body: required fields only.
+  - The saved example "Full body" sends every writable field with representative nested objects and arrays.
+  - JSON properties cannot be disabled individually: delete optional properties you do not want to send. Omitting a property and sending `null` are different; "Null accepted" shows what validation allows.
+  - LocalAuthGuard (passport-local) reads the fields; missing or wrong credentials end with 401. The response contains `accessToken`: store it in `jwtToken`.
+
+  **Responses**
+
+  - 201
+
+  **Notes**
+
+  - Reads request.user, set by LocalAuthGuard from the username and password in the JSON body.
+url: "{{baseUrl}}/auth/login"
+method: POST
+auth:
+  type: apikey
+  credentials:
+    key: X-API-Key
+    value: "{{apiKey}}"
+    in: header
+body:
+  type: json
+  content: |-
+    {
+      "username": "example.user",
+      "password": "replace-with-secret"
+    }
+examples: ./.resources/POST auth login.resources/examples
+order: 1000

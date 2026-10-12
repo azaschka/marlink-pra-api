@@ -1,0 +1,28 @@
+$kind: http-request
+id: 6581d72d-c471-5885-849f-817e3dbe914c
+name: GET /health - Check health
+description: |-
+  Check health.
+
+  | | |
+  |---|---|
+  | Source | `HealthController.checkHealth()` in `src/health/controllers/health.controller.ts` (module `HealthModule`) |
+  | Authentication | None. The route has no authentication guard. |
+  | Swagger | documented in /open-api |
+  | Customer export | included |
+
+  **Responses**
+
+  - 200: healthy or degraded
+  - 503: unavailable: the database is down or the service shuts down
+
+  **Notes**
+
+  - Response status: 200 when healthy or degraded, 503 when unavailable.
+
+  **Contract notes** (effective behaviour in code versus Swagger metadata)
+
+  - No authentication guard: the route is reachable without credentials (code-verified).
+url: "{{baseUrl}}/health"
+method: GET
+order: 1000

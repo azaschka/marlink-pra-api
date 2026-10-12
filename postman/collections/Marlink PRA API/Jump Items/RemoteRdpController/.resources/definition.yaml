@@ -1,0 +1,4 @@
+$kind: collection
+id: cf8caf61-fa0a-5283-b916-0729e2fb4d0d
+description: "Operations of `RemoteRdpController` (module `RemoteRdpModule`). Source: `src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

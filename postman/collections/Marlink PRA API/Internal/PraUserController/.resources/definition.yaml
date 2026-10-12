@@ -1,0 +1,10 @@
+$kind: collection
+id: ee7b21b4-af68-5e2c-a0fd-e08718204687
+description: "Operations of `PraUserController` (module `AuthModule`). Source: `src/auth/controllers/pra-user.controller.ts`. Authentication: X-API-Key header (`{{apiKey}}`, static internal key) and Bearer token (`Authorization: Bearer {{jwtToken}}`, from POST /auth/login)"
+auth:
+  - id: 308e2982-699d-5fe6-bc2a-2b31f71b08dc
+    type: bearer
+    name: Bearer token
+    credentials:
+      token: "{{jwtToken}}"
+order: 3000

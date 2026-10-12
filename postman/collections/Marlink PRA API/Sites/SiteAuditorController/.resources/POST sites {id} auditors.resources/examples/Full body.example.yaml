@@ -1,0 +1,20 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites/:id/auditors"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "username": "example.user",
+        "email": "user@example.com",
+        "isAdminOperator": false,
+        "sourceType": "internal"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

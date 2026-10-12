@@ -1,8 +1,0 @@
-$kind: http-request
-url: '{{baseUrl}}/discrepancies/scan/all'
-method: POST
-headers:
-  - key: X-Tenant-Id
-    value: '{{tenantId}}'
-    description: The identifier for the tenant making the request.
-order: 2000

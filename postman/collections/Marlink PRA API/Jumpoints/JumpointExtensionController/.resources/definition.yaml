@@ -1,0 +1,4 @@
+$kind: collection
+id: dd7556da-00f0-510d-9b5f-67c084dc412f
+description: "Operations of `JumpointExtensionController` (module `JumpointModule`). Source: `src/jumpoint/controllers/jumpoint-extension.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 2000

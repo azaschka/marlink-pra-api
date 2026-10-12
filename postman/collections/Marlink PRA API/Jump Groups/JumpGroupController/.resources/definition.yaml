@@ -1,0 +1,4 @@
+$kind: collection
+id: d62bda9d-dba9-59cd-83de-bc976a5c969a
+description: "Operations of `JumpGroupController` (module `JumpGroupModule`). Source: `src/jump-group/controllers/jump-group.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

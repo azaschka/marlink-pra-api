@@ -1,0 +1,4 @@
+$kind: collection
+id: 58483e01-b8fe-5231-8184-c8f2b6e6bae8
+description: "Operations of `ShellJumpController` (module `ShellJumpModule`). Source: `src/jump-item/shell-jump/controllers/shell-jump.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 3000

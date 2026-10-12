@@ -1,0 +1,20 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/customers"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "key": "EXAMPLE_KEY",
+        "name": "Example name",
+        "businessUnit": "MT",
+        "beyondtrustInstanceId": 1
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

@@ -1,0 +1,18 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/deployments/jumpoint-nodes"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "siteKey": "EXAMPLE_SITE",
+        "businessUnit": "MT"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

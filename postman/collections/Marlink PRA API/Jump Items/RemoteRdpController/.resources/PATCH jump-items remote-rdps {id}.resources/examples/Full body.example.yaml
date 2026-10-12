@@ -1,0 +1,38 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-items/remote-rdps/:id"
+  method: PATCH
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "jumpointId": 1,
+        "hostname": "host.example.com",
+        "jumpGroupId": 1,
+        "jumpGroupType": "shared",
+        "qualityMode": "low",
+        "mustStartNewConsoleSession": false,
+        "mustIgnoreUntrustedServerCert": false,
+        "tag": "example-tag",
+        "comments": "example-comments",
+        "rdpUsername": "example.user",
+        "domain": "example-domain",
+        "jumpPolicyId": 1,
+        "isSessionForensicsEnabled": false,
+        "sessionPolicyId": 1,
+        "secureAppType": "none",
+        "remoteAppName": "Example remote app name",
+        "remoteAppParams": "example-remote-app-params",
+        "remoteExePath": "example-remote-exe-path",
+        "remoteExeParams": "example-remote-exe-params",
+        "targetSystem": "example-target-system",
+        "credentialType": "replace-with-secret"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

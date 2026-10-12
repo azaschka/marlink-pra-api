@@ -1,0 +1,4 @@
+$kind: collection
+id: e5842339-b5e6-564f-b242-e44980f1285d
+description: "Operations of `UserGroupPolicyController` (module `UserGroupPolicyModule`). Source: `src/user-group-policy/controllers/user-group-policy.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 2000

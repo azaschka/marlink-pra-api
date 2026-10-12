@@ -1,0 +1,48 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "key": "EXAMPLE_KEY",
+        "name": "Example name",
+        "customerKey": "EXAMPLE_CUSTOMER",
+        "siteManagers": [
+          {
+            "username": "example.user",
+            "email": "user@example.com",
+            "sourceType": "internal"
+          }
+        ],
+        "siteAuditors": [
+          {
+            "username": "example.user",
+            "email": "user@example.com",
+            "isAdminOperator": false,
+            "sourceType": "internal"
+          }
+        ],
+        "siteSupportTeamMembers": [
+          {
+            "firstname": "Example firstname",
+            "lastname": "Example lastname",
+            "email": "user@example.com",
+            "supportTeamName": "Example support team name",
+            "supportTeamAccessLevel": "full",
+            "supportTeamTrustLevel": "require-auth",
+            "sourceType": "internal"
+          }
+        ],
+        "siteApprovers": [
+          "user@example.com"
+        ]
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

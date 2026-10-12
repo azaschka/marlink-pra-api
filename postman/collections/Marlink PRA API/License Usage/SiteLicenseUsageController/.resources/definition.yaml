@@ -1,0 +1,4 @@
+$kind: collection
+id: f67cbc35-7244-56bc-b613-1d1cfec76c1b
+description: "Operations of `SiteLicenseUsageController` (module `LicenseUsageModule`). Source: `src/license-usage/controllers/site-license-usage.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 2000

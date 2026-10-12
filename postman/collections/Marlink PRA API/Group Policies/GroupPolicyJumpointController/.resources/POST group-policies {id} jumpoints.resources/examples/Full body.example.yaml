@@ -1,0 +1,17 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/group-policies/:id/jumpoints"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "jumpointId": 1
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

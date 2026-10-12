@@ -1,0 +1,4 @@
+$kind: collection
+id: 8e4d56cf-1589-5463-8cef-92ef4d49f6e5
+description: "Operations of `JumpClientController` (module `JumpClientModule`). Source: `src/jump-client/controllers/jump-client.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

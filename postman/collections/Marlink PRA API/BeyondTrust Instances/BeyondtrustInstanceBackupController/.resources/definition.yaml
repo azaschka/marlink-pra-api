@@ -1,0 +1,4 @@
+$kind: collection
+id: 75061147-a522-5665-b41b-7bd73324daba
+description: "Operations of `BeyondtrustInstanceBackupController` (module `BeyondtrustInstanceBackupModule`). Source: `src/beyondtrust-instance-backup/controllers/beyondtrust-instance-backup.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 2000

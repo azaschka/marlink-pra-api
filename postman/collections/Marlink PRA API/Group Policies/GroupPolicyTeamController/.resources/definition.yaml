@@ -1,0 +1,4 @@
+$kind: collection
+id: a149cca0-6a65-5127-afd5-1451592a5247
+description: "Operations of `GroupPolicyTeamController` (module `GroupPolicyTeamModule`). Source: `src/group-policy-team/controllers/group-policy-team.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 3000

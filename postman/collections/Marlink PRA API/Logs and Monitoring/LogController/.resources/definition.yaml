@@ -1,0 +1,4 @@
+$kind: collection
+id: 89441feb-395f-5b3a-8220-a2d96fb02e0b
+description: "Operations of `LogController` (module `LogModule`). Source: `src/log/controllers/log.controller.ts`. Authentication differs per request."
+order: 1000

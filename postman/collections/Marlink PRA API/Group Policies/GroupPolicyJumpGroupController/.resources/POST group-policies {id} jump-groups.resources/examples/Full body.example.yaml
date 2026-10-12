@@ -1,0 +1,19 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/group-policies/:id/jump-groups"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "jumpGroupId": 1,
+        "jumpItemRoleId": 1,
+        "jumpPolicyId": 1
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

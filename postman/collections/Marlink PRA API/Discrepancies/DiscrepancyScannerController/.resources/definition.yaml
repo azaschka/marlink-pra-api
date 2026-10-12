@@ -1,0 +1,8 @@
+$kind: collection
+id: 41787266-c60a-5f9a-8761-676a76a3bbdd
+description: "Operations of `DiscrepancyScannerController` (module `DiscrepancyModule`). Source: `src/discrepancy/controllers/discrepancy-scanner.controller.ts`. Authentication: None. The route has no authentication guard."
+auth:
+  - id: 40f9b569-fc37-5f90-923e-e779c710d348
+    type: noauth
+    name: No Auth
+order: 1000

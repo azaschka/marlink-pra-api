@@ -1,0 +1,8 @@
+$kind: collection
+id: 84c55cf6-54d3-5f0c-b1d5-715e897f7a26
+description: "Operations of `HealthController` (module `HealthModule`). Source: `src/health/controllers/health.controller.ts`. Authentication: None. The route has no authentication guard."
+auth:
+  - id: 53cedd5c-c4da-5349-a97f-787904978137
+    type: noauth
+    name: No Auth
+order: 1000

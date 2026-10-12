@@ -1,0 +1,30 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-items/shell-jumps"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "jumpointId": 1,
+        "hostname": "host.example.com",
+        "protocolType": "ssh",
+        "port": 1,
+        "jumpGroupId": 1,
+        "jumpGroupType": "shared",
+        "terminalType": "xterm",
+        "keepAliveIdleSessionInSeconds": 1,
+        "tag": "example-tag",
+        "comments": "example-comments",
+        "jumpPolicyId": 1,
+        "username": "example.user",
+        "sessionPolicyId": 1
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

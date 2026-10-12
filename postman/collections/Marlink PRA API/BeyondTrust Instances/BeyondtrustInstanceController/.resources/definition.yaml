@@ -1,0 +1,4 @@
+$kind: collection
+id: 65b02a5f-35f9-5f7e-9db2-d2645c2b0bdd
+description: "Operations of `BeyondtrustInstanceController` (module `BeyondtrustInstanceModule`). Source: `src/beyondtrust-instance/controllers/beyondtrust-instance.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

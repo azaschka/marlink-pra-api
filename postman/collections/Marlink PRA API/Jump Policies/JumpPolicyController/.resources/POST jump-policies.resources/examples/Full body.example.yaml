@@ -1,0 +1,49 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-policies"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "displayName": "Example display name",
+        "codeName": "Example code name",
+        "description": "example-description",
+        "hasScheduledAccessRestriction": false,
+        "simultaneousJumpsType": "global",
+        "doesSimultaneousJumpBehaviorApplyToCopies": false,
+        "simultaneousJumpsRdpType": "global",
+        "shouldForceRemoveUsersWhenScheduleDisallows": false,
+        "isTicketIdRequired": false,
+        "isTwoFactorChallengeRequired": false,
+        "isSessionStartNotificationEnabled": false,
+        "isSessionEndNotificationEnabled": false,
+        "notificationEmailAddresses": [
+          "example-notification-email-addresses"
+        ],
+        "notificationDisplayName": "Example notification display name",
+        "notificationEmailLanguage": "en-US",
+        "isApprovalRequired": false,
+        "approvalMaxDurationInMinutes": 1,
+        "approvalScopeType": "requestor",
+        "approvalEmailAddresses": [
+          "example-approval-email-addresses"
+        ],
+        "approvalUserIds": [
+          "example-approval-user-ids"
+        ],
+        "approvalTeamIds": [
+          "example-approval-team-ids"
+        ],
+        "approvalDisplayName": "Example approval display name",
+        "approvalEmailLanguage": "en-US",
+        "approvalApproverScopeType": "not-requestor",
+        "isRecordingsDisabled": false
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

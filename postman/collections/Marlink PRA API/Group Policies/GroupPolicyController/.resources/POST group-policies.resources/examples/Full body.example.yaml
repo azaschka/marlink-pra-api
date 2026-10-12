@@ -1,0 +1,39 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/group-policies"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "hasEndpointsAccessPermission": false,
+        "accessPermissionStatusType": "not-defined",
+        "hasShareOtherTeamPermission": false,
+        "hasInviteExternalUserPermission": false,
+        "userSessionIdleTimeoutInSeconds": 1,
+        "hasEnableExtendedAvailabilityModePermission": false,
+        "hasEditExternalKeyPermission": false,
+        "hasCollaboratePermission": false,
+        "hasCollaborateControlPermission": false,
+        "hasJumpClientPermission": false,
+        "hasLocalJumpPermission": false,
+        "hasRemoteJumpPermission": false,
+        "hasRemoteVncPermission": false,
+        "hasRemoteRdpPermission": false,
+        "hasShellJumpPermission": false,
+        "hasWebJumpPermission": false,
+        "hasProtocolTunnelPermission": false,
+        "hasSdStaticPortForExternalToolsPermission": false,
+        "defaultJumpItemRoleId": 1,
+        "privateJumpItemRoleId": 1,
+        "inferiorJumpItemRoleId": 1,
+        "unassignedJumpItemRoleId": 1
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

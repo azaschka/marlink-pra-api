@@ -1,0 +1,4 @@
+$kind: collection
+id: 31c98b0f-73d1-5f40-9eb5-2832f507122c
+description: "Operations of `UserController` (module `UserModule`). Source: `src/user/controllers/user.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

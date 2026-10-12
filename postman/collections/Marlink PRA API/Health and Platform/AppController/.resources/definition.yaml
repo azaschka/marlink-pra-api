@@ -1,0 +1,8 @@
+$kind: collection
+id: 13e3c8f5-5c85-576d-b757-fddaca27ae3a
+description: "Operations of `AppController` (module `AppModule`). Source: `src/app.controller.ts`. Authentication: None. The route has no authentication guard."
+auth:
+  - id: c04306e1-40e8-5406-921d-7250ab2ca092
+    type: noauth
+    name: No Auth
+order: 2000

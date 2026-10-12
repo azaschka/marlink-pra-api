@@ -1,0 +1,32 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "jumpointId": 1,
+        "hostname": "host.example.com",
+        "jumpGroupId": 1,
+        "jumpGroupType": "shared",
+        "tag": "example-tag",
+        "comments": "example-comments",
+        "jumpPolicyId": 1,
+        "sessionPolicyId": 1,
+        "tunnelListenAddress": "127.0.0.1",
+        "tunnelDefinitions": "example-tunnel-definitions",
+        "tunnelType": "tcp",
+        "username": "example.user",
+        "database": "example-database",
+        "url": "https://pra.example.com",
+        "caCertificates": "example-ca-certificates"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

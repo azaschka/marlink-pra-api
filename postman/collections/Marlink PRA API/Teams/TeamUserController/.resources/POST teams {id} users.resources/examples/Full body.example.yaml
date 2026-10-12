@@ -1,0 +1,18 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/teams/:id/users"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "userId": 1,
+        "roleType": "member"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

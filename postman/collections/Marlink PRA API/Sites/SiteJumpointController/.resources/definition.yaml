@@ -1,0 +1,4 @@
+$kind: collection
+id: 87921c96-c2cc-53fe-9c8b-55fc3c9334f4
+description: "Operations of `SiteJumpointController` (module `SiteModule`). Source: `src/site/controllers/site-jumpoint.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 5000

@@ -1,0 +1,4 @@
+$kind: collection
+id: adea4145-d952-5aa2-87db-7c8e7299e15a
+description: "Jump items by type: remote RDP, remote VNC, shell jump, web jump and protocol tunnel jump."
+order: 10000

@@ -1,0 +1,4 @@
+$kind: collection
+id: df17512a-5edb-5648-a8e2-2f5cb7c9f982
+description: "Operations of `SiteManagerController` (module `SiteModule`). Source: `src/site/controllers/site-manager.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 2000

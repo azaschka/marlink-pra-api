@@ -1,0 +1,23 @@
+$kind: http-request
+id: 203d1e44-70e6-5663-ad7e-69372f055e07
+name: GET /ping - Ping
+description: |-
+  Ping.
+
+  | | |
+  |---|---|
+  | Source | `AppController.ping()` in `src/app.controller.ts` (module `AppModule`) |
+  | Authentication | None. The route has no authentication guard. |
+  | Swagger | documented in /open-api |
+  | Customer export | included |
+
+  **Responses**
+
+  - 200
+
+  **Contract notes** (effective behaviour in code versus Swagger metadata)
+
+  - No authentication guard: the route is reachable without credentials (code-verified).
+url: "{{baseUrl}}/ping"
+method: GET
+order: 1000

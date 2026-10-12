@@ -1,0 +1,146 @@
+$kind: collection
+id: 64a6843f-2be3-5729-b209-f90c265b677e
+name: Marlink PRA API v3.2.0
+description: |-
+  # Marlink PRA API v3.2.0
+
+  Complete internal collection of the PRA API: every registered HTTP route, including operations hidden from Swagger.
+
+  Generated from the pra-api source code (package version 3.2.0): 160 operations in 43 controllers. Do not edit it by hand; it is regenerated from code at the end of every iteration.
+
+  ## One-time setup
+
+  1. Import this collection. Optionally import the environment template `marlink-pra-api.postman_environment.json` shipped with pra-api.
+  2. Create an environment (or use the Postman Vault) and set `baseUrl`, `accessKey` and `tenantId`, plus `apiKey` and `jwtToken` for internal operations. Keep secrets in the environment or the vault: the collection variables are exported empty on purpose and must never hold credentials.
+  3. Set the resource id variables (for example `customerId`, `siteId`) when you need them. They are empty on purpose, so that no request addresses an existing resource by accident.
+
+  No access to the Marlink Postman workspace and no Postman API key are needed.
+
+  ## Base URL
+
+  `baseUrl` is the scheme, host and optional path prefix in front of the controller paths, without a trailing slash. The API has no global prefix and no URI versioning (`src/main.ts`).
+
+  - Calling the API service directly: use the API host, for example `https://pra-api-pp.cdn-vas.net`. Do not add `/api`.
+  - Calling through the PRA Console: use `https://<console-host>/api`. The Console forwards `/api` to the API; the OpenAPI document declares this relative server `/api`.
+
+  ## Authentication
+
+  - Default: `X-Access-Key: {{accessKey}}`, configured once on the collection (API Key auth) and inherited by the requests.
+  - Requests without an authentication guard override it with "No Auth".
+  - Internal operations use the static `X-API-Key: {{apiKey}}` instead.
+  - PRA Console user operations need both: the bearer token (`{{jwtToken}}`, Bearer auth) and the `X-API-Key` header, which is an explicit header row. Get the token with POST /auth/login.
+  - Credentials are never sent to an endpoint that does not read them.
+
+  ## X-Tenant-Id
+
+  `X-Tenant-Id` carries the **BeyondTrust instance id** (see GET /beyondtrust-instances), never a customer id. It is an enabled row where the handler requires it and a disabled row where it only narrows the customer scope. `tenantId` is empty and never defaults to an instance.
+
+  ## Request conventions
+
+  - Required path, query and header inputs are enabled. Optional query parameters and headers are included but disabled; enable them when needed.
+  - `X-Transaction-Id` is optional wherever the API reads it and disabled by default.
+  - Array query parameters are sent by repeating the key (`?name=a&name=b`).
+  - Request bodies hold the minimal valid body (required fields). The saved example "Full body" holds every writable field with representative nested objects and arrays.
+  - JSON body properties cannot be disabled like query or header rows: remove the optional properties you do not want to send. Each request documents its fields (path, type, required, null accepted, rules).
+  - PATCH requests change only the fields you send; where an empty object is rejected, the minimal body sends one field.
+  - All example data is synthetic. Examples are validated locally against the DTO validation rules of the API; they were not executed against an environment. The response part of saved examples is illustrative (status code only).
+
+  ## Variables
+
+  | Variable | Purpose |
+  |---|---|
+  | `baseUrl` | Scheme, host and optional path prefix in front of the controller paths, without a trailing slash. API host directly: no /api. Through the PRA Console ingress: https://<console-host>/api. |
+  | `accessKey` | Access key sent as X-Access-Key. Secret: set it in a local environment or the Postman Vault, never here. |
+  | `tenantId` | BeyondTrust instance id sent as X-Tenant-Id (GET /beyondtrust-instances). Not a customer id. Intentionally empty, never defaulted. |
+  | `transactionId` | Optional correlation id for X-Transaction-Id (disabled rows). The API generates one when absent. |
+  | `apiKey` | Static internal API key sent as X-API-Key. Secret: local environment or Postman Vault only. |
+  | `jwtToken` | Bearer token of a PRA Console user from POST /auth/login (accessToken). Secret, short-lived. |
+  | `accessId` | Id of the access addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `backupId` | Id of the backup addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `beyondtrustInstanceId` | Id of the beyondtrust instance addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `customerId` | Id of the customer addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `discrepancyId` | Id of the discrepancy addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `discrepancyScanId` | Id of the discrepancy scan addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `groupPolicyId` | Id of the group policy addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `groupPolicyMemberId` | Id of the group policy member addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `jumpClientId` | Id of the jump client addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `jumpClientInstallerId` | Id of the jump client installer addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `jumpGroupId` | Id of the jump group addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `jumpointId` | Id of the jumpoint addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `jumpointNodeId` | Id of the jumpoint node addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `jumpPolicyId` | Id of the jump policy addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `praUserId` | Id of the pra user addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `protocolTunnelJumpId` | Id of the protocol tunnel jump addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `remoteRdpId` | Id of the remote rdp addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `remoteVncId` | Id of the remote vnc addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `shellJumpId` | Id of the shell jump addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `siteAuditorId` | Id of the site auditor addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `siteId` | Id of the site addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `siteManagerId` | Id of the site manager addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `siteSupportTeamMemberId` | Id of the site support team member addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `teamId` | Id of the team addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `userId` | Id of the user addressed by path parameters. Set it before sending; it is intentionally empty. |
+  | `webJumpId` | Id of the web jump addressed by path parameters. Set it before sending; it is intentionally empty. |
+
+  ## Folders
+
+  - **Customers**: Customers (one per business unit and BeyondTrust instance) and their lifecycle.
+  - **Sites**: Sites of a customer and their manager, auditor, support team and jumpoint assignments.
+  - **BeyondTrust Instances**: Registered BeyondTrust instances (tenants) and their configuration backups.
+  - **Users**: BeyondTrust users and their group policy memberships.
+  - **Teams**: BeyondTrust teams and their members.
+  - **Group Policies**: Group policies and their members, teams, jump groups and jumpoints.
+  - **Jump Groups**: Jump groups.
+  - **Jump Policies**: Jump policies.
+  - **Jump Clients**: Installed jump clients and jump client installers.
+  - **Jump Items**: Jump items by type: remote RDP, remote VNC, shell jump, web jump and protocol tunnel jump.
+  - **Jumpoints**: Jumpoints, their nodes and installers.
+  - **Session Policies**: Session policies (read only).
+  - **License Usage**: License usage calculation per customer and per site.
+  - **SOC**: Consolidated projections for the Security Operations Center integration.
+  - **Discrepancies**: Discrepancy detection between the platform and BeyondTrust, scans and synchronisation.
+  - **Deployments**: Jumpoint node deployments.
+  - **Logs and Monitoring**: System log and request monitoring records.
+  - **Health and Platform**: Liveness, readiness, diagnostics and the root endpoints.
+  - **Internal**: Operations protected by the static X-API-Key: access management, PRA Console sign-in and users, maintenance. Never part of the customer export.
+variables:
+  baseUrl: https://pra-api-pp.cdn-vas.net
+  accessKey: ""
+  tenantId: ""
+  transactionId: ""
+  apiKey: ""
+  jwtToken: ""
+  accessId: ""
+  backupId: ""
+  beyondtrustInstanceId: ""
+  customerId: ""
+  discrepancyId: ""
+  discrepancyScanId: ""
+  groupPolicyId: ""
+  groupPolicyMemberId: ""
+  jumpClientId: ""
+  jumpClientInstallerId: ""
+  jumpGroupId: ""
+  jumpointId: ""
+  jumpointNodeId: ""
+  jumpPolicyId: ""
+  praUserId: ""
+  protocolTunnelJumpId: ""
+  remoteRdpId: ""
+  remoteVncId: ""
+  shellJumpId: ""
+  siteAuditorId: ""
+  siteId: ""
+  siteManagerId: ""
+  siteSupportTeamMemberId: ""
+  teamId: ""
+  userId: ""
+  webJumpId: ""
+auth:
+  - id: ccaabfd3-8701-59d0-a068-9f2f5de2916a
+    type: apikey
+    name: X-Access-Key
+    credentials:
+      key: X-Access-Key
+      value: "{{accessKey}}"
+      in: header

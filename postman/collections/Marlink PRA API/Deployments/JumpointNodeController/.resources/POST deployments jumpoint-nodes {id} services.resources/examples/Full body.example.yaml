@@ -1,0 +1,17 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/deployments/jumpoint-nodes/:id/services"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "serviceType": "pra"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

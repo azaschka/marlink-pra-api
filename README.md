@@ -111,6 +111,11 @@ npm run format            # Run Prettier
 # Docker
 npm run docker:build:api  # Build Docker image
 npm run publish:api       # Full build & push pipeline
+
+# Postman collection (generated from code, see postman/README.md)
+npm run postman:generate        # Regenerate collection, exports and coverage report
+npm run postman:check           # Non-writing drift and coverage check
+npm run postman:export:console  # Copy the customer export into ../pra-console
 ```
 
 ### Project Structure
@@ -132,7 +137,8 @@ pra-api/
 │   ├── shared/           # Shared utilities & helpers
 │   └── ...
 ├── docs/                 # Comprehensive documentation
-├── postman/              # Postman collections & environments
+├── postman/              # Generated Postman collection, exports, coverage report (postman/README.md)
+├── scripts/postman/      # Postman collection generator, configuration and tests
 └── test/                 # E2E test suite
 ```
 
@@ -174,6 +180,8 @@ Features:
 - Interactive "Try it out" functionality
 - Authentication header documentation
 - DTO validation rules and examples
+
+The Postman collection, including the routes hidden from Swagger, is generated from the code: see [postman/README.md](postman/README.md).
 
 ## 🧪 Testing
 

@@ -1,0 +1,19 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/sites/:id/managers"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "username": "example.user",
+        "email": "user@example.com",
+        "sourceType": "internal"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

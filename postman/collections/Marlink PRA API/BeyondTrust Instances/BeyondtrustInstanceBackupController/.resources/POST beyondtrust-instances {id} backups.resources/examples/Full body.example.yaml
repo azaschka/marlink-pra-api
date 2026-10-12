@@ -1,0 +1,17 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/beyondtrust-instances/:id/backups"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "password": "replace-with-secret"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

@@ -1,0 +1,38 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jumpoints/:id"
+  method: PATCH
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "codeName": "Example code name",
+        "comments": "example-comments",
+        "isEnabled": false,
+        "isShellJumpEnabled": false,
+        "externalJumpItemNetworkId": "example-external-jump-item-network-id",
+        "isProtocolTunnelEnabled": false,
+        "rdpServiceAccountId": 1,
+        "managedIpRanges": [
+          {
+            "start": "192.0.2.1",
+            "end": "192.0.2.254"
+          }
+        ],
+        "isJzpEnabled": false,
+        "jzpProxyHostname": "host.example.com",
+        "jzpProxyPort": 1,
+        "isJzpHttpGetAllowed": false,
+        "jzpClientAddressRestrictionsType": "no-restriction",
+        "jzpRestrictedIps": [
+          "example-jzp-restricted-ips"
+        ]
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

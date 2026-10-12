@@ -1,0 +1,19 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/teams"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "codeName": "Example code name",
+        "comments": "example-comments"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

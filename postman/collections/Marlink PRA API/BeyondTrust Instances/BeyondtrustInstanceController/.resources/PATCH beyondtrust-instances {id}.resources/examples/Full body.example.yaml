@@ -1,0 +1,24 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/beyondtrust-instances/:id"
+  method: PATCH
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "authClientId": "example-auth-client-id",
+        "authClientSecret": "replace-with-secret",
+        "oauth2TokenUrl": "https://pra.example.com",
+        "apiBaseUrl": "https://pra.example.com",
+        "billingType": "user",
+        "businessUnit": "MT",
+        "cname": "https://pra.example.com"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

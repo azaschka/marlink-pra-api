@@ -1,0 +1,4 @@
+$kind: collection
+id: a81228fb-5e25-5314-9ce0-397f9af63962
+description: "Operations of `SocController` (module `SocModule`). Source: `src/soc/controllers/soc.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

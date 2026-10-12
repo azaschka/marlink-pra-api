@@ -1,0 +1,10 @@
+$kind: collection
+id: 33611b94-7093-5f58-9804-c68b5af220be
+description: "Operations of `MaintenanceController` (module `MaintenanceModule`). Source: `src/maintenance/controllers/maintenance.controller.ts`. Authentication: X-API-Key header (`{{apiKey}}`, static internal key) and Bearer token (`Authorization: Bearer {{jwtToken}}`, from POST /auth/login)"
+auth:
+  - id: 11a2c894-9c86-5b84-80fe-3d2bbbb7d7dc
+    type: bearer
+    name: Bearer token
+    credentials:
+      token: "{{jwtToken}}"
+order: 4000

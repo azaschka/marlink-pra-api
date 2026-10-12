@@ -1,0 +1,8 @@
+$kind: collection
+id: 4df85c3e-c72e-5bc9-bb3e-3f052848a628
+description: "Operations of `MonitoringController` (module `MonitoringModule`). Source: `src/monitoring/controllers/monitoring.controller.ts`. Authentication: None. The route has no authentication guard."
+auth:
+  - id: 54bf75b1-a9e9-5e04-96bc-c715719d6125
+    type: noauth
+    name: No Auth
+order: 2000

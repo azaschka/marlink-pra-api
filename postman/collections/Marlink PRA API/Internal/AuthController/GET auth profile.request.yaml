@@ -1,0 +1,37 @@
+$kind: http-request
+id: b88f6a28-5d4f-564f-bba8-1cfca017c0ac
+name: GET /auth/profile - Profile
+description: |-
+  Profile.
+
+  | | |
+  |---|---|
+  | Source | `AuthController.profile()` in `src/auth/controllers/auth.controller.ts` (module `AuthModule`) |
+  | Authentication | X-API-Key header (`{{apiKey}}`, static internal key) and Bearer token (`Authorization: Bearer {{jwtToken}}`, from POST /auth/login) |
+  | Swagger | excluded (`@ApiExcludeController` or `@ApiExcludeEndpoint`) |
+  | Customer export | not included. Internal: protected by the static X-API-Key (ApiKeyAuthGuard). |
+
+  **Headers**
+
+  | Name | Type | Required | Details |
+  |---|---|---|---|
+  | `X-API-Key` | string | yes | Static API key of the PRA platform (internal). Sent in addition to the bearer token. |
+
+  **Responses**
+
+  - 200
+
+  **Notes**
+
+  - Returns request.user, the claims of the bearer token validated by JwtAuthGuard.
+url: "{{baseUrl}}/auth/profile"
+method: GET
+headers:
+  - key: X-API-Key
+    value: "{{apiKey}}"
+    description: Static API key of the PRA platform (internal). Sent in addition to the bearer token. Required.
+auth:
+  type: bearer
+  credentials:
+    token: "{{jwtToken}}"
+order: 2000

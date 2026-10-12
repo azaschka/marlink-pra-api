@@ -1,0 +1,19 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-items/shell-jumps/:id/copy"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "jumpGroupId": 1,
+        "jumpGroupType": "shared",
+        "name": "Example name"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

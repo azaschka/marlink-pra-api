@@ -1,0 +1,34 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-clients/installers"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Example name",
+        "jumpGroupId": 1,
+        "jumpGroupType": "personal",
+        "jumpPolicyId": 1,
+        "tag": "example-tag",
+        "connectionType": "passive",
+        "sessionPolicyId": 1,
+        "comments": "example-comments",
+        "validDurationInMinutes": 1,
+        "shouldElevateInstall": false,
+        "shouldElevatePrompt": false,
+        "canOverrideJumpGroup": false,
+        "canOverrideJumpPolicy": false,
+        "canOverrideName": false,
+        "canOverrideTag": false,
+        "canOverrideComments": false,
+        "canOverrideSessionPolicy": false,
+        "jumpointProxy": "example-jumpoint-proxy"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

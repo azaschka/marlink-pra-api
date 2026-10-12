@@ -1,0 +1,12 @@
+$kind: collection
+id: 1408249d-f639-540a-863c-e4ee6517cead
+description: "Operations of `AccessController` (module `AccessModule`). Source: `src/access/controllers/access.controller.ts`. Authentication: X-API-Key header (`{{apiKey}}`, static internal key)"
+auth:
+  - id: f1a8b244-0a8f-5b3c-a758-901a6ec2dd5a
+    type: apikey
+    name: X-API-Key
+    credentials:
+      key: X-API-Key
+      value: "{{apiKey}}"
+      in: header
+order: 1000

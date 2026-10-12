@@ -1,0 +1,25 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/jump-clients/:id"
+  method: PATCH
+  body:
+    type: json
+    content: |-
+      {
+        "jumpGroupId": 1,
+        "jumpGroupType": "personal",
+        "name": "Example name",
+        "tag": "example-tag",
+        "comments": "example-comments",
+        "jumpPolicyId": 1,
+        "sessionPolicyId": 1,
+        "maxOfflineDurationInMinutes": 1,
+        "endpointAgreementPolicyType": "no-prompt"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

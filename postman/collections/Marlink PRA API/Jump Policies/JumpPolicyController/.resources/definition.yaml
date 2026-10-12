@@ -1,0 +1,4 @@
+$kind: collection
+id: a87da81a-8ea0-5cf4-8751-527efe7a02b2
+description: "Operations of `JumpPolicyController` (module `JumpPolicyModule`). Source: `src/jump-policy/controllers/jump-policy.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

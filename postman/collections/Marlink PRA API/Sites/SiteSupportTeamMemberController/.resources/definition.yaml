@@ -1,0 +1,4 @@
+$kind: collection
+id: 6e0d4616-6657-583b-b798-b80b6c1f2d2c
+description: "Operations of `SiteSupportTeamMemberController` (module `SiteModule`). Source: `src/site/controllers/site-support-team-member.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 4000

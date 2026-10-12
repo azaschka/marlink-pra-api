@@ -1,0 +1,20 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/group-policies/:id/members"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "userId": 1,
+        "securityProviderId": 1,
+        "distinguishedName": "Example distinguished name",
+        "groupName": "Example group name"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

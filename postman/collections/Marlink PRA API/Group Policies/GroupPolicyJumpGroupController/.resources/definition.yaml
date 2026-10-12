@@ -1,0 +1,4 @@
+$kind: collection
+id: 96d3e929-7cde-51f3-9a5d-017b3780865f
+description: "Operations of `GroupPolicyJumpGroupController` (module `GroupPolicyJumpGroupModule`). Source: `src/group-policy-jump-group/controllers/group-policy-jump-group.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 4000

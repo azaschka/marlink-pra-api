@@ -1,0 +1,4 @@
+$kind: collection
+id: b7abd2b3-c15d-55e6-8ac8-202ca1031a50
+description: Discrepancy detection between the platform and BeyondTrust, scans and synchronisation.
+order: 15000

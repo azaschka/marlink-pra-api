@@ -1,0 +1,4 @@
+$kind: collection
+id: 884fff37-b74e-5308-b015-6dfe3e0eeb08
+description: "Operations of `RemoteVncController` (module `RemoteVncModule`). Source: `src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 2000

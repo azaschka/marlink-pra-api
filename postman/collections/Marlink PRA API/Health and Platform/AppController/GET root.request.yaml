@@ -1,0 +1,24 @@
+$kind: http-request
+id: 9cc10a7f-5b24-5967-95db-0cdc1fac30ee
+name: GET / - Root
+description: |-
+  Root.
+
+  | | |
+  |---|---|
+  | Source | `AppController.root()` in `src/app.controller.ts` (module `AppModule`) |
+  | Authentication | None. The route has no authentication guard. |
+  | Swagger | documented in /open-api |
+  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+
+  **Responses**
+
+  - 200
+
+  **Contract notes** (effective behaviour in code versus Swagger metadata)
+
+  - The handler carries @Get() and @Head(); Nest keeps only one request method per handler, so only GET is registered. Express still answers HEAD for GET routes.
+  - No authentication guard: the route is reachable without credentials (code-verified).
+url: "{{baseUrl}}/"
+method: GET
+order: 2000

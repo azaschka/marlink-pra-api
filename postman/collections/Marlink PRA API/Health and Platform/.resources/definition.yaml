@@ -1,0 +1,4 @@
+$kind: collection
+id: 643ccfff-204d-51a2-8178-081f7a5f6c1b
+description: Liveness, readiness, diagnostics and the root endpoints.
+order: 18000

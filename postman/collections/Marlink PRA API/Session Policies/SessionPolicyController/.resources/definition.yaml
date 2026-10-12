@@ -1,0 +1,4 @@
+$kind: collection
+id: d9bf6479-b8fb-5955-addf-135c0b228512
+description: "Operations of `SessionPolicyController` (module `SessionPolicyModule`). Source: `src/session-policy/controllers/session-policy.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 1000

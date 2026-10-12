@@ -1,0 +1,4 @@
+$kind: collection
+id: bee84f86-10d2-5ebc-81c7-5913ae79414f
+description: "Operations of `WebJumpController` (module `WebJumpModule`). Source: `src/jump-item/web-jump/controllers/web-jump.controller.ts`. Authentication: X-Access-Key header (`{{accessKey}}`)"
+order: 4000

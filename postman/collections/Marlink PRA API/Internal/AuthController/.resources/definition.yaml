@@ -1,0 +1,4 @@
+$kind: collection
+id: 42d9b816-04c6-55b7-bf61-d26dedad852f
+description: "Operations of `AuthController` (module `AuthModule`). Source: `src/auth/controllers/auth.controller.ts`. Authentication differs per request."
+order: 2000

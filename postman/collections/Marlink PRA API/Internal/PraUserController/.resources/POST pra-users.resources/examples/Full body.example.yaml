@@ -1,0 +1,23 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/pra-users"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "username": "example.user",
+        "password": "replace-with-secret",
+        "email": "user@example.com",
+        "role": "Super Admin",
+        "displayName": "Example display name",
+        "businessUnit": "MT",
+        "canManagePraUsers": false
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

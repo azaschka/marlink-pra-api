@@ -1,0 +1,27 @@
+$kind: http-request
+id: 7bae72cd-1660-583d-91ca-520cd751cf96
+name: GET /health/live - Check liveness
+description: |-
+  Check liveness.
+
+  | | |
+  |---|---|
+  | Source | `HealthController.checkLiveness()` in `src/health/controllers/health.controller.ts` (module `HealthModule`) |
+  | Authentication | None. The route has no authentication guard. |
+  | Swagger | documented in /open-api |
+  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+
+  **Responses**
+
+  - 200: the process answers
+
+  **Notes**
+
+  - Response status: 200 while the process answers.
+
+  **Contract notes** (effective behaviour in code versus Swagger metadata)
+
+  - No authentication guard: the route is reachable without credentials (code-verified).
+url: "{{baseUrl}}/health/live"
+method: GET
+order: 3000

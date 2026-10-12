@@ -1,0 +1,3887 @@
+{
+    "manifestVersion": 1,
+    "collection": {
+        "name": "Marlink PRA API v3.2.0",
+        "version": "3.2.0"
+    },
+    "summary": {
+        "registeredControllers": 44,
+        "controllersWithRoutes": 43,
+        "registeredRoutes": 160,
+        "operations": 160,
+        "swaggerExcludedOperations": 13,
+        "customerExport": {
+            "included": 125,
+            "excludedByPolicy": 13,
+            "pendingDecision": 22
+        },
+        "warnings": 0
+    },
+    "controllers": [
+        {
+            "module": "AppModule",
+            "controller": "AppController",
+            "sourceFile": "src/app.controller.ts",
+            "routes": 2
+        },
+        {
+            "module": "AuthModule",
+            "controller": "AuthController",
+            "sourceFile": "src/auth/controllers/auth.controller.ts",
+            "routes": 2
+        },
+        {
+            "module": "AuthModule",
+            "controller": "PraUserController",
+            "sourceFile": "src/auth/controllers/pra-user.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "HealthModule",
+            "controller": "HealthController",
+            "sourceFile": "src/health/controllers/health.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "AccessModule",
+            "controller": "AccessController",
+            "sourceFile": "src/access/controllers/access.controller.ts",
+            "routes": 4
+        },
+        {
+            "module": "LicenseUsageModule",
+            "controller": "SiteLicenseUsageController",
+            "sourceFile": "src/license-usage/controllers/site-license-usage.controller.ts",
+            "routes": 1
+        },
+        {
+            "module": "LicenseUsageModule",
+            "controller": "CustomerLicenseUsageController",
+            "sourceFile": "src/license-usage/controllers/customer-license-usage.controller.ts",
+            "routes": 1
+        },
+        {
+            "module": "CustomerModule",
+            "controller": "CustomerController",
+            "sourceFile": "src/customer/controllers/customer.controller.ts",
+            "routes": 6
+        },
+        {
+            "module": "SiteModule",
+            "controller": "SiteController",
+            "sourceFile": "src/site/controllers/site.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "SiteModule",
+            "controller": "SiteAuditorController",
+            "sourceFile": "src/site/controllers/site-auditor.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "SiteModule",
+            "controller": "SiteManagerController",
+            "sourceFile": "src/site/controllers/site-manager.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "SiteModule",
+            "controller": "SiteSupportTeamMemberController",
+            "sourceFile": "src/site/controllers/site-support-team-member.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "SiteModule",
+            "controller": "SiteJumpointController",
+            "sourceFile": "src/site/controllers/site-jumpoint.controller.ts",
+            "routes": 1
+        },
+        {
+            "module": "BeyondtrustInstanceModule",
+            "controller": "BeyondtrustInstanceController",
+            "sourceFile": "src/beyondtrust-instance/controllers/beyondtrust-instance.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "BeyondtrustInstanceBackupModule",
+            "controller": "BeyondtrustInstanceBackupController",
+            "sourceFile": "src/beyondtrust-instance-backup/controllers/beyondtrust-instance-backup.controller.ts",
+            "routes": 4
+        },
+        {
+            "module": "UserModule",
+            "controller": "UserController",
+            "sourceFile": "src/user/controllers/user.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "UserGroupPolicyModule",
+            "controller": "UserGroupPolicyController",
+            "sourceFile": "src/user-group-policy/controllers/user-group-policy.controller.ts",
+            "routes": 2
+        },
+        {
+            "module": "TeamModule",
+            "controller": "TeamController",
+            "sourceFile": "src/team/controllers/team.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "JumpClientModule",
+            "controller": "JumpClientInstallerController",
+            "sourceFile": "src/jump-client/controllers/jump-client-installer.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "JumpClientModule",
+            "controller": "JumpClientController",
+            "sourceFile": "src/jump-client/controllers/jump-client.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "TeamUserModule",
+            "controller": "TeamUserController",
+            "sourceFile": "src/team-user/controllers/team-user.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "GroupPolicyModule",
+            "controller": "GroupPolicyController",
+            "sourceFile": "src/group-policy/controllers/group-policy.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "GroupPolicyJumpointModule",
+            "controller": "GroupPolicyJumpointController",
+            "sourceFile": "src/group-policy-jumpoint/controllers/group-policy-jumpoint.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "GroupPolicyJumpGroupModule",
+            "controller": "GroupPolicyJumpGroupController",
+            "sourceFile": "src/group-policy-jump-group/controllers/group-policy-jump-group.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "GroupPolicyMemberModule",
+            "controller": "GroupPolicyMemberController",
+            "sourceFile": "src/group-policy-member/controllers/group-policy-member.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "GroupPolicyTeamModule",
+            "controller": "GroupPolicyTeamController",
+            "sourceFile": "src/group-policy-team/controllers/group-policy-team.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "JumpointModule",
+            "controller": "JumpointExtensionController",
+            "sourceFile": "src/jumpoint/controllers/jumpoint-extension.controller.ts",
+            "routes": 1
+        },
+        {
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "routes": 7
+        },
+        {
+            "module": "JumpGroupModule",
+            "controller": "JumpGroupController",
+            "sourceFile": "src/jump-group/controllers/jump-group.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "JumpPolicyModule",
+            "controller": "JumpPolicyController",
+            "sourceFile": "src/jump-policy/controllers/jump-policy.controller.ts",
+            "routes": 5
+        },
+        {
+            "module": "ProtocolTunnelJumpModule",
+            "controller": "ProtocolTunnelJumpController",
+            "sourceFile": "src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts",
+            "routes": 6
+        },
+        {
+            "module": "RemoteRdpModule",
+            "controller": "RemoteRdpController",
+            "sourceFile": "src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts",
+            "routes": 6
+        },
+        {
+            "module": "RemoteVncModule",
+            "controller": "RemoteVncController",
+            "sourceFile": "src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts",
+            "routes": 6
+        },
+        {
+            "module": "ShellJumpModule",
+            "controller": "ShellJumpController",
+            "sourceFile": "src/jump-item/shell-jump/controllers/shell-jump.controller.ts",
+            "routes": 6
+        },
+        {
+            "module": "WebJumpModule",
+            "controller": "WebJumpController",
+            "sourceFile": "src/jump-item/web-jump/controllers/web-jump.controller.ts",
+            "routes": 6
+        },
+        {
+            "module": "SessionPolicyModule",
+            "controller": "SessionPolicyController",
+            "sourceFile": "src/session-policy/controllers/session-policy.controller.ts",
+            "routes": 1
+        },
+        {
+            "module": "SocModule",
+            "controller": "SocController",
+            "sourceFile": "src/soc/controllers/soc.controller.ts",
+            "routes": 2
+        },
+        {
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancyScannerController",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-scanner.controller.ts",
+            "routes": 4
+        },
+        {
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancySyncController",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-sync.controller.ts",
+            "routes": 2
+        },
+        {
+            "module": "JobModule",
+            "controller": "JobController",
+            "sourceFile": "src/job/controllers/job.controller.ts",
+            "routes": 0,
+            "note": "Hosts the scheduled jobs (backups, data population, retention); declares no HTTP route."
+        },
+        {
+            "module": "LogModule",
+            "controller": "LogController",
+            "sourceFile": "src/log/controllers/log.controller.ts",
+            "routes": 3
+        },
+        {
+            "module": "MonitoringModule",
+            "controller": "MonitoringController",
+            "sourceFile": "src/monitoring/controllers/monitoring.controller.ts",
+            "routes": 2
+        },
+        {
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "routes": 9
+        },
+        {
+            "module": "MaintenanceModule",
+            "controller": "MaintenanceController",
+            "sourceFile": "src/maintenance/controllers/maintenance.controller.ts",
+            "routes": 1
+        }
+    ],
+    "operations": [
+        {
+            "key": "GET /ping",
+            "method": "GET",
+            "path": "/ping",
+            "domain": "Health and Platform",
+            "module": "AppModule",
+            "controller": "AppController",
+            "handler": "ping",
+            "sourceFile": "src/app.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Health and Platform/AppController/GET ping.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "GET /",
+            "method": "GET",
+            "path": "/",
+            "domain": "Health and Platform",
+            "module": "AppModule",
+            "controller": "AppController",
+            "handler": "root",
+            "sourceFile": "src/app.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Health and Platform/AppController/GET root.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": [
+                "The handler carries @Get() and @Head(); Nest keeps only one request method per handler, so only GET is registered. Express still answers HEAD for GET routes.",
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "POST /auth/login",
+            "method": "POST",
+            "path": "/auth/login",
+            "domain": "Internal",
+            "module": "AuthModule",
+            "controller": "AuthController",
+            "handler": "login",
+            "sourceFile": "src/auth/controllers/auth.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/AuthController/POST auth login.request.yaml",
+            "authentication": [
+                "apiKey",
+                "localCredentials"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "body": {
+                "dto": "passport-local credentials",
+                "validationEnforced": false,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /auth/profile",
+            "method": "GET",
+            "path": "/auth/profile",
+            "domain": "Internal",
+            "module": "AuthModule",
+            "controller": "AuthController",
+            "handler": "profile",
+            "sourceFile": "src/auth/controllers/auth.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/AuthController/GET auth profile.request.yaml",
+            "authentication": [
+                "apiKey",
+                "jwt"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /pra-users",
+            "method": "GET",
+            "path": "/pra-users",
+            "domain": "Internal",
+            "module": "AuthModule",
+            "controller": "PraUserController",
+            "handler": "retrievePraUsers",
+            "sourceFile": "src/auth/controllers/pra-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/PraUserController/GET pra-users.request.yaml",
+            "authentication": [
+                "apiKey",
+                "jwt"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "query": "RetrievePraUsersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /pra-users",
+            "method": "POST",
+            "path": "/pra-users",
+            "domain": "Internal",
+            "module": "AuthModule",
+            "controller": "PraUserController",
+            "handler": "createPraUser",
+            "sourceFile": "src/auth/controllers/pra-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/PraUserController/POST pra-users.request.yaml",
+            "authentication": [
+                "apiKey",
+                "jwt"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "body": {
+                "dto": "CreatePraUserDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /pra-users/:id",
+            "method": "PATCH",
+            "path": "/pra-users/:id",
+            "domain": "Internal",
+            "module": "AuthModule",
+            "controller": "PraUserController",
+            "handler": "modifyPraUser",
+            "sourceFile": "src/auth/controllers/pra-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/PraUserController/PATCH pra-users {id}.request.yaml",
+            "authentication": [
+                "apiKey",
+                "jwt"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "body": {
+                "dto": "ModifyPraUserDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /pra-users/forgot-password",
+            "method": "POST",
+            "path": "/pra-users/forgot-password",
+            "domain": "Internal",
+            "module": "AuthModule",
+            "controller": "PraUserController",
+            "handler": "forgotPassword",
+            "sourceFile": "src/auth/controllers/pra-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/PraUserController/POST pra-users forgot-password.request.yaml",
+            "authentication": [
+                "apiKey",
+                "jwt"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "body": {
+                "dto": "PraUserForgotPasswordDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /pra-users/:id",
+            "method": "DELETE",
+            "path": "/pra-users/:id",
+            "domain": "Internal",
+            "module": "AuthModule",
+            "controller": "PraUserController",
+            "handler": "deletePraUser",
+            "sourceFile": "src/auth/controllers/pra-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/PraUserController/DELETE pra-users {id}.request.yaml",
+            "authentication": [
+                "apiKey",
+                "jwt"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /health",
+            "method": "GET",
+            "path": "/health",
+            "domain": "Health and Platform",
+            "module": "HealthModule",
+            "controller": "HealthController",
+            "handler": "checkHealth",
+            "sourceFile": "src/health/controllers/health.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Health and Platform/HealthController/GET health.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "GET /health/ready",
+            "method": "GET",
+            "path": "/health/ready",
+            "domain": "Health and Platform",
+            "module": "HealthModule",
+            "controller": "HealthController",
+            "handler": "checkReadiness",
+            "sourceFile": "src/health/controllers/health.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Health and Platform/HealthController/GET health ready.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "GET /health/live",
+            "method": "GET",
+            "path": "/health/live",
+            "domain": "Health and Platform",
+            "module": "HealthModule",
+            "controller": "HealthController",
+            "handler": "checkLiveness",
+            "sourceFile": "src/health/controllers/health.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Health and Platform/HealthController/GET health live.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "GET /access",
+            "method": "GET",
+            "path": "/access",
+            "domain": "Internal",
+            "module": "AccessModule",
+            "controller": "AccessController",
+            "handler": "retrieveAccess",
+            "sourceFile": "src/access/controllers/access.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/AccessController/GET access.request.yaml",
+            "authentication": [
+                "apiKey"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "query": "RetrieveAccessDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /access",
+            "method": "POST",
+            "path": "/access",
+            "domain": "Internal",
+            "module": "AccessModule",
+            "controller": "AccessController",
+            "handler": "createAccess",
+            "sourceFile": "src/access/controllers/access.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/AccessController/POST access.request.yaml",
+            "authentication": [
+                "apiKey"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "body": {
+                "dto": "CreateAccessDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /access/:id",
+            "method": "PATCH",
+            "path": "/access/:id",
+            "domain": "Internal",
+            "module": "AccessModule",
+            "controller": "AccessController",
+            "handler": "modifyAccess",
+            "sourceFile": "src/access/controllers/access.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/AccessController/PATCH access {id}.request.yaml",
+            "authentication": [
+                "apiKey"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "body": {
+                "dto": "ModifyAccessDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /access/:id",
+            "method": "DELETE",
+            "path": "/access/:id",
+            "domain": "Internal",
+            "module": "AccessModule",
+            "controller": "AccessController",
+            "handler": "deleteAccess",
+            "sourceFile": "src/access/controllers/access.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/AccessController/DELETE access {id}.request.yaml",
+            "authentication": [
+                "apiKey"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /license-usages/sites/:id",
+            "method": "POST",
+            "path": "/license-usages/sites/:id",
+            "domain": "License Usage",
+            "module": "LicenseUsageModule",
+            "controller": "SiteLicenseUsageController",
+            "handler": "calculateSiteLicenseUsage",
+            "sourceFile": "src/license-usage/controllers/site-license-usage.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/License Usage/SiteLicenseUsageController/POST license-usages sites {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /license-usages/customers/:id",
+            "method": "POST",
+            "path": "/license-usages/customers/:id",
+            "domain": "License Usage",
+            "module": "LicenseUsageModule",
+            "controller": "CustomerLicenseUsageController",
+            "handler": "calculateCustomerLicenseUsage",
+            "sourceFile": "src/license-usage/controllers/customer-license-usage.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/License Usage/CustomerLicenseUsageController/POST license-usages customers {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /customers",
+            "method": "GET",
+            "path": "/customers",
+            "domain": "Customers",
+            "module": "CustomerModule",
+            "controller": "CustomerController",
+            "handler": "retrieveCustomers",
+            "sourceFile": "src/customer/controllers/customer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Customers/CustomerController/GET customers.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveCustomersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /customers",
+            "method": "POST",
+            "path": "/customers",
+            "domain": "Customers",
+            "module": "CustomerModule",
+            "controller": "CustomerController",
+            "handler": "createCustomer",
+            "sourceFile": "src/customer/controllers/customer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Customers/CustomerController/POST customers.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateCustomerDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /customers/:id",
+            "method": "PATCH",
+            "path": "/customers/:id",
+            "domain": "Customers",
+            "module": "CustomerModule",
+            "controller": "CustomerController",
+            "handler": "modifyCustomer",
+            "sourceFile": "src/customer/controllers/customer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Customers/CustomerController/PATCH customers {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyCustomerDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /customers/:id/deactivate",
+            "method": "POST",
+            "path": "/customers/:id/deactivate",
+            "domain": "Customers",
+            "module": "CustomerModule",
+            "controller": "CustomerController",
+            "handler": "deactivateCustomer",
+            "sourceFile": "src/customer/controllers/customer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Customers/CustomerController/POST customers {id} deactivate.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /customers/:id/reactivate",
+            "method": "POST",
+            "path": "/customers/:id/reactivate",
+            "domain": "Customers",
+            "module": "CustomerModule",
+            "controller": "CustomerController",
+            "handler": "reactivateCustomer",
+            "sourceFile": "src/customer/controllers/customer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Customers/CustomerController/POST customers {id} reactivate.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /customers/:id",
+            "method": "DELETE",
+            "path": "/customers/:id",
+            "domain": "Customers",
+            "module": "CustomerModule",
+            "controller": "CustomerController",
+            "handler": "deleteCustomer",
+            "sourceFile": "src/customer/controllers/customer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Customers/CustomerController/DELETE customers {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /sites",
+            "method": "GET",
+            "path": "/sites",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteController",
+            "handler": "retrieveSites",
+            "sourceFile": "src/site/controllers/site.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteController/GET sites.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveSitesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /sites",
+            "method": "POST",
+            "path": "/sites",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteController",
+            "handler": "createSite",
+            "sourceFile": "src/site/controllers/site.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteController/POST sites.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateSiteDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": [
+                "CreateSiteDtoInput.siteManagers[].sourceType: Swagger declares required: true; effective validation makes it optional.",
+                "CreateSiteDtoInput.siteAuditors[].sourceType: Swagger declares required: true; effective validation makes it optional.",
+                "CreateSiteDtoInput.siteSupportTeamMembers[].sourceType: Swagger declares required: true; effective validation makes it optional."
+            ]
+        },
+        {
+            "key": "DELETE /sites/:id",
+            "method": "DELETE",
+            "path": "/sites/:id",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteController",
+            "handler": "deleteSite",
+            "sourceFile": "src/site/controllers/site.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteController/DELETE sites {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /sites/:id/auditors",
+            "method": "GET",
+            "path": "/sites/:id/auditors",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteAuditorController",
+            "handler": "retrieveSiteAuditors",
+            "sourceFile": "src/site/controllers/site-auditor.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteAuditorController/GET sites {id} auditors.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "query": "RetrieveSiteAuditorsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /sites/:id/auditors",
+            "method": "POST",
+            "path": "/sites/:id/auditors",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteAuditorController",
+            "handler": "addSiteAuditor",
+            "sourceFile": "src/site/controllers/site-auditor.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteAuditorController/POST sites {id} auditors.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "body": {
+                "dto": "SiteAuditorDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": [
+                "SiteAuditorDtoInput.sourceType: Swagger declares required: true; effective validation makes it optional."
+            ]
+        },
+        {
+            "key": "DELETE /sites/:id/auditors/:auditorId",
+            "method": "DELETE",
+            "path": "/sites/:id/auditors/:auditorId",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteAuditorController",
+            "handler": "removeSiteAuditor",
+            "sourceFile": "src/site/controllers/site-auditor.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteAuditorController/DELETE sites {id} auditors {auditorId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /sites/:id/managers",
+            "method": "GET",
+            "path": "/sites/:id/managers",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteManagerController",
+            "handler": "retrieveSiteManagers",
+            "sourceFile": "src/site/controllers/site-manager.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteManagerController/GET sites {id} managers.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveSiteManagersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /sites/:id/managers",
+            "method": "POST",
+            "path": "/sites/:id/managers",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteManagerController",
+            "handler": "addSiteManager",
+            "sourceFile": "src/site/controllers/site-manager.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteManagerController/POST sites {id} managers.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "SiteManagerDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": [
+                "SiteManagerDtoInput.sourceType: Swagger declares required: true; effective validation makes it optional."
+            ]
+        },
+        {
+            "key": "DELETE /sites/:id/managers/:managerId",
+            "method": "DELETE",
+            "path": "/sites/:id/managers/:managerId",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteManagerController",
+            "handler": "removeSiteManager",
+            "sourceFile": "src/site/controllers/site-manager.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteManagerController/DELETE sites {id} managers {managerId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /sites/:id/support-team-members",
+            "method": "GET",
+            "path": "/sites/:id/support-team-members",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteSupportTeamMemberController",
+            "handler": "retrieveSiteSupportTeamMembers",
+            "sourceFile": "src/site/controllers/site-support-team-member.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteSupportTeamMemberController/GET sites {id} support-team-members.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveSiteSupportTeamMembersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /sites/:id/support-team-members",
+            "method": "POST",
+            "path": "/sites/:id/support-team-members",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteSupportTeamMemberController",
+            "handler": "addSiteSupportTeamMember",
+            "sourceFile": "src/site/controllers/site-support-team-member.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteSupportTeamMemberController/POST sites {id} support-team-members.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "SiteSupportTeamMemberDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": [
+                "SiteSupportTeamMemberDtoInput.sourceType: Swagger declares required: true; effective validation makes it optional."
+            ]
+        },
+        {
+            "key": "DELETE /sites/:id/support-team-members/:supportTeamMemberId",
+            "method": "DELETE",
+            "path": "/sites/:id/support-team-members/:supportTeamMemberId",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteSupportTeamMemberController",
+            "handler": "removeSiteSupportTeamMember",
+            "sourceFile": "src/site/controllers/site-support-team-member.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteSupportTeamMemberController/DELETE sites {id} support-team-members {supportTeamMemberId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /sites/:id/jumpoints",
+            "method": "GET",
+            "path": "/sites/:id/jumpoints",
+            "domain": "Sites",
+            "module": "SiteModule",
+            "controller": "SiteJumpointController",
+            "handler": "retrieveSiteJumpoints",
+            "sourceFile": "src/site/controllers/site-jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Sites/SiteJumpointController/GET sites {id} jumpoints.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveSiteJumpointsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "GET /beyondtrust-instances/:id",
+            "method": "GET",
+            "path": "/beyondtrust-instances/:id",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceModule",
+            "controller": "BeyondtrustInstanceController",
+            "handler": "retrieveBeyondtrustInstance",
+            "sourceFile": "src/beyondtrust-instance/controllers/beyondtrust-instance.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceController/GET beyondtrust-instances {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /beyondtrust-instances",
+            "method": "GET",
+            "path": "/beyondtrust-instances",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceModule",
+            "controller": "BeyondtrustInstanceController",
+            "handler": "retrieveBeyondtrustInstances",
+            "sourceFile": "src/beyondtrust-instance/controllers/beyondtrust-instance.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceController/GET beyondtrust-instances.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveBeyondtrustInstancesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /beyondtrust-instances",
+            "method": "POST",
+            "path": "/beyondtrust-instances",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceModule",
+            "controller": "BeyondtrustInstanceController",
+            "handler": "createBeyondtrustInstance",
+            "sourceFile": "src/beyondtrust-instance/controllers/beyondtrust-instance.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceController/POST beyondtrust-instances.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateBeyondtrustInstanceDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /beyondtrust-instances/:id",
+            "method": "PATCH",
+            "path": "/beyondtrust-instances/:id",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceModule",
+            "controller": "BeyondtrustInstanceController",
+            "handler": "modifyBeyondtrustInstance",
+            "sourceFile": "src/beyondtrust-instance/controllers/beyondtrust-instance.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceController/PATCH beyondtrust-instances {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyBeyondtrustInstanceDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /beyondtrust-instances/:id",
+            "method": "DELETE",
+            "path": "/beyondtrust-instances/:id",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceModule",
+            "controller": "BeyondtrustInstanceController",
+            "handler": "deleteBeyondtrustInstance",
+            "sourceFile": "src/beyondtrust-instance/controllers/beyondtrust-instance.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceController/DELETE beyondtrust-instances {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /beyondtrust-instances/:id/backups",
+            "method": "GET",
+            "path": "/beyondtrust-instances/:id/backups",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceBackupModule",
+            "controller": "BeyondtrustInstanceBackupController",
+            "handler": "retrieveBeyondtrustInstanceBackups",
+            "sourceFile": "src/beyondtrust-instance-backup/controllers/beyondtrust-instance-backup.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceBackupController/GET beyondtrust-instances {id} backups.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveBeyondtrustInstanceBackupsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /beyondtrust-instances/:id/backups",
+            "method": "POST",
+            "path": "/beyondtrust-instances/:id/backups",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceBackupModule",
+            "controller": "BeyondtrustInstanceBackupController",
+            "handler": "createBeyondtrustInstanceBackup",
+            "sourceFile": "src/beyondtrust-instance-backup/controllers/beyondtrust-instance-backup.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceBackupController/POST beyondtrust-instances {id} backups.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateBeyondtrustInstanceBackupDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /beyondtrust-instances/:id/backups/:backupId",
+            "method": "GET",
+            "path": "/beyondtrust-instances/:id/backups/:backupId",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceBackupModule",
+            "controller": "BeyondtrustInstanceBackupController",
+            "handler": "retrieveBeyondtrustInstanceBackup",
+            "sourceFile": "src/beyondtrust-instance-backup/controllers/beyondtrust-instance-backup.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceBackupController/GET beyondtrust-instances {id} backups {backupId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /beyondtrust-instances/:id/backups/:backupId/content",
+            "method": "GET",
+            "path": "/beyondtrust-instances/:id/backups/:backupId/content",
+            "domain": "BeyondTrust Instances",
+            "module": "BeyondtrustInstanceBackupModule",
+            "controller": "BeyondtrustInstanceBackupController",
+            "handler": "retrieveBeyondtrustInstanceBackupContent",
+            "sourceFile": "src/beyondtrust-instance-backup/controllers/beyondtrust-instance-backup.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/BeyondTrust Instances/BeyondtrustInstanceBackupController/GET beyondtrust-instances {id} backups {backupId} content.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /users/:id",
+            "method": "GET",
+            "path": "/users/:id",
+            "domain": "Users",
+            "module": "UserModule",
+            "controller": "UserController",
+            "handler": "retrieveUser",
+            "sourceFile": "src/user/controllers/user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Users/UserController/GET users {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /users",
+            "method": "GET",
+            "path": "/users",
+            "domain": "Users",
+            "module": "UserModule",
+            "controller": "UserController",
+            "handler": "retrieveUsers",
+            "sourceFile": "src/user/controllers/user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Users/UserController/GET users.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveUsersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /users",
+            "method": "POST",
+            "path": "/users",
+            "domain": "Users",
+            "module": "UserModule",
+            "controller": "UserController",
+            "handler": "createUser",
+            "sourceFile": "src/user/controllers/user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Users/UserController/POST users.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateUserDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /users/:id",
+            "method": "PATCH",
+            "path": "/users/:id",
+            "domain": "Users",
+            "module": "UserModule",
+            "controller": "UserController",
+            "handler": "modifyUser",
+            "sourceFile": "src/user/controllers/user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Users/UserController/PATCH users {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyUserDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /users/:id",
+            "method": "DELETE",
+            "path": "/users/:id",
+            "domain": "Users",
+            "module": "UserModule",
+            "controller": "UserController",
+            "handler": "deleteUser",
+            "sourceFile": "src/user/controllers/user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Users/UserController/DELETE users {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /users/:id/group-policies",
+            "method": "GET",
+            "path": "/users/:id/group-policies",
+            "domain": "Users",
+            "module": "UserGroupPolicyModule",
+            "controller": "UserGroupPolicyController",
+            "handler": "retrieveUserGroupPolicies",
+            "sourceFile": "src/user-group-policy/controllers/user-group-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Users/UserGroupPolicyController/GET users {id} group-policies.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveUserGroupPoliciesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /users/:id/group-policies",
+            "method": "PATCH",
+            "path": "/users/:id/group-policies",
+            "domain": "Users",
+            "module": "UserGroupPolicyModule",
+            "controller": "UserGroupPolicyController",
+            "handler": "modifyUserGroupPolicies",
+            "sourceFile": "src/user-group-policy/controllers/user-group-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Users/UserGroupPolicyController/PATCH users {id} group-policies.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyUserGroupPoliciesDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /teams/:id",
+            "method": "GET",
+            "path": "/teams/:id",
+            "domain": "Teams",
+            "module": "TeamModule",
+            "controller": "TeamController",
+            "handler": "retrieveTeam",
+            "sourceFile": "src/team/controllers/team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamController/GET teams {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /teams",
+            "method": "GET",
+            "path": "/teams",
+            "domain": "Teams",
+            "module": "TeamModule",
+            "controller": "TeamController",
+            "handler": "retrieveTeams",
+            "sourceFile": "src/team/controllers/team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamController/GET teams.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveTeamsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /teams",
+            "method": "POST",
+            "path": "/teams",
+            "domain": "Teams",
+            "module": "TeamModule",
+            "controller": "TeamController",
+            "handler": "createTeam",
+            "sourceFile": "src/team/controllers/team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamController/POST teams.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateTeamDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /teams/:id",
+            "method": "PATCH",
+            "path": "/teams/:id",
+            "domain": "Teams",
+            "module": "TeamModule",
+            "controller": "TeamController",
+            "handler": "modifyTeam",
+            "sourceFile": "src/team/controllers/team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamController/PATCH teams {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyTeamDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /teams/:id",
+            "method": "DELETE",
+            "path": "/teams/:id",
+            "domain": "Teams",
+            "module": "TeamModule",
+            "controller": "TeamController",
+            "handler": "deleteTeam",
+            "sourceFile": "src/team/controllers/team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamController/DELETE teams {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-clients/installers/:id",
+            "method": "GET",
+            "path": "/jump-clients/installers/:id",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientInstallerController",
+            "handler": "retrieveJumpClientInstaller",
+            "sourceFile": "src/jump-client/controllers/jump-client-installer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientInstallerController/GET jump-clients installers {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-clients/installers",
+            "method": "GET",
+            "path": "/jump-clients/installers",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientInstallerController",
+            "handler": "retrieveJumpClientInstallers",
+            "sourceFile": "src/jump-client/controllers/jump-client-installer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientInstallerController/GET jump-clients installers.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveJumpClientInstallersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-clients/installers",
+            "method": "POST",
+            "path": "/jump-clients/installers",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientInstallerController",
+            "handler": "createJumpClientInstaller",
+            "sourceFile": "src/jump-client/controllers/jump-client-installer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientInstallerController/POST jump-clients installers.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateJumpClientInstallerDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-clients/installers/:id",
+            "method": "DELETE",
+            "path": "/jump-clients/installers/:id",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientInstallerController",
+            "handler": "deleteJumpClientInstaller",
+            "sourceFile": "src/jump-client/controllers/jump-client-installer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientInstallerController/DELETE jump-clients installers {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-clients/installers/:installerId/platforms/:platformType",
+            "method": "GET",
+            "path": "/jump-clients/installers/:installerId/platforms/:platformType",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientInstallerController",
+            "handler": "retrieveJumpClientInstallerPlatform",
+            "sourceFile": "src/jump-client/controllers/jump-client-installer.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientInstallerController/GET jump-clients installers {installerId} platforms {platformType}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-clients/:id",
+            "method": "GET",
+            "path": "/jump-clients/:id",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientController",
+            "handler": "retrieveJumpClient",
+            "sourceFile": "src/jump-client/controllers/jump-client.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientController/GET jump-clients {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-clients",
+            "method": "GET",
+            "path": "/jump-clients",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientController",
+            "handler": "retrieveJumpClients",
+            "sourceFile": "src/jump-client/controllers/jump-client.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientController/GET jump-clients.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveJumpClientsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-clients/:id",
+            "method": "PATCH",
+            "path": "/jump-clients/:id",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientController",
+            "handler": "modifyJumpClient",
+            "sourceFile": "src/jump-client/controllers/jump-client.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientController/PATCH jump-clients {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyJumpClientDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-clients/:id",
+            "method": "DELETE",
+            "path": "/jump-clients/:id",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientController",
+            "handler": "deleteJumpClient",
+            "sourceFile": "src/jump-client/controllers/jump-client.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientController/DELETE jump-clients {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-clients/:id/copy",
+            "method": "POST",
+            "path": "/jump-clients/:id/copy",
+            "domain": "Jump Clients",
+            "module": "JumpClientModule",
+            "controller": "JumpClientController",
+            "handler": "copyJumpClient",
+            "sourceFile": "src/jump-client/controllers/jump-client.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Clients/JumpClientController/POST jump-clients {id} copy.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CopyJumpClientDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /teams/:id/users",
+            "method": "GET",
+            "path": "/teams/:id/users",
+            "domain": "Teams",
+            "module": "TeamUserModule",
+            "controller": "TeamUserController",
+            "handler": "retrieveTeamUsers",
+            "sourceFile": "src/team-user/controllers/team-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamUserController/GET teams {id} users.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveTeamUsersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /teams/:id/users",
+            "method": "POST",
+            "path": "/teams/:id/users",
+            "domain": "Teams",
+            "module": "TeamUserModule",
+            "controller": "TeamUserController",
+            "handler": "addUserToTeam",
+            "sourceFile": "src/team-user/controllers/team-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamUserController/POST teams {id} users.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "AddUserToTeamDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /teams/:id/users/:userId",
+            "method": "DELETE",
+            "path": "/teams/:id/users/:userId",
+            "domain": "Teams",
+            "module": "TeamUserModule",
+            "controller": "TeamUserController",
+            "handler": "removeUserFromTeam",
+            "sourceFile": "src/team-user/controllers/team-user.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Teams/TeamUserController/DELETE teams {id} users {userId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /group-policies/:id",
+            "method": "GET",
+            "path": "/group-policies/:id",
+            "domain": "Group Policies",
+            "module": "GroupPolicyModule",
+            "controller": "GroupPolicyController",
+            "handler": "retrieveGroupPolicy",
+            "sourceFile": "src/group-policy/controllers/group-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyController/GET group-policies {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /group-policies",
+            "method": "GET",
+            "path": "/group-policies",
+            "domain": "Group Policies",
+            "module": "GroupPolicyModule",
+            "controller": "GroupPolicyController",
+            "handler": "retrieveGroupPolicies",
+            "sourceFile": "src/group-policy/controllers/group-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyController/GET group-policies.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveGroupPoliciesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /group-policies",
+            "method": "POST",
+            "path": "/group-policies",
+            "domain": "Group Policies",
+            "module": "GroupPolicyModule",
+            "controller": "GroupPolicyController",
+            "handler": "createGroupPolicy",
+            "sourceFile": "src/group-policy/controllers/group-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyController/POST group-policies.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateGroupPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /group-policies/:id",
+            "method": "PATCH",
+            "path": "/group-policies/:id",
+            "domain": "Group Policies",
+            "module": "GroupPolicyModule",
+            "controller": "GroupPolicyController",
+            "handler": "modifyGroupPolicy",
+            "sourceFile": "src/group-policy/controllers/group-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyController/PATCH group-policies {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyGroupPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /group-policies/:id",
+            "method": "DELETE",
+            "path": "/group-policies/:id",
+            "domain": "Group Policies",
+            "module": "GroupPolicyModule",
+            "controller": "GroupPolicyController",
+            "handler": "deleteGroupPolicy",
+            "sourceFile": "src/group-policy/controllers/group-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyController/DELETE group-policies {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /group-policies/:id/jumpoints",
+            "method": "GET",
+            "path": "/group-policies/:id/jumpoints",
+            "domain": "Group Policies",
+            "module": "GroupPolicyJumpointModule",
+            "controller": "GroupPolicyJumpointController",
+            "handler": "retrieveGroupPolicyJumpoints",
+            "sourceFile": "src/group-policy-jumpoint/controllers/group-policy-jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyJumpointController/GET group-policies {id} jumpoints.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveGroupPolicyJumpointsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /group-policies/:id/jumpoints",
+            "method": "POST",
+            "path": "/group-policies/:id/jumpoints",
+            "domain": "Group Policies",
+            "module": "GroupPolicyJumpointModule",
+            "controller": "GroupPolicyJumpointController",
+            "handler": "addJumpointToGroupPolicy",
+            "sourceFile": "src/group-policy-jumpoint/controllers/group-policy-jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyJumpointController/POST group-policies {id} jumpoints.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "AddJumpointToGroupPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /group-policies/:id/jumpoints/:jumpointId",
+            "method": "DELETE",
+            "path": "/group-policies/:id/jumpoints/:jumpointId",
+            "domain": "Group Policies",
+            "module": "GroupPolicyJumpointModule",
+            "controller": "GroupPolicyJumpointController",
+            "handler": "removeJumpointFromGroupPolicy",
+            "sourceFile": "src/group-policy-jumpoint/controllers/group-policy-jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyJumpointController/DELETE group-policies {id} jumpoints {jumpointId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /group-policies/:id/jump-groups",
+            "method": "GET",
+            "path": "/group-policies/:id/jump-groups",
+            "domain": "Group Policies",
+            "module": "GroupPolicyJumpGroupModule",
+            "controller": "GroupPolicyJumpGroupController",
+            "handler": "retrieveGroupPolicyJumpGroups",
+            "sourceFile": "src/group-policy-jump-group/controllers/group-policy-jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyJumpGroupController/GET group-policies {id} jump-groups.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveGroupPolicyJumpGroupsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /group-policies/:id/jump-groups",
+            "method": "POST",
+            "path": "/group-policies/:id/jump-groups",
+            "domain": "Group Policies",
+            "module": "GroupPolicyJumpGroupModule",
+            "controller": "GroupPolicyJumpGroupController",
+            "handler": "addJumpGroupToGroupPolicy",
+            "sourceFile": "src/group-policy-jump-group/controllers/group-policy-jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyJumpGroupController/POST group-policies {id} jump-groups.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "AddJumpGroupToGroupPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /group-policies/:id/jump-groups/:jumpGroupId",
+            "method": "DELETE",
+            "path": "/group-policies/:id/jump-groups/:jumpGroupId",
+            "domain": "Group Policies",
+            "module": "GroupPolicyJumpGroupModule",
+            "controller": "GroupPolicyJumpGroupController",
+            "handler": "removeJumpGroupFromGroupPolicy",
+            "sourceFile": "src/group-policy-jump-group/controllers/group-policy-jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyJumpGroupController/DELETE group-policies {id} jump-groups {jumpGroupId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /group-policies/:id/members",
+            "method": "GET",
+            "path": "/group-policies/:id/members",
+            "domain": "Group Policies",
+            "module": "GroupPolicyMemberModule",
+            "controller": "GroupPolicyMemberController",
+            "handler": "retrieveGroupPolicyMembers",
+            "sourceFile": "src/group-policy-member/controllers/group-policy-member.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyMemberController/GET group-policies {id} members.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveGroupPolicyMembersDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /group-policies/:id/members",
+            "method": "POST",
+            "path": "/group-policies/:id/members",
+            "domain": "Group Policies",
+            "module": "GroupPolicyMemberModule",
+            "controller": "GroupPolicyMemberController",
+            "handler": "addMemberToGroupPolicy",
+            "sourceFile": "src/group-policy-member/controllers/group-policy-member.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyMemberController/POST group-policies {id} members.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "AddMemberToGroupPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /group-policies/:id/members/:memberId",
+            "method": "DELETE",
+            "path": "/group-policies/:id/members/:memberId",
+            "domain": "Group Policies",
+            "module": "GroupPolicyMemberModule",
+            "controller": "GroupPolicyMemberController",
+            "handler": "removeMemberFromGroupPolicy",
+            "sourceFile": "src/group-policy-member/controllers/group-policy-member.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyMemberController/DELETE group-policies {id} members {memberId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /group-policies/:id/teams",
+            "method": "GET",
+            "path": "/group-policies/:id/teams",
+            "domain": "Group Policies",
+            "module": "GroupPolicyTeamModule",
+            "controller": "GroupPolicyTeamController",
+            "handler": "retrieveGroupPolicyTeams",
+            "sourceFile": "src/group-policy-team/controllers/group-policy-team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyTeamController/GET group-policies {id} teams.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveGroupPolicyTeamsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /group-policies/:id/teams",
+            "method": "POST",
+            "path": "/group-policies/:id/teams",
+            "domain": "Group Policies",
+            "module": "GroupPolicyTeamModule",
+            "controller": "GroupPolicyTeamController",
+            "handler": "addTeamToGroupPolicy",
+            "sourceFile": "src/group-policy-team/controllers/group-policy-team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyTeamController/POST group-policies {id} teams.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "AddTeamToGroupPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /group-policies/:id/teams/:teamId",
+            "method": "DELETE",
+            "path": "/group-policies/:id/teams/:teamId",
+            "domain": "Group Policies",
+            "module": "GroupPolicyTeamModule",
+            "controller": "GroupPolicyTeamController",
+            "handler": "removeTeamFromGroupPolicy",
+            "sourceFile": "src/group-policy-team/controllers/group-policy-team.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Group Policies/GroupPolicyTeamController/DELETE group-policies {id} teams {teamId}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jumpoints/installers",
+            "method": "GET",
+            "path": "/jumpoints/installers",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointExtensionController",
+            "handler": "retrieveJumpointInstallerByCustomerAndSite",
+            "sourceFile": "src/jumpoint/controllers/jumpoint-extension.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointExtensionController/GET jumpoints installers.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveJumpointInstallerByCustomerAndSiteDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jumpoints/:id",
+            "method": "GET",
+            "path": "/jumpoints/:id",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "handler": "retrieveJumpoint",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointController/GET jumpoints {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jumpoints",
+            "method": "GET",
+            "path": "/jumpoints",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "handler": "retrieveJumpoints",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointController/GET jumpoints.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveJumpointsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jumpoints",
+            "method": "POST",
+            "path": "/jumpoints",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "handler": "createJumpoint",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointController/POST jumpoints.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateJumpointDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jumpoints/:id",
+            "method": "PATCH",
+            "path": "/jumpoints/:id",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "handler": "modifyJumpoint",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointController/PATCH jumpoints {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyJumpointDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jumpoints/:id",
+            "method": "DELETE",
+            "path": "/jumpoints/:id",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "handler": "deleteJumpoint",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointController/DELETE jumpoints {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jumpoints/:id/nodes",
+            "method": "GET",
+            "path": "/jumpoints/:id/nodes",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "handler": "retrieveJumpointNodes",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointController/GET jumpoints {id} nodes.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveJumpointNodesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jumpoints/:id/installer",
+            "method": "GET",
+            "path": "/jumpoints/:id/installer",
+            "domain": "Jumpoints",
+            "module": "JumpointModule",
+            "controller": "JumpointController",
+            "handler": "retrieveJumpointInstaller",
+            "sourceFile": "src/jumpoint/controllers/jumpoint.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jumpoints/JumpointController/GET jumpoints {id} installer.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-groups/:id",
+            "method": "GET",
+            "path": "/jump-groups/:id",
+            "domain": "Jump Groups",
+            "module": "JumpGroupModule",
+            "controller": "JumpGroupController",
+            "handler": "retrieveJumpGroup",
+            "sourceFile": "src/jump-group/controllers/jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Groups/JumpGroupController/GET jump-groups {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-groups",
+            "method": "GET",
+            "path": "/jump-groups",
+            "domain": "Jump Groups",
+            "module": "JumpGroupModule",
+            "controller": "JumpGroupController",
+            "handler": "retrieveJumpGroups",
+            "sourceFile": "src/jump-group/controllers/jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Groups/JumpGroupController/GET jump-groups.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveJumpGroupsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-groups",
+            "method": "POST",
+            "path": "/jump-groups",
+            "domain": "Jump Groups",
+            "module": "JumpGroupModule",
+            "controller": "JumpGroupController",
+            "handler": "createJumpGroup",
+            "sourceFile": "src/jump-group/controllers/jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Groups/JumpGroupController/POST jump-groups.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateJumpGroupDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-groups/:id",
+            "method": "PATCH",
+            "path": "/jump-groups/:id",
+            "domain": "Jump Groups",
+            "module": "JumpGroupModule",
+            "controller": "JumpGroupController",
+            "handler": "modifyJumpGroup",
+            "sourceFile": "src/jump-group/controllers/jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Groups/JumpGroupController/PATCH jump-groups {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyJumpGroupDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-groups/:id",
+            "method": "DELETE",
+            "path": "/jump-groups/:id",
+            "domain": "Jump Groups",
+            "module": "JumpGroupModule",
+            "controller": "JumpGroupController",
+            "handler": "deleteJumpGroup",
+            "sourceFile": "src/jump-group/controllers/jump-group.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Groups/JumpGroupController/DELETE jump-groups {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-policies/:id",
+            "method": "GET",
+            "path": "/jump-policies/:id",
+            "domain": "Jump Policies",
+            "module": "JumpPolicyModule",
+            "controller": "JumpPolicyController",
+            "handler": "retrieveJumpPolicy",
+            "sourceFile": "src/jump-policy/controllers/jump-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Policies/JumpPolicyController/GET jump-policies {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-policies",
+            "method": "GET",
+            "path": "/jump-policies",
+            "domain": "Jump Policies",
+            "module": "JumpPolicyModule",
+            "controller": "JumpPolicyController",
+            "handler": "retrieveJumpPolicies",
+            "sourceFile": "src/jump-policy/controllers/jump-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Policies/JumpPolicyController/GET jump-policies.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveJumpPoliciesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-policies",
+            "method": "POST",
+            "path": "/jump-policies",
+            "domain": "Jump Policies",
+            "module": "JumpPolicyModule",
+            "controller": "JumpPolicyController",
+            "handler": "createJumpPolicy",
+            "sourceFile": "src/jump-policy/controllers/jump-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Policies/JumpPolicyController/POST jump-policies.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateJumpPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-policies/:id",
+            "method": "PATCH",
+            "path": "/jump-policies/:id",
+            "domain": "Jump Policies",
+            "module": "JumpPolicyModule",
+            "controller": "JumpPolicyController",
+            "handler": "modifyJumpPolicy",
+            "sourceFile": "src/jump-policy/controllers/jump-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Policies/JumpPolicyController/PATCH jump-policies {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyJumpPolicyDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-policies/:id",
+            "method": "DELETE",
+            "path": "/jump-policies/:id",
+            "domain": "Jump Policies",
+            "module": "JumpPolicyModule",
+            "controller": "JumpPolicyController",
+            "handler": "deleteJumpPolicy",
+            "sourceFile": "src/jump-policy/controllers/jump-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Policies/JumpPolicyController/DELETE jump-policies {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/protocol-tunnel-jumps/:id",
+            "method": "GET",
+            "path": "/jump-items/protocol-tunnel-jumps/:id",
+            "domain": "Jump Items",
+            "module": "ProtocolTunnelJumpModule",
+            "controller": "ProtocolTunnelJumpController",
+            "handler": "retrieveProtocolTunnelJump",
+            "sourceFile": "src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ProtocolTunnelJumpController/GET jump-items protocol-tunnel-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/protocol-tunnel-jumps",
+            "method": "GET",
+            "path": "/jump-items/protocol-tunnel-jumps",
+            "domain": "Jump Items",
+            "module": "ProtocolTunnelJumpModule",
+            "controller": "ProtocolTunnelJumpController",
+            "handler": "retrieveProtocolTunnelJumps",
+            "sourceFile": "src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ProtocolTunnelJumpController/GET jump-items protocol-tunnel-jumps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveProtocolTunnelJumpsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/protocol-tunnel-jumps",
+            "method": "POST",
+            "path": "/jump-items/protocol-tunnel-jumps",
+            "domain": "Jump Items",
+            "module": "ProtocolTunnelJumpModule",
+            "controller": "ProtocolTunnelJumpController",
+            "handler": "createProtocolTunnelJump",
+            "sourceFile": "src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ProtocolTunnelJumpController/POST jump-items protocol-tunnel-jumps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateProtocolTunnelJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-items/protocol-tunnel-jumps/:id",
+            "method": "PATCH",
+            "path": "/jump-items/protocol-tunnel-jumps/:id",
+            "domain": "Jump Items",
+            "module": "ProtocolTunnelJumpModule",
+            "controller": "ProtocolTunnelJumpController",
+            "handler": "modifyProtocolTunnelJump",
+            "sourceFile": "src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ProtocolTunnelJumpController/PATCH jump-items protocol-tunnel-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyProtocolTunnelJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-items/protocol-tunnel-jumps/:id",
+            "method": "DELETE",
+            "path": "/jump-items/protocol-tunnel-jumps/:id",
+            "domain": "Jump Items",
+            "module": "ProtocolTunnelJumpModule",
+            "controller": "ProtocolTunnelJumpController",
+            "handler": "deleteProtocolTunnelJump",
+            "sourceFile": "src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ProtocolTunnelJumpController/DELETE jump-items protocol-tunnel-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/protocol-tunnel-jumps/:id/copy",
+            "method": "POST",
+            "path": "/jump-items/protocol-tunnel-jumps/:id/copy",
+            "domain": "Jump Items",
+            "module": "ProtocolTunnelJumpModule",
+            "controller": "ProtocolTunnelJumpController",
+            "handler": "copyProtocolTunnelJump",
+            "sourceFile": "src/jump-item/protocol-tunnel-jump/controllers/protocol-tunnel-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ProtocolTunnelJumpController/POST jump-items protocol-tunnel-jumps {id} copy.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CopyProtocolTunnelJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/remote-rdps/:id",
+            "method": "GET",
+            "path": "/jump-items/remote-rdps/:id",
+            "domain": "Jump Items",
+            "module": "RemoteRdpModule",
+            "controller": "RemoteRdpController",
+            "handler": "retrieveRemoteRdp",
+            "sourceFile": "src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteRdpController/GET jump-items remote-rdps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/remote-rdps",
+            "method": "GET",
+            "path": "/jump-items/remote-rdps",
+            "domain": "Jump Items",
+            "module": "RemoteRdpModule",
+            "controller": "RemoteRdpController",
+            "handler": "retrieveRemoteRdps",
+            "sourceFile": "src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteRdpController/GET jump-items remote-rdps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveRemoteRdpsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/remote-rdps",
+            "method": "POST",
+            "path": "/jump-items/remote-rdps",
+            "domain": "Jump Items",
+            "module": "RemoteRdpModule",
+            "controller": "RemoteRdpController",
+            "handler": "createRemoteRdp",
+            "sourceFile": "src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteRdpController/POST jump-items remote-rdps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateRemoteRdpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-items/remote-rdps/:id",
+            "method": "PATCH",
+            "path": "/jump-items/remote-rdps/:id",
+            "domain": "Jump Items",
+            "module": "RemoteRdpModule",
+            "controller": "RemoteRdpController",
+            "handler": "modifyRemoteRdp",
+            "sourceFile": "src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteRdpController/PATCH jump-items remote-rdps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyRemoteRdpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-items/remote-rdps/:id",
+            "method": "DELETE",
+            "path": "/jump-items/remote-rdps/:id",
+            "domain": "Jump Items",
+            "module": "RemoteRdpModule",
+            "controller": "RemoteRdpController",
+            "handler": "deleteRemoteRdp",
+            "sourceFile": "src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteRdpController/DELETE jump-items remote-rdps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/remote-rdps/:id/copy",
+            "method": "POST",
+            "path": "/jump-items/remote-rdps/:id/copy",
+            "domain": "Jump Items",
+            "module": "RemoteRdpModule",
+            "controller": "RemoteRdpController",
+            "handler": "copyRemoteRdp",
+            "sourceFile": "src/jump-item/remote-rdp/controllers/remote-rdp.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteRdpController/POST jump-items remote-rdps {id} copy.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CopyRemoteRdpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/remote-vncs/:id",
+            "method": "GET",
+            "path": "/jump-items/remote-vncs/:id",
+            "domain": "Jump Items",
+            "module": "RemoteVncModule",
+            "controller": "RemoteVncController",
+            "handler": "retrieveRemoteVnc",
+            "sourceFile": "src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteVncController/GET jump-items remote-vncs {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/remote-vncs",
+            "method": "GET",
+            "path": "/jump-items/remote-vncs",
+            "domain": "Jump Items",
+            "module": "RemoteVncModule",
+            "controller": "RemoteVncController",
+            "handler": "retrieveRemoteVncs",
+            "sourceFile": "src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteVncController/GET jump-items remote-vncs.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveRemoteVncsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/remote-vncs",
+            "method": "POST",
+            "path": "/jump-items/remote-vncs",
+            "domain": "Jump Items",
+            "module": "RemoteVncModule",
+            "controller": "RemoteVncController",
+            "handler": "createRemoteVnc",
+            "sourceFile": "src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteVncController/POST jump-items remote-vncs.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateRemoteVncDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-items/remote-vncs/:id",
+            "method": "PATCH",
+            "path": "/jump-items/remote-vncs/:id",
+            "domain": "Jump Items",
+            "module": "RemoteVncModule",
+            "controller": "RemoteVncController",
+            "handler": "modifyRemoteVnc",
+            "sourceFile": "src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteVncController/PATCH jump-items remote-vncs {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyRemoteVncDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-items/remote-vncs/:id",
+            "method": "DELETE",
+            "path": "/jump-items/remote-vncs/:id",
+            "domain": "Jump Items",
+            "module": "RemoteVncModule",
+            "controller": "RemoteVncController",
+            "handler": "deleteRemoteVnc",
+            "sourceFile": "src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteVncController/DELETE jump-items remote-vncs {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/remote-vncs/:id/copy",
+            "method": "POST",
+            "path": "/jump-items/remote-vncs/:id/copy",
+            "domain": "Jump Items",
+            "module": "RemoteVncModule",
+            "controller": "RemoteVncController",
+            "handler": "copyRemoteVnc",
+            "sourceFile": "src/jump-item/remote-vnc/controllers/remote-vnc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/RemoteVncController/POST jump-items remote-vncs {id} copy.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CopyRemoteVncDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/shell-jumps/:id",
+            "method": "GET",
+            "path": "/jump-items/shell-jumps/:id",
+            "domain": "Jump Items",
+            "module": "ShellJumpModule",
+            "controller": "ShellJumpController",
+            "handler": "retrieveShellJump",
+            "sourceFile": "src/jump-item/shell-jump/controllers/shell-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ShellJumpController/GET jump-items shell-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/shell-jumps",
+            "method": "GET",
+            "path": "/jump-items/shell-jumps",
+            "domain": "Jump Items",
+            "module": "ShellJumpModule",
+            "controller": "ShellJumpController",
+            "handler": "retrieveShellJumps",
+            "sourceFile": "src/jump-item/shell-jump/controllers/shell-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ShellJumpController/GET jump-items shell-jumps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveShellJumpsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/shell-jumps",
+            "method": "POST",
+            "path": "/jump-items/shell-jumps",
+            "domain": "Jump Items",
+            "module": "ShellJumpModule",
+            "controller": "ShellJumpController",
+            "handler": "createShellJump",
+            "sourceFile": "src/jump-item/shell-jump/controllers/shell-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ShellJumpController/POST jump-items shell-jumps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateShellJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-items/shell-jumps/:id",
+            "method": "PATCH",
+            "path": "/jump-items/shell-jumps/:id",
+            "domain": "Jump Items",
+            "module": "ShellJumpModule",
+            "controller": "ShellJumpController",
+            "handler": "modifyShellJump",
+            "sourceFile": "src/jump-item/shell-jump/controllers/shell-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ShellJumpController/PATCH jump-items shell-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyShellJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-items/shell-jumps/:id",
+            "method": "DELETE",
+            "path": "/jump-items/shell-jumps/:id",
+            "domain": "Jump Items",
+            "module": "ShellJumpModule",
+            "controller": "ShellJumpController",
+            "handler": "deleteShellJump",
+            "sourceFile": "src/jump-item/shell-jump/controllers/shell-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ShellJumpController/DELETE jump-items shell-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/shell-jumps/:id/copy",
+            "method": "POST",
+            "path": "/jump-items/shell-jumps/:id/copy",
+            "domain": "Jump Items",
+            "module": "ShellJumpModule",
+            "controller": "ShellJumpController",
+            "handler": "copyShellJump",
+            "sourceFile": "src/jump-item/shell-jump/controllers/shell-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/ShellJumpController/POST jump-items shell-jumps {id} copy.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CopyShellJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/web-jumps/:id",
+            "method": "GET",
+            "path": "/jump-items/web-jumps/:id",
+            "domain": "Jump Items",
+            "module": "WebJumpModule",
+            "controller": "WebJumpController",
+            "handler": "retrieveWebJump",
+            "sourceFile": "src/jump-item/web-jump/controllers/web-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/WebJumpController/GET jump-items web-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /jump-items/web-jumps",
+            "method": "GET",
+            "path": "/jump-items/web-jumps",
+            "domain": "Jump Items",
+            "module": "WebJumpModule",
+            "controller": "WebJumpController",
+            "handler": "retrieveWebJumps",
+            "sourceFile": "src/jump-item/web-jump/controllers/web-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/WebJumpController/GET jump-items web-jumps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveWebJumpsDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/web-jumps",
+            "method": "POST",
+            "path": "/jump-items/web-jumps",
+            "domain": "Jump Items",
+            "module": "WebJumpModule",
+            "controller": "WebJumpController",
+            "handler": "createWebJump",
+            "sourceFile": "src/jump-item/web-jump/controllers/web-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/WebJumpController/POST jump-items web-jumps.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CreateWebJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "PATCH /jump-items/web-jumps/:id",
+            "method": "PATCH",
+            "path": "/jump-items/web-jumps/:id",
+            "domain": "Jump Items",
+            "module": "WebJumpModule",
+            "controller": "WebJumpController",
+            "handler": "modifyWebJump",
+            "sourceFile": "src/jump-item/web-jump/controllers/web-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/WebJumpController/PATCH jump-items web-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "ModifyWebJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /jump-items/web-jumps/:id",
+            "method": "DELETE",
+            "path": "/jump-items/web-jumps/:id",
+            "domain": "Jump Items",
+            "module": "WebJumpModule",
+            "controller": "WebJumpController",
+            "handler": "deleteWebJump",
+            "sourceFile": "src/jump-item/web-jump/controllers/web-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/WebJumpController/DELETE jump-items web-jumps {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /jump-items/web-jumps/:id/copy",
+            "method": "POST",
+            "path": "/jump-items/web-jumps/:id/copy",
+            "domain": "Jump Items",
+            "module": "WebJumpModule",
+            "controller": "WebJumpController",
+            "handler": "copyWebJump",
+            "sourceFile": "src/jump-item/web-jump/controllers/web-jump.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Jump Items/WebJumpController/POST jump-items web-jumps {id} copy.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "CopyWebJumpDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /session-policies",
+            "method": "GET",
+            "path": "/session-policies",
+            "domain": "Session Policies",
+            "module": "SessionPolicyModule",
+            "controller": "SessionPolicyController",
+            "handler": "retrieveSessionPolicies",
+            "sourceFile": "src/session-policy/controllers/session-policy.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Session Policies/SessionPolicyController/GET session-policies.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "query": "RetrieveSessionPoliciesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "GET /soc/jump-items",
+            "method": "GET",
+            "path": "/soc/jump-items",
+            "domain": "SOC",
+            "module": "SocModule",
+            "controller": "SocController",
+            "handler": "retrieveSocJumpItems",
+            "sourceFile": "src/soc/controllers/soc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/SOC/SocController/GET soc jump-items.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "query": "SocFilterDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "GET /soc/jumpoints",
+            "method": "GET",
+            "path": "/soc/jumpoints",
+            "domain": "SOC",
+            "module": "SocModule",
+            "controller": "SocController",
+            "handler": "retrieveSocJumpoints",
+            "sourceFile": "src/soc/controllers/soc.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/SOC/SocController/GET soc jumpoints.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "query": "SocFilterDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "GET /discrepancies",
+            "method": "GET",
+            "path": "/discrepancies",
+            "domain": "Discrepancies",
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancyScannerController",
+            "handler": "retrieveDiscrepancies",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-scanner.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Discrepancies/DiscrepancyScannerController/GET discrepancies.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveDiscrepanciesDtoInput",
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified).",
+                "No ValidationPipe on this route: the rules of RetrieveDiscrepanciesDtoInput are documented but not enforced; query values arrive as strings."
+            ]
+        },
+        {
+            "key": "POST /discrepancies/scan/all",
+            "method": "POST",
+            "path": "/discrepancies/scan/all",
+            "domain": "Discrepancies",
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancyScannerController",
+            "handler": "scanAllDiscrepancies",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-scanner.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Discrepancies/DiscrepancyScannerController/POST discrepancies scan all.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "GET /discrepancies/scan/status/:scanId",
+            "method": "GET",
+            "path": "/discrepancies/scan/status/:scanId",
+            "domain": "Discrepancies",
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancyScannerController",
+            "handler": "getScanStatus",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-scanner.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Discrepancies/DiscrepancyScannerController/GET discrepancies scan status {scanId}.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "POST /discrepancies/scan/:entityType",
+            "method": "POST",
+            "path": "/discrepancies/scan/:entityType",
+            "domain": "Discrepancies",
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancyScannerController",
+            "handler": "scanDiscrepancies",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-scanner.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Discrepancies/DiscrepancyScannerController/POST discrepancies scan {entityType}.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "POST /discrepancies/sync/all-external",
+            "method": "POST",
+            "path": "/discrepancies/sync/all-external",
+            "domain": "Discrepancies",
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancySyncController",
+            "handler": "syncAllExternalDiscrepancies",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-sync.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Discrepancies/DiscrepancySyncController/POST discrepancies sync all-external.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "POST /discrepancies/:id/sync",
+            "method": "POST",
+            "path": "/discrepancies/:id/sync",
+            "domain": "Discrepancies",
+            "module": "DiscrepancyModule",
+            "controller": "DiscrepancySyncController",
+            "handler": "syncDiscrepancy",
+            "sourceFile": "src/discrepancy/controllers/discrepancy-sync.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Discrepancies/DiscrepancySyncController/POST discrepancies {id} sync.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "body": {
+                "dto": "SyncDiscrepancyDtoInput",
+                "validationEnforced": false,
+                "nonEmptyRequired": true,
+                "exampleSource": "generated"
+            },
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified).",
+                "No ValidationPipe on this route: the rules of SyncDiscrepancyDtoInput are documented but not enforced."
+            ]
+        },
+        {
+            "key": "GET /logs",
+            "method": "GET",
+            "path": "/logs",
+            "domain": "Logs and Monitoring",
+            "module": "LogModule",
+            "controller": "LogController",
+            "handler": "retrieveLogs",
+            "sourceFile": "src/log/controllers/log.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Logs and Monitoring/LogController/GET logs.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "RetrieveLogsDtoInput",
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "DELETE /logs",
+            "method": "DELETE",
+            "path": "/logs",
+            "domain": "Logs and Monitoring",
+            "module": "LogModule",
+            "controller": "LogController",
+            "handler": "clearLogs",
+            "sourceFile": "src/log/controllers/log.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Logs and Monitoring/LogController/DELETE logs.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "included",
+                "reason": "Approved for the customer export."
+            },
+            "query": "DeleteLogsDtoInput",
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "DELETE /logs/purge",
+            "method": "DELETE",
+            "path": "/logs/purge",
+            "domain": "Logs and Monitoring",
+            "module": "LogModule",
+            "controller": "LogController",
+            "handler": "purgeAllLogs",
+            "sourceFile": "src/log/controllers/log.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Logs and Monitoring/LogController/DELETE logs purge.request.yaml",
+            "authentication": [
+                "apiKey"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /monitorings",
+            "method": "GET",
+            "path": "/monitorings",
+            "domain": "Logs and Monitoring",
+            "module": "MonitoringModule",
+            "controller": "MonitoringController",
+            "handler": "retrieveMonitoringRecords",
+            "sourceFile": "src/monitoring/controllers/monitoring.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Logs and Monitoring/MonitoringController/GET monitorings.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "query": "RetrieveMonitoringRecordsDtoInput",
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "DELETE /monitorings",
+            "method": "DELETE",
+            "path": "/monitorings",
+            "domain": "Logs and Monitoring",
+            "module": "MonitoringModule",
+            "controller": "MonitoringController",
+            "handler": "deleteMonitoringRecords",
+            "sourceFile": "src/monitoring/controllers/monitoring.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Logs and Monitoring/MonitoringController/DELETE monitorings.request.yaml",
+            "authentication": [],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "query": "DeleteMonitoringRecordsDtoInput",
+            "contractNotes": [
+                "No authentication guard: the route is reachable without credentials (code-verified)."
+            ]
+        },
+        {
+            "key": "GET /deployments/jumpoint-nodes/:id",
+            "method": "GET",
+            "path": "/deployments/jumpoint-nodes/:id",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "retrieveJumpointNode",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/GET deployments jumpoint-nodes {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /deployments/jumpoint-nodes",
+            "method": "GET",
+            "path": "/deployments/jumpoint-nodes",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "retrieveJumpointNodes",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/GET deployments jumpoint-nodes.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "query": "DeploymentRetrieveJumpointNodesDtoInput",
+            "contractNotes": []
+        },
+        {
+            "key": "POST /deployments/jumpoint-nodes/deploy",
+            "method": "POST",
+            "path": "/deployments/jumpoint-nodes/deploy",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "deployJumpointNode",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/POST deployments jumpoint-nodes deploy.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "body": {
+                "dto": "CreateJumpointNodeDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /deployments/jumpoint-nodes",
+            "method": "POST",
+            "path": "/deployments/jumpoint-nodes",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "createJumpointNode",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/POST deployments jumpoint-nodes.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "body": {
+                "dto": "CreateJumpointNodeDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /deployments/jumpoint-nodes/:id/services",
+            "method": "POST",
+            "path": "/deployments/jumpoint-nodes/:id/services",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "createJumpointNodeService",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/POST deployments jumpoint-nodes {id} services.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "body": {
+                "dto": "CreateJumpointNodeServiceDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "generated"
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /deployments/jumpoint-nodes/:id/approve",
+            "method": "POST",
+            "path": "/deployments/jumpoint-nodes/:id/approve",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "approveJumpointNode",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/POST deployments jumpoint-nodes {id} approve.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /deployments/jumpoint-nodes/:id/iso",
+            "method": "POST",
+            "path": "/deployments/jumpoint-nodes/:id/iso",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "downloadJumpointNodeIso",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/POST deployments jumpoint-nodes {id} iso.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "GET /deployments/jumpoint-nodes/:id/iso",
+            "method": "GET",
+            "path": "/deployments/jumpoint-nodes/:id/iso",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "retrieveJumpointNodeIso",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/GET deployments jumpoint-nodes {id} iso.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "DELETE /deployments/jumpoint-nodes/:id",
+            "method": "DELETE",
+            "path": "/deployments/jumpoint-nodes/:id",
+            "domain": "Deployments",
+            "module": "JumpointNodeModule",
+            "controller": "JumpointNodeController",
+            "handler": "deleteJumpointNode",
+            "sourceFile": "src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Deployments/JumpointNodeController/DELETE deployments jumpoint-nodes {id}.request.yaml",
+            "authentication": [
+                "accessKey"
+            ],
+            "swaggerExcluded": false,
+            "customerExport": {
+                "status": "pending-decision",
+                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+            },
+            "contractNotes": []
+        },
+        {
+            "key": "POST /maintenance/reset-data",
+            "method": "POST",
+            "path": "/maintenance/reset-data",
+            "domain": "Internal",
+            "module": "MaintenanceModule",
+            "controller": "MaintenanceController",
+            "handler": "resetData",
+            "sourceFile": "src/maintenance/controllers/maintenance.controller.ts",
+            "requestFile": "postman/collections/Marlink PRA API/Internal/MaintenanceController/POST maintenance reset-data.request.yaml",
+            "authentication": [
+                "apiKey",
+                "jwt"
+            ],
+            "swaggerExcluded": true,
+            "customerExport": {
+                "status": "excluded-policy",
+                "reason": "Internal: protected by the static X-API-Key (ApiKeyAuthGuard)."
+            },
+            "body": {
+                "dto": "ResetDataDtoInput",
+                "validationEnforced": true,
+                "nonEmptyRequired": false,
+                "exampleSource": "override"
+            },
+            "contractNotes": []
+        }
+    ],
+    "warnings": []
+}

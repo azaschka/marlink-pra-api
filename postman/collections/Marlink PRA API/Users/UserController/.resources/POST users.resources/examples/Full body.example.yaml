@@ -1,0 +1,26 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/users"
+  method: POST
+  body:
+    type: json
+    content: |-
+      {
+        "publicDisplayName": "Example public display name",
+        "username": "example.user",
+        "password": "replace-with-secret",
+        "passwordExpirationDate": "2026-01-01T00:00:00.000Z",
+        "email": "user@example.com",
+        "preferredEmailLanguage": "en-US",
+        "isTwoFactorAuthRequired": false,
+        "isLoginAllowed": false,
+        "failedLoginAttempts": 1,
+        "mustResetPasswordOnNextLogin": false
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  body:
+    type: text
+    content: ""
+order: 1000

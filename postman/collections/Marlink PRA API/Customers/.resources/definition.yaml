@@ -1,0 +1,4 @@
+$kind: collection
+id: 4d5d69aa-7a9f-5ccb-b6b2-f81e2da6fd50
+description: Customers (one per business unit and BeyondTrust instance) and their lifecycle.
+order: 1000
