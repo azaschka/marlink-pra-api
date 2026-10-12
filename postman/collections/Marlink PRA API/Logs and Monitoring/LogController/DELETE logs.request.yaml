@@ -9,7 +9,7 @@ description: |-
   | Source | `LogController.clearLogs()` in `src/log/controllers/log.controller.ts` (module `LogModule`) |
   | Authentication | None. The route has no authentication guard. |
   | Swagger | documented in /open-api |
-  | Customer export | included |
+  | Customer export | not included. Folder Logs and Monitoring: platform operations for the PRA Console and operations only. |
 
   **Headers**
 

@@ -9,7 +9,7 @@ description: |-
   | Source | `DiscrepancySyncController.syncAllExternalDiscrepancies()` in `src/discrepancy/controllers/discrepancy-sync.controller.ts` (module `DiscrepancyModule`) |
   | Authentication | None. The route has no authentication guard. |
   | Swagger | documented in /open-api |
-  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+  | Customer export | not included. Folder Discrepancies: platform operations triggered only by the PRA Console. |
 
   **Headers**
 

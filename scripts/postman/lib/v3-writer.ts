@@ -122,11 +122,12 @@ function requestFile(ids: IdFactory, operation: Operation, inherited: FolderMode
     return dumpYaml(request);
 }
 
-function exampleFile(operation: Operation): string {
+function exampleFile(ids: IdFactory, operation: Operation): string {
     const status = successStatus(operation);
 
     return dumpYaml({
         $kind: 'http-example',
+        id: ids.id(`example:${operation.key}:${FULL_BODY_EXAMPLE}`),
         request: {
             url: rawUrl(operation),
             method: operation.method,
@@ -177,21 +178,29 @@ function writeFolder(
         if (operation.body) {
             files.set(
                 `${directory}/.resources/${operation.fileStem}.resources/examples/${FULL_BODY_EXAMPLE}.example.yaml`,
-                exampleFile(operation),
+                exampleFile(ids, operation),
             );
         }
     });
 }
 
 /** Files of the native collection, keyed by path relative to the collection directory. */
-export function renderNativeCollection(model: CollectionModel, ids: IdFactory): Map<string, string> {
+/**
+ * @param collectionId id of the collection definition: the bound cloud collection when there is one
+ * (`.postman/resources.yaml`), otherwise a deterministic id.
+ */
+export function renderNativeCollection(
+    model: CollectionModel,
+    ids: IdFactory,
+    collectionId?: string,
+): Map<string, string> {
     const files = new Map<string, string>();
 
     files.set(
         '.resources/definition.yaml',
         dumpYaml({
             $kind: 'collection',
-            id: ids.id('collection:native'),
+            id: collectionId ?? ids.id('collection:native'),
             name: model.name,
             description: model.description,
             variables: Object.fromEntries(model.variables.map((variable) => [variable.key, variable.value])),

@@ -18,8 +18,12 @@ import { compareWithWorkingTree, hasDrift, stageArtifacts, writeToWorkingTree } 
  *   npm run postman:check            non-writing; fails on drift, coverage gaps or invalid artifacts
  *   npm run postman:export:console   copy the customer export into ../pra-console and verify the references
  *   npm run postman:lint             optional: Postman CLI lint of the staged artifacts (downloads postman-cli)
+ *   npm run postman:cloud:login      store a Postman API key for the Postman CLI (once per machine)
+ *   npm run postman:cloud:diff       preview what a push changes in the bound Postman cloud workspace (read only)
+ *   npm run postman:cloud:push       update the bound cloud collection from the checked-in files (needs postman login)
  *
- * Options: --release-version <x.y.z> overrides the package.json version, --console-dir <path> locates pra-console.
+ * Options: --release-version <x.y.z> overrides the package.json version, --console-dir <path> locates pra-console,
+ * --yes skips the confirmation prompt of the cloud push.
  */
 
 const REPOSITORY_ROOT = path.resolve(__dirname, '..', '..');
@@ -29,6 +33,7 @@ interface CliOptions {
     command: string;
     releaseVersion?: string;
     consoleDir?: string;
+    yes?: boolean;
 }
 
 function parseArguments(argv: string[]): CliOptions {
@@ -45,6 +50,8 @@ function parseArguments(argv: string[]): CliOptions {
         } else if (argument === '--console-dir' && value) {
             options.consoleDir = value;
             index += 1;
+        } else if (argument === '--yes') {
+            options.yes = true;
         } else {
             throw new Error(`Unknown argument: ${argument ?? ''}`);
         }
@@ -130,11 +137,20 @@ function runPostmanCli(args: string[]): number {
 async function main(): Promise<number> {
     const options = parseArguments(process.argv.slice(2));
 
-    if (!['generate', 'check', 'export-console', 'lint'].includes(options.command)) {
+    if (
+        !['generate', 'check', 'export-console', 'lint', 'cloud-login', 'cloud-diff', 'cloud-push'].includes(
+            options.command,
+        )
+    ) {
         console.log(
-            'Usage: cli.ts <generate|check|export-console|lint> [--release-version x.y.z] [--console-dir path]',
+            'Usage: cli.ts <generate|check|export-console|lint|cloud-login|cloud-diff|cloud-push> [--release-version x.y.z] [--console-dir path] [--yes]',
         );
         return options.command === 'help' ? 0 : 1;
+    }
+
+    if (options.command === 'cloud-login') {
+        // Interactive: asks for a Postman API key and stores it for the Postman CLI of this user.
+        return runPostmanCli(['login']);
     }
 
     registerSourcePaths();
@@ -214,6 +230,10 @@ async function main(): Promise<number> {
         return status.issues.length > 0 ? 1 : 0;
     }
 
+    if (options.command === 'cloud-diff' || options.command === 'cloud-push') {
+        return cloudSync(options, artifacts);
+    }
+
     // lint: Postman CLI on the staged native collection and on both exports migrated to the native format.
     const staging = stageArtifacts(artifacts);
     const migrated = fs.mkdtempSync(path.join(os.tmpdir(), 'pra-postman-migrated-'));
@@ -226,6 +246,8 @@ async function main(): Promise<number> {
     ]);
 
     // Each step runs only when the previous ones succeeded (status stays 0).
+    status ||= runPostmanCli(['workspace', 'lint']);
+
     for (const exportPath of [COLLECTION_CONFIG.paths.internalExport, COLLECTION_CONFIG.paths.customerExport]) {
         const target = path.join(migrated, path.basename(exportPath, '.json'));
 
@@ -236,6 +258,47 @@ async function main(): Promise<number> {
     fs.rmSync(staging, { recursive: true, force: true });
     fs.rmSync(migrated, { recursive: true, force: true });
     console.log(status === 0 ? '\nPostman CLI lint passed.' : '\nPostman CLI lint failed.');
+
+    return status;
+}
+
+/**
+ * Pushes the checked-in native collection to the Postman cloud workspace bound in .postman/resources.yaml
+ * (Native Git). Only the strategy "default" is used: it creates and updates cloud elements and never deletes
+ * cloud elements without a local counterpart. The working tree must be up to date, so the cloud receives
+ * exactly the reviewed files.
+ */
+function cloudSync(options: CliOptions, artifacts: GeneratedArtifacts): number {
+    if (options.command === 'cloud-diff') {
+        return runPostmanCli(['workspace', 'diff', '--push-strategy', 'default']);
+    }
+
+    const before = compareWithWorkingTree(REPOSITORY_ROOT, artifacts);
+
+    if (hasDrift(before)) {
+        console.log('\nThe checked-in collection is not up to date; run npm run postman:generate and review it first.');
+        return 1;
+    }
+
+    const status = runPostmanCli([
+        'workspace',
+        'push',
+        '--push-strategy',
+        'default',
+        ...(options.yes ? ['--yes'] : []),
+    ]);
+    const after = compareWithWorkingTree(REPOSITORY_ROOT, artifacts);
+
+    if (hasDrift(after)) {
+        // The push may assign ids to local files; the generator owns these files, so report it instead of hiding it.
+        console.log('\nThe push changed generated files (for example ids). Review them before committing:');
+        for (const file of [...after.changed, ...after.missing, ...after.unexpected]) {
+            console.log(`  ${file}`);
+        }
+        return status === 0 ? 2 : status;
+    }
+
+    console.log(status === 0 ? '\nCloud collection updated.' : '\nPostman workspace push failed.');
 
     return status;
 }

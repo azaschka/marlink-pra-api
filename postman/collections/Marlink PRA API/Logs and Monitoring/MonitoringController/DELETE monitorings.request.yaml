@@ -9,7 +9,7 @@ description: |-
   | Source | `MonitoringController.deleteMonitoringRecords()` in `src/monitoring/controllers/monitoring.controller.ts` (module `MonitoringModule`) |
   | Authentication | None. The route has no authentication guard. |
   | Swagger | documented in /open-api |
-  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+  | Customer export | not included. Folder Logs and Monitoring: platform operations for the PRA Console and operations only. |
 
   **Headers**
 

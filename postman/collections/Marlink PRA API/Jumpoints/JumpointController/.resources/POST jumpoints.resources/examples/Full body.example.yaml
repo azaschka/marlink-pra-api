@@ -1,4 +1,5 @@
 $kind: http-example
+id: 595cc3f6-5431-5137-a5e5-1560adf7fe45
 request:
   url: "{{baseUrl}}/jumpoints"
   method: POST

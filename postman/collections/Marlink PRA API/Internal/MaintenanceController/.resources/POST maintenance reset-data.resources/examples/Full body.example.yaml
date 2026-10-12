@@ -1,4 +1,5 @@
 $kind: http-example
+id: 55ca01cf-06b7-56a2-b805-8d86dcda3a0a
 request:
   url: "{{baseUrl}}/maintenance/reset-data"
   method: POST

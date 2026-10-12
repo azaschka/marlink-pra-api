@@ -1,4 +1,5 @@
 $kind: http-example
+id: 15121856-1a2a-5965-96f3-5c9beb1d936c
 request:
   url: "{{baseUrl}}/jump-clients/installers"
   method: POST

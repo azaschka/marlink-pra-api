@@ -1,4 +1,5 @@
 $kind: http-example
+id: 1c2a6fea-eb37-57e8-8862-1f5fbf8f0715
 request:
   url: "{{baseUrl}}/discrepancies/:id/sync"
   method: POST

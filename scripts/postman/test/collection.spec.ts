@@ -41,6 +41,8 @@ function context(overrides: Partial<BuildContext> = {}): BuildContext {
         fieldExamples: {},
         approvedCustomerOperations: ['GET /things', 'POST /things'],
         excludedCustomerOperations: {},
+        excludedCustomerDomains: {},
+        excludedCustomerControllers: {},
         internalPathPrefixes: ['/internal-things'],
         guardRules: FIXTURE_GUARD_RULES,
         interceptorRules: FIXTURE_INTERCEPTOR_RULES,
@@ -167,6 +169,34 @@ describe('operation model', () => {
         expect(result.get('PATCH /things/:id').customerExport.status).toBe('pending-decision');
         expect(result.get('GET /public/hidden').customerExport).toMatchObject({ status: 'excluded-policy' });
         expect(result.get('GET /internal-things/profile').customerExport.status).toBe('excluded-policy');
+    });
+
+    it('excludes whole domain folders and controllers from the customer export', async () => {
+        const result = await build({
+            approvedCustomerOperations: ['GET /things'],
+            excludedCustomerDomains: { Public: 'console only.' },
+            excludedCustomerControllers: { ThingController: 'not for customers.' },
+        });
+
+        expect(result.get('GET /public').customerExport).toEqual({
+            status: 'excluded-policy',
+            reason: 'Folder Public: console only.',
+        });
+        expect(result.get('POST /things').customerExport.reason).toBe('ThingController: not for customers.');
+        // Approving an excluded operation contradicts the policy and stops the run.
+        expect(result.issues.map((issue) => [issue.code, issue.operation])).toContainEqual([
+            'CONFLICTING_EXPORT_DECISION',
+            'GET /things',
+        ]);
+    });
+
+    it('reports excluded folders and controllers that do not exist', async () => {
+        const { issues } = await build({
+            excludedCustomerDomains: { Gone: 'x' },
+            excludedCustomerControllers: { GoneController: 'x' },
+        });
+
+        expect(issues.filter((issue) => issue.code === 'ORPHAN_EXPORT_DECISION')).toHaveLength(2);
     });
 
     it('names path variables after the resource instead of a generic id', async () => {

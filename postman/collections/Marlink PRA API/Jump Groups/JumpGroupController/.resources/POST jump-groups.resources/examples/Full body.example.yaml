@@ -1,4 +1,5 @@
 $kind: http-example
+id: bc692908-cd14-57c5-97f7-cc78bdd3ab78
 request:
   url: "{{baseUrl}}/jump-groups"
   method: POST

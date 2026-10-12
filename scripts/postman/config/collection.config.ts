@@ -28,6 +28,8 @@ export const COLLECTION_CONFIG = {
         environmentTemplate: 'postman/exports/marlink-pra-api.postman_environment.json',
         coverageManifest: 'postman/reports/coverage-manifest.json',
         coverageSummary: 'postman/reports/coverage-summary.md',
+        /** Postman Native Git binding of the local collections to the cloud workspace (`postman workspace push`). */
+        workspaceBinding: '.postman/resources.yaml',
         /** Paths of the previous, hand-maintained generation. Removed by `generate`, reported by `check`. */
         legacyPaths: [
             'postman/collections/Marlink PRA API v3.1.0',

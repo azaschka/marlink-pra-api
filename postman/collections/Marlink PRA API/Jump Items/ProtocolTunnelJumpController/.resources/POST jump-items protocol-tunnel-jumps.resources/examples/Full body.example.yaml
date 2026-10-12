@@ -1,4 +1,5 @@
 $kind: http-example
+id: 8ad217cf-c4f6-57d0-a391-8b67ce83102e
 request:
   url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps"
   method: POST

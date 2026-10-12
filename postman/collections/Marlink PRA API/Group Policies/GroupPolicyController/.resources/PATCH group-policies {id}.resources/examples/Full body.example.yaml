@@ -1,4 +1,5 @@
 $kind: http-example
+id: 6bd1a70b-9341-5da9-b195-5ca67ba68cdf
 request:
   url: "{{baseUrl}}/group-policies/:id"
   method: PATCH

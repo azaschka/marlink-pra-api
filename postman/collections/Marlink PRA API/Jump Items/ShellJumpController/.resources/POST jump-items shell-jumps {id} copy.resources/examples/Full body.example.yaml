@@ -1,4 +1,5 @@
 $kind: http-example
+id: cecda8d5-8a16-50a2-9463-36f645cd0a66
 request:
   url: "{{baseUrl}}/jump-items/shell-jumps/:id/copy"
   method: POST

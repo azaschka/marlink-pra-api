@@ -1,4 +1,5 @@
 $kind: http-example
+id: c55a1e78-7ba9-5617-9577-22473e8f7475
 request:
   url: "{{baseUrl}}/jump-items/remote-rdps/:id/copy"
   method: POST

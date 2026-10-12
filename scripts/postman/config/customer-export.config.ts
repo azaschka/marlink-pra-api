@@ -1,25 +1,41 @@
+/* eslint-disable @typescript-eslint/naming-convention -- object keys are folder names as shown in Postman */
 /**
  * Customer export policy (the collection offered for download in the PRA Console).
  *
- * Policy rules, verified against the effective guards in code:
+ * Policy rules, verified against the effective guards and the folder structure in code:
  * - operations behind ApiKeyAuthGuard (X-API-Key) are internal and never exported,
- * - access management (`/access`) is internal and never exported.
+ * - access management (`/access`) is internal and never exported,
+ * - the domain folders and controllers listed below are never exported (decision by André, 2026-10-12).
  *
  * Every other operation is exported only when it is listed in APPROVED_CUSTOMER_OPERATIONS. A new operation
  * stays in the internal collection, is reported as "pending decision" and is not published until it is
- * added here deliberately.
+ * added here deliberately. Approving an operation that a rule excludes is an error.
  */
 
 export const INTERNAL_PATH_PREFIXES = ['/access'];
 
+/** Domain folders (see collection.config.ts) that are never part of the Console download. */
+export const EXCLUDED_CUSTOMER_DOMAINS: Record<string, string> = {
+    Internal:
+        'internal operations (static X-API-Key, access management, Console sign-in and users, maintenance); excluded for security.',
+    Discrepancies: 'platform operations triggered only by the PRA Console.',
+    'Logs and Monitoring': 'platform operations for the PRA Console and operations only.',
+};
+
+/** Controllers that are never part of the Console download. */
+export const EXCLUDED_CUSTOMER_CONTROLLERS: Record<string, string> = {
+    AppController: 'root and ping endpoints for infrastructure checks, not part of the customer API.',
+};
+
 /**
- * Seeded on 2026-10-11 from the previous Console download (`Marlink PRA API v3.1.0.postman_collection.json`,
- * 128 requests): the 125 of its operations that still exist in code. Its three `/sites/:id/administrators`
- * requests no longer exist (replaced by site auditors in fdceb58).
+ * Approved on 2026-10-12 by André: every operation outside the excluded folders and controllers (135).
+ * History: seeded on 2026-10-11 from the previous Console download (`Marlink PRA API v3.1.0.postman_collection.json`),
+ * whose `/sites/:id/administrators` requests no longer exist (replaced by site auditors in fdceb58).
  */
 export const APPROVED_CUSTOMER_OPERATIONS: string[] = [
-    'GET /ping',
     'GET /health',
+    'GET /health/ready',
+    'GET /health/live',
     'POST /license-usages/sites/:id',
     'POST /license-usages/customers/:id',
     'GET /customers',
@@ -31,6 +47,9 @@ export const APPROVED_CUSTOMER_OPERATIONS: string[] = [
     'GET /sites',
     'POST /sites',
     'DELETE /sites/:id',
+    'GET /sites/:id/auditors',
+    'POST /sites/:id/auditors',
+    'DELETE /sites/:id/auditors/:auditorId',
     'GET /sites/:id/managers',
     'POST /sites/:id/managers',
     'DELETE /sites/:id/managers/:managerId',
@@ -137,12 +156,18 @@ export const APPROVED_CUSTOMER_OPERATIONS: string[] = [
     'PATCH /jump-items/web-jumps/:id',
     'DELETE /jump-items/web-jumps/:id',
     'POST /jump-items/web-jumps/:id/copy',
-    'GET /discrepancies',
-    'POST /discrepancies/scan/all',
-    'POST /discrepancies/scan/:entityType',
-    'POST /discrepancies/:id/sync',
-    'GET /logs',
-    'DELETE /logs',
+    'GET /session-policies',
+    'GET /soc/jump-items',
+    'GET /soc/jumpoints',
+    'GET /deployments/jumpoint-nodes/:id',
+    'GET /deployments/jumpoint-nodes',
+    'POST /deployments/jumpoint-nodes/deploy',
+    'POST /deployments/jumpoint-nodes',
+    'POST /deployments/jumpoint-nodes/:id/services',
+    'POST /deployments/jumpoint-nodes/:id/approve',
+    'POST /deployments/jumpoint-nodes/:id/iso',
+    'GET /deployments/jumpoint-nodes/:id/iso',
+    'DELETE /deployments/jumpoint-nodes/:id',
 ];
 
 /** Operations deliberately kept out of the customer export, with the reason shown in the coverage report. */

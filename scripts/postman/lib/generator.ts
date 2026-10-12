@@ -19,6 +19,7 @@ import { IdFactory } from './render-common';
 import { extractRoutes } from './route-extractor';
 import { SourceIndex } from './source-index';
 import { renderNativeCollection } from './v3-writer';
+import { readWorkspaceBinding } from './workspace-binding';
 import { renderEnvironmentTemplate, renderV21Collection, stringifyJson } from './v21-exporter';
 
 /**
@@ -128,7 +129,16 @@ export async function generateArtifacts(options: GeneratorOptions): Promise<Gene
     const internalModel = buildCollectionModel(operations, version, built.pathVariables, 'internal', config);
     const customerOperations = operations.filter((operation) => operation.customerExport.status === 'included');
     const customerModel = buildCollectionModel(customerOperations, version, built.pathVariables, 'customer', config);
-    const nativeFiles = renderNativeCollection(internalModel, ids);
+    const binding = readWorkspaceBinding(
+        root,
+        config.paths.workspaceBinding,
+        config.paths.nativeCollectionDir,
+        config.paths.legacyPaths,
+    );
+
+    issues.push(...binding.issues);
+
+    const nativeFiles = renderNativeCollection(internalModel, ids, binding.cloudCollectionId);
     const internalJson = renderV21Collection(internalModel, ids, ids.id('collection:internal'));
     const customerJson = renderV21Collection(customerModel, ids, ids.id('collection:customer'));
     const environment = renderEnvironmentTemplate(internalModel, ids);

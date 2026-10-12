@@ -1,4 +1,5 @@
 $kind: http-example
+id: 7a914635-2444-5463-8559-855e340762d6
 request:
   url: "{{baseUrl}}/jump-items/remote-rdps/:id"
   method: PATCH

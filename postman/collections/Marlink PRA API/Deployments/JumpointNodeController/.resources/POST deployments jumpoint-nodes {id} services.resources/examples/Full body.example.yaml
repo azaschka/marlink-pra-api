@@ -1,4 +1,5 @@
 $kind: http-example
+id: 73969669-4262-5e03-bb02-356fdd01f9dd
 request:
   url: "{{baseUrl}}/deployments/jumpoint-nodes/:id/services"
   method: POST

@@ -7,6 +7,7 @@ import { COLLECTION_CONFIG } from '../config/collection.config';
 import { checkConsole, exportToConsole } from '../lib/console-sync';
 import { GeneratedArtifacts, generateArtifacts } from '../lib/generator';
 import { compareWithWorkingTree, hasDrift, writeToWorkingTree } from '../lib/sync';
+import { readWorkspaceBinding } from '../lib/workspace-binding';
 
 const REPOSITORY_ROOT = path.resolve(__dirname, '..', '..', '..');
 const COLLECTION_DIR = COLLECTION_CONFIG.paths.nativeCollectionDir;
@@ -92,6 +93,60 @@ describe('writing to the working tree', () => {
     });
 });
 
+describe('Postman workspace binding', () => {
+    const bindingFile = '.postman/resources.yaml';
+
+    function bindingRoot(content: string): string {
+        const root = temporaryDirectory();
+
+        write(root, bindingFile, content);
+        write(root, `${COLLECTION_DIR}/.resources/definition.yaml`, '$kind: collection\n');
+
+        return root;
+    }
+
+    const valid = [
+        'workspace:',
+        '  id: 1d69719d-3d44-4647-91ff-f913df1ee553',
+        'cloudResources:',
+        '  collections:',
+        `    ../${COLLECTION_DIR}: 11321463-ed8ef1d3-324b-4b3e-810a-e2e0070732e6`,
+        'localResources:',
+        '  collections:',
+        `    - ../${COLLECTION_DIR}`,
+        '',
+    ].join('\n');
+
+    it('returns the bound cloud collection', () => {
+        const binding = readWorkspaceBinding(bindingRoot(valid), bindingFile, COLLECTION_DIR, []);
+
+        expect(binding).toMatchObject({
+            cloudCollectionUid: '11321463-ed8ef1d3-324b-4b3e-810a-e2e0070732e6',
+            cloudCollectionId: 'ed8ef1d3-324b-4b3e-810a-e2e0070732e6',
+            issues: [],
+        });
+    });
+
+    it('reports a damaged file, a missing binding and stale paths', () => {
+        const damaged = readWorkspaceBinding(bindingRoot(`${valid}LE.md\n`), bindingFile, COLLECTION_DIR, []);
+        const renamed = readWorkspaceBinding(
+            bindingRoot(valid.replace(/Marlink PRA API/g, 'Marlink PRA API v3.1.0')),
+            bindingFile,
+            COLLECTION_DIR,
+            ['postman/collections/Marlink PRA API v3.1.0'],
+        );
+
+        expect(damaged.issues.map((issue) => issue.code)).toEqual(['WORKSPACE_BINDING_INVALID']);
+        expect(renamed.issues.map((issue) => issue.code)).toEqual(
+            expect.arrayContaining(['WORKSPACE_BINDING_MISSING', 'WORKSPACE_BINDING_STALE']),
+        );
+    });
+
+    it('is optional: without the file there is nothing to check', () => {
+        expect(readWorkspaceBinding(temporaryDirectory(), bindingFile, COLLECTION_DIR, [])).toEqual({ issues: [] });
+    });
+});
+
 describe('Console download', () => {
     const exportText = '{"info":{"name":"customer"}}\n';
 
@@ -150,6 +205,17 @@ describe('generation from the real PRA API module graph', () => {
         expect(first.issues.filter((issue) => issue.severity === 'error')).toEqual([]);
     });
 
+    it('keeps the native collection bound to its Postman cloud collection', () => {
+        const definition = first.nativeFiles.get('.resources/definition.yaml') ?? '';
+
+        expect(definition).toContain('id: ed8ef1d3-324b-4b3e-810a-e2e0070732e6');
+        expect(
+            [...first.nativeFiles.entries()]
+                .filter(([file]) => file.endsWith('.example.yaml'))
+                .every(([, content]) => /^id: /m.test(content)),
+        ).toBe(true);
+    });
+
     it('covers every registered route, including operations hidden from Swagger', () => {
         const keys = new Set(first.operations.map((operation) => operation.key));
 
@@ -185,6 +251,15 @@ describe('generation from the real PRA API module graph', () => {
 
         expect(included.some((operation) => operation.auth.schemes.includes('apiKey'))).toBe(false);
         expect(included.some((operation) => operation.path.startsWith('/access'))).toBe(false);
+        expect(
+            included.filter((operation) =>
+                ['Internal', 'Discrepancies', 'Logs and Monitoring'].includes(operation.domain),
+            ),
+        ).toEqual([]);
+        expect(included.some((operation) => operation.controllerName === 'AppController')).toBe(false);
+        expect(first.operations.filter((operation) => operation.customerExport.status === 'pending-decision')).toEqual(
+            [],
+        );
         expect(first.customerExportText).toBe(first.files.get(COLLECTION_CONFIG.paths.customerExport));
     });
 

@@ -9,7 +9,7 @@ description: |-
   | Source | `AppController.root()` in `src/app.controller.ts` (module `AppModule`) |
   | Authentication | None. The route has no authentication guard. |
   | Swagger | documented in /open-api |
-  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+  | Customer export | not included. AppController: root and ping endpoints for infrastructure checks, not part of the customer API. |
 
   **Responses**
 

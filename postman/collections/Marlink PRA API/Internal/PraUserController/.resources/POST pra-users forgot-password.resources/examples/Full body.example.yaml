@@ -1,4 +1,5 @@
 $kind: http-example
+id: e5514e57-328b-5def-8002-3c721414d421
 request:
   url: "{{baseUrl}}/pra-users/forgot-password"
   method: POST

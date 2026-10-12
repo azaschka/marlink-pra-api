@@ -1,4 +1,5 @@
 $kind: http-example
+id: 76eced14-77e4-5a65-92ec-14a311d18a99
 request:
   url: "{{baseUrl}}/jump-items/remote-vncs"
   method: POST

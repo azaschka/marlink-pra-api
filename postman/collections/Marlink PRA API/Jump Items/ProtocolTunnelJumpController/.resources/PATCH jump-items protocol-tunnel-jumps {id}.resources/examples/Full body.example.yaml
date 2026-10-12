@@ -1,4 +1,5 @@
 $kind: http-example
+id: 9bc6914a-eb1f-59cf-9f6f-44565957af3e
 request:
   url: "{{baseUrl}}/jump-items/protocol-tunnel-jumps/:id"
   method: PATCH

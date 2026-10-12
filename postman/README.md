@@ -23,6 +23,9 @@ Generator, configuration and tests: `../scripts/postman/`.
 | `npm run postman:check` | Non-writing check. Fails on drift between code and the checked-in files, on missing or duplicate routes, orphan requests, wrong optional flags, unresolved variables, invalid bodies, unexplained export exclusions and a Console asset that differs from the customer export. |
 | `npm run postman:export:console` | Copy the customer export into the PRA Console (`../pra-console` by default, `-- --console-dir <path>` otherwise) and verify the download references. |
 | `npm run postman:lint` | Optional. Runs the official Postman CLI (`postman collection lint`, downloaded through `npm exec`) on the native collection and on both exports after `postman collection migrate`. Needs network access to the npm registry. |
+| `npm run postman:cloud:login` | Once per machine: store a Postman API key for the Postman CLI (interactive). |
+| `npm run postman:cloud:diff` | Read-only preview of what a push changes in the bound Postman cloud workspace. |
+| `npm run postman:cloud:push` | Update the cloud collection from the checked-in files (`postman workspace push --push-strategy default`). Refuses to run when the checked-in files are not up to date; `-- --yes` skips the confirmation. |
 | `npm run postman:test` | Unit tests of the generator. |
 | `npm run postman:typecheck` | Type check of the generator. |
 
@@ -55,7 +58,18 @@ Configuration (`../scripts/postman/config/`):
 
 ## Customer export policy
 
-Operations behind `ApiKeyAuthGuard` (X-API-Key) and access management (`/access`) are never exported; this is checked against the effective guards, not against header rows. Every other operation is exported only when it is listed in `APPROVED_CUSTOMER_OPERATIONS`. A new operation stays in the internal collection with the status "pending decision" until it is approved there. The coverage summary lists every operation that is not exported and the reason.
+Never exported (`scripts/postman/config/customer-export.config.ts`):
+
+- operations behind `ApiKeyAuthGuard` (X-API-Key) and access management (`/access`), checked against the effective guards, not against header rows,
+- the folders Internal, Discrepancies, and Logs and Monitoring, and the `AppController` routes (`GET /`, `GET /ping`) (decision of 2026-10-12).
+
+Every other operation is exported only when it is listed in `APPROVED_CUSTOMER_OPERATIONS`. A new operation stays in the internal collection with the status "pending decision" until it is approved there; approving an operation that a rule excludes stops the generator. The coverage summary lists every operation that is not exported and the reason.
+
+## Postman cloud workspace
+
+The checked-in files are the source of truth. `.postman/resources.yaml` (Postman Native Git) binds `postman/collections/Marlink PRA API/` to the cloud collection `11321463-ed8ef1d3-324b-4b3e-810a-e2e0070732e6` in the workspace "Marlink PRA"; the generator uses that collection's id and fails when the binding is missing, damaged or points to files that no longer exist.
+
+To update the cloud copy after a regeneration: `npm run postman:cloud:login` once, then `npm run postman:cloud:diff` and `npm run postman:cloud:push`. The push updates the bound collection in place and replaces its content with the checked-in files; edits made only in the cloud are overwritten. The same push also updates the BeyondTrust reference collection, which is bound in the same file; check the diff first. Never push with `--push-strategy force-sync`: it deletes every cloud element without a local counterpart, including other collections and specifications of the workspace.
 
 ## End-of-iteration procedure
 

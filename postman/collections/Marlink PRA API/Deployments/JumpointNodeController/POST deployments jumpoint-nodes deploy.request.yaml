@@ -9,7 +9,7 @@ description: |-
   | Source | `JumpointNodeController.deployJumpointNode()` in `src/deployment/jumpoint-node/controllers/jumpoint-node.controller.ts` (module `JumpointNodeModule`) |
   | Authentication | X-Access-Key header (`{{accessKey}}`) |
   | Swagger | documented in /open-api |
-  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+  | Customer export | included |
 
   **Authorisation and scope**
 

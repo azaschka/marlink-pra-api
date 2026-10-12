@@ -1,4 +1,5 @@
 $kind: http-example
+id: 949155cc-0c71-5330-8794-4a2e39b94267
 request:
   url: "{{baseUrl}}/jump-policies"
   method: POST

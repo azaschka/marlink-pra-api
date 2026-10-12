@@ -9,7 +9,7 @@ description: |-
   | Source | `SiteAuditorController.retrieveSiteAuditors()` in `src/site/controllers/site-auditor.controller.ts` (module `SiteModule`) |
   | Authentication | X-Access-Key header (`{{accessKey}}`) |
   | Swagger | documented in /open-api |
-  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+  | Customer export | included |
 
   **Authorisation and scope**
 

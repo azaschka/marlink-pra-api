@@ -11,9 +11,9 @@
         "operations": 160,
         "swaggerExcludedOperations": 13,
         "customerExport": {
-            "included": 125,
-            "excludedByPolicy": 13,
-            "pendingDecision": 22
+            "included": 135,
+            "excludedByPolicy": 25,
+            "pendingDecision": 0
         },
         "warnings": 0
     },
@@ -298,8 +298,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "included",
-                "reason": "Approved for the customer export."
+                "status": "excluded-policy",
+                "reason": "AppController: root and ping endpoints for infrastructure checks, not part of the customer API."
             },
             "contractNotes": [
                 "No authentication guard: the route is reachable without credentials (code-verified)."
@@ -318,8 +318,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "excluded-policy",
+                "reason": "AppController: root and ping endpoints for infrastructure checks, not part of the customer API."
             },
             "contractNotes": [
                 "The handler carries @Get() and @Head(); Nest keeps only one request method per handler, so only GET is registered. Express still answers HEAD for GET routes.",
@@ -531,8 +531,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": [
                 "No authentication guard: the route is reachable without credentials (code-verified)."
@@ -551,8 +551,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": [
                 "No authentication guard: the route is reachable without credentials (code-verified)."
@@ -910,8 +910,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "query": "RetrieveSiteAuditorsDtoInput",
             "contractNotes": []
@@ -931,8 +931,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "body": {
                 "dto": "SiteAuditorDtoInput",
@@ -959,8 +959,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": []
         },
@@ -3375,8 +3375,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "query": "RetrieveSessionPoliciesDtoInput",
             "contractNotes": []
@@ -3396,8 +3396,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "query": "SocFilterDtoInput",
             "contractNotes": []
@@ -3417,8 +3417,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "query": "SocFilterDtoInput",
             "contractNotes": []
@@ -3436,8 +3436,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "included",
-                "reason": "Approved for the customer export."
+                "status": "excluded-policy",
+                "reason": "Folder Discrepancies: platform operations triggered only by the PRA Console."
             },
             "query": "RetrieveDiscrepanciesDtoInput",
             "contractNotes": [
@@ -3458,8 +3458,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "included",
-                "reason": "Approved for the customer export."
+                "status": "excluded-policy",
+                "reason": "Folder Discrepancies: platform operations triggered only by the PRA Console."
             },
             "contractNotes": [
                 "No authentication guard: the route is reachable without credentials (code-verified)."
@@ -3478,8 +3478,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "excluded-policy",
+                "reason": "Folder Discrepancies: platform operations triggered only by the PRA Console."
             },
             "contractNotes": [
                 "No authentication guard: the route is reachable without credentials (code-verified)."
@@ -3498,8 +3498,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "included",
-                "reason": "Approved for the customer export."
+                "status": "excluded-policy",
+                "reason": "Folder Discrepancies: platform operations triggered only by the PRA Console."
             },
             "contractNotes": [
                 "No authentication guard: the route is reachable without credentials (code-verified)."
@@ -3518,8 +3518,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "excluded-policy",
+                "reason": "Folder Discrepancies: platform operations triggered only by the PRA Console."
             },
             "contractNotes": [
                 "No authentication guard: the route is reachable without credentials (code-verified)."
@@ -3538,8 +3538,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "included",
-                "reason": "Approved for the customer export."
+                "status": "excluded-policy",
+                "reason": "Folder Discrepancies: platform operations triggered only by the PRA Console."
             },
             "body": {
                 "dto": "SyncDiscrepancyDtoInput",
@@ -3565,8 +3565,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "included",
-                "reason": "Approved for the customer export."
+                "status": "excluded-policy",
+                "reason": "Folder Logs and Monitoring: platform operations for the PRA Console and operations only."
             },
             "query": "RetrieveLogsDtoInput",
             "contractNotes": [
@@ -3586,8 +3586,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "included",
-                "reason": "Approved for the customer export."
+                "status": "excluded-policy",
+                "reason": "Folder Logs and Monitoring: platform operations for the PRA Console and operations only."
             },
             "query": "DeleteLogsDtoInput",
             "contractNotes": [
@@ -3627,8 +3627,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "excluded-policy",
+                "reason": "Folder Logs and Monitoring: platform operations for the PRA Console and operations only."
             },
             "query": "RetrieveMonitoringRecordsDtoInput",
             "contractNotes": [
@@ -3648,8 +3648,8 @@
             "authentication": [],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "excluded-policy",
+                "reason": "Folder Logs and Monitoring: platform operations for the PRA Console and operations only."
             },
             "query": "DeleteMonitoringRecordsDtoInput",
             "contractNotes": [
@@ -3671,8 +3671,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": []
         },
@@ -3691,8 +3691,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "query": "DeploymentRetrieveJumpointNodesDtoInput",
             "contractNotes": []
@@ -3712,8 +3712,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "body": {
                 "dto": "CreateJumpointNodeDtoInput",
@@ -3738,8 +3738,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "body": {
                 "dto": "CreateJumpointNodeDtoInput",
@@ -3764,8 +3764,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "body": {
                 "dto": "CreateJumpointNodeServiceDtoInput",
@@ -3790,8 +3790,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": []
         },
@@ -3810,8 +3810,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": []
         },
@@ -3830,8 +3830,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": []
         },
@@ -3850,8 +3850,8 @@
             ],
             "swaggerExcluded": false,
             "customerExport": {
-                "status": "pending-decision",
-                "reason": "Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only."
+                "status": "included",
+                "reason": "Approved for the customer export."
             },
             "contractNotes": []
         },

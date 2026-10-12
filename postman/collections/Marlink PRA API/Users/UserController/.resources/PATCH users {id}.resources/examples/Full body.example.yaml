@@ -1,4 +1,5 @@
 $kind: http-example
+id: 7e7ab239-21f5-5be9-a25d-2bea72e518e0
 request:
   url: "{{baseUrl}}/users/:id"
   method: PATCH

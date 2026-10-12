@@ -1,4 +1,5 @@
 $kind: http-example
+id: c0894bb5-a26c-5493-bc8c-61c1ee3cbcb6
 request:
   url: "{{baseUrl}}/beyondtrust-instances/:id/backups"
   method: POST

@@ -29,6 +29,9 @@
         "postman:check": "ts-node --transpile-only --project scripts/postman/tsconfig.json scripts/postman/cli.ts check",
         "postman:export:console": "ts-node --transpile-only --project scripts/postman/tsconfig.json scripts/postman/cli.ts export-console",
         "postman:lint": "ts-node --transpile-only --project scripts/postman/tsconfig.json scripts/postman/cli.ts lint",
+        "postman:cloud:login": "ts-node --transpile-only --project scripts/postman/tsconfig.json scripts/postman/cli.ts cloud-login",
+        "postman:cloud:diff": "ts-node --transpile-only --project scripts/postman/tsconfig.json scripts/postman/cli.ts cloud-diff",
+        "postman:cloud:push": "ts-node --transpile-only --project scripts/postman/tsconfig.json scripts/postman/cli.ts cloud-push",
         "postman:test": "jest --config scripts/postman/jest.config.json",
         "postman:typecheck": "tsc -p scripts/postman/tsconfig.json --noEmit"
     },

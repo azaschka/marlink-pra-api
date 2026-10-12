@@ -1,4 +1,5 @@
 $kind: http-example
+id: d7dda534-34b9-589f-a11c-cc6a706ee1f6
 request:
   url: "{{baseUrl}}/pra-users"
   method: POST

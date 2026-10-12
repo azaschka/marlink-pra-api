@@ -19,13 +19,16 @@ Steps:
    - `INVALID_BODY_EXAMPLE`, `INVALID_QUERY_EXAMPLE`: add a synthetic value in `request-overrides.ts` (`FIELD_EXAMPLES` first, a full body override only when needed).
    - `ORPHAN_*`: remove configuration entries of routes that no longer exist.
    - `URL_COMPOSITION_CHANGED`, `QUERY_PARSER_CHANGED`: review `src/main.ts` with the user before adapting the configuration.
+   - `WORKSPACE_BINDING_*`: repair `.postman/resources.yaml` so that the native collection directory stays bound to its cloud collection.
+   - `CONFLICTING_EXPORT_DECISION`: an approved operation is excluded by a rule; remove the approval.
    - `CONTROLLER_WITHOUT_DOMAIN` (warning): add the controller to a domain folder.
 4. Review the printed added, removed and updated operations and the Git diff of `postman/reports/coverage-manifest.json`. Read the new "Contract notes" in `postman/reports/coverage-summary.md`; report new unauthenticated routes, unenforced validation and Swagger differences to the user. Do not change runtime behaviour to make the documentation easier.
-5. Customer export: list the operations with status `pending-decision` and ask the user which to approve. Add approved keys to `APPROVED_CUSTOMER_OPERATIONS` (or a reason to `EXCLUDED_CUSTOMER_OPERATIONS`) and regenerate. Never approve an operation behind X-API-Key or under `/access`.
+5. Customer export: list the operations with status `pending-decision` and ask the user which to approve. Add approved keys to `APPROVED_CUSTOMER_OPERATIONS` (or a reason to `EXCLUDED_CUSTOMER_OPERATIONS`) and regenerate. Never approve an operation behind X-API-Key, under `/access`, in the folders Internal, Discrepancies, and Logs and Monitoring, or of `AppController`.
 6. `npm run postman:export:console` (pra-console checked out next to pra-api, or `-- --console-dir <path>`).
 7. Verify: `npm run postman:check`, `npm run postman:test`, `npm run postman:typecheck`, `npx eslint scripts/postman`, and `npm run postman:lint` when the npm registry is reachable. Run a second `npm run postman:generate`: it must report zero written files.
-8. Update the knowledge base (`../docs/knowledge/operations/postman-collection.md`, changelog) and record questions and answers in the implementation log.
-9. Commit only when asked and with an issue id: one commit in pra-api (generated files, configuration) and one in pra-console (download asset), same id. Never push, never write to a Postman cloud workspace without explicit approval.
+8. Postman cloud copy (standing approval by André, 2026-10-12): after the user has reviewed and committed the files, `npm run postman:cloud:diff`, then `npm run postman:cloud:push`. It needs the user's Postman API key (`npm run postman:cloud:login`); when the session has none, ask the user to run the two commands. Only the default push strategy, never `force-sync`. If the push reports changed generated files, show them to the user instead of committing them.
+9. Update the knowledge base (`../docs/knowledge/operations/postman-collection.md`, changelog) and record questions and answers in the implementation log.
+10. Commit only when asked and with an issue id: one commit in pra-api (generated files, configuration) and one in pra-console (download asset), same id. Never push to git. The Postman cloud collection is updated only through step 8.
 
 Required output:
 1. Version and counts (routes, operations, customer export included, excluded, pending).

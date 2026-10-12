@@ -11,6 +11,8 @@ import {
 } from '../config/components.config';
 import {
     APPROVED_CUSTOMER_OPERATIONS,
+    EXCLUDED_CUSTOMER_CONTROLLERS,
+    EXCLUDED_CUSTOMER_DOMAINS,
     EXCLUDED_CUSTOMER_OPERATIONS,
     INTERNAL_PATH_PREFIXES,
 } from '../config/customer-export.config';
@@ -52,6 +54,8 @@ export interface BuildContext {
     fieldExamples?: Record<string, unknown>;
     approvedCustomerOperations?: string[];
     excludedCustomerOperations?: Record<string, string>;
+    excludedCustomerDomains?: Record<string, string>;
+    excludedCustomerControllers?: Record<string, string>;
     internalPathPrefixes?: string[];
     guardRules?: Record<string, ComponentRule>;
     interceptorRules?: Record<string, ComponentRule>;
@@ -213,6 +217,8 @@ export class OperationBuilder {
     private readonly fieldExamples: Record<string, unknown>;
     private readonly approved: Set<string>;
     private readonly excluded: Record<string, string>;
+    private readonly excludedDomains: Record<string, string>;
+    private readonly excludedControllers: Record<string, string>;
     private readonly internalPrefixes: string[];
     private readonly guardRules: Record<string, ComponentRule>;
     private readonly interceptorRules: Record<string, ComponentRule>;
@@ -227,6 +233,8 @@ export class OperationBuilder {
         this.fieldExamples = context.fieldExamples ?? FIELD_EXAMPLES;
         this.approved = new Set(context.approvedCustomerOperations ?? APPROVED_CUSTOMER_OPERATIONS);
         this.excluded = context.excludedCustomerOperations ?? EXCLUDED_CUSTOMER_OPERATIONS;
+        this.excludedDomains = context.excludedCustomerDomains ?? EXCLUDED_CUSTOMER_DOMAINS;
+        this.excludedControllers = context.excludedCustomerControllers ?? EXCLUDED_CUSTOMER_CONTROLLERS;
         this.internalPrefixes = context.internalPathPrefixes ?? INTERNAL_PATH_PREFIXES;
         this.guardRules = context.guardRules ?? GUARD_RULES;
         this.interceptorRules = context.interceptorRules ?? INTERCEPTOR_RULES;
@@ -383,12 +391,35 @@ export class OperationBuilder {
     private checkCustomerExportKeys(operations: Operation[]): void {
         const keys = new Set(operations.map((operation) => operation.key));
 
+        const domains = new Set(operations.map((operation) => operation.domain));
+        const controllers = new Set(operations.map((operation) => operation.controllerName));
+
         for (const key of [...this.approved, ...Object.keys(this.excluded)]) {
             if (!keys.has(key)) {
                 this.issue(
                     'error',
                     'ORPHAN_EXPORT_DECISION',
                     `Customer export entry "${key}" does not match a registered route.`,
+                );
+            }
+        }
+
+        for (const domain of Object.keys(this.excludedDomains).filter((name) => !domains.has(name))) {
+            this.issue('error', 'ORPHAN_EXPORT_DECISION', `Excluded folder "${domain}" does not exist.`);
+        }
+
+        for (const controller of Object.keys(this.excludedControllers).filter((name) => !controllers.has(name))) {
+            this.issue('error', 'ORPHAN_EXPORT_DECISION', `Excluded controller "${controller}" has no routes.`);
+        }
+
+        // An approval must never contradict a policy exclusion: the configuration has to say one thing.
+        for (const operation of operations) {
+            if (this.approved.has(operation.key) && operation.customerExport.status !== 'included') {
+                this.issue(
+                    'error',
+                    'CONFLICTING_EXPORT_DECISION',
+                    `${operation.key} is approved for the customer export but excluded: ${operation.customerExport.reason}`,
+                    operation.key,
                 );
             }
         }
@@ -673,7 +704,7 @@ export class OperationBuilder {
             body,
             responses: this.responses(route),
             swaggerExcluded,
-            customerExport: this.customerExport(key, route.path, schemes),
+            customerExport: this.customerExport(key, route.path, schemes, domain.name, route.controllerName),
             discrepancies: [...new Set(discrepancies)],
             notes,
             description: '',
@@ -1093,7 +1124,13 @@ export class OperationBuilder {
         return [...responses.values()].sort((a, b) => a.status - b.status);
     }
 
-    private customerExport(key: string, path: string, schemes: AuthScheme[]): CustomerExportDecision {
+    private customerExport(
+        key: string,
+        path: string,
+        schemes: AuthScheme[],
+        domain: string,
+        controllerName: string,
+    ): CustomerExportDecision {
         if (schemes.includes('apiKey')) {
             return {
                 status: 'excluded-policy',
@@ -1103,6 +1140,18 @@ export class OperationBuilder {
 
         if (this.internalPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) {
             return { status: 'excluded-policy', reason: 'Internal: access management.' };
+        }
+
+        const excludedDomain = this.excludedDomains[domain];
+
+        if (excludedDomain) {
+            return { status: 'excluded-policy', reason: `Folder ${domain}: ${excludedDomain}` };
+        }
+
+        const excludedController = this.excludedControllers[controllerName];
+
+        if (excludedController) {
+            return { status: 'excluded-policy', reason: `${controllerName}: ${excludedController}` };
         }
 
         const excluded = this.excluded[key];

@@ -1,4 +1,5 @@
 $kind: http-example
+id: 0b6c1d78-1b70-5787-8649-e5c38929fd0c
 request:
   url: "{{baseUrl}}/beyondtrust-instances"
   method: POST

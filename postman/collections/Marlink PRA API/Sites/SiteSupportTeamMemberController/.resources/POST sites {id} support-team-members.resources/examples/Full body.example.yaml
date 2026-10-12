@@ -1,4 +1,5 @@
 $kind: http-example
+id: f221e999-186e-535e-8aad-5f3410e2d409
 request:
   url: "{{baseUrl}}/sites/:id/support-team-members"
   method: POST

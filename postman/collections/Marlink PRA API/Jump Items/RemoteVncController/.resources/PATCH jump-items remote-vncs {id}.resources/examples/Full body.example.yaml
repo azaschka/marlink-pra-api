@@ -1,4 +1,5 @@
 $kind: http-example
+id: b29ce628-f122-55f7-92c8-2e327aaf6b54
 request:
   url: "{{baseUrl}}/jump-items/remote-vncs/:id"
   method: PATCH

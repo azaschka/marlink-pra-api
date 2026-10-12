@@ -9,7 +9,7 @@ description: |-
   | Source | `DiscrepancyScannerController.retrieveDiscrepancies()` in `src/discrepancy/controllers/discrepancy-scanner.controller.ts` (module `DiscrepancyModule`) |
   | Authentication | None. The route has no authentication guard. |
   | Swagger | documented in /open-api |
-  | Customer export | included |
+  | Customer export | not included. Folder Discrepancies: platform operations triggered only by the PRA Console. |
 
   **Headers**
 

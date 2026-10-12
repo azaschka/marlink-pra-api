@@ -1,4 +1,5 @@
 $kind: http-example
+id: 20f3b4e0-5e86-5c91-bc60-43690191b76e
 request:
   url: "{{baseUrl}}/group-policies"
   method: POST

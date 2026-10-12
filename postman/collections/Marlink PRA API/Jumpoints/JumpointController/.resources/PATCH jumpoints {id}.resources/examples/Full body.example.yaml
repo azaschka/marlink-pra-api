@@ -1,4 +1,5 @@
 $kind: http-example
+id: 3b9cc76b-6072-5e6d-a4fd-dd1fd6fb704d
 request:
   url: "{{baseUrl}}/jumpoints/:id"
   method: PATCH

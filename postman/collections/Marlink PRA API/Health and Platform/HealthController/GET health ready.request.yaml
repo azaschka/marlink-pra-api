@@ -9,7 +9,7 @@ description: |-
   | Source | `HealthController.checkReadiness()` in `src/health/controllers/health.controller.ts` (module `HealthModule`) |
   | Authentication | None. The route has no authentication guard. |
   | Swagger | documented in /open-api |
-  | Customer export | not included. Not yet approved for the customer export (new or unclassified operation); kept in the internal collection only. |
+  | Customer export | included |
 
   **Responses**
 

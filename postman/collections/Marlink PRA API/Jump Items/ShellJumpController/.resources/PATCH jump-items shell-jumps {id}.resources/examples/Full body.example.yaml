@@ -1,4 +1,5 @@
 $kind: http-example
+id: b3654eb3-7f49-53d1-89ee-177e8e9e06e5
 request:
   url: "{{baseUrl}}/jump-items/shell-jumps/:id"
   method: PATCH
