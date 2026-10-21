@@ -84,11 +84,18 @@ export class UserController {
      * opaque upstream error. What counts is whether the request changes them, not whether it mentions them:
      * the console sends the whole edit form every time, so username arrives on every update and
      * regeneratePassword arrives as false. Rejecting an unchanged value or a flag that is switched off would
-     * make a non-local user uneditable for no reason, including the display name and email that BeyondTrust
-     * itself decides on.
+     * make a non-local user uneditable for no reason.
+     *
+     * MARLINKPRA-79: the display name and the email address belong to the same group. BeyondTrust rejects them with
+     * 422 on an account whose security provider synchronises them, even when the value is the one it already holds.
+     * They are therefore checked like the other properties here and never forwarded for a non-local user.
      */
     private findRejectedLocalOnlyProperties(dtoInput: ModifyUserDtoInput, user: User): string[] {
         const rejectedProperties: string[] = [];
+
+        if (dtoInput.publicDisplayName !== undefined && dtoInput.publicDisplayName !== user.publicDisplayName) {
+            rejectedProperties.push('publicDisplayName');
+        }
 
         if (dtoInput.username !== undefined && dtoInput.username !== user.username) {
             rejectedProperties.push('username');
@@ -100,6 +107,10 @@ export class UserController {
 
         if (dtoInput.passwordExpirationDate !== undefined) {
             rejectedProperties.push('passwordExpirationDate');
+        }
+
+        if (dtoInput.email !== undefined && dtoInput.email !== user.email) {
+            rejectedProperties.push('email');
         }
 
         if (dtoInput.failedLoginAttempts !== undefined && dtoInput.failedLoginAttempts !== user.failedLoginAttempts) {
@@ -245,17 +256,18 @@ export class UserController {
         }
 
         // EXT-05: local-only properties that arrived unchanged are not forwarded for a non-local user. BeyondTrust
-        // treats them as read-only (username) or local-only (password, 2FA, failed logins, reset flag), and sending
-        // them can make the whole update fail even though nothing was meant to change.
+        // treats them as read-only (username, and since MARLINKPRA-79 display name and email) or local-only
+        // (password, 2FA, failed logins, reset flag), and sending them can make the whole update fail even though
+        // nothing was meant to change.
         const command = new ModifyUserCommand(
             transactionId,
             tenantId,
             id,
-            dtoInput.publicDisplayName,
+            isExternalUser ? undefined : dtoInput.publicDisplayName,
             isExternalUser ? undefined : dtoInput.username,
             isExternalUser ? undefined : dtoInput.password,
             isExternalUser ? undefined : dtoInput.passwordExpirationDate,
-            dtoInput.email,
+            isExternalUser ? undefined : dtoInput.email,
             dtoInput.preferredEmailLanguage,
             isExternalUser ? undefined : dtoInput.isTwoFactorAuthRequired,
             dtoInput.isLoginAllowed,

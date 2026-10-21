@@ -150,34 +150,30 @@ describe('UserController', () => {
         // The console sends its whole edit form on every update, so username arrives unchanged and
         // regeneratePassword arrives as false even when only the display name was edited.
         it('should accept an edit that mentions local-only properties without changing them', async () => {
-            jest.spyOn(queryBus, 'execute').mockResolvedValue({
-                securityProviderId: 7,
-                username: 'existing-username',
-            } as User);
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingNonLocalUser());
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue({} as User);
 
             await controller.modifyUser('uuid-100', 123, 1, {
-                publicDisplayName: 'New Display Name',
+                publicDisplayName: 'Existing Display Name',
                 username: 'existing-username',
-                email: 'user@example.com',
+                email: 'existing@example.com',
                 regeneratePassword: false,
+                isLoginAllowed: false,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalled();
         });
 
         it('should not forward unchanged local-only properties of a non-local user (EXT-05)', async () => {
-            jest.spyOn(queryBus, 'execute').mockResolvedValue({
-                securityProviderId: 7,
-                username: 'existing-username',
-            } as User);
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingNonLocalUser());
             const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue({} as User);
 
             await controller.modifyUser('uuid-100', 123, 1, {
-                publicDisplayName: 'New Display Name',
+                publicDisplayName: 'Existing Display Name',
                 username: 'existing-username',
-                email: 'user@example.com',
+                email: 'existing@example.com',
                 regeneratePassword: false,
+                isLoginAllowed: false,
             });
 
             expect(commandBusExecuteSpy).toHaveBeenCalledWith(
@@ -185,18 +181,114 @@ describe('UserController', () => {
                     'uuid-100',
                     123,
                     1,
-                    'New Display Name',
                     undefined,
                     undefined,
                     undefined,
-                    'user@example.com',
                     undefined,
                     undefined,
                     undefined,
+                    undefined,
+                    false,
                     undefined,
                     undefined,
                 ),
             );
+        });
+
+        // MARLINKPRA-79: BeyondTrust answers 422 as soon as display name or email are sent for an account of a
+        // provider that synchronises them, even with the value it already holds.
+        it('should not forward the unchanged display name and email of a non-local user (MARLINKPRA-79)', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingNonLocalUser());
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue({} as User);
+
+            await controller.modifyUser('uuid-100', 123, 1, {
+                publicDisplayName: 'Existing Display Name',
+                email: 'existing@example.com',
+                preferredEmailLanguage: 'de',
+            });
+
+            expect(commandBusExecuteSpy).toHaveBeenCalledTimes(1);
+            const command = commandBusExecuteSpy.mock.calls[0]?.[0] as ModifyUserCommand;
+            expect(command.publicDisplayName).toBeUndefined();
+            expect(command.email).toBeUndefined();
+            expect(command.preferredEmailLanguage).toBe('de');
+        });
+
+        it('should not call BeyondTrust when only the unchanged display name and email remain (MARLINKPRA-79)', async () => {
+            const existingUser = existingNonLocalUser();
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingUser);
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            const result = await controller.modifyUser('uuid-100', 123, 1, {
+                publicDisplayName: 'Existing Display Name',
+                username: 'existing-username',
+                email: 'existing@example.com',
+                regeneratePassword: false,
+            });
+
+            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+            expect(result).toBe(existingUser);
+        });
+
+        it('should refuse to change the display name of a non-local user (MARLINKPRA-79)', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingNonLocalUser());
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            const error = await controller
+                .modifyUser('uuid-100', 123, 1, { publicDisplayName: 'Another Display Name' })
+                .catch((caught: unknown) => caught);
+
+            expect(error).toBeInstanceOf(NonLocalUserModificationException);
+            expect((error as NonLocalUserModificationException).properties).toEqual(['publicDisplayName']);
+            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+        });
+
+        it('should refuse to change the email address of a non-local user (MARLINKPRA-79)', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingNonLocalUser());
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            const error = await controller
+                .modifyUser('uuid-100', 123, 1, { email: 'another@example.com' })
+                .catch((caught: unknown) => caught);
+
+            expect(error).toBeInstanceOf(NonLocalUserModificationException);
+            expect((error as NonLocalUserModificationException).properties).toEqual(['email']);
+            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+        });
+
+        it('should name every refused property and forward nothing (MARLINKPRA-79)', async () => {
+            jest.spyOn(queryBus, 'execute').mockResolvedValue(existingNonLocalUser());
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute');
+
+            const error = await controller
+                .modifyUser('uuid-100', 123, 1, {
+                    publicDisplayName: 'Another Display Name',
+                    email: 'another@example.com',
+                    isLoginAllowed: false,
+                })
+                .catch((caught: unknown) => caught);
+
+            expect(error).toBeInstanceOf(NonLocalUserModificationException);
+            expect((error as NonLocalUserModificationException).properties).toEqual(['publicDisplayName', 'email']);
+            expect(commandBusExecuteSpy).not.toHaveBeenCalled();
+        });
+
+        it('should still forward the display name and email of a local user (MARLINKPRA-79)', async () => {
+            // A user without a security provider is local.
+            jest.spyOn(queryBus, 'execute').mockResolvedValue({
+                publicDisplayName: 'Existing Display Name',
+                email: 'existing@example.com',
+            } as User);
+            const commandBusExecuteSpy = jest.spyOn(commandBus, 'execute').mockResolvedValue({} as User);
+
+            await controller.modifyUser('uuid-100', 123, 1, {
+                publicDisplayName: 'Another Display Name',
+                email: 'another@example.com',
+            });
+
+            const command = commandBusExecuteSpy.mock.calls[0]?.[0] as ModifyUserCommand;
+            expect(command.publicDisplayName).toBe('Another Display Name');
+            expect(command.email).toBe('another@example.com');
         });
 
         it('should not call BeyondTrust when nothing but unchanged local-only properties remain', async () => {
@@ -270,6 +362,16 @@ describe('UserController', () => {
         });
     });
 });
+
+/** A user of a security provider that is not in the list of local providers, as BeyondTrust and the mirror hold it. */
+function existingNonLocalUser(): User {
+    return {
+        securityProviderId: 7,
+        username: 'existing-username',
+        publicDisplayName: 'Existing Display Name',
+        email: 'existing@example.com',
+    } as User;
+}
 
 function mockCommandBus() {
     const commandBus = {} as CommandBus;
