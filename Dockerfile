@@ -1,5 +1,9 @@
 # ---- 1. Base image ------------------------------------------------
-FROM node:lts-alpine
+# Pinned on purpose. Node.js validates outbound TLS against the root store
+# compiled into the Node.js binary, not against the OS ca-certificates, so the
+# Node.js release defines which CAs the service trusts. Raise the version
+# deliberately. 24.22.1 distrusts the compromised eMudhra/emSign CAs (2026-10-21).
+FROM node:24.22.1-alpine3.24
 
 # ---- 2. Runtime layer ---------------------------------------------
 WORKDIR /app
