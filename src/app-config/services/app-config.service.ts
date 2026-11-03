@@ -130,6 +130,11 @@ export class AppConfigService {
                     path:
                         this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_MEMBER_PATH') ??
                         DefaultAppConfig.praSyncApi.groupPolicy.member.path,
+                    user: {
+                        path:
+                            this.configService.get<string>('PRA_SYNC_API_GROUP_POLICY_MEMBER_USER_PATH') ??
+                            DefaultAppConfig.praSyncApi.groupPolicy.member.user.path,
+                    },
                 },
                 team: {
                     path:

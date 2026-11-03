@@ -151,6 +151,9 @@ describe('AppConfigService', () => {
                         },
                         member: {
                             path: 'api-path-group-policy-member-1',
+                            user: {
+                                path: 'api-path-group-policy-member-user-1',
+                            },
                         },
                         team: {
                             path: 'api-path-group-policy-team-1',
@@ -263,6 +266,9 @@ describe('AppConfigService', () => {
                         },
                         member: {
                             path: 'api-path-group-policy-member-1',
+                            user: {
+                                path: 'api-path-group-policy-member-user-1',
+                            },
                         },
                         team: {
                             path: 'api-path-group-policy-team-1',
@@ -377,6 +383,9 @@ describe('AppConfigService', () => {
                         },
                         member: {
                             path: '/members',
+                            user: {
+                                path: '/users',
+                            },
                         },
                         team: {
                             path: '/teams',
@@ -482,6 +491,8 @@ describe('AppConfigService', () => {
                         return input.groupPolicy?.jumpGroup?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_MEMBER_PATH':
                         return input.groupPolicy?.member?.path;
+                    case 'PRA_SYNC_API_GROUP_POLICY_MEMBER_USER_PATH':
+                        return input.groupPolicy?.member?.user?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_TEAM_PATH':
                         return input.groupPolicy?.team?.path;
                     case 'PRA_SYNC_API_GROUP_POLICY_JUMPOINT_PATH':
@@ -583,6 +594,9 @@ describe('AppConfigService', () => {
                     },
                     member: {
                         path: expected.groupPolicy?.member?.path,
+                        user: {
+                            path: expected.groupPolicy?.member?.user?.path,
+                        },
                     },
                     team: {
                         path: expected.groupPolicy?.team?.path,

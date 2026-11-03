@@ -1,8 +1,12 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ErrorProcessorUtility, PaginationUtility } from '../../shared/utilities';
 import { User } from '../../user/models';
-import { AddMemberToGroupPolicyCommand, RemoveMemberFromGroupPolicyCommand } from '../commands';
-import { GroupPolicyMember } from '../models';
+import {
+    AddMemberToGroupPolicyCommand,
+    RemoveMemberFromGroupPolicyCommand,
+    RemoveUserFromGroupPolicyCommand,
+} from '../commands';
+import { GroupPolicyMember, GroupPolicyUserRemoval } from '../models';
 import { RetrieveGroupPolicyMembersQuery } from '../queries';
 
 export interface GroupPolicyMembershipFailure {
@@ -116,18 +120,29 @@ export class UserGroupPolicyMembershipWorkflow {
     }
 
     /**
-     * Removal is addressed by member id, not by user id, so the membership has to be looked up first. A
-     * membership that is already gone is not an error: repeated runs must not fail on it.
+     * The member list is served from the mirror of the Sync API, which is enough for the memberships the platform made
+     * itself and spares reading large shared policies live. A membership the mirror does not know may still exist, made
+     * outside the platform and not yet scanned (MARLINKPRA-81), so that case is left to the live lookup of the Sync API.
+     * A membership that is already gone is not an error: repeated runs must not fail on it.
      */
     private async removeMember(user: User, groupPolicyId: number): Promise<void> {
         const member = await this.findMember(user, groupPolicyId);
 
-        if (!member) {
+        if (member) {
+            await this.commandBus.execute<RemoveMemberFromGroupPolicyCommand, void>(
+                new RemoveMemberFromGroupPolicyCommand(
+                    this.transactionId,
+                    this.tenantId,
+                    groupPolicyId,
+                    member.memberId,
+                ),
+            );
+
             return;
         }
 
-        await this.commandBus.execute<RemoveMemberFromGroupPolicyCommand, void>(
-            new RemoveMemberFromGroupPolicyCommand(this.transactionId, this.tenantId, groupPolicyId, member.memberId),
+        await this.commandBus.execute<RemoveUserFromGroupPolicyCommand, GroupPolicyUserRemoval>(
+            new RemoveUserFromGroupPolicyCommand(this.transactionId, this.tenantId, groupPolicyId, user.id),
         );
     }
 

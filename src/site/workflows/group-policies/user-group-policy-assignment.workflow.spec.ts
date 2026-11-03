@@ -2,6 +2,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     AddMemberToGroupPolicyCommand,
     RemoveMemberFromGroupPolicyCommand,
+    RemoveUserFromGroupPolicyCommand,
 } from '../../../group-policy-member/commands';
 import { GroupPolicyMember } from '../../../group-policy-member/models';
 import { ModifyUserGroupPoliciesCommand } from '../../../user-group-policy/commands';
@@ -39,7 +40,7 @@ describe('UserGroupPolicyAssignmentWorkflow', () => {
             expect(command?.groupPolicyIdsToAdd).toEqual([1, 2]);
             expect(command?.groupPolicyIdsToRemove).toEqual([3]);
             expectNoCommandOfType(AddMemberToGroupPolicyCommand);
-            expectNoCommandOfType(RemoveMemberFromGroupPolicyCommand);
+            expectNoCommandOfType(RemoveUserFromGroupPolicyCommand);
         });
     });
 
@@ -64,7 +65,7 @@ describe('UserGroupPolicyAssignmentWorkflow', () => {
             expectNoCommandOfType(AddMemberToGroupPolicyCommand);
         });
 
-        it('should remove a membership by its member id', async () => {
+        it('should remove a membership the mirror knows by its member id', async () => {
             mockGroupPolicyMembers([createMember({ groupPolicyId: 5, userId: 7, memberId: 100 })]);
 
             await modify(UserSourceType.External, createUser({ id: 7 }), [], [5]);
@@ -72,13 +73,28 @@ describe('UserGroupPolicyAssignmentWorkflow', () => {
             const command = commandOfType(RemoveMemberFromGroupPolicyCommand);
             expect(command?.id).toBe(5);
             expect(command?.memberId).toBe(100);
+            expectNoCommandOfType(RemoveUserFromGroupPolicyCommand);
         });
 
-        it('should accept a membership that is already gone', async () => {
+        it('should leave a membership the mirror does not know to the live lookup of the Sync API (MARLINKPRA-81)', async () => {
             mockGroupPolicyMembers([]);
 
-            await expect(modify(UserSourceType.External, createUser({ id: 7 }), [], [5])).resolves.toBeUndefined();
+            await modify(UserSourceType.External, createUser({ id: 7 }), [], [5]);
+
+            const command = commandOfType(RemoveUserFromGroupPolicyCommand);
+            expect(command?.id).toBe(5);
+            expect(command?.userId).toBe(7);
+            expect(command?.shouldVerifyEffectiveMembership).toBe(false);
             expectNoCommandOfType(RemoveMemberFromGroupPolicyCommand);
+        });
+
+        it('should report a failed removal', async () => {
+            mockGroupPolicyMembers([]);
+            (commandBus.execute as jest.Mock).mockRejectedValue(new Error('group policy unavailable'));
+
+            await expect(modify(UserSourceType.External, createUser({ id: 7 }), [], [5])).rejects.toThrow(
+                GroupPolicyAssignmentFailedException,
+            );
         });
 
         it('should keep going after a failing group policy and report all failures at the end', async () => {

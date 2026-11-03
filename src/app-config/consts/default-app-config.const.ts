@@ -140,6 +140,9 @@ export abstract class DefaultAppConfig {
                 },
                 member: {
                     path: '/members',
+                    user: {
+                        path: '/users',
+                    },
                 },
                 team: {
                     path: '/teams',
