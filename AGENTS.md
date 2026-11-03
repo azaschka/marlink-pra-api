@@ -2,7 +2,7 @@
 
 Management API of the Marlink PRA Platform (NestJS 11, TypeScript 5, CQRS, TypeORM, MariaDB). Public contract for the PRA Console and the SOC integration; delegates every BeyondTrust operation to pra-sync-api.
 
-Last reviewed: 2026-10-11
+Last reviewed: 2026-11-03
 
 ## Read first
 
@@ -36,7 +36,8 @@ Last reviewed: 2026-10-11
   - Remove a group policy membership only when no remaining role of the account needs it (`SiteGroupPolicyKeys`).
   - Retain site users that could not be processed.
   - `PATCH /users/:id` forwards nothing but the allowed properties for a non-local user: `username`, `password`, `passwordExpirationDate`, the two-factor flag, failed logins, the reset flag, display name and email are owned by the identity provider. An unchanged value is dropped, a changed one raises `NonLocalUserModificationException` (422); BeyondTrust rejects these properties even with the value it already holds (MARLINKPRA-79). Only login allowed and the preferred email language still reach BeyondTrust.
-  - Group policies that exist once per Business Unit are found, never created (`BuGroupPolicyLookupWorkflow`). BeyondTrust adds a new external user to `GP_<BU>_SAML_DEFAULT` at the first sign-in; the role workflows remove an external site user from the policy of the customer's Business Unit as their last step, after the role policies are assigned. The platform never adds that membership, and role removal does not touch it. The name map `BU_SAML_DEFAULT_GP_MAP` is mirrored in pra-console (`src/app/shared/helpers/pra-data-filter.ts`) and both have to change together.
+  - The member list of the Sync API (`RetrieveGroupPolicyMembersQuery`) is its mirror. "Not in the list" does not prove that a user is no member of a policy, because a membership made outside the platform arrives only with a scan. Before treating a membership as absent, ask BeyondTrust through `RemoveUserFromGroupPolicyCommand` (MARLINKPRA-81).
+  - Group policies that exist once per Business Unit are found, never created (`BuGroupPolicyLookupWorkflow`). BeyondTrust adds a new external user to `GP_<BU>_SAML_DEFAULT` at the first sign-in. `SiteWorkflow` removes an external site user from the policy of the customer's Business Unit at the end of the run, once per user and only when all of its roles succeeded; the add endpoints of a single role do it after the role (MARLINKPRA-81). A problem there goes to the report and never fails the role in an ingestion run. The platform never adds that membership, and role removal does not touch it. The name map `BU_SAML_DEFAULT_GP_MAP` is mirrored in pra-console (`src/app/shared/helpers/pra-data-filter.ts`) and both have to change together.
   - Names of the policies the ingestion creates come from the static `groupPolicyNameFor()` of their workflows (`src/site/workflows/group-policies/`, `src/customer/workflows/`). Never rebuild such a name elsewhere. A `LIKE` pattern with a customer name may narrow a search but never decides that an object belongs to the customer: longer customer names match too, and `_` is a wildcard. Known open exception: `SupportTeamArtifactsWorkflow` (customer deletion, see `../docs/knowledge/domains/external-users.md`).
 - Customer deactivation and reactivation change the login only of the users chosen by `CustomerExclusiveUsersWorkflow` (`src/customer/workflows/`): direct members of the customer's own policies whose site roles on the same instance all belong to the customer. A user whose roles cannot be read is reported and left unchanged.
 - Stability invariants (release 3.2, see `../docs/knowledge/investigations/r3.2-stability/`):
