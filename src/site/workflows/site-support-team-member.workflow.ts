@@ -13,7 +13,6 @@ import { UserNotFoundException } from '../exceptions';
 import { PartialSiteSupportTeamMember, PartialSiteSupportTeamMemberWithUserId } from '../models';
 import {
     AdministratorGroupPolicyWorkflow,
-    BuSamlDefaultGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     LimitedAccessGroupPolicyWorkflow,
@@ -47,7 +46,6 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
         private readonly operatorGroupPolicyWorkflow: OperatorGroupPolicyWorkflow,
         private readonly jumpointsWorkflow: JumpointsWorkflow,
         private readonly buSupportGroupPolicyWorkflow: BuSupportGroupPolicyWorkflow,
-        private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow,
     ) {
         this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
             this.queryBus,
@@ -187,25 +185,6 @@ export class SiteSupportTeamMemberWorkflow implements BaseWorkflow<PartialSiteSu
             ],
             [],
         );
-
-        // EXT-25: BeyondTrust adds a user of an identity provider to the SAML default policy of its Business Unit at
-        // the first sign-in, so that a BU Admin can find the user. Once the policies of the role are assigned, the user
-        // leaves it, for the customer's Business Unit only. This is the last step: when it fails, the user is reported
-        // with everything else of the role already in place, and the next import tries again.
-        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
-            this.siteSupportTeamMember.sourceType,
-        );
-
-        if (buSamlDefaultGroupPolicy) {
-            await this.userGroupPolicyAssignmentWorkflow.modify(
-                SiteUserType.SiteSupportTeamMember,
-                this.siteSupportTeamMember.sourceType,
-                this.siteSupportTeamMember.email,
-                siteSupportTeamMemberUser,
-                [],
-                [buSamlDefaultGroupPolicy.id],
-            );
-        }
 
         return {
             ...this.siteSupportTeamMember,

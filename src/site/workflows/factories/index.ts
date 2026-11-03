@@ -48,7 +48,6 @@ export class WorkflowFactory {
             this.createManagerGroupPolicyWorkflow(),
             this.createAuthJumpPolicyWorkflow(),
             this.createNotifyJumpPolicyWorkflow(),
-            this.createBuSamlDefaultGroupPolicyWorkflow(),
         );
     }
 
@@ -63,7 +62,6 @@ export class WorkflowFactory {
             this.customer.beyondtrustInstanceId,
             this.createAdministratorGroupPolicyWorkflow(),
             this.createOperatorGroupPolicyWorkflow(),
-            this.createBuSamlDefaultGroupPolicyWorkflow(),
         );
     }
 
@@ -82,7 +80,16 @@ export class WorkflowFactory {
             this.createOperatorGroupPolicyWorkflow(),
             this.createJumpointsWorkflow(),
             this.createBuSupportGroupPolicyWorkflow(),
-            this.createBuSamlDefaultGroupPolicyWorkflow(),
+        );
+    }
+
+    public createBuSamlDefaultGroupPolicyWorkflow(): BuSamlDefaultGroupPolicyWorkflow {
+        return new BuSamlDefaultGroupPolicyWorkflow(
+            this.queryBus,
+            this.commandBus,
+            this.transactionId,
+            this.customer.businessUnit,
+            this.customer.beyondtrustInstanceId,
         );
     }
 
@@ -154,15 +161,6 @@ export class WorkflowFactory {
 
     private createBuSupportGroupPolicyWorkflow(): BuSupportGroupPolicyWorkflow {
         return new BuSupportGroupPolicyWorkflow(
-            this.queryBus,
-            this.transactionId,
-            this.customer.businessUnit,
-            this.customer.beyondtrustInstanceId,
-        );
-    }
-
-    private createBuSamlDefaultGroupPolicyWorkflow(): BuSamlDefaultGroupPolicyWorkflow {
-        return new BuSamlDefaultGroupPolicyWorkflow(
             this.queryBus,
             this.transactionId,
             this.customer.businessUnit,

@@ -17,7 +17,7 @@ export abstract class BuGroupPolicyLookupWorkflow {
         private readonly queryBus: QueryBus,
         protected readonly transactionId: string,
         protected readonly customerBusinessUnit: BusinessUnit,
-        private readonly customerBeyondtrustInstanceId: number,
+        protected readonly customerBeyondtrustInstanceId: number,
     ) {}
 
     /** The exact group policy name for this Business Unit, or undefined if the Business Unit has no mapping. */

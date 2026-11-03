@@ -3,6 +3,7 @@ import { AppConfigService } from '../../app-config/services/app-config.service';
 import { BusinessUnit } from '../../beyondtrust-instance/enums';
 import { RetrieveCustomersQuery } from '../../customer/queries';
 import { RetrieveGroupPoliciesQuery } from '../../group-policy/queries';
+import { RemoveUserFromGroupPolicyCommand } from '../../group-policy-member/commands';
 import { GroupPolicyMembershipOutcome, UserGroupPolicyMembershipWorkflow } from '../../group-policy-member/workflows';
 import { ModifyUserGroupPoliciesCommand } from '../../user-group-policy/commands';
 import { DeleteUserCommand } from '../../user/commands';
@@ -10,7 +11,6 @@ import { UserSourceType } from '../../user/enums';
 import { User } from '../../user/models';
 import { RetrieveUsersQuery } from '../../user/queries';
 import { SiteSupportTeamAccessLevel, SiteSupportTeamTrustLevel } from '../enums';
-import { GroupPolicyAssignmentFailedException } from '../exceptions';
 import {
     RetrieveSiteAuditorsByUserIdQuery,
     RetrieveSiteByIdQuery,
@@ -21,7 +21,6 @@ import {
     AdminOperatorAccessGroupPolicyWorkflow,
     AdministratorAccessGroupPolicyWorkflow,
     AdministratorGroupPolicyWorkflow,
-    BuSamlDefaultGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
     FullAccessGroupPolicyWorkflow,
     LimitedAccessGroupPolicyWorkflow,
@@ -38,15 +37,16 @@ import { SiteManagerWorkflow } from './site-manager.workflow';
 import { SiteSupportTeamMemberWorkflow } from './site-support-team-member.workflow';
 
 /**
- * EXT-25: BeyondTrust adds a user of an identity provider to the SAML default policy of its Business Unit at the
- * first sign-in. Site ingestion removes that direct membership once the policies of the role are assigned. The
+ * EXT-25, MARLINKPRA-81: BeyondTrust adds a user of an identity provider to the SAML default policy of its Business
+ * Unit at the first sign-in. The role workflows never touch that membership: the callers remove it once the policies
+ * of the user's roles are assigned (site.workflow.bu-saml-default.spec.ts, add-site-user.bu-saml-default.spec.ts). The
  * platform never adds it (EXT-24) and role removal does not touch it.
  *
  * Group policy ids used below: ADMINISTRATORS_ACME 10, OPERATORS (site 5) 11, ADMINISTRATOR_ACCESS 12,
  * ADMIN_OPERATOR_ACCESS 13, FULL_ACCESS 14, LIMITED_ACCESS 15, support team policy 16, MANAGERS (site 5) 17,
  * MANAGER_ACCESS 18, GP_MARITIME_SAML_DEFAULT 30, GP_OMNIACCESS_SAML_DEFAULT 31.
  */
-describe('BU SAML default group policy of site users (EXT-25)', () => {
+describe('BU SAML default group policy of site users (EXT-25, MARLINKPRA-81)', () => {
     const SITE_ID = 5;
     const BT_INSTANCE_ID = 1;
     const EMAIL = 'p@example.com';
@@ -143,18 +143,11 @@ describe('BU SAML default group policy of site users (EXT-25)', () => {
         } as unknown as QueryBus;
     }
 
-    function samlDefaultWorkflow(businessUnit: BusinessUnit = BusinessUnit.MT): BuSamlDefaultGroupPolicyWorkflow {
-        return new BuSamlDefaultGroupPolicyWorkflow(queryBus, 'tx', businessUnit, BT_INSTANCE_ID);
-    }
-
     function fixedGroupPolicy<T>(id: number): T {
         return { getOrCreate: () => Promise.resolve({ id: id }) } as unknown as T;
     }
 
-    function createManagerWorkflow(
-        sourceType: UserSourceType,
-        buSamlDefault: BuSamlDefaultGroupPolicyWorkflow = samlDefaultWorkflow(),
-    ): SiteManagerWorkflow {
+    function createManagerWorkflow(sourceType: UserSourceType): SiteManagerWorkflow {
         const jumpPolicy = { id: 60, notificationEmailAddresses: [EMAIL], approvalUserIds: ['7', '9'] };
 
         return new SiteManagerWorkflow(
@@ -168,15 +161,10 @@ describe('BU SAML default group policy of site users (EXT-25)', () => {
             fixedGroupPolicy<ManagerGroupPolicyWorkflow>(17),
             { getOrCreate: () => Promise.resolve(jumpPolicy) } as unknown as AuthJumpPolicyWorkflow,
             { getOrCreate: () => Promise.resolve(jumpPolicy) } as unknown as NotifyJumpPolicyWorkflow,
-            buSamlDefault,
         );
     }
 
-    function createAuditorWorkflow(
-        sourceType: UserSourceType,
-        isAdminOperator = false,
-        buSamlDefault: BuSamlDefaultGroupPolicyWorkflow = samlDefaultWorkflow(),
-    ): SiteAuditorWorkflow {
+    function createAuditorWorkflow(sourceType: UserSourceType, isAdminOperator = false): SiteAuditorWorkflow {
         return new SiteAuditorWorkflow(
             appConfigService,
             queryBus,
@@ -194,7 +182,6 @@ describe('BU SAML default group policy of site users (EXT-25)', () => {
             BT_INSTANCE_ID,
             fixedGroupPolicy<AdministratorGroupPolicyWorkflow>(10),
             fixedGroupPolicy<OperatorGroupPolicyWorkflow>(11),
-            buSamlDefault,
         );
     }
 
@@ -221,13 +208,22 @@ describe('BU SAML default group policy of site users (EXT-25)', () => {
             fixedGroupPolicy<OperatorGroupPolicyWorkflow>(11),
             { getOrCreate: () => Promise.resolve([]) } as unknown as JumpointsWorkflow,
             { get: () => Promise.resolve(null) } as unknown as BuSupportGroupPolicyWorkflow,
-            samlDefaultWorkflow(),
         );
     }
 
     /** Group policy ids of every membership call, in call order: [toAdd, toRemove]. */
     function membershipCalls(): [number[], number[]][] {
         return applyMemberships.mock.calls.map(([, toAdd, toRemove]) => [toAdd, toRemove]);
+    }
+
+    /** Group policy ids of the removals from the SAML default policy. */
+    function samlDefaultRemovals(): number[] {
+        return executedCommands
+            .filter(
+                (command): command is RemoveUserFromGroupPolicyCommand =>
+                    command instanceof RemoveUserFromGroupPolicyCommand,
+            )
+            .map((command) => command.id);
     }
 
     function samlDefaultLookups(): (string | undefined)[] {
@@ -240,83 +236,31 @@ describe('BU SAML default group policy of site users (EXT-25)', () => {
     }
 
     describe('ingestion', () => {
-        it('should remove an external site manager from the SAML default policy after its role policies', async () => {
-            mockScenario({ account: EXTERNAL_ACCOUNT });
+        it.each([
+            ['site manager', () => createManagerWorkflow(UserSourceType.External), [17, 18]],
+            ['site auditor', () => createAuditorWorkflow(UserSourceType.External), [10, 12]],
+            ['auditor operator', () => createAuditorWorkflow(UserSourceType.External, true), [10, 13, 11, 14]],
+            ['site support team member', () => createSupportTeamMemberWorkflow(UserSourceType.External), [16, 11, 15]],
+        ])(
+            'should assign the policies of an external %s and leave the SAML default policy to the caller',
+            async (_role, createWorkflow, roleGroupPolicyIds) => {
+                mockScenario({ account: EXTERNAL_ACCOUNT });
 
-            const siteManager = await createManagerWorkflow(UserSourceType.External).getOrCreate();
+                const siteUser = await createWorkflow().getOrCreate();
 
-            expect(siteManager.userId).toBe(EXTERNAL_ACCOUNT.id);
-            expect(membershipCalls()).toEqual([
-                [[17, 18], []],
-                [[], [30]],
-            ]);
-        });
+                expect(siteUser.userId).toBe(EXTERNAL_ACCOUNT.id);
+                expect(membershipCalls()).toEqual([[roleGroupPolicyIds, []]]);
+                expect(samlDefaultRemovals()).toEqual([]);
+                expect(samlDefaultLookups()).toEqual([]);
+            },
+        );
+    });
 
-        it('should remove an external site auditor after its role policies', async () => {
-            mockScenario({ account: EXTERNAL_ACCOUNT });
-
-            await createAuditorWorkflow(UserSourceType.External).getOrCreate();
-
-            expect(membershipCalls()).toEqual([
-                [[10, 12], []],
-                [[], [30]],
-            ]);
-        });
-
-        it('should remove an external auditor operator after its role policies', async () => {
-            mockScenario({ account: EXTERNAL_ACCOUNT });
-
-            await createAuditorWorkflow(UserSourceType.External, true).getOrCreate();
-
-            expect(membershipCalls()).toEqual([
-                [[10, 13, 11, 14], []],
-                [[], [30]],
-            ]);
-        });
-
-        it('should remove an external site support team member after its role policies', async () => {
-            mockScenario({ account: EXTERNAL_ACCOUNT });
-
-            await createSupportTeamMemberWorkflow(UserSourceType.External).getOrCreate();
-
-            expect(membershipCalls()).toEqual([
-                [[16, 11, 15], []],
-                [[], [30]],
-            ]);
-        });
-
-        it("should remove only the policy of the customer's Business Unit", async () => {
-            mockScenario({ account: EXTERNAL_ACCOUNT });
-
-            await createAuditorWorkflow(
-                UserSourceType.External,
-                false,
-                samlDefaultWorkflow(BusinessUnit.OA),
-            ).getOrCreate();
-
-            expect(samlDefaultLookups()).toEqual(['GP_OMNIACCESS_SAML_DEFAULT']);
-            expect(membershipCalls()).toEqual([
-                [[10, 12], []],
-                [[], [31]],
-            ]);
-        });
-
-        it('should look the policy up once per ingestion run for all roles', async () => {
-            mockScenario({ account: EXTERNAL_ACCOUNT });
-            const sharedLookup = samlDefaultWorkflow();
-
-            await createManagerWorkflow(UserSourceType.External, sharedLookup).getOrCreate();
-            await createAuditorWorkflow(UserSourceType.External, false, sharedLookup).getOrCreate();
-
-            expect(samlDefaultLookups()).toEqual(['GP_MARITIME_SAML_DEFAULT']);
-        });
-
-        it('should neither look up nor remove the policy for local users', async () => {
+    describe('ingestion of a local user', () => {
+        it('should use the local group policy change and not look the policy up', async () => {
             mockScenario({ account: LOCAL_ACCOUNT });
 
             await createManagerWorkflow(UserSourceType.Internal).getOrCreate();
-            await createAuditorWorkflow(UserSourceType.Internal).getOrCreate();
-            await createSupportTeamMemberWorkflow(UserSourceType.Internal).getOrCreate();
 
             const localChanges = executedCommands.filter(
                 (command): command is ModifyUserGroupPoliciesCommand =>
@@ -324,62 +268,9 @@ describe('BU SAML default group policy of site users (EXT-25)', () => {
             );
             expect(
                 localChanges.map((command) => [command.groupPolicyIdsToAdd, command.groupPolicyIdsToRemove]),
-            ).toEqual([
-                [[17, 18], []],
-                [[10, 12], []],
-                [[16, 11, 15], []],
-            ]);
+            ).toEqual([[[17, 18], []]]);
             expect(applyMemberships).not.toHaveBeenCalled();
             expect(samlDefaultLookups()).toEqual([]);
-        });
-
-        it('should assign the role policies and remove nothing when the policy does not exist', async () => {
-            jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-            mockScenario({ account: EXTERNAL_ACCOUNT, samlDefaultExists: false });
-
-            const siteAuditor = await createAuditorWorkflow(UserSourceType.External).getOrCreate();
-
-            expect(siteAuditor.userId).toBe(EXTERNAL_ACCOUNT.id);
-            expect(membershipCalls()).toEqual([[[10, 12], []]]);
-        });
-
-        it('should keep the SAML default policy when a role policy could not be assigned', async () => {
-            jest.spyOn(console, 'error').mockImplementation(() => undefined);
-            mockScenario({ account: EXTERNAL_ACCOUNT });
-            applyMemberships.mockResolvedValueOnce({
-                addedGroupPolicyIds: [10],
-                removedGroupPolicyIds: [],
-                failures: [{ groupPolicyId: 12, operation: 'add', message: 'timeout' }],
-            });
-
-            await expect(createAuditorWorkflow(UserSourceType.External).getOrCreate()).rejects.toBeInstanceOf(
-                GroupPolicyAssignmentFailedException,
-            );
-            expect(membershipCalls()).toEqual([[[10, 12], []]]);
-        });
-
-        it('should report the user when leaving the SAML default policy fails, after the role is in place', async () => {
-            mockScenario({ account: EXTERNAL_ACCOUNT });
-            applyMemberships
-                .mockResolvedValueOnce({ addedGroupPolicyIds: [17, 18], removedGroupPolicyIds: [], failures: [] })
-                .mockResolvedValueOnce({
-                    addedGroupPolicyIds: [],
-                    removedGroupPolicyIds: [],
-                    failures: [{ groupPolicyId: 30, operation: 'remove', message: 'timeout' }],
-                });
-
-            const error = await createManagerWorkflow(UserSourceType.External)
-                .getOrCreate()
-                .catch((caught: unknown) => caught);
-
-            expect(error).toBeInstanceOf(GroupPolicyAssignmentFailedException);
-            expect((error as GroupPolicyAssignmentFailedException).failures).toEqual([
-                { groupPolicyId: 30, operation: 'remove', message: 'timeout' },
-            ]);
-            expect(membershipCalls()).toEqual([
-                [[17, 18], []],
-                [[], [30]],
-            ]);
         });
     });
 
@@ -393,6 +284,7 @@ describe('BU SAML default group policy of site users (EXT-25)', () => {
             await createAuditorWorkflow(UserSourceType.External).delete();
 
             expect(membershipCalls()).toEqual([[[], [10, 12]]]);
+            expect(samlDefaultRemovals()).toEqual([]);
             expect(samlDefaultLookups()).toEqual([]);
             expect(executedCommands).toContainEqual(new DeleteUserCommand('tx', BT_INSTANCE_ID, 9));
         });

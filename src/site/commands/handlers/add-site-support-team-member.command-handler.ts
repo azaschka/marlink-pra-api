@@ -4,6 +4,7 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { ObjectUtility } from '../../../shared/utilities';
+import { SiteUserType } from '../../enums';
 import { SiteModifiedEvent } from '../../events';
 import {
     PartialSiteSupportTeamMember,
@@ -91,16 +92,23 @@ export class AddSiteSupportTeamMemberCommandHandler implements ICommandHandler<A
         site: Site,
         siteSupportTeamMember: PartialSiteSupportTeamMember,
     ) {
-        const workflow = WorkflowFactory.create(
+        const workflowFactory = WorkflowFactory.create(
             this.appConfigService,
             this.queryBus,
             this.commandBus,
             transactionId,
             customer,
             site,
-        ).createSiteSupportTeamMemberWorkflow(siteSupportTeamMember);
+        );
+        const siteUser = await workflowFactory.createSiteSupportTeamMemberWorkflow(siteSupportTeamMember).getOrCreate();
 
-        return await workflow.getOrCreate();
+        // EXT-25: the role is in place, so the user leaves the SAML default policy of the Business Unit. A failure fails
+        // this request, as a failed role policy does, and the next attempt repeats the idempotent steps.
+        await workflowFactory
+            .createBuSamlDefaultGroupPolicyWorkflow()
+            .removeFrom(SiteUserType.SiteSupportTeamMember, siteUser);
+
+        return siteUser;
     }
 
     private validateSiteSupportTeamMemberHasNotAddedToSite(

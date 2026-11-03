@@ -192,6 +192,7 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
         // One lookup per ingestion run, shared by every role workflow (EXT-25).
         this.buSamlDefaultGroupPolicyWorkflow = new BuSamlDefaultGroupPolicyWorkflow(
             this.queryBus,
+            this.commandBus,
             this.transactionId,
             this.customerBusinessUnit,
             this.customerBeyondtrustInstanceId,
@@ -223,7 +224,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.managerGroupPolicyWorkflow,
                     this.authJumpPolicyWorkflow,
                     this.notifyJumpPolicyWorkflow,
-                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
 
@@ -239,7 +239,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.customerBeyondtrustInstanceId,
                     this.administratorGroupPolicyWorkflow,
                     this.operatorGroupPolicyWorkflow,
-                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
 
@@ -257,7 +256,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.operatorGroupPolicyWorkflow,
                     this.jumpointsWorkflow,
                     this.buSupportGroupPolicyWorkflow,
-                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
     }
@@ -457,7 +455,58 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
             console.error(`[${this.transactionId}] Failed to assign jumpoints to BU Support Group Policy:`, error);
         }
 
+        await this.removeFromBuSamlDefaultGroupPolicy(siteWorkflowResult);
+
         return siteWorkflowResult;
+    }
+
+    /**
+     * EXT-25, MARLINKPRA-81: an external user leaves the SAML default policy of the Business Unit once it exists and
+     * every role of this run has its policies, as the last step of the run. A user with a failed role keeps the policy,
+     * so that its BU Admins still find it. A problem here does not fail the role: the user stays on the site, the report
+     * names the problem and the next import tries again. Failing the role would leave the user off the site, and a site
+     * without another manager could not be created at all.
+     */
+    private async removeFromBuSamlDefaultGroupPolicy(result: SiteWorkflowResult): Promise<void> {
+        const unresolvedEmails = new Set(
+            [
+                ...result.unresolvedEmails.siteManagers,
+                ...result.unresolvedEmails.siteAuditors,
+                ...result.unresolvedEmails.siteSupportTeamMembers,
+            ].map((email) => email.toLowerCase()),
+        );
+        const processedUserIds = new Set<number>();
+        const siteUsers = [
+            ...result.siteManagers.map((user) => ({ siteUserType: SiteUserType.SiteManager, user: user })),
+            ...result.siteAuditors.map((user) => ({ siteUserType: SiteUserType.SiteAuditor, user: user })),
+            ...result.siteSupportTeamMembers.map((user) => ({
+                siteUserType: SiteUserType.SiteSupportTeamMember,
+                user: user,
+            })),
+        ];
+
+        for (const { siteUserType, user } of siteUsers) {
+            if (processedUserIds.has(user.userId) || unresolvedEmails.has(user.email.toLowerCase())) {
+                continue;
+            }
+
+            processedUserIds.add(user.userId);
+            const context = { siteUserType: siteUserType, email: user.email, operation: 'add' as const };
+
+            try {
+                const retained = await this.buSamlDefaultGroupPolicyWorkflow.removeFrom(siteUserType, user);
+
+                if (retained) {
+                    result.errorReport.add(retained, context);
+                }
+            } catch (error) {
+                console.error(
+                    `[${this.transactionId}] Failed to remove ${user.email} from the BU SAML default policy:`,
+                    error,
+                );
+                result.errorReport.add(error, context);
+            }
+        }
     }
 
     /**

@@ -1,7 +1,10 @@
-import { QueryBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { BusinessUnit } from '../../../beyondtrust-instance/enums';
+import { RemoveUserFromGroupPolicyCommand } from '../../../group-policy-member/commands';
 import { RetrieveGroupPoliciesQuery } from '../../../group-policy/queries';
 import { UserSourceType } from '../../../user/enums';
+import { SiteUserType } from '../../enums';
+import { BuSamlDefaultGroupPolicyRetainedException, GroupPolicyAssignmentFailedException } from '../../exceptions';
 import { BU_SAML_DEFAULT_GP_MAP, BuSamlDefaultGroupPolicyWorkflow } from './bu-saml-default-group-policy.workflow';
 import { BuSupportGroupPolicyWorkflow } from './bu-support-group-policy.workflow';
 
@@ -10,17 +13,21 @@ describe('BuSamlDefaultGroupPolicyWorkflow (EXT-21, EXT-25)', () => {
     const BT_INSTANCE_ID = 4;
     const GROUP_POLICY = { id: 30, name: 'GP_MARITIME_SAML_DEFAULT' };
     let queryBus: QueryBus;
+    let commandBus: CommandBus;
     let execute: jest.Mock;
+    let executeCommand: jest.Mock;
 
     beforeEach(() => {
         execute = jest.fn().mockResolvedValue([GROUP_POLICY]);
         queryBus = { execute: execute } as unknown as QueryBus;
+        executeCommand = jest.fn().mockResolvedValue({ removed: true, stillHoldsGroupPolicy: false });
+        commandBus = { execute: executeCommand } as unknown as CommandBus;
     });
 
     afterEach(() => jest.restoreAllMocks());
 
     function createWorkflow(businessUnit: BusinessUnit = BusinessUnit.MT): BuSamlDefaultGroupPolicyWorkflow {
-        return new BuSamlDefaultGroupPolicyWorkflow(queryBus, TRANSACTION_ID, businessUnit, BT_INSTANCE_ID);
+        return new BuSamlDefaultGroupPolicyWorkflow(queryBus, commandBus, TRANSACTION_ID, businessUnit, BT_INSTANCE_ID);
     }
 
     it('should name one SAML default policy per Business Unit', () => {
@@ -115,5 +122,84 @@ describe('BuSamlDefaultGroupPolicyWorkflow (EXT-21, EXT-25)', () => {
         expect(execute).toHaveBeenCalledWith(
             new RetrieveGroupPoliciesQuery(TRANSACTION_ID, BT_INSTANCE_ID, 1, 1, 'GP_EEG_OPERATORS'),
         );
+    });
+
+    describe('removeFrom (MARLINKPRA-81)', () => {
+        const SITE_USER = { sourceType: UserSourceType.External, email: 'p@example.com', userId: 9 };
+
+        it('should remove the user, ask BeyondTrust whether it still holds the policy and have nothing to report', async () => {
+            const retained = await createWorkflow().removeFrom(SiteUserType.SiteManager, SITE_USER);
+
+            expect(executeCommand).toHaveBeenCalledWith(
+                new RemoveUserFromGroupPolicyCommand(
+                    TRANSACTION_ID,
+                    BT_INSTANCE_ID,
+                    GROUP_POLICY.id,
+                    SITE_USER.userId,
+                    true,
+                ),
+            );
+            expect(retained).toBeNull();
+        });
+
+        it.each([
+            ['no direct member and not listed', { removed: false, stillHoldsGroupPolicy: false }],
+            ['removed and the check could not run', { removed: true, stillHoldsGroupPolicy: null }],
+        ])('should have nothing to report: %s', async (_case, removal) => {
+            executeCommand.mockResolvedValue(removal);
+
+            expect(await createWorkflow().removeFrom(SiteUserType.SiteManager, SITE_USER)).toBeNull();
+        });
+
+        it('should do nothing for a local user', async () => {
+            const retained = await createWorkflow().removeFrom(SiteUserType.SiteManager, {
+                ...SITE_USER,
+                sourceType: UserSourceType.Internal,
+            });
+
+            expect(retained).toBeNull();
+            expect(execute).not.toHaveBeenCalled();
+            expect(executeCommand).not.toHaveBeenCalled();
+        });
+
+        it('should remove nothing and report nothing when the policy does not exist', async () => {
+            jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+            execute.mockResolvedValue([]);
+
+            expect(await createWorkflow().removeFrom(SiteUserType.SiteManager, SITE_USER)).toBeNull();
+            expect(executeCommand).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ['BeyondTrust still lists the policy', { removed: false, stillHoldsGroupPolicy: true }, 'still lists'],
+            ['listed although removed', { removed: true, stillHoldsGroupPolicy: true }, 'still lists'],
+            ['nothing removed and unknown', { removed: false, stillHoldsGroupPolicy: null }, 'could not be determined'],
+        ])('should describe what stays: %s', async (_case, removal, expectedText) => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+            executeCommand.mockResolvedValue(removal);
+
+            const retained = await createWorkflow().removeFrom(SiteUserType.SiteAuditor, SITE_USER);
+
+            expect(retained).toBeInstanceOf(BuSamlDefaultGroupPolicyRetainedException);
+            expect(retained?.siteUserType).toBe(SiteUserType.SiteAuditor);
+            expect(retained?.email).toBe(SITE_USER.email);
+            expect(retained?.message).toContain(GROUP_POLICY.name);
+            expect(retained?.message).toContain(expectedText);
+            expect(warn).toHaveBeenCalledTimes(1);
+        });
+
+        it('should raise a failed removal for the user', async () => {
+            executeCommand.mockRejectedValue(new Error('bt down'));
+
+            const error = await createWorkflow()
+                .removeFrom(SiteUserType.SiteManager, SITE_USER)
+                .catch((caught: unknown) => caught);
+
+            expect(error).toBeInstanceOf(GroupPolicyAssignmentFailedException);
+            const [failure] = (error as GroupPolicyAssignmentFailedException).failures;
+            expect(failure?.groupPolicyId).toBe(GROUP_POLICY.id);
+            expect(failure?.operation).toBe('remove');
+            expect(failure?.message).toContain('bt down');
+        });
     });
 });

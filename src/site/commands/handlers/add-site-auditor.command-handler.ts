@@ -4,6 +4,7 @@ import { AppConfigService } from '../../../app-config/services/app-config.servic
 import { Customer } from '../../../customer/models';
 import { RetrieveCustomersQuery } from '../../../customer/queries';
 import { ObjectUtility } from '../../../shared/utilities';
+import { SiteUserType } from '../../enums';
 import { SiteModifiedEvent } from '../../events';
 import { PartialSiteAuditor, PartialSiteAuditorWithUserId, Site, SiteAuditor } from '../../models';
 import { SiteAuditorEntity } from '../../repositories/entities';
@@ -75,16 +76,21 @@ export class AddSiteAuditorCommandHandler implements ICommandHandler<AddSiteAudi
     }
 
     private async runWorkflow(transactionId: string, customer: Customer, site: Site, siteAuditor: PartialSiteAuditor) {
-        const workflow = WorkflowFactory.create(
+        const workflowFactory = WorkflowFactory.create(
             this.appConfigService,
             this.queryBus,
             this.commandBus,
             transactionId,
             customer,
             site,
-        ).createSiteAuditorWorkflow(siteAuditor);
+        );
+        const siteUser = await workflowFactory.createSiteAuditorWorkflow(siteAuditor).getOrCreate();
 
-        return await workflow.getOrCreate();
+        // EXT-25: the role is in place, so the user leaves the SAML default policy of the Business Unit. A failure fails
+        // this request, as a failed role policy does, and the next attempt repeats the idempotent steps.
+        await workflowFactory.createBuSamlDefaultGroupPolicyWorkflow().removeFrom(SiteUserType.SiteAuditor, siteUser);
+
+        return siteUser;
     }
 
     private validateSiteAuditorHasNotAddedToSite(site: Site, siteAuditor: PartialSiteAuditorWithUserId) {
