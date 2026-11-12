@@ -8,7 +8,6 @@ import { SiteUserType } from '../enums';
 import { UserNotFoundException } from '../exceptions';
 import { PartialSiteManager, PartialSiteManagerWithUserId } from '../models';
 import {
-    BuSamlDefaultGroupPolicyWorkflow,
     ManagerAccessGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
     UserGroupPolicyAssignmentWorkflow,
@@ -32,7 +31,6 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         private readonly managerGroupPolicyWorkflow: ManagerGroupPolicyWorkflow,
         private readonly authJumpPolicyWorkflow: AuthJumpPolicyWorkflow,
         private readonly notifyJumpPolicyWorkflow: NotifyJumpPolicyWorkflow,
-        private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow,
     ) {
         this.userGroupPolicyAssignmentWorkflow = new UserGroupPolicyAssignmentWorkflow(
             this.queryBus,
@@ -97,25 +95,6 @@ export class SiteManagerWorkflow implements BaseWorkflow<PartialSiteManagerWithU
         await this.modifyAuthJumpPolicyNotificationEmailAddresses(authJumpPolicy, [this.siteManager.email], []);
         await this.modifyAuthJumpPolicyApprovalUserIds(authJumpPolicy, [siteManagerUser.id.toString()], []);
         await this.modifyNotifyJumpPolicyNotificationEmailAddresses(notifyJumpPolicy, [this.siteManager.email], []);
-
-        // EXT-25: BeyondTrust adds a user of an identity provider to the SAML default policy of its Business Unit at
-        // the first sign-in, so that a BU Admin can find the user. Once the policies of the role are assigned, the user
-        // leaves it, for the customer's Business Unit only. This is the last step: when it fails, the user is reported
-        // with everything else of the role already in place, and the next import tries again.
-        const buSamlDefaultGroupPolicy = await this.buSamlDefaultGroupPolicyWorkflow.getFor(
-            this.siteManager.sourceType,
-        );
-
-        if (buSamlDefaultGroupPolicy) {
-            await this.userGroupPolicyAssignmentWorkflow.modify(
-                SiteUserType.SiteManager,
-                this.siteManager.sourceType,
-                this.siteManager.email,
-                siteManagerUser,
-                [],
-                [buSamlDefaultGroupPolicy.id],
-            );
-        }
 
         return {
             ...this.siteManager,

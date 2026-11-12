@@ -27,7 +27,6 @@ import {
 } from '../models';
 import {
     AdministratorGroupPolicyWorkflow,
-    BuSamlDefaultGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
     MarlinkOperatorGroupPolicyWorkflow,
@@ -60,7 +59,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
     private readonly marlinkOperatorGroupPolicyWorkflow: MarlinkOperatorGroupPolicyWorkflow;
     private readonly marlinkSuperuserGroupPolicyWorkflow: MarlinkSuperuserGroupPolicyWorkflow;
     private readonly buSupportGroupPolicyWorkflow: BuSupportGroupPolicyWorkflow;
-    private readonly buSamlDefaultGroupPolicyWorkflow: BuSamlDefaultGroupPolicyWorkflow;
 
     constructor(
         private readonly appConfigService: AppConfigService,
@@ -189,14 +187,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
             this.customerBeyondtrustInstanceId,
         );
 
-        // One lookup per ingestion run, shared by every role workflow (EXT-25).
-        this.buSamlDefaultGroupPolicyWorkflow = new BuSamlDefaultGroupPolicyWorkflow(
-            this.queryBus,
-            this.transactionId,
-            this.customerBusinessUnit,
-            this.customerBeyondtrustInstanceId,
-        );
-
         this.siteManagerUserWorkflows = this.siteManagers.map(
             (siteManager) =>
                 new SiteManagerUserWorkflow(
@@ -223,7 +213,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.managerGroupPolicyWorkflow,
                     this.authJumpPolicyWorkflow,
                     this.notifyJumpPolicyWorkflow,
-                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
 
@@ -239,7 +228,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.customerBeyondtrustInstanceId,
                     this.administratorGroupPolicyWorkflow,
                     this.operatorGroupPolicyWorkflow,
-                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
 
@@ -257,7 +245,6 @@ export class SiteWorkflow implements BaseWorkflow<SiteWorkflowResult, ErrorRepor
                     this.operatorGroupPolicyWorkflow,
                     this.jumpointsWorkflow,
                     this.buSupportGroupPolicyWorkflow,
-                    this.buSamlDefaultGroupPolicyWorkflow,
                 ),
         );
     }

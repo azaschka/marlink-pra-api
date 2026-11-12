@@ -4,7 +4,6 @@ import { Customer } from '../../../customer/models';
 import { PartialSiteAuditor, PartialSiteManager, PartialSiteSupportTeamMember, Site } from '../../models';
 import {
     AdministratorGroupPolicyWorkflow,
-    BuSamlDefaultGroupPolicyWorkflow,
     BuSupportGroupPolicyWorkflow,
     ManagerGroupPolicyWorkflow,
     OperatorGroupPolicyWorkflow,
@@ -48,7 +47,6 @@ export class WorkflowFactory {
             this.createManagerGroupPolicyWorkflow(),
             this.createAuthJumpPolicyWorkflow(),
             this.createNotifyJumpPolicyWorkflow(),
-            this.createBuSamlDefaultGroupPolicyWorkflow(),
         );
     }
 
@@ -63,7 +61,6 @@ export class WorkflowFactory {
             this.customer.beyondtrustInstanceId,
             this.createAdministratorGroupPolicyWorkflow(),
             this.createOperatorGroupPolicyWorkflow(),
-            this.createBuSamlDefaultGroupPolicyWorkflow(),
         );
     }
 
@@ -82,7 +79,6 @@ export class WorkflowFactory {
             this.createOperatorGroupPolicyWorkflow(),
             this.createJumpointsWorkflow(),
             this.createBuSupportGroupPolicyWorkflow(),
-            this.createBuSamlDefaultGroupPolicyWorkflow(),
         );
     }
 
@@ -154,15 +150,6 @@ export class WorkflowFactory {
 
     private createBuSupportGroupPolicyWorkflow(): BuSupportGroupPolicyWorkflow {
         return new BuSupportGroupPolicyWorkflow(
-            this.queryBus,
-            this.transactionId,
-            this.customer.businessUnit,
-            this.customer.beyondtrustInstanceId,
-        );
-    }
-
-    private createBuSamlDefaultGroupPolicyWorkflow(): BuSamlDefaultGroupPolicyWorkflow {
-        return new BuSamlDefaultGroupPolicyWorkflow(
             this.queryBus,
             this.transactionId,
             this.customer.businessUnit,
