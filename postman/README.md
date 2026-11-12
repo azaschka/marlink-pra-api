@@ -73,7 +73,32 @@ To update the cloud copy after a regeneration: `npm run postman:cloud:login` onc
 
 ## End-of-iteration procedure
 
-Follow `../.github/prompts/refresh-postman-collection.prompt.md`. In short: `npm run postman:generate`, review the printed added, removed and updated operations and the Git diff of `reports/coverage-manifest.json`, decide the export of pending operations, `npm run postman:export:console`, `npm run postman:check`, `npm run postman:test`, optionally `npm run postman:lint`, then commit the pra-api and pra-console changes together under one issue id.
+Refresh the collection at the end of an iteration. Do not edit generated files by hand.
+
+1. Inventory `git status` of pra-api and pra-console. Do not touch changes that are not part of this task.
+2. Run `npm ci` when dependencies changed, then `npm run postman:generate` (add `-- --release-version x.y.z` only when the release version differs from `package.json`).
+3. When the run stops, fix the cause instead of loosening a check:
+
+| Finding | Fix |
+|---|---|
+| `UNCLASSIFIED_COMPONENT`, `UNCLASSIFIED_PARAM_DECORATOR` | Classify the new guard, interceptor, pipe or decorator in `scripts/postman/config/components.config.ts` after reading its code: which credential or header it reads, required or optional. |
+| `UNEXPLAINED_REQUEST_OBJECT`, `UNDOCUMENTED_RESPONSE_OBJECT` | Explain the handler in `collection.config.ts`. |
+| `INVALID_BODY_EXAMPLE`, `INVALID_QUERY_EXAMPLE` | Add a synthetic value in `request-overrides.ts` (`FIELD_EXAMPLES` first, a full body override only when needed). |
+| `ORPHAN_*` | Remove the configuration entries of routes that no longer exist. |
+| `URL_COMPOSITION_CHANGED`, `QUERY_PARSER_CHANGED` | Review `src/main.ts` with the team before adapting the configuration. |
+| `WORKSPACE_BINDING_*` | Repair `.postman/resources.yaml` so that the native collection directory stays bound to its cloud collection. |
+| `CONFLICTING_EXPORT_DECISION` | An approved operation is excluded by a rule; remove the approval. |
+| `CONTROLLER_WITHOUT_DOMAIN` (warning) | Add the controller to a domain folder. |
+
+4. Review the printed added, removed and updated operations and the Git diff of `reports/coverage-manifest.json`. Read the new "Contract notes" in `reports/coverage-summary.md` and report new unauthenticated routes, unenforced validation and Swagger differences. Do not change runtime behaviour to make the documentation easier.
+5. Customer export: list the operations with status `pending-decision` and get a decision for each. Add approved keys to `APPROVED_CUSTOMER_OPERATIONS` (or a reason to `EXCLUDED_CUSTOMER_OPERATIONS`) and regenerate. Never approve an operation behind X-API-Key, under `/access`, in the folders Internal, Discrepancies, and Logs and Monitoring, or of `AppController`.
+6. `npm run postman:export:console` (pra-console checked out next to pra-api, or `-- --console-dir <path>`).
+7. Verify: `npm run postman:check`, `npm run postman:test`, `npm run postman:typecheck`, `npx eslint scripts/postman`, and `npm run postman:lint` when the npm registry is reachable. A second `npm run postman:generate` must report zero written files.
+8. Postman cloud copy (standing approval, 2026-10-12): after the generated files are reviewed and committed, run `npm run postman:cloud:diff`, then `npm run postman:cloud:push`. This needs a Postman API key (`npm run postman:cloud:login`); a session without one asks the user to run the two commands. Use only the default push strategy, never `force-sync`. If the push reports changed generated files, show them instead of committing them.
+9. Update the knowledge base: [operations/postman-collection](../../docs/knowledge/operations/postman-collection.md) and the changelog, and record questions and answers in the implementation log ([conventions](../../docs/knowledge/conventions.md)).
+10. Commit only when asked and with an issue id: one commit in pra-api (generated files, configuration) and one in pra-console (download asset), same id. Never push to git; the Postman cloud collection is updated only through step 8.
+
+Report at the end of the iteration: version and counts (routes, operations, customer export included, excluded, pending), added, removed and updated operations, new contract notes and open export decisions, and the commands run with their results. State that examples were validated locally, not executed against an environment.
 
 ## Limits
 

@@ -2,7 +2,7 @@
 
 This document provides a comprehensive overview of all NestJS modules in the PRA API and their dependencies.
 
-## 📊 Module Dependency Graph
+## Module Dependency Graph
 
 ```
 AppModule (Root)
@@ -100,7 +100,7 @@ AppModule (Root)
     └── Core utilities (shared across all modules)
 ```
 
-## 🔗 Module Categories
+## Module Categories
 
 ### 1. Core Infrastructure Modules
 
@@ -132,7 +132,7 @@ These are foundational NestJS modules that provide system-wide functionality:
     - Pre-startup migrations (`runMigrationsBeforeStartup`)
     - Automatic index creation on startup
     - Idempotent operations
-- **Load Order**: Must be loaded early (before TypeORM initializes other modules)
+- **Load Order**: Loaded early in `AppModule`; the pre-startup scripts run before Nest starts, see [Database Migrations](../DATABASE_MIGRATIONS.md)
 
 #### AuthModule
 
@@ -315,6 +315,22 @@ These are foundational NestJS modules that provide system-wide functionality:
     - Sync operations with batched processing
     - 250ms delays between API calls
 
+#### SocModule
+
+- **Purpose**: Consolidated, read-only SOC projections for the SOC integration (`/soc`), enriched at runtime from existing customer and site data
+- **Scoping**: `CustomersScopeInterceptor`, `SocRequestPipe`
+- **Notes**: Query handlers only; `SocAggregateCacheService` caches aggregates (`SOC_CACHE_TTL_IN_MS`); no schema of its own
+
+#### SessionPolicyModule
+
+- **Purpose**: Session policies, proxied to pra-sync-api (`/session-policies`)
+- **Scoping**: `CustomersScopeInterceptor`, `SessionPolicyRequestPipe`
+
+#### DeploymentModule
+
+- **Purpose**: Container for deployment features; currently `JumpointNodeModule` (`/deployments/jumpoint-nodes`), which forwards to pra-sync-api (Marlink Service Manager) and adds access control and Business Unit scoping
+- **Details**: [jumpoint node deployment](../../../docs/knowledge/domains/jumpoint-node-deployment.md)
+
 ### 7. Business Logic Support
 
 #### EmailModule
@@ -340,7 +356,12 @@ These are foundational NestJS modules that provide system-wide functionality:
 
 - **Purpose**: License usage tracking and reporting
 
-## 🔐 Access Control Flow
+#### MaintenanceModule
+
+- **Purpose**: Destructive data reset (`POST /maintenance/reset-data`, hidden from Swagger), with a preview of the affected tables
+- **Access**: `ApiKeyAuthGuard`, `JwtAuthGuard` and `ResetAuthorizationGuard` (allow-list `RESET_ALLOWED_USERNAMES`)
+
+## Access Control Flow
 
 ### Level 1: AccessGuard
 
@@ -398,7 +419,7 @@ Each domain module has a request pipe that:
 - `UserRequestPipe` - Validates user name contains customer name
 - `JumpClientRequestPipe` - Validates jump client belongs to allowed jump groups
 
-## 📦 Module Load Order
+## Module Load Order
 
 1. **TypeOrmModule** - Database connection
 2. **CqrsModule** - CQRS infrastructure
@@ -411,7 +432,7 @@ Each domain module has a request pipe that:
 9. **Domain modules** - Order doesn't matter (independent)
 10. **Utility modules** - Email, Jobs, Logs, Monitoring
 
-## 🔄 Key Dependencies
+## Key Dependencies
 
 ### Shared by Most Modules
 
@@ -430,7 +451,7 @@ Each domain module has a request pipe that:
 | BeyondtrustInstanceModule | No tenant scoping                                |
 | DiscrepancyModule         | Batched processing utilities                     |
 
-## 🎯 Integration Points
+## Integration Points
 
 ### Database
 
@@ -449,7 +470,7 @@ Each domain module has a request pipe that:
 - **Customer deactivation** → Triggers user login disable via saga
 - **CQRS events** for cross-module workflows
 
-## 📝 Naming Conventions
+## Naming Conventions
 
 ### Entities
 
@@ -467,7 +488,7 @@ Each domain module has a request pipe that:
 - Jump groups must contain customer name
 - Business units directly linked to customers
 
-## 🚀 Adding New Modules
+## Adding New Modules
 
 When adding a new domain module, consider:
 

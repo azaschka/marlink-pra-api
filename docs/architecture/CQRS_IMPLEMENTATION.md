@@ -1,10 +1,10 @@
 # CQRS Implementation Guide
 
-## 📖 Overview
+## Overview
 
 The PRA API implements **CQRS (Command Query Responsibility Segregation)** using NestJS's `@nestjs/cqrs` package. This architectural pattern strictly separates read operations (queries) from write operations (commands), providing clear boundaries and scalability.
 
-## 🎯 Core Principles
+## Core Principles
 
 ### 1. **Command-Query Separation**
 
@@ -31,7 +31,7 @@ Handlers are decoupled from controllers - they're wired via the CommandBus/Query
 - Cross-module communication
 - Event-driven workflows
 
-## 📂 Module Structure
+## Module Structure
 
 Every CQRS module follows this structure:
 
@@ -84,7 +84,7 @@ module-name/
     ]
 ```
 
-## 🔵 Commands (Write Operations)
+## Commands (Write Operations)
 
 ### Command Class
 
@@ -236,7 +236,7 @@ export const CommandHandlers = [
 export class CustomerModule {}
 ```
 
-## 🟢 Queries (Read Operations)
+## Queries (Read Operations)
 
 ### Query Class
 
@@ -305,7 +305,7 @@ export class RetrieveCustomerByIdQueryHandler implements IQueryHandler<RetrieveC
 
 Same pattern as commands - export handlers array and register in module.
 
-## 📢 Events (Domain Events)
+## Events (Domain Events)
 
 ### Event Class
 
@@ -357,7 +357,7 @@ this.eventBus.publish(
 );
 ```
 
-## 🔄 Sagas (Event Orchestration)
+## Sagas (Event Orchestration)
 
 Sagas listen to events and trigger commands, enabling **workflow choreography**.
 
@@ -433,7 +433,7 @@ export class CustomerSaga {
 export class CustomerModule {}
 ```
 
-## 🔀 Workflows (Complex Business Processes)
+## Workflows (Complex Business Processes)
 
 For multi-step processes that don't fit in a single handler, use workflows.
 
@@ -498,7 +498,7 @@ export class AdministratorGroupPolicyWorkflow {
 - ✅ Use workflows in command handlers, not directly in controllers
 - ✅ Keep workflows idempotent when possible
 
-## 🎮 Controller Integration
+## Controller Integration
 
 Controllers orchestrate CQRS operations via buses.
 
@@ -576,7 +576,7 @@ export class CustomerController {
 - ✅ Transform domain models to DTOs before returning
 - ✅ Use DTO static factory methods: `DtoOutput.from(model)`
 
-## 🎯 Common Patterns
+## Common Patterns
 
 ### Pattern 1: Simple CRUD
 
@@ -705,7 +705,7 @@ export class DisableUsersLoginCommandHandler {
 }
 ```
 
-## ✅ Best Practices Summary
+## Best Practices Summary
 
 ### Commands
 
@@ -752,18 +752,19 @@ export class DisableUsersLoginCommandHandler {
 - ✅ Transform models to DTOs
 - ✅ Apply guards, interceptors, pipes
 
-## 🚀 Adding New CQRS Operations
+## Adding New CQRS Operations
 
-See [Adding New Module Guide](../guides/ADDING_NEW_MODULE.md) for step-by-step instructions.
+See [Adding New Module Guide](../guides/ADDING_NEW_MODULE.md) for step-by-step instructions, including the procedure for a new endpoint in an existing module.
 
-## 📚 Related Documentation
+## Related Documentation
 
 - [Module Dependencies](./MODULE_DEPENDENCIES.md)
 - [System Overview](./SYSTEM_OVERVIEW.md)
-- [Developer Quick Start](../guides/QUICK_START.md) (to be created)
+- [Developer Quick Start](../guides/QUICK_START.md)
+- [Adding a module, endpoint or contract change](../guides/ADDING_NEW_MODULE.md)
+- [AGENTS.md](../../AGENTS.md) (hard rules for this repository)
 
-## 📖 External Resources
+## External Resources
 
 - [NestJS CQRS Documentation](https://docs.nestjs.com/recipes/cqrs)
 - [CQRS Pattern (Martin Fowler)](https://martinfowler.com/bliki/CQRS.html)
-- [Event Sourcing Basics](https://martinfowler.com/eaaDev/EventSourcing.html)

@@ -1,42 +1,40 @@
 # Quick Start Guide
 
-Welcome to the Marlink PRA API! This guide will help you get up and running quickly.
+Set up pra-api locally, run it and make a first call. Repository rules for agents and contributors are in [AGENTS.md](../../AGENTS.md); the architecture is described in [System Overview](../architecture/SYSTEM_OVERVIEW.md).
 
-## 🚀 Prerequisites
+## Prerequisites
 
-- **Node.js** 18+ (LTS recommended)
-- **npm** 8+
-- **MariaDB/MySQL** 10.5+ (or Docker for local development)
-- **Git** for version control
+- Node.js 24.22.1, the release pinned in the `Dockerfile` (the Node.js release decides which TLS root CAs the service trusts; do not use a floating tag)
+- npm
+- MariaDB 10.x (the Docker container started by `npm run db:start:local` is the intended local setup)
+- Git
 
-## 📦 Installation
+pra-api needs a running [pra-sync-api](https://github.com/azaschka/marlink-pra-sync-api) for every operation that touches BeyondTrust. Both services use the same database.
 
-### 1. Clone the Repository
+## Installation
 
 ```bash
-git clone <repository-url>
-cd pra-api
+git clone https://github.com/azaschka/marlink-pra-api.git
+cd marlink-pra-api
+npm ci
 ```
 
-### 2. Install Dependencies
+Inside the `pra-platform` workspace the repository is already checked out as `pra-api/`.
+
+## Environment variables
+
+The environment file is `environments/.env` (path set in `src/app-config/app-config.module.ts`). It is ignored by git, as are `.local.env` and `*.local.env`. Every value is read through `AppConfigService`: environment variable first, then the default in `src/app-config/consts/default-app-config.const.ts`. Values for DEV, PP and PROD are not stored in this repository.
+
+Minimal local file:
 
 ```bash
-npm install
-```
-
-### 3. Set Up Environment Variables
-
-Create a `.env` file in the project root:
-
-```bash
-# Environment
+# Environment ("production" or "prod" turns TypeORM synchronize off)
 ENV=development
 
-# Server
+# Server (main.ts falls back to 3001 when PORT is unset)
 PORT=9000
 
 # Database
-DB_TYPE=mariadb
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
@@ -48,33 +46,34 @@ PRA_API_KEY=your-api-key-here
 JWT_SECRET=your-jwt-secret-here
 JWT_EXPIRY=24h
 
-# Fallback Admin (Emergency Access)
-AUTH_FALLBACK_ADMIN_ENABLED=false
-AUTH_FALLBACK_ADMIN_USERNAME=
-AUTH_FALLBACK_ADMIN_PASSWORD_HASH=
-
-# External API
+# Downstream and console URLs
 PRA_SYNC_API_BASE_URL=http://localhost:9001
+HEALTH_PING_CHECK_PRA_SYNC_API_URL=http://localhost:9001/health
 BEYONDTRUST_CONSOLE_URL=https://your-instance.beyondtrustcloud.com
+PRA_ADMIN_CONSOLE_URL=http://localhost:4200/
 
-# Email (Optional)
+# Email (optional)
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_USERNAME=your-smtp-username
 SMTP_PASSWORD=your-smtp-password
 
-# Throttling
+# Rate limiting (defaults shown)
 THROTTLE_IS_ENABLED=true
 THROTTLE_TTL_IN_MS=60000
 THROTTLE_LIMIT=1500
+```
 
-# Calls to the Sync API (optional, defaults shown)
+Optional tuning (defaults shown):
+
+```bash
+# Calls to pra-sync-api
 PRA_SYNC_API_TIMEOUT_IN_MS=300000
 PRA_SYNC_API_SCAN_TIMEOUT_IN_MS=1500000
 PRA_SYNC_API_FILE_TRANSFER_TIMEOUT_IN_MS=1800000
 PRA_SYNC_API_DOWNLOAD_IDLE_TIMEOUT_IN_MS=120000
 
-# Retention and observability (optional, defaults shown)
+# Retention and observability
 LOG_RETENTION_DAYS=90
 MONITORING_RETENTION_DAYS=90
 CRON_JOB_LOG_RETENTION=17 * * * *
@@ -84,401 +83,139 @@ HEALTH_MEMORY_HEAP_USAGE_THRESHOLD_IN_MB=512
 HEALTH_DISK_STORAGE_USAGE_THRESHOLD_IN_PERCENT=80
 ```
 
-All numeric values are validated at startup; an invalid value falls back to the default and is reported once. Set `RETENTION_DISTRIBUTED_LOCK_ENABLED=false` on Galera (no `GET_LOCK`). Keep `CRON_JOB_LOG_RETENTION` hourly: a daily schedule lets rows reach 91 days.
+Notes:
 
-### 4. Start Local Database
+- Numeric values are validated at startup; an invalid value falls back to the default and is reported once.
+- Set `RETENTION_DISTRIBUTED_LOCK_ENABLED=false` on Galera (no `GET_LOCK`). Keep `CRON_JOB_LOG_RETENTION` hourly: a daily schedule lets rows reach 91 days.
+- The fallback admin (emergency access) is not configurable through environment variables. Its enabled flag, username and bcrypt hash are defaults in `DefaultAppConfig`. Create a hash with `node scripts/generate-fallback-admin-hash.js "<password>"`.
 
-Using Docker:
+## Database
 
 ```bash
 npm run db:start:local
 ```
 
-Or manually start MariaDB on port 3306.
+or start any MariaDB 10.x on port 3306 and create the database named in `DB_NAME`.
 
-### 5. Run Migrations
+Schema handling at startup:
 
-Migrations run automatically on startup, but you can verify:
+1. Hand-written pre-startup scripts run first (`src/migration/run-migrations-before-startup.ts`). Errors are logged and the startup continues.
+2. Outside production TypeORM `synchronize` creates and alters tables from the entities.
+3. In production `MigrationService` creates missing indexes from the entity metadata.
 
-```bash
-# Migrations are executed in main.ts before NestFactory.create()
-npm run start:dev
-```
+Details: [Database Migrations](../DATABASE_MIGRATIONS.md).
 
-The automatic migration system will:
-
-- Run pre-startup migrations (if any)
-- Create missing indexes based on TypeORM entities
-- Run `ANALYZE TABLE` for query optimization
-
-## 🏃 Running the Application
-
-### Development Mode (Watch Mode)
+## Running
 
 ```bash
-npm run start:dev
+npm run start:dev      # watch mode
+npm run start:debug    # debugger on port 9229
+npm run build && npm run start:prod
 ```
 
-Application will be available at `http://localhost:9000`
+Swagger UI: `http://localhost:9000/open-api` (host and port as configured). Routes hidden from Swagger are covered by the generated Postman collection ([postman/README.md](../../postman/README.md)).
 
-### Debug Mode
+## Tests and quality checks
 
 ```bash
-npm run start:debug
+npx jest                                    # unit tests (npm run test:cov for coverage in coverage/)
+npx tsc -p tsconfig.build.json --noEmit     # type check
+npx eslint <changed files>                  # lint; npm run lint runs --fix on the whole repository
+npm run test:e2e                            # e2e suite in test/
 ```
 
-Attach debugger on port 9229
+## Authentication
 
-### Production Mode
+| Method | Used for | How |
+|---|---|---|
+| `X-Access-Key` header | Most endpoints (`AccessGuard`) | Key with its business units, stored in `pra_access` |
+| `X-API-Key` header | Service-to-service and console-only routes | Value of `PRA_API_KEY` |
+| JWT | PRA admin sessions | `POST /auth/login` returns a token; send `Authorization: Bearer <token>` |
+| Fallback admin | Emergency access | Defaults in `DefaultAppConfig`, see above |
+
+Which route uses which scheme is listed per request in the generated [coverage report](../../postman/reports/coverage-summary.md).
+
+## First calls
+
+Health (no authentication):
 
 ```bash
-npm run build
-npm run start:prod
+curl http://localhost:9000/health
 ```
 
-## 📚 API Documentation
+The response has an `overallStatus` (`healthy`, `degraded` with HTTP 200 for a warning or a non-critical failure such as an unreachable pra-sync-api, `unavailable` with HTTP 503 only when the database is down) and a `checks` map. The legacy `status`, `info`, `error` and `details` fields are kept for older consumers. Probes: liveness `/health/live`, readiness `/health/ready` (database only).
 
-Once running, access Swagger documentation at:
-
-```
-http://localhost:9000/open-api
-```
-
-**Features**:
-
-- Interactive API explorer
-- Request/response schemas
-- "Try it out" functionality
-- Complete endpoint documentation
-
-## 🧪 Running Tests
-
-### Unit Tests
+A scoped read. `X-Tenant-Id` is the BeyondTrust instance id, never a customer id:
 
 ```bash
-npm run test
+curl "http://localhost:9000/users?publicDisplayNamePatterns=%Acme%" \
+  -H "X-Access-Key: your-api-key" \
+  -H "X-Tenant-Id: 1"
 ```
 
-### End-to-End Tests
-
-```bash
-npm run test:e2e
-```
-
-### Coverage Report
-
-```bash
-npm run test:cov
-```
-
-Coverage reports are generated in `coverage/` directory.
-
-## 🔐 Authentication
-
-The API uses multiple authentication strategies:
-
-### 1. API Key Authentication (Most Endpoints)
-
-Add header to requests:
-
-```bash
-X-Access-Key: your-api-key
-```
-
-### 2. JWT Authentication (Alternative)
-
-```bash
-# Login to get JWT token
-POST /auth/login
-{
-  "username": "your-username",
-  "password": "your-password"
-}
-
-# Use token in subsequent requests
-Authorization: Bearer <jwt-token>
-```
-
-### 3. Fallback Admin (Emergency Access)
-
-Configured via environment variables - see Emergency Access section below.
-
-## 🎯 Your First API Call
-
-### Example: Retrieve Health Status
-
-```bash
-curl -X GET http://localhost:9000/health
-```
-
-Expected response (shortened; the legacy `status`, `info`, `error` and `details` fields are kept for older consumers):
-
-```json
-{
-    "status": "ok",
-    "details": {
-        "database": { "status": "up" },
-        "storage": { "status": "up" },
-        "memoryHeap": { "status": "up" },
-        "praSyncApi": { "status": "up" }
-    },
-    "overallStatus": "healthy",
-    "service": "pra-api",
-    "checks": {
-        "database": { "status": "up", "critical": true, "latencyMs": 3 },
-        "praSyncApi": { "status": "up", "critical": false, "reachable": true, "remoteOverallStatus": "healthy" }
-    }
-}
-```
-
-`overallStatus` is `degraded` (HTTP 200) for a warning or a non-critical failure, for example an unreachable Sync API, and `unavailable` (HTTP 503) only when the database is down. Probes: liveness `/health/live`, readiness `/health/ready`.
-
-### Example: Create a Customer (Business Unit Scoped)
+A write (business unit scoped) with a correlation id:
 
 ```bash
 curl -X POST http://localhost:9000/customers \
   -H "Content-Type: application/json" \
   -H "X-Access-Key: your-api-key" \
   -H "X-Transaction-Id: $(uuidgen)" \
-  -d '{
-    "key": "CUST001",
-    "name": "Acme Corporation",
-    "businessUnit": "BU1",
-    "beyondtrustInstanceId": 1
-  }'
+  -d '{ "key": "CUST001", "name": "Acme Corporation", "businessUnit": "BU1", "beyondtrustInstanceId": 1 }'
 ```
 
-### Example: Retrieve Users (Customer Scoped)
+The exact DTOs are in Swagger and in the Postman collection.
 
-```bash
-curl -X GET "http://localhost:9000/users?publicDisplayNamePatterns=%Acme%" \
-  -H "X-Access-Key: your-api-key" \
-  -H "X-Tenant-Id: 1"
-```
-
-## 📂 Project Structure Overview
+## Project structure
 
 ```
 src/
-├── access/              # Access control (API keys, business units)
-├── auth/                # Authentication (JWT, local, fallback admin)
-├── customer/            # Customer/tenant management
-├── user/                # BeyondTrust user management
-├── team/                # Team management
-├── site/                # Site hierarchies
-├── jump-group/          # Jump group management
-├── jumpoint/            # Jumpoint management
-├── jump-item/           # Jump items (RDP, VNC, SSH, Web, Protocol Tunnel)
-├── group-policy/        # Group policy management
-├── app-config/          # Configuration service
-├── health/              # Health checks
-├── monitoring/          # Endpoint tracking
-├── log/                 # Exception logging
-├── email/               # Email service
-├── migration/           # Database migrations
-├── shared/              # Shared utilities
-└── types/               # TypeScript type extensions
+├── access/ auth/ app-config/   access keys and business units, authentication, configuration
+├── customer/ site/ user/ team/ domain modules (CQRS: controllers, commands, queries, dtos, ...)
+├── jump-group/ jumpoint/ jump-client/ jump-item/ jump-policy/ session-policy/
+├── group-policy*/ user-group-policy/ team-user/ beyondtrust-instance*/
+├── soc/ deployment/ discrepancy/ license-usage/
+├── health/ log/ monitoring/ retention/ observability/ outbound-http/ job/
+├── email/ maintenance/ migration/
+└── core/ shared/ types/        cross-cutting commands, queries, services, filters, pipes
 ```
 
-## 🛠️ Development Workflow
+Module relationships: [Module Dependencies](../architecture/MODULE_DEPENDENCIES.md).
 
-### 1. Create a New Branch
+## Development workflow
+
+1. Create a feature branch from `develop`.
+2. Follow the conventions in [AGENTS.md](../../AGENTS.md): CQRS split, tenant and scope safety, additive contracts, a unit test next to every changed file.
+3. For a new module or endpoint follow [Adding New Module](./ADDING_NEW_MODULE.md).
+4. Run the checks above. Regenerate the Postman collection after route, guard, header or DTO changes.
+5. Commit as `<ID>: <imperative summary>`. Pushing and merging are done by the maintainer.
+
+## Debugging
+
+- Correlation: send `X-Transaction-Id`; it appears in the system log entries of the request.
+- System log: table `pra_logs`; request statistics: table `pra_monitorings` (both written asynchronously through a bounded buffer, see [System Overview](../architecture/SYSTEM_OVERVIEW.md)).
+- Query logging: set `logging: true` in the `database` getter of `src/app-config/services/app-config.service.ts` for a local run only; do not commit it.
+
+## Common issues
+
+| Symptom | Check |
+|---|---|
+| Database connection fails | Database running, credentials in `environments/.env`, database `DB_NAME` exists. |
+| `Cannot find module` | `rm -rf node_modules && npm ci`. |
+| Port in use | Change `PORT`; find the process with `lsof -i :9000`. |
+| Index or script migration did not run | Read the startup log; pre-startup scripts log and continue on error. |
+| Timeout towards pra-sync-api | `PRA_SYNC_API_BASE_URL` reachable, pra-sync-api running; adjust the `PRA_SYNC_API_*_TIMEOUT_IN_MS` values. A timeout answers 504. |
+
+## Security notes
+
+- Never commit environment files; use separate keys per environment.
+- Production values come from Kubernetes secrets; see [environments and delivery](../../../docs/knowledge/operations/environments-and-delivery.md).
+- Keep throttling enabled in production, use a JWT secret of at least 32 characters and set `ENV=production` so that `synchronize` stays off.
+
+## Build and delivery
 
 ```bash
-git checkout -b feature/your-feature-name
+npm run docker:build:api    # image build
+npm run publish:api         # build, tag, log in to the registry, push
 ```
 
-### 2. Make Changes
-
-Follow the project conventions:
-
-- Use CQRS pattern for all domain operations
-- Add guards, interceptors, and pipes for access control
-- Create DTOs for all request/response payloads
-- Write tests for new features
-
-### 3. Run Tests
-
-```bash
-npm run test
-npm run test:e2e
-```
-
-### 4. Check Linting
-
-```bash
-npm run lint
-```
-
-### 5. Commit and Push
-
-```bash
-git add .
-git commit -m "feat: add new feature description"
-git push origin feature/your-feature-name
-```
-
-### 6. Create Pull Request
-
-Follow project contribution guidelines.
-
-## 🔍 Debugging Tips
-
-### Enable Database Query Logging
-
-In `src/app-config/services/app-config.service.ts`:
-
-```typescript
-public get database(): TypeOrmModuleOptions {
-    return {
-        // ... other config
-        logging: true,  // Enable query logging
-    };
-}
-```
-
-### Check Transaction IDs
-
-All requests generate a transaction ID for correlation:
-
-```bash
-# Include in request
-X-Transaction-Id: your-uuid
-
-# Or let API generate one
-# Check logs for: [transaction-id] prefix
-```
-
-### View Exception Logs
-
-```bash
-# Query exception logs table
-SELECT * FROM pra_exception_logs ORDER BY creation_date DESC LIMIT 10;
-```
-
-### Monitor Endpoint Access
-
-```bash
-# Query monitoring table
-SELECT * FROM pra_monitorings ORDER BY creation_date DESC LIMIT 10;
-```
-
-## 🆘 Common Issues
-
-### Issue: Database Connection Failed
-
-**Error**: `Unable to connect to the database`
-
-**Solution**:
-
-1. Verify database is running: `docker ps` or `mysql -u root -p`
-2. Check `.env` database credentials
-3. Ensure database name exists: `CREATE DATABASE pra;`
-4. Check connection settings in logs
-
-### Issue: Module Not Found
-
-**Error**: `Cannot find module '@nestjs/...'`
-
-**Solution**:
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Issue: Port Already in Use
-
-**Error**: `Port 9000 is already in use`
-
-**Solution**:
-
-```bash
-# Find process using port
-lsof -i :9000
-
-# Kill process
-kill -9 <PID>
-
-# Or change port in .env
-PORT=9001
-```
-
-### Issue: Migrations Not Running
-
-**Solution**:
-
-- Migrations run automatically on startup
-- Check logs for migration errors
-- Verify database connection before app starts
-- Migration system creates indexes based on TypeORM metadata
-
-### Issue: External API Timeouts
-
-**Error**: `Timeout of 300000ms exceeded`
-
-**Solution**:
-
-1. Check `PRA_SYNC_API_BASE_URL` is accessible
-2. Verify external API is running
-3. Check network connectivity
-4. Review batched processing delays (250ms between calls)
-
-## 🔒 Security Best Practices
-
-### Development Environment
-
-- ✅ Use strong passwords in `.env`
-- ✅ Never commit `.env` to git
-- ✅ Use separate API keys for dev/staging/prod
-- ✅ Keep fallback admin disabled unless needed
-
-### Production Environment
-
-- ✅ Use environment variables (K8s secrets)
-- ✅ Enable throttling (`THROTTLE_IS_ENABLED=true`)
-- ✅ Use strong JWT secrets (32+ characters)
-- ✅ Set `ENV=production` to disable auto-sync
-- ✅ Use TLS for database connections
-- ✅ Rotate API keys regularly
-
-## 🚢 Deployment
-
-### Docker Build
-
-```bash
-npm run docker:build:api
-```
-
-### Kubernetes Deployment
-
-See `k8s/deployment.yaml` for reference manifest:
-
-- Health probes configured
-- Resource limits set
-- Graceful shutdown enabled
-- Pod anti-affinity for HA
-
-**Key configurations**:
-
-```yaml
-livenessProbe:
-    httpGet:
-        path: /health/live
-        port: 9000
-    initialDelaySeconds: 60
-
-readinessProbe:
-    httpGet:
-        path: /health/ready
-        port: 9000
-    initialDelaySeconds: 30
-
-resources:
-    requests:
-        memory: '512Mi'
-        cpu: '500m'
-    limits:
-        memory: '2Gi'
-        cpu: '2000m'
-```
+Container probes: liveness `/health/live`, readiness `/health/ready`. Deployment manifests and the delivery path are not part of this repository; see [environments and delivery](../../../docs/knowledge/operations/environments-and-delivery.md).

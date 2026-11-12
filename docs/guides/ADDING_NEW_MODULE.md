@@ -2,16 +2,16 @@
 
 This guide provides step-by-step instructions for adding a new domain module to the PRA API following established patterns and conventions.
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before creating a new module, ensure you understand:
 
 - **[CQRS Pattern](../architecture/CQRS_IMPLEMENTATION.md)** - Command/Query separation
-- **[Access Control Flow](../../.github/copilot-instructions.md#access-control--authorization-architecture)** - Multi-layered security
+- **[Access Control Flow](../architecture/MODULE_DEPENDENCIES.md)** - Multi-layered security (AccessGuard, scope interceptors, request pipes)
 - **[Module Structure](../architecture/MODULE_DEPENDENCIES.md)** - Standard module organization
 - Review existing modules (e.g., `src/customer/`, `src/user/`) as references
 
-## 🎯 Step 1: Define Module Requirements
+## Step 1: Define Module Requirements
 
 Answer these questions before starting:
 
@@ -42,7 +42,7 @@ Answer these questions before starting:
 - [ ] Delete (DELETE)
 - [ ] Custom operations (e.g., activate/deactivate)
 
-## 🏗️ Step 2: Create Module Structure
+## Step 2: Create Module Structure
 
 Create the following directory structure:
 
@@ -103,7 +103,7 @@ src/
             └── entity-repository.service.ts
 ```
 
-## 📝 Step 3: Create Domain Model
+## Step 3: Create Domain Model
 
 Define the domain interface that represents your entity.
 
@@ -119,7 +119,7 @@ export interface Entity {
 }
 ```
 
-## 🗄️ Step 4: Create Database Entity (If Needed)
+## Step 4: Create Database Entity (If Needed)
 
 If storing data in the database, create TypeORM entity.
 
@@ -170,7 +170,7 @@ export class EntityEntity implements EntityModel {
 - Always include `creation_date` and `last_modification_date`
 - Provide static factory methods `create()` and `createWithoutId()`
 
-## 🧩 Step 5: Create Repository Service (If Needed)
+## Step 5: Create Repository Service (If Needed)
 
 **File**: `src/entity-name/repositories/services/entity-repository.service.ts`
 
@@ -210,7 +210,7 @@ export class EntityRepositoryService {
 }
 ```
 
-## 🔷 Step 6: Create Commands
+## Step 6: Create Commands
 
 ### 6.1 Define Command Classes
 
@@ -307,7 +307,7 @@ import { DeleteEntityCommandHandler } from './delete-entity.command-handler';
 export const CommandHandlers = [CreateEntityCommandHandler, ModifyEntityCommandHandler, DeleteEntityCommandHandler];
 ```
 
-## 🟢 Step 7: Create Queries
+## Step 7: Create Queries
 
 ### 7.1 Define Query Classes
 
@@ -368,7 +368,7 @@ import { RetrieveEntityByIdQueryHandler } from './retrieve-entity-by-id.query-ha
 export const QueryHandlers = [RetrieveEntitiesQueryHandler, RetrieveEntityByIdQueryHandler];
 ```
 
-## 🎮 Step 8: Create Controller
+## Step 8: Create Controller
 
 **File**: `src/entity-name/controllers/entity.controller.ts`
 
@@ -522,7 +522,7 @@ Choose decorators based on scoping:
 | Jump Group      | `@UseGuards(AccessGuard)` + `@UseInterceptors(CustomersScopeInterceptor, JumpGroupsScopeInterceptor)` |
 | No Scoping      | No guards/interceptors                                                                                |
 
-## 🛡️ Step 9: Create Request Pipe
+## Step 9: Create Request Pipe
 
 The request pipe validates scoping and auto-populates filters.
 
@@ -574,7 +574,7 @@ export class EntityRequestPipe implements PipeTransform {
 }
 ```
 
-## 📦 Step 10: Create DTOs
+## Step 10: Create DTOs
 
 ### Input DTOs
 
@@ -624,7 +624,7 @@ export class EntityRetrievedDtoOutput {
 }
 ```
 
-## 🔧 Step 11: Create Module
+## Step 11: Create Module
 
 **File**: `src/entity-name/entity-name.module.ts`
 
@@ -663,7 +663,7 @@ import { EntityRepositoryService } from './repositories/services';
 export class EntityNameModule {}
 ```
 
-## 📲 Step 12: Register in AppModule
+## Step 12: Register in AppModule
 
 **File**: `src/app.module.ts`
 
@@ -679,7 +679,7 @@ import { EntityNameModule } from './entity-name/entity-name.module';
 export class AppModule {}
 ```
 
-## ✅ Step 13: Test Your Module
+## Step 13: Test Your Module
 
 ### Manual Testing
 
@@ -736,7 +736,7 @@ describe('CreateEntityCommandHandler', () => {
 });
 ```
 
-## ✅ Checklist
+## Checklist
 
 Before considering your module complete:
 
@@ -752,9 +752,37 @@ Before considering your module complete:
 - [ ] Module registered in AppModule
 - [ ] Endpoints tested manually
 - [ ] Unit tests written
-- [ ] Module documented in `/docs/modules/`
+- [ ] Module added to [Module Dependencies](../architecture/MODULE_DEPENDENCIES.md)
+- [ ] Route, guard, header or DTO changes: Postman collection regenerated (`npm run postman:generate`, `npm run postman:check`)
 
-## 📖 Related Documentation
+## Adding an endpoint to an existing module
+
+Use this procedure when the module already exists. Hard rules (CQRS split, tenant and scope safety, boundaries) are in [AGENTS.md](../../AGENTS.md); this section only lists the work.
+
+1. Read the neighbouring controller, handlers and pipe of the same module and reuse their decorators, guards, interceptors and request pipes before adding an abstraction.
+2. Add the input and output DTOs (`dtos/inputs`, `dtos/outputs`) with validation and Swagger decorators. Naming: Create, Retrieve, Modify, Delete.
+3. Add the command or query class and its handler in the matching folder, and register the handler in the module's `CommandHandlers` or `QueryHandlers` array. A handler that is not in the providers is never discovered.
+4. Add the controller route. The controller stays thin: validate the DTO, read headers through the existing decorators (`ApiTenantIdHeader`, `TenantIdHeader`, transaction id), dispatch through `CommandBus` or `QueryBus`.
+5. Keep access and scope enforcement in place: `AccessGuard`, the module's scope interceptors and request pipe. If a repository filter changed, add or update a test that asserts the scope or tenant isolation.
+6. Propagate `tenantId` and the transaction id from the controller through the command or query to every service, repository and pra-sync-api call. Never default or re-derive the tenant.
+7. Add a unit test next to each changed file (`*.spec.ts`).
+8. Verify: `npx eslint <changed files>`, `npx jest <path>`, `npx tsc -p tsconfig.build.json --noEmit`, and `npm run build` when module wiring changed.
+9. Regenerate the Postman collection (`npm run postman:generate`, `npm run postman:check`); a new guard, interceptor, pipe or parameter decorator must be classified first. See [postman/README.md](../../postman/README.md).
+
+Report the result as: files changed with one line of purpose each, why the CQRS split is correct, the scope and tenant checks applied, tests added or updated, and the commands run with their outcome.
+
+## Changing an API contract
+
+A contract change is any change to a path, method, required or optional header, request or response DTO, status code, error shape, authentication or authorization behaviour, or a configuration key that another repository reads.
+
+1. Classify the change as compatible, partially compatible or breaking. Prefer additive changes: the console and the SOC integration consume the response DTOs. A breaking change needs an approved and versioned plan and a documented migration impact.
+2. Implement it with the same rules as a new endpoint: validation in the DTO, behaviour in handlers, scope and tenant flow explicit from controller to downstream call, controllers thin.
+3. Keep the boundaries: pra-api is the public contract owner for the console; BeyondTrust integration belongs in pra-sync-api, UI shaping belongs in the console.
+4. Apply the [cross-repository contract checklist](../../../docs/knowledge/cross-repo-contracts.md): mark the change as coupled, name the impacted repositories, state the rollout order and the supported mixed versions, and list the test evidence per boundary.
+5. Regenerate the Postman collection (see above).
+6. Report: files changed with purpose, contract deltas (headers, request and response DTOs, error and status behaviour), the checks applied, validation commands and outcomes, and the follow-up work per repository.
+
+## Related Documentation
 
 - [CQRS Implementation](../architecture/CQRS_IMPLEMENTATION.md)
 - [Module Dependencies](../architecture/MODULE_DEPENDENCIES.md)
