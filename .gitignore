@@ -1,10 +1,21 @@
-# compiled output
-/dist
+# Dependencies
 /node_modules
-/build
 
-# TypeScript incremental build cache
+# Build output
+/dist
+/build
 *.tsbuildinfo
+
+# Tests and coverage
+/coverage
+/.nyc_output
+
+# Environment files (never commit local environment values)
+.env
+.env.local
+.env.*.local
+.local.env
+*.local.env
 
 # Logs
 logs
@@ -12,24 +23,24 @@ logs
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 lerna-debug.log*
 
-# OS
-.DS_Store
+# Runtime data and diagnostic reports
+pids
+*.pid
+*.seed
+*.pid.lock
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# Tests
-/coverage
-/.nyc_output
+# Temporary files
+.temp
+.tmp
+
+# OS files
+.DS_Store
 
 # IDEs and editors
 /.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
 
 # IDE - VSCode
 .vscode/*
@@ -41,31 +52,3 @@ lerna-debug.log*
 # IDE - Zed
 .zed/*
 !.zed/settings.json
-
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
-# temp directory
-.temp
-.tmp
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-.local.env
-.github/*
-!.github/instructions/
-!.github/instructions/*.md
-!.github/prompts/
-!.github/prompts/*.md
-!.github/copilot-instructions.md
-!.github/CROSS_REPO_CONTRACT_CHECKLIST.md
